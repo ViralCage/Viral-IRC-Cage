@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Bagchal (Tigers and Goats)</title>
+    <title>Viral Cage Play — Free Online Multiplayer Strategy Games</title>
+    <meta name="description" content="Play BaghChal, Chess, Checkers, Four Connect, Tic-Tac-Toe and Dots & Boxes online or against AI. Create a room and challenge a friend on Viral Cage Play.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0f1d">
+    <link rel="canonical" href="https://play.viralcage.com/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23131c32'/%3E%3Ctext x='32' y='39' font-size='22' font-family='Arial' font-weight='800' text-anchor='middle' fill='%23a995ff'%3EVC%3C/text%3E%3C/svg%3E">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Viral Cage Play">
+    <meta property="og:title" content="Viral Cage Play — Free Online Strategy Games">
+    <meta property="og:description" content="Play classic strategy games online with friends or challenge the AI.">
+    <meta property="og:url" content="https://play.viralcage.com/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Viral Cage Play — Free Online Strategy Games">
+    <meta name="twitter:description" content="Play BaghChal, Chess, Checkers and more online or against AI.">
     <style>
         /* Scoped wrapper isolated specifically for Blogger.com post bodies */
         #bagchal-blogger-container {
@@ -74,6 +87,35 @@
             border-radius: 0 !important;
             background: #fff;
             box-shadow: none;
+        }
+        /* Fullscreen is for playing: hide the site theme and game-selection area so the arena is at the top. */
+        #bagchal-blogger-container:fullscreen > .game-topbar,
+        #bagchal-blogger-container.fullscreen-fallback > .game-topbar,
+        #bagchal-blogger-container:fullscreen > .vc-network-strip,
+        #bagchal-blogger-container.fullscreen-fallback > .vc-network-strip,
+        #bagchal-blogger-container:fullscreen > .vc-portal-hero,
+        #bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero,
+        #bagchal-blogger-container:fullscreen > .vc-section-heading,
+        #bagchal-blogger-container.fullscreen-fallback > .vc-section-heading,
+        #bagchal-blogger-container:fullscreen > .vc-mode-picker,
+        #bagchal-blogger-container.fullscreen-fallback > .vc-mode-picker,
+        #bagchal-blogger-container:fullscreen > .vc-portal-footer,
+        #bagchal-blogger-container.fullscreen-fallback > .vc-portal-footer {
+            display: none !important;
+        }
+        #bagchal-blogger-container:fullscreen,
+        #bagchal-blogger-container.fullscreen-fallback {
+            background: #080d18 !important;
+            color: #edf2ff !important;
+        }
+        #bagchal-blogger-container:fullscreen .vc-arena-heading,
+        #bagchal-blogger-container.fullscreen-fallback .vc-arena-heading {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        #bagchal-blogger-container:fullscreen .board-container,
+        #bagchal-blogger-container.fullscreen-fallback .board-container {
+            scroll-margin-top: 0 !important;
         }
         html.bagchal-fullscreen-active,
         body.bagchal-fullscreen-active {
@@ -1220,96 +1262,201 @@
     }
     @media (prefers-reduced-motion:reduce) { #bagchal-blogger-container #playerChat, #bagchal-blogger-container #chatPopupToggle, #bagchal-blogger-container #chatForm button { animation:none !important; transition:none !important; } }
 
+
+/* Connection state and accessible legal/instructions panel */
+#bagchal-blogger-container .vc-network-strip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 14px;padding:8px 11px;border:1px solid #26344f;border-radius:11px;background:rgba(13,22,38,.82);color:#aebbd2;font-size:11px}
+#bagchal-blogger-container .vc-network-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#eab308;box-shadow:0 0 0 3px rgba(234,179,8,.12)}
+#bagchal-blogger-container .vc-network-dot.is-online{background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.12)}
+#bagchal-blogger-container .vc-network-dot.is-offline{background:#fb7185;box-shadow:0 0 0 3px rgba(251,113,133,.12)}
+#bagchal-blogger-container #vcReconnectBtn{margin-left:auto;border:1px solid #39496a;border-radius:8px;padding:5px 9px;background:#17243a;color:#e6ebfa;font-size:10px;font-weight:800;cursor:pointer}
+#bagchal-blogger-container .vc-legal-links{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+#bagchal-blogger-container .vc-legal-links button{padding:0;border:0;background:transparent;color:#b8adff;text-decoration:none;font-size:10px;font-weight:800;cursor:pointer}
+#bagchal-blogger-container .vc-legal-links button:hover{text-decoration:underline}
+#bagchal-blogger-container #vcLegalModal[hidden]{display:none!important}
+#bagchal-blogger-container #vcLegalModal{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(2,6,18,.82);backdrop-filter:blur(8px)}
+#bagchal-blogger-container .vc-legal-sheet{width:min(820px,100%);max-height:min(88dvh,900px);overflow:auto;border:1px solid #33415f;border-radius:18px;background:#0c1424;color:#dce5f7;box-shadow:0 28px 90px rgba(0,0,0,.5);padding:clamp(16px,3vw,28px)}
+#bagchal-blogger-container .vc-legal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+#bagchal-blogger-container .vc-legal-head h2{margin:0;color:#f3f5ff;font-size:clamp(20px,3vw,27px)}
+#bagchal-blogger-container .vc-legal-head p{margin:6px 0 0;color:#9baac5;font-size:12px}
+#bagchal-blogger-container #vcLegalClose{border:1px solid #39496a;border-radius:9px;background:#17243a;color:#f1f4ff;padding:8px 11px;cursor:pointer}
+#bagchal-blogger-container .vc-legal-tabs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 18px}
+#bagchal-blogger-container .vc-legal-tabs button{border:1px solid #34435f;border-radius:9px;background:#121d31;color:#b8c5dc;padding:8px 11px;font-size:12px;font-weight:750;cursor:pointer}
+#bagchal-blogger-container .vc-legal-tabs button[aria-selected="true"]{border-color:#8b7bff;background:#2b2452;color:#fff}
+#bagchal-blogger-container .vc-legal-content{font-size:13px;line-height:1.7;color:#c2cde1}
+#bagchal-blogger-container .vc-legal-content h3{margin:20px 0 7px;color:#e8edff;font-size:15px}
+#bagchal-blogger-container .vc-legal-content h3:first-child{margin-top:0}
+#bagchal-blogger-container .vc-legal-content p{margin:7px 0}
+#bagchal-blogger-container .vc-legal-content ul{padding-left:20px}
+#bagchal-blogger-container .vc-legal-note{padding:11px 13px;border:1px solid #3b3867;border-radius:10px;background:#171932;color:#d9d5ff}
+@media(max-width:600px){#bagchal-blogger-container .vc-network-strip{font-size:10px}#bagchal-blogger-container #vcLegalModal{padding:8px}#bagchal-blogger-container .vc-legal-sheet{max-height:94dvh;border-radius:14px}#bagchal-blogger-container .vc-legal-tabs button{flex:1 1 42%;min-height:38px}}
+</style>
+
+<style id="vc-premium-portal-theme">
+:root{color-scheme:dark;--vc-bg:#070b14;--vc-panel:#0d1423;--vc-panel-2:#111b2e;--vc-line:#24314a;--vc-text:#f3f6ff;--vc-muted:#96a5c0;--vc-violet:#8b5cf6;--vc-cyan:#38bdf8}
+html{background:var(--vc-bg)!important;scroll-behavior:smooth}
+body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,65,190,.22),transparent 42%),radial-gradient(ellipse at 0% 25%,rgba(14,165,233,.08),transparent 32%),var(--vc-bg)!important;color:var(--vc-text)!important}
+#bagchal-blogger-container{width:min(100% - 28px,1240px)!important;max-width:1240px!important;min-width:0!important;margin:18px auto 40px!important;padding:clamp(12px,2.3vw,28px)!important;background:linear-gradient(180deg,rgba(14,22,38,.98),rgba(8,13,23,.99))!important;border:1px solid rgba(130,153,195,.19)!important;border-radius:26px!important;box-shadow:0 28px 90px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.015) inset!important;color:var(--vc-text)!important;overflow:hidden}
+#bagchal-blogger-container *{box-sizing:border-box}
+#bagchal-blogger-container .game-topbar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;padding:4px 2px 22px!important;margin:0 0 22px!important;border-bottom:1px solid rgba(148,163,184,.16)!important}
+#bagchal-blogger-container .vc-brand-lockup{display:flex;align-items:center;gap:12px;min-width:0}
+#bagchal-blogger-container .vc-brand-mark{display:grid;place-items:center;width:45px;height:45px;flex:0 0 45px;border-radius:15px;background:linear-gradient(140deg,#9b72ff,#5b5cf0 55%,#28b7e7);color:#fff;font-size:15px;font-weight:950;letter-spacing:-.06em;box-shadow:0 8px 24px rgba(111,83,239,.3)}
+#bagchal-blogger-container .vc-brand-words{display:flex;flex-direction:column;gap:3px;line-height:1.1}
+#bagchal-blogger-container .vc-brand-words strong{font-size:clamp(14px,2vw,18px);font-weight:950;letter-spacing:.08em;color:#f7f8ff}
+#bagchal-blogger-container .vc-brand-words em{font-style:normal;color:#a995ff}
+#bagchal-blogger-container .vc-brand-words small{font-size:10px;letter-spacing:.08em;color:#8594b0;text-transform:uppercase;font-weight:700}
+#bagchal-blogger-container #fullscreenBtn{border:1px solid #34435f!important;border-radius:11px!important;background:#111b2d!important;color:#e8edff!important;font-weight:750!important;padding:10px 14px!important;min-height:40px!important}
+#bagchal-blogger-container .vc-portal-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:238px;margin:0 0 28px;padding:clamp(22px,4vw,42px);overflow:hidden;border:1px solid rgba(155,130,255,.25);border-radius:23px;background:radial-gradient(ellipse at 80% 30%,rgba(116,78,230,.25),transparent 38%),linear-gradient(115deg,#141d32 0%,#10182a 52%,#101529 100%)}
+#bagchal-blogger-container .vc-hero-copy{position:relative;z-index:2;max-width:610px}
+#bagchal-blogger-container .vc-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:15px;color:#b7a8ff;font-size:9px;font-weight:900;letter-spacing:.19em}
+#bagchal-blogger-container .vc-live-dot{width:7px;height:7px;border-radius:50%;background:#55e6b1;box-shadow:0 0 13px #55e6b1}
+#bagchal-blogger-container .vc-portal-hero h1{margin:0!important;color:#f7f8ff!important;font-size:clamp(32px,5.2vw,57px)!important;line-height:.99!important;letter-spacing:-.055em!important;font-weight:950!important}
+#bagchal-blogger-container .vc-portal-hero h1 span{color:#a995ff}
+#bagchal-blogger-container .vc-portal-hero p{max-width:510px;margin:16px 0 18px!important;color:#a8b5ce!important;font-size:clamp(12px,1.4vw,15px)!important;line-height:1.7!important}
+#bagchal-blogger-container .vc-hero-pills{display:flex;flex-wrap:wrap;gap:8px}
+#bagchal-blogger-container .vc-hero-pills span{display:inline-flex;align-items:center;padding:7px 10px;border:1px solid rgba(158,174,208,.19);border-radius:999px;background:rgba(7,12,23,.42);color:#dce4f7;font-size:10px;font-weight:750}
+#bagchal-blogger-container .vc-hero-art{position:relative;flex:0 0 235px;width:235px;height:190px;display:grid;place-items:center}
+#bagchal-blogger-container .vc-orbit{position:absolute;border:1px solid rgba(160,137,255,.22);border-radius:50%;transform:rotate(-24deg)}
+#bagchal-blogger-container .vc-orbit-one{width:215px;height:135px}
+#bagchal-blogger-container .vc-orbit-two{width:160px;height:185px;transform:rotate(32deg);border-color:rgba(56,189,248,.18)}
+#bagchal-blogger-container .vc-hero-piece{position:absolute;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);border-radius:25px;background:linear-gradient(145deg,rgba(38,50,80,.98),rgba(17,26,44,.96));box-shadow:0 22px 45px rgba(0,0,0,.35),0 0 36px rgba(124,92,246,.13);font-family:"Segoe UI Symbol",serif;color:#f5f0ff}
+#bagchal-blogger-container .vc-piece-king{width:100px;height:108px;font-size:75px;transform:rotate(8deg);right:25px;top:23px}
+#bagchal-blogger-container .vc-piece-knight{width:72px;height:76px;font-size:54px;left:22px;bottom:17px;color:#a5dfff;transform:rotate(-11deg)}
+#bagchal-blogger-container .vc-hero-spark{position:absolute;right:9px;bottom:23px;color:#a995ff;font-size:25px}
+#bagchal-blogger-container .vc-hero-mini{position:absolute;left:8px;top:13px;color:#95a5c1;font-size:8px;font-weight:900;letter-spacing:.22em}
+#bagchal-blogger-container .vc-hero-mini span{color:#8e73ff}
+#bagchal-blogger-container .vc-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 2px 14px}
+#bagchal-blogger-container .vc-section-kicker{color:#8d78f6;font-size:9px;font-weight:900;letter-spacing:.18em}
+#bagchal-blogger-container .vc-section-heading h2{margin:5px 0 4px!important;color:#f2f5ff!important;font-size:clamp(22px,3vw,30px)!important;letter-spacing:-.04em!important;font-weight:900!important}
+#bagchal-blogger-container .vc-section-heading p{margin:0!important;color:#91a0ba!important;font-size:12px!important;line-height:1.5}
+#bagchal-blogger-container .vc-library-badge{flex:0 0 auto;padding:8px 11px;border:1px solid #293551;border-radius:9px;background:#101a2c;color:#b8c5df;font-size:8px;font-weight:900;letter-spacing:.1em}
+#bagchal-blogger-container .vc-library-badge i{color:#a995ff;font-style:normal}
+#bagchal-blogger-container .vc-mode-picker{margin:0 0 25px!important;padding:14px!important;border:1px solid rgba(128,148,190,.2)!important;border-radius:19px!important;background:rgba(9,15,27,.72)!important;box-shadow:0 12px 32px rgba(0,0,0,.12)!important}
+#bagchal-blogger-container .vc-mode-tabs{display:flex!important;width:max-content;max-width:100%;gap:4px!important;margin-bottom:17px!important;padding:4px!important;border:1px solid #26334d!important;border-radius:12px!important;background:#080e1a!important}
+#bagchal-blogger-container .vc-mode-tab{border:1px solid transparent!important;border-radius:9px!important;background:transparent!important;color:#93a2bd!important;font-size:11px!important;font-weight:850!important;padding:10px 14px!important}
+#bagchal-blogger-container .vc-mode-tab.active{background:linear-gradient(135deg,#7c5cf3,#5c62e9)!important;border-color:#a38bff!important;color:#fff!important;box-shadow:0 5px 16px rgba(103,83,232,.25)!important}
+#bagchal-blogger-container .vc-mode-section-label{color:#7e8eaa!important;font-size:9px!important;letter-spacing:.16em!important;margin:0 0 10px 2px!important}
+#bagchal-blogger-container .vc-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+#bagchal-blogger-container .vc-mode-card{min-height:80px!important;padding:12px!important;gap:10px!important;border:1px solid #25334d!important;border-radius:14px!important;background:linear-gradient(145deg,#121d30,#0e1728)!important;color:#f0f4ff!important;box-shadow:0 4px 12px rgba(0,0,0,.1)!important}
+#bagchal-blogger-container .vc-mode-card:hover{transform:translateY(-2px)!important;border-color:#7564d9!important;background:linear-gradient(145deg,#1a2540,#111b30)!important;box-shadow:0 10px 24px rgba(0,0,0,.24)!important}
+#bagchal-blogger-container .vc-mode-card.active{border-color:#8a74ff!important;background:linear-gradient(140deg,rgba(115,85,239,.22),rgba(17,27,46,.98))!important;box-shadow:0 0 0 1px rgba(146,124,255,.22) inset,0 8px 22px rgba(70,54,160,.13)!important}
+#bagchal-blogger-container .vc-mode-icon{width:40px!important;height:40px!important;flex-basis:40px!important;border:1px solid #303d5a!important;border-radius:12px!important;background:linear-gradient(145deg,#202c46,#131d30)!important;font-size:21px!important}
+#bagchal-blogger-container .vc-mode-card-copy strong{color:#f1f4ff!important;font-size:12px!important;font-weight:850!important}
+#bagchal-blogger-container .vc-mode-card-copy small{color:#94a3bd!important;font-size:10px!important}
+#bagchal-blogger-container .vc-mode-tag{border:1px solid #33415e!important;border-radius:6px!important;background:#19243a!important;color:#aebbd4!important;font-size:8px!important}
+#bagchal-blogger-container .vc-mode-card.active .vc-mode-tag{border-color:#6d5bcb!important;background:#30275d!important;color:#d5ccff!important}
+#bagchal-blogger-container .status-card{border:1px solid #26344e!important;border-radius:12px!important;background:linear-gradient(145deg,#131e31,#0e1727)!important;color:#f2f5ff!important}
+#bagchal-blogger-container .status-label{color:#8d9bb5!important}
+#bagchal-blogger-container .status-value{color:#f2f5ff!important}
+#bagchal-blogger-container #turnNotification{border:1px solid #293651!important;border-radius:10px!important;background:#101a2b!important;color:#dce5fa!important}
+#bagchal-blogger-container #playerNamesStatus{color:#9eacc6!important}
+#bagchal-blogger-container #onlinePanel{border:1px solid #26344e!important;border-radius:16px!important;background:linear-gradient(145deg,#111b2e,#0b1322)!important;color:#eaf0ff!important}
+#bagchal-blogger-container #onlinePanel label,#bagchal-blogger-container #onlinePanel .vc-room-picker-label{color:#aab8d1!important}
+#bagchal-blogger-container #onlinePanel input,#bagchal-blogger-container #onlinePanel select,#bagchal-blogger-container #onlinePanel textarea{border-color:#33425f!important;background:#080f1d!important;color:#f1f5ff!important}
+#bagchal-blogger-container .compact-instructions{color:#9eacc6!important}
+#bagchal-blogger-container .compact-instructions #instructionsToggleBtn{border-color:#34435f!important;background:#111b2d!important;color:#dce5fa!important}
+#bagchal-blogger-container .instructions-content{border-color:#293651!important;background:#0d1626!important;color:#b8c5db!important}
+#bagchal-blogger-container .game-controls button,#bagchal-blogger-container .game-controls select{border-color:#33425f!important;background:#111b2d!important;color:#edf2ff!important}
+#bagchal-blogger-container .checkers-player-card{border-color:#34435f!important;background:#111b2d!important;color:#f2f5ff!important}
+#bagchal-blogger-container .vc-mode-current-text{color:#b4c1da!important}
+#bagchal-blogger-container .vc-mode-picker button:focus-visible,#bagchal-blogger-container button:focus-visible{outline:2px solid #a995ff!important;outline-offset:3px!important}
+@media(max-width:760px){#bagchal-blogger-container{width:calc(100% - 16px)!important;margin:8px auto 22px!important;padding:12px!important;border-radius:18px!important}#bagchal-blogger-container .vc-portal-hero{min-height:0;padding:23px 18px;border-radius:17px}#bagchal-blogger-container .vc-hero-art{flex-basis:130px;width:130px;height:150px;margin-right:-12px}#bagchal-blogger-container .vc-orbit-one{width:125px;height:90px}#bagchal-blogger-container .vc-orbit-two{width:100px;height:130px}#bagchal-blogger-container .vc-piece-king{width:64px;height:73px;font-size:51px;right:12px;top:27px;border-radius:17px}#bagchal-blogger-container .vc-piece-knight{width:48px;height:52px;font-size:36px;left:4px;bottom:15px;border-radius:15px}#bagchal-blogger-container .vc-hero-mini{left:0;font-size:7px}#bagchal-blogger-container .vc-hero-spark{right:0;bottom:10px}#bagchal-blogger-container .vc-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#bagchal-blogger-container .vc-library-badge{display:none}}
+@media(max-width:460px){#bagchal-blogger-container .game-topbar{padding-bottom:15px!important;margin-bottom:15px!important}#bagchal-blogger-container .vc-brand-mark{width:38px;height:38px;flex-basis:38px;border-radius:12px}#bagchal-blogger-container .vc-brand-words strong{font-size:13px}#bagchal-blogger-container #fullscreenBtn{padding:8px 9px!important;font-size:10px!important;min-height:36px!important}#bagchal-blogger-container .vc-portal-hero{padding:22px 15px}#bagchal-blogger-container .vc-portal-hero h1{font-size:31px!important}#bagchal-blogger-container .vc-portal-hero p{font-size:11px!important;max-width:260px}#bagchal-blogger-container .vc-hero-art{position:absolute;right:-16px;bottom:0;opacity:.45;transform:scale(.86);transform-origin:bottom right}#bagchal-blogger-container .vc-hero-copy{max-width:100%}#bagchal-blogger-container .vc-hero-pills{max-width:260px}#bagchal-blogger-container .vc-hero-pills span{font-size:9px;padding:6px 8px}#bagchal-blogger-container .vc-section-heading{align-items:flex-start}#bagchal-blogger-container .vc-section-heading h2{font-size:23px!important}#bagchal-blogger-container .vc-mode-picker{padding:9px!important}#bagchal-blogger-container .vc-mode-card{min-height:73px!important;padding:9px!important;gap:8px!important}#bagchal-blogger-container .vc-mode-icon{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:18px!important}#bagchal-blogger-container .vc-mode-card-copy strong{font-size:10.5px!important}#bagchal-blogger-container .vc-mode-card-copy small{font-size:9px!important}#bagchal-blogger-container .vc-mode-tag{display:none!important}}
+@media(prefers-reduced-motion:reduce){#bagchal-blogger-container *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* Final portal polish: clear navigation, game-stage hierarchy and responsive controls. */
+#bagchal-blogger-container #vcGameArena,#bagchal-blogger-container #vcArenaTitle{scroll-margin-top:18px}
+#bagchal-blogger-container .vc-hero-cta{display:inline-flex;align-items:center;gap:12px;margin-top:19px;padding:11px 15px;border:1px solid rgba(190,178,255,.55);border-radius:11px;background:linear-gradient(135deg,#8b5cf6,#5865e9);color:#fff!important;text-decoration:none;font-size:12px;font-weight:850;box-shadow:0 8px 24px rgba(91,76,211,.24);transition:transform .18s,box-shadow .18s}
+#bagchal-blogger-container .vc-hero-cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(91,76,211,.32)}
+#bagchal-blogger-container .vc-hero-cta span{font-size:16px;line-height:1}
+#bagchal-blogger-container .vc-arena-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 2px 15px;padding:20px 0 14px;border-top:1px solid rgba(148,163,184,.14)}
+#bagchal-blogger-container .vc-arena-heading h2{margin:5px 0 4px!important;color:#f2f5ff!important;font-size:clamp(21px,3vw,28px)!important;letter-spacing:-.04em;font-weight:900!important}
+#bagchal-blogger-container .vc-arena-heading p{margin:0!important;color:#91a0ba!important;font-size:12px!important;line-height:1.55}
+#bagchal-blogger-container .vc-arena-current{display:flex;align-items:center;gap:8px;max-width:46%;padding:9px 12px;border:1px solid #34345c;border-radius:10px;background:linear-gradient(135deg,rgba(117,82,231,.16),rgba(30,50,83,.22));color:#ddd8ff;font-size:11px;font-weight:800;text-align:right}
+#bagchal-blogger-container .vc-arena-current .vc-live-dot{flex:0 0 7px;background:#38bdf8;box-shadow:0 0 12px rgba(56,189,248,.65)}
+#bagchal-blogger-container .board-container{width:100%;max-width:820px;margin:0 auto 14px;padding:clamp(7px,1.5vw,14px);border:1px solid rgba(122,143,184,.2);border-radius:20px;background:linear-gradient(145deg,rgba(17,27,46,.94),rgba(8,14,25,.98));box-shadow:0 16px 42px rgba(0,0,0,.2)}
+#bagchal-blogger-container #canvasContainer{overflow:hidden;border:1px solid rgba(145,164,205,.17);border-radius:12px;background:#0b1220}
+#bagchal-blogger-container .status-board{margin-top:0!important;padding:9px!important;gap:8px!important;background:rgba(8,14,25,.55)!important;border-color:rgba(122,143,184,.16)!important}
+#bagchal-blogger-container .status-card{min-height:58px;padding:8px 6px}
+#bagchal-blogger-container #onlinePanel button,#bagchal-blogger-container #playerChat button,#bagchal-blogger-container .talk-room-actions button,#bagchal-blogger-container .vc-join-room-modal button{border:1px solid #3a4968!important;border-radius:10px!important;background:linear-gradient(145deg,#1a2740,#121d30)!important;color:#eef2ff!important;font-weight:750!important;transition:transform .16s,border-color .16s,background .16s}
+#bagchal-blogger-container #onlinePanel button:hover,#bagchal-blogger-container #playerChat button:hover,#bagchal-blogger-container .talk-room-actions button:hover,#bagchal-blogger-container .vc-join-room-modal button:hover{border-color:#8b7bff!important;background:linear-gradient(145deg,#263459,#17263f)!important;transform:translateY(-1px)}
+#bagchal-blogger-container #onlinePanel #createRoomBtn,#bagchal-blogger-container #onlinePanel #quickMatchBtn,#bagchal-blogger-container .vc-join-room-modal .vc-join-room-submit{border-color:#8b7bff!important;background:linear-gradient(135deg,#805cf4,#5366e9)!important;color:#fff!important}
+#bagchal-blogger-container #chatMessages,#bagchal-blogger-container #playerChat{border-color:#2d3b57!important;background:#080f1c!important;color:#e6edff!important}
+#bagchal-blogger-container #chatMessages *{color:inherit}
+#bagchal-blogger-container #restartPrompt>div{border-color:#33425f!important;background:#111b2d!important;color:#edf2ff!important}
+#bagchal-blogger-container #restartPromptTitle,#bagchal-blogger-container #restartPromptText{color:#edf2ff!important}
+#bagchal-blogger-container .vc-portal-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:30px;padding:20px 2px 4px;border-top:1px solid rgba(148,163,184,.16);color:#8493ae}
+#bagchal-blogger-container .vc-footer-brand{display:flex;align-items:center;gap:10px}
+#bagchal-blogger-container .vc-footer-brand .vc-brand-mark{width:34px;height:34px;flex-basis:34px;border-radius:11px;font-size:11px}
+#bagchal-blogger-container .vc-footer-brand>span:last-child{display:flex;flex-direction:column;gap:4px}
+#bagchal-blogger-container .vc-footer-brand strong{color:#e7ebfa;font-size:10px;font-weight:900;letter-spacing:.08em}
+#bagchal-blogger-container .vc-footer-brand em{font-style:normal;color:#a995ff}
+#bagchal-blogger-container .vc-footer-brand small{font-size:9px;color:#8291ac}
+#bagchal-blogger-container .vc-portal-footer p{margin:0;color:#8795af;font-size:10px;line-height:1.5}
+#bagchal-blogger-container .vc-portal-footer>a{color:#b8adff;text-decoration:none;font-size:10px;font-weight:800}
+#bagchal-blogger-container .vc-portal-footer>a:hover{text-decoration:underline}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon{border-color:#34435f!important;background:linear-gradient(145deg,#18253c,#0e1728)!important;color:#e8edff!important;box-shadow:0 4px 12px rgba(0,0,0,.18)!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon:hover,#bagchal-blogger-container #onlinePanel .vc-room-game-icon:focus-visible{border-color:#8b7bff!important;background:linear-gradient(145deg,#263459,#17263f)!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon.active{border-color:#8b7bff!important;background:linear-gradient(145deg,#30275d,#1b2945)!important;color:#fff!important;box-shadow:0 0 0 1px rgba(169,149,255,.18) inset!important}
+#bagchal-blogger-container #vcAutoHealth{border-color:#2e3c58!important;border-radius:14px!important;background:#0d1626!important;color:#e6edff!important}
+#bagchal-blogger-container #vcAutoHealth strong,#bagchal-blogger-container #vcAutoHealth summary{color:#e6edff!important}
+#bagchal-blogger-container #vcAutoHealthSummary{color:#9eacc6!important}
+#bagchal-blogger-container #vcAutoHealth button{border:1px solid #3a4968!important;border-radius:8px!important;background:#17243a!important;color:#edf2ff!important}
+#bagchal-blogger-container #vcAutoHealth #vcAutoHealthRepair{background:#5b4acb!important;color:#fff!important}
+#bagchal-blogger-container #vcAutoHealthResults{color:#c5d0e6!important}
+@media(max-width:600px){#bagchal-blogger-container .vc-arena-heading{align-items:flex-start;flex-direction:column;gap:10px;padding-top:16px}#bagchal-blogger-container .vc-arena-current{max-width:100%;text-align:left}#bagchal-blogger-container .board-container{padding:6px;border-radius:14px}#bagchal-blogger-container .vc-portal-footer{align-items:flex-start;flex-direction:column;gap:10px}#bagchal-blogger-container .vc-hero-cta{margin-top:14px}}
+</style>
+
+
+<style id="vc-top-navigation-profile">
+#bagchal-blogger-container .game-topbar{position:sticky!important;top:0;z-index:1200;background:rgba(10,16,28,.96);backdrop-filter:blur(16px);padding:10px 10px 13px!important;border:1px solid rgba(148,163,184,.14);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+#bagchal-blogger-container .vc-main-nav{display:flex;align-items:center;justify-content:center;gap:4px;flex:1;min-width:0}
+#bagchal-blogger-container .vc-main-nav a,#bagchal-blogger-container .vc-main-nav button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:transparent;color:#aebbd3;text-decoration:none;font:750 11px/1.2 inherit;white-space:nowrap;cursor:pointer}
+#bagchal-blogger-container .vc-main-nav a:hover,#bagchal-blogger-container .vc-main-nav button:hover{background:#17243a;border-color:#2d3c58;color:#fff}
+#bagchal-blogger-container .vc-top-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+#bagchal-blogger-container .vc-profile-btn,#bagchal-blogger-container .vc-mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:6px 10px;border:1px solid #34435f;border-radius:12px;background:#111b2d;color:#eaf0ff;font-weight:800;font-size:11px;cursor:pointer}
+#bagchal-blogger-container .vc-profile-avatar{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#38bdf8);color:#fff;font-size:16px;font-weight:900}
+#bagchal-blogger-container .vc-mobile-menu-btn{display:none;font-size:18px;min-width:40px}
+#bagchal-blogger-container .vc-profile-modal[hidden]{display:none!important}#bagchal-blogger-container .vc-profile-modal{position:fixed;inset:0;z-index:2147483001;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,7,18,.72);backdrop-filter:blur(8px)}
+#bagchal-blogger-container .vc-profile-sheet{width:min(100%,420px);overflow:hidden;border:1px solid #2d3b58;border-radius:20px;background:linear-gradient(160deg,#121d31,#0b1220);box-shadow:0 28px 90px rgba(0,0,0,.5);color:#eef3ff}
+#bagchal-blogger-container .vc-profile-head{display:flex;align-items:center;gap:12px;padding:19px;border-bottom:1px solid #26334b}#bagchal-blogger-container .vc-profile-head h2{margin:0;color:#f4f6ff;font-size:19px}#bagchal-blogger-container .vc-profile-head p{margin:5px 0 0;color:#96a5c0;font-size:12px}#bagchal-blogger-container .vc-profile-head>button{margin-left:auto;border:1px solid #34435f;border-radius:9px;background:#17243a;color:#eaf0ff;padding:8px 10px;cursor:pointer}
+#bagchal-blogger-container .vc-profile-avatar-large{width:46px;height:46px;font-size:25px;flex:0 0 46px}#bagchal-blogger-container .vc-profile-body{display:flex;flex-direction:column;align-items:flex-start;padding:22px;gap:10px}#bagchal-blogger-container .vc-profile-caption{font-size:9px;letter-spacing:.15em;font-weight:900;color:#9e8cff}#bagchal-blogger-container #vcProfileNickname{font-size:22px;color:#fff;overflow-wrap:anywhere}#bagchal-blogger-container .vc-profile-body p{font-size:12px;line-height:1.7;color:#a7b4cc;margin:0 0 8px}#bagchal-blogger-container .vc-profile-primary{min-height:42px;padding:10px 15px;border:1px solid #8b7bff;border-radius:11px;background:linear-gradient(135deg,#805cf4,#5366e9);color:#fff;font-weight:850;cursor:pointer}
+@media(max-width:900px){#bagchal-blogger-container .game-topbar{gap:9px!important;flex-wrap:wrap}#bagchal-blogger-container .vc-main-nav{order:3;flex-basis:100%;justify-content:flex-start;flex-wrap:wrap}#bagchal-blogger-container .vc-top-actions{margin-left:auto}#bagchal-blogger-container .vc-main-nav a,#bagchal-blogger-container .vc-main-nav button{font-size:10px;padding:7px 9px}}
+@media(max-width:600px){#bagchal-blogger-container .game-topbar{position:sticky!important;top:0;gap:8px!important;padding:8px!important;margin-bottom:14px!important;border-radius:13px}#bagchal-blogger-container .vc-brand-lockup{gap:8px;flex:1}#bagchal-blogger-container .vc-brand-mark{width:36px;height:36px;flex-basis:36px;border-radius:11px}#bagchal-blogger-container .vc-brand-words strong{font-size:12px}#bagchal-blogger-container .vc-brand-words small{font-size:8px}#bagchal-blogger-container .vc-profile-label{display:none}#bagchal-blogger-container .vc-profile-btn{padding:5px;min-width:39px}#bagchal-blogger-container .vc-mobile-menu-btn{display:inline-flex}#bagchal-blogger-container #fullscreenBtn{font-size:9px!important;padding:7px 8px!important;min-height:38px!important}#bagchal-blogger-container .vc-main-nav{display:none;order:4;flex-basis:100%;padding:7px 0 2px;border-top:1px solid #26334b}#bagchal-blogger-container .vc-main-nav.vc-nav-open{display:flex}#bagchal-blogger-container .vc-main-nav a,#bagchal-blogger-container .vc-main-nav button{flex:1 1 28%;min-width:0;white-space:normal;text-align:center;font-size:10px}}
 </style>
 
 </head>
 <body>
 <div id="bagchal-blogger-container">
     <div class="game-topbar">
-        <h2>🐅 Bagchal 🐐</h2>
-        <button id="fullscreenBtn" type="button" aria-pressed="false">Enter Full Screen</button>
-    </div>
-
-    <div class="status-board">
-        <div class="status-card">
-            <span class="status-label">Turn</span>
-            <span id="turnStatus" class="status-value turn-goat">Goat</span>
-        </div>
-        <div class="status-card">
-            <span class="status-label">In Hand</span>
-            <span id="goatsHandStatus" class="status-value">20</span>
-        </div>
-        <div class="status-card">
-            <span class="status-label">Captured</span>
-            <span id="goatsDeadStatus" class="status-value">0 / 5</span>
+        <div class="vc-brand-lockup"><span class="vc-brand-mark">VC</span><span class="vc-brand-words"><strong>VIRAL CAGE <em>PLAY</em></strong><small>Strategy starts here</small></span></div>
+        <nav class="vc-main-nav" id="vcMainNav" aria-label="Main navigation">
+          <a href="#bagchal-blogger-container" data-vc-nav="home">Home</a>
+          <a href="#vcGameArena" data-vc-nav="games">Games</a>
+          <button type="button" data-legal-open="instructions">Rules &amp; Help</button>
+          <button type="button" data-legal-open="privacy">Privacy</button>
+          <button type="button" data-legal-open="terms">Terms</button>
+        </nav>
+        <div class="vc-top-actions">
+          <button type="button" id="vcProfileBtn" class="vc-profile-btn" aria-haspopup="dialog" aria-controls="vcProfileModal"><span class="vc-profile-avatar" aria-hidden="true">♙</span><span class="vc-profile-label">Profile</span></button>
+          <button type="button" id="vcMobileMenuBtn" class="vc-mobile-menu-btn" aria-expanded="false" aria-controls="vcMainNav" aria-label="Open menu">☰</button>
+          <button id="fullscreenBtn" type="button" aria-pressed="false">Enter Full Screen</button>
         </div>
     </div>
-    <div id="turnNotification" class="turn-notification" role="status" aria-live="polite">Goat's turn</div>
-    <div id="playerNamesStatus" style="font-size:12px;text-align:center;color:#4a5568;margin:4px 0 8px;overflow-wrap:anywhere;">Guest · Opponent</div>
-
-    <div class="board-container">
-        <div class="canvas-aspect-ratio-box" id="canvasContainer">
-            <canvas id="gameCanvas"></canvas>
-            
-            <div id="messageOverlay" class="message-overlay">
-                <div id="messageTitle" class="message-title">Goats Win!</div>
-                <div id="messageBody" class="message-body">All tigers have been successfully trapped.</div>
-                <button id="overlayCloseBtn" class="primary-btn">Play Again</button>
-            </div>
-        </div>
+    <div class="vc-network-strip" role="status" aria-live="polite">
+      <span class="vc-network-dot" id="vcNetworkDot"></span>
+      <span id="vcConnectionStatus">Checking connection…</span>
+      <button type="button" id="vcReconnectBtn">Reconnect</button>
     </div>
 
-    <div id="checkersPlayerCards" aria-live="polite" style="display:none">
-        <div id="checkersRedCard" class="checkers-player-card red-card">
-            <div class="checkers-player-title">Red pieces (X)</div>
-            <div id="checkersRedRole" class="checkers-player-role">Opponent</div>
-            <div id="checkersRedMove" class="checkers-player-move" hidden></div>
-        </div>
-        <div id="checkersBlackCard" class="checkers-player-card black-card">
-            <div class="checkers-player-title">Black pieces (O)</div>
-            <div id="checkersBlackRole" class="checkers-player-role">You</div>
-            <div id="checkersBlackMove" class="checkers-player-move" hidden></div>
-        </div>
-    </div>
-
-    <div class="game-controls restart-below-board" style="display:flex; justify-content:center; gap:8px; margin:10px 0 12px;">
-        <button id="resetBtn" class="primary-btn" type="button">Restart</button>
-        <button id="flipChessBoardBtn" type="button" onclick="toggleChessBoardOrientation()" aria-pressed="false"><span aria-hidden="true">⇅</span> Flip Board</button>
-    </div>
-
-    <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
-        <div style="font-weight:700; margin-bottom:8px;">Online Multiplayer</div>
-        <div class="vc-room-game-picker">
-            <div class="vc-room-picker-label">Game in this room</div>
-            <div class="vc-room-game-icons" role="group" aria-label="Choose game for this room">
-                <button type="button" class="vc-room-game-icon active" data-room-game="baghchal" data-tooltip="BaghChal" title="BaghChal" aria-label="BaghChal" aria-pressed="true"><span aria-hidden="true">🐅</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="tictactoe" data-tooltip="Tic-Tac-Toe" title="Tic-Tac-Toe" aria-label="Tic-Tac-Toe" aria-pressed="false"><span aria-hidden="true">✕<small>○</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫<small>🔴</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
-            </div>
-            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-            <label for="onlinePreferredRole" style="font-size:13px;">Play As:</label>
-            <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
-                <option value="goat">Goats (X)</option>
-                <option value="tiger">Tigers (O)</option>
-            </select>
-<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
-
-        </div>
-        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
-            <span style="font-size:13px; color:#4a5568;">Room code:</span>
-            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
-            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
-            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
-        </div>
-        <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;">Choose Create Invite Room, Join Room, or Random Match.</div>
-        <div style="font-size:12px; line-height:1.5; color:#4a5568; margin-top:6px;">Tap <strong>Talk</strong> to open match options: create an invite room, join with a 4-digit code, or choose Random Match. Use <strong>Voice Call</strong> or <strong>Video Call</strong> to talk with your opponent. Choose your side before starting; BaghChal goats always move first, while Tic-Tac-Toe and Dots & Boxes let you choose who starts.</div>
-    </div>
-
+    <section class="vc-portal-hero" aria-labelledby="vcPortalTitle">
+      <div class="vc-hero-copy">
+        <div class="vc-eyebrow"><span class="vc-live-dot"></span> YOUR NEXT MATCH STARTS HERE</div>
+        <h1 id="vcPortalTitle">Play together.<br><span>Think different.</span></h1>
+        <p>Classic strategy games, quick challenges and multiplayer matches — all in one place.</p>
+        <div class="vc-hero-pills"><span>✦ Free to play</span><span>◎ Play online</span><span>♟ Challenge AI</span></div><a class="vc-hero-cta" href="#vcGameArena">Explore games <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="vc-hero-art" aria-hidden="true"><div class="vc-orbit vc-orbit-one"></div><div class="vc-orbit vc-orbit-two"></div><div class="vc-hero-piece vc-piece-king">♚</div><div class="vc-hero-piece vc-piece-knight">♞</div><div class="vc-hero-spark">✦</div><div class="vc-hero-mini">V C <span>•</span> PLAY</div></div>
+    </section>
+    <div class="vc-section-heading" id="vcGameArena"><div><span class="vc-section-kicker">THE GAME LOUNGE</span><h2>Choose your game</h2><p>Pick a favourite and jump straight into the action.</p></div><span class="vc-library-badge">6 GAMES <i>·</i> ONE DESTINATION</span></div>
     <section class="vc-mode-picker" aria-label="Choose a game mode">
         <div class="vc-mode-tabs" role="group" aria-label="Game type">
             <button type="button" class="vc-mode-tab active" data-mode-tab="online">Online Games</button>
@@ -1360,6 +1507,92 @@
             </select>
         </div>
     </section>
+
+    <div class="vc-arena-heading" id="vcArenaTitle" aria-live="polite">
+        <div><span class="vc-section-kicker">READY TO PLAY</span><h2>Game arena</h2><p>Choose a game above, then play solo or connect with a friend.</p></div>
+        <div class="vc-arena-current"><span class="vc-live-dot"></span><span id="vcArenaGameLabel">BaghChal · Online</span></div>
+    </div>
+    <div class="status-board">
+        <div class="status-card">
+            <span class="status-label">Turn</span>
+            <span id="turnStatus" class="status-value turn-goat">Goat</span>
+        </div>
+        <div class="status-card">
+            <span class="status-label">In Hand</span>
+            <span id="goatsHandStatus" class="status-value">20</span>
+        </div>
+        <div class="status-card">
+            <span class="status-label">Captured</span>
+            <span id="goatsDeadStatus" class="status-value">0 / 5</span>
+        </div>
+    </div>
+    <div id="turnNotification" class="turn-notification" role="status" aria-live="polite">Goat's turn</div>
+    <div id="playerNamesStatus" style="font-size:12px;text-align:center;color:#4a5568;margin:4px 0 8px;overflow-wrap:anywhere;">Guest · Opponent</div>
+
+    <div class="board-container">
+        <div class="canvas-aspect-ratio-box" id="canvasContainer">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="messageOverlay" class="message-overlay">
+                <div id="messageTitle" class="message-title">Goats Win!</div>
+                <div id="messageBody" class="message-body">All tigers have been successfully trapped.</div>
+                <button id="overlayCloseBtn" class="primary-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkersPlayerCards" aria-live="polite" style="display:none">
+        <div id="checkersRedCard" class="checkers-player-card red-card">
+            <div class="checkers-player-title">Red pieces (X)</div>
+            <div id="checkersRedRole" class="checkers-player-role">Opponent</div>
+            <div id="checkersRedMove" class="checkers-player-move" hidden></div>
+        </div>
+        <div id="checkersBlackCard" class="checkers-player-card black-card">
+            <div class="checkers-player-title">Black pieces (O)</div>
+            <div id="checkersBlackRole" class="checkers-player-role">You</div>
+            <div id="checkersBlackMove" class="checkers-player-move" hidden></div>
+        </div>
+    </div>
+
+    <div class="game-controls restart-below-board" style="display:flex; justify-content:center; gap:8px; margin:10px 0 12px;">
+        <button id="resetBtn" class="primary-btn" type="button">Restart</button>
+        <button id="flipChessBoardBtn" type="button" onclick="toggleChessBoardOrientation()" aria-pressed="false"><span aria-hidden="true">⇅</span> Flip Board</button>
+    </div>
+
+    <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
+        <div class="vc-online-panel-heading"><span class="vc-online-heading-icon" aria-hidden="true">⇄</span><span class="vc-online-heading-copy"><strong>Online Multiplayer</strong><small>Play together in real time</small></span><span class="vc-online-heading-badge"><i></i> LIVE PLAY</span></div>
+        <div class="vc-room-game-picker">
+            <div class="vc-room-picker-label">1. Choose a game</div>
+            <div class="vc-room-game-icons" role="group" aria-label="Choose game for this room">
+                <button type="button" class="vc-room-game-icon active" data-room-game="baghchal" data-tooltip="BaghChal" title="BaghChal" aria-label="BaghChal" aria-pressed="true"><span aria-hidden="true">🐅</span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="tictactoe" data-tooltip="Tic-Tac-Toe" title="Tic-Tac-Toe" aria-label="Tic-Tac-Toe" aria-pressed="false"><span aria-hidden="true">✕<small>○</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫<small>🔴</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
+            </div>
+            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+            <label for="onlinePreferredRole" style="font-size:13px;">2. Choose your side</label>
+            <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
+                <option value="goat">Goats (X)</option>
+                <option value="tiger">Tigers (O)</option>
+            </select>
+<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
+
+        </div>
+        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
+            <span style="font-size:13px; color:#4a5568;">Room code:</span>
+            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
+            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
+            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
+        </div>
+        <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;">Choose how you want to play.</div>
+        <div style="font-size:12px; line-height:1.5; color:#4a5568; margin-top:6px;">Open <strong>Talk</strong> to create an invite room, join with a 4-digit code, or find an opponent with <strong>Random Match</strong>. Use <strong>Voice Call</strong> or <strong>Video Call</strong> to speak with your opponent. In BaghChal, goats always make the first move.</div>
+    </div>
+
+    
 
     <div id="incomingCallPopup" role="dialog" aria-modal="false" aria-labelledby="incomingCallName" hidden>
         <div class="incoming-call-person">
@@ -1465,6 +1698,38 @@
             </div>
         </div>
     </div>
+
+    <section id="vcProfileModal" class="vc-profile-modal" hidden aria-modal="true" role="dialog" aria-labelledby="vcProfileTitle">
+      <div class="vc-profile-sheet" role="document">
+        <div class="vc-profile-head"><div class="vc-profile-avatar vc-profile-avatar-large" aria-hidden="true">♙</div><div><h2 id="vcProfileTitle">Your player profile</h2><p>Guest profile on this device</p></div><button type="button" id="vcProfileClose" aria-label="Close profile">✕</button></div>
+        <div class="vc-profile-body"><span class="vc-profile-caption">CURRENT NICKNAME</span><strong id="vcProfileNickname">Guest</strong><p>You are playing as a guest. No password or registered account is required. Your nickname is saved in this browser.</p><button type="button" id="vcChangeNicknameBtn" class="vc-profile-primary">Change nickname</button></div>
+      </div>
+    </section>
+
+    <section id="vcLegalModal" hidden aria-modal="true" role="dialog" aria-labelledby="vcLegalTitle">
+      <div class="vc-legal-sheet" role="document">
+        <div class="vc-legal-head"><div><h2 id="vcLegalTitle">Viral Cage Play Help & Policies</h2><p>Instructions, game rules, privacy and terms of use · Last updated: October 22, 2026</p></div><button type="button" id="vcLegalClose" aria-label="Close policies">Close ✕</button></div>
+        <div class="vc-legal-tabs" role="tablist" aria-label="Help and policies">
+          <button type="button" role="tab" data-legal-tab="instructions" aria-selected="true">Instructions & Rules</button>
+          <button type="button" role="tab" data-legal-tab="privacy" aria-selected="false">Privacy Policy</button>
+          <button type="button" role="tab" data-legal-tab="terms" aria-selected="false">Terms of Use</button>
+          <button type="button" role="tab" data-legal-tab="safety" aria-selected="false">Safety & Fair Play</button>
+        </div>
+        <div class="vc-legal-content" id="vcLegalContent" tabindex="0"></div>
+      </div>
+    </section>
+
+    <footer class="vc-portal-footer">
+      <div class="vc-footer-brand"><span class="vc-brand-mark">VC</span><span><strong>VIRAL CAGE <em>PLAY</em></strong><small>Play. Think. Connect.</small></span></div>
+      <p>Free strategy games for friends, families and curious minds.</p>
+      <div class="vc-legal-links">
+        <button type="button" data-legal-open="instructions">Instructions &amp; Rules</button>
+        <button type="button" data-legal-open="privacy">Privacy Policy</button>
+        <button type="button" data-legal-open="terms">Terms of Use</button>
+        <button type="button" data-legal-open="safety">Safety &amp; Fair Play</button>
+        <a href="#vcGameArena">Back to games ↑</a>
+      </div>
+    </footer>
 
 </div>
 
@@ -4659,6 +4924,8 @@
         const description = isAi ? 'Strongest AI' : 'Online multiplayer';
         const current = document.getElementById('vcModeCurrentText');
         if (current) current.textContent = name + ' · ' + description;
+        const arenaLabel = document.getElementById('vcArenaGameLabel');
+        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (isAi ? 'Play vs AI' : 'Online multiplayer');
     }
 
     function syncGameSelection() {
@@ -4679,7 +4946,9 @@
             selector.value = card.getAttribute('data-game-mode');
             selector.dispatchEvent(new Event('change', { bubbles: true }));
             (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncModeCardUI();
+            syncModeCardUI();
+            const arena = document.getElementById('vcArenaTitle');
+            if (arena) arena.scrollIntoView({behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
         });
     });
     document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
@@ -4981,5 +5250,138 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
   setTimeout(cleanLiteralEntities, 1800);
 })();
 </script>
+
+<script>
+(function(){
+  const root=document.getElementById('bagchal-blogger-container'); if(!root)return;
+  const modal=root.querySelector('#vcLegalModal'), content=root.querySelector('#vcLegalContent'), title=root.querySelector('#vcLegalTitle');
+  const pages={
+    instructions:{title:'Instructions & Game Rules',html:`
+      <p>Choose a game card, then select Online Games to play with another person or Play with AI for a solo match. For online play, create a room and share its invite link or room code. Your opponent must join the same room. Connection, microphone and camera features require a compatible browser and permissions.</p>
+      <h3>BaghChal</h3><ul><li>One player controls four tigers; the other controls up to 20 goats.</li><li>Goats are placed on empty intersections before goats begin moving. Tigers can move along connected lines and capture goats by jumping over one into an empty connected point.</li><li>The tigers win after capturing five goats. The goats win by trapping all four tigers so none can make a legal move.</li></ul>
+      <h3>Chess</h3><ul><li>White moves first. Each piece follows standard chess movement and capture rules; the goal is checkmate.</li><li>In online Chess, the board can orient so your own pieces are at the bottom. The last move is highlighted. Premove, where available, queues an intended move and only executes it if it is legal when your turn arrives.</li><li>Promotion, castling, check, checkmate and stalemate are handled by the game engine. Do not refresh mid-game if you want to preserve your current local state.</li></ul>
+      <h3>Checkers</h3><p>Move diagonally on playable squares, capture by jumping an opponent, and crown a piece that reaches the far side. Follow the legal moves highlighted by the game; capture requirements can vary by ruleset.</p>
+      <h3>Four Connect</h3><p>Take turns dropping a disc into a column. The first player to connect four discs horizontally, vertically or diagonally wins. If the board fills without a four-in-a-row, the game is a draw.</p>
+      <h3>Tic-Tac-Toe</h3><p>Take turns marking an empty square. Connect three of your marks in a row, column or diagonal to win. A full board without a line is a draw.</p>
+      <h3>Dots &amp; Boxes</h3><p>Take turns drawing one edge between adjacent dots. Completing the fourth edge of a box claims it and usually grants another turn. The player who claims the most boxes wins when no edges remain.</p>
+      <h3>Room and connection tips</h3><ul><li>Both players should use the same room link/code and keep the page open while playing.</li><li>If a move does not sync, check your internet connection, press Reconnect, and wait for the connection status to recover before trying again.</li><li>Voice/video calls require permission from each participant. Use End Call when finished. Camera/microphone access may be unavailable in some embedded browsers.</li></ul>
+      <p class="vc-legal-note">These instructions summarize intended gameplay. The controls and available options displayed in the selected game take precedence if a mode uses a different rules variant.</p>`},
+    privacy:{title:'Privacy Policy',html:`
+      <p>This draft privacy notice describes the current Viral Cage Play web game as configured. Review it against your actual hosting, Firebase settings, analytics, and applicable law before relying on it as a final legal policy.</p>
+      <h3>Information that may be processed</h3><ul><li><strong>Guest name:</strong> the display name you enter may be stored in this browser's local storage so it can be reused on a later visit.</li><li><strong>Room and gameplay data:</strong> online play uses Firebase services to create/join rooms and sync game state, player presence, moves, room codes, chat/call signaling and related timestamps.</li><li><strong>Anonymous authentication:</strong> the game may use Firebase anonymous authentication to associate a temporary browser session with its room actions.</li><li><strong>Voice/video:</strong> if you start a call and grant permission, your browser accesses your microphone and/or camera. WebRTC media and connection metadata may pass through network infrastructure depending on connectivity; Firebase is used for call signaling. Do not assume calls are private from your call partner.</li><li><strong>Technical data:</strong> the hosting provider, Google/Firebase and browser may process IP address, device/browser information, security logs and diagnostics as part of delivering and protecting the service.</li></ul>
+      <h3>How information is used</h3><p>Information is used to operate multiplayer rooms, synchronize moves, support presence and calls, remember local preferences, troubleshoot failures, and protect service reliability. This page does not promise that no technical logs are created.</p>
+      <h3>Storage and retention</h3><p>Guest names may remain in local storage until cleared by you. Room data and signaling data may remain in Firebase until removed by application cleanup or project retention settings. We have not independently verified the project's current retention configuration; do not include sensitive or identifying information in names, room chat or game rooms.</p>
+      <h3>Third-party services</h3><p>The game loads Firebase SDKs and uses Google Firebase services for online functionality. Their processing is also subject to Google's applicable terms and privacy documentation. The site may not function fully if these services are blocked.</p>
+      <h3>Children and sensitive information</h3><p>Do not submit passwords, payment details, your home address, or other sensitive personal information. If you are a parent/guardian with a privacy concern, contact the site owner through the contact method published on Viral Cage.</p>
+      <h3>Your choices</h3><p>You can avoid entering a personal name, clear this site's local storage/cookies in your browser, deny microphone/camera permission, or stop using online multiplayer. Clearing browser data may remove a saved guest name or room-recovery details. Requests concerning server-side data depend on the Firebase project owner and applicable law.</p>
+      <h3>Changes and contact</h3><p>This notice may be updated as the service changes. For privacy questions or requests, use the contact method published on the Viral Cage website. This draft does not replace jurisdiction-specific legal review.</p>`},
+    terms:{title:'Terms of Use',html:`
+      <p>By using Viral Cage Play, you agree to these terms. If you do not agree, stop using the service.</p>
+      <h3>Use of the service</h3><ul><li>The games are provided for personal, lawful entertainment. You are responsible for your device, connection and any permissions you grant.</li><li>Do not exploit bugs, disrupt service, attempt unauthorized access, interfere with other players, or use automation to attack the site or its infrastructure.</li><li>Do not impersonate another person, share harmful content, harass opponents, or place personal/sensitive information in usernames or chats.</li><li>You must have permission to use the device and network you play on. If you are under the age required by local law to consent to relevant online services, use the site only with appropriate parent/guardian involvement.</li></ul>
+      <h3>Online rooms and calls</h3><p>Room links and codes may allow others to join a match. Share them only with people you intend to invite. You control whether to start voice/video calls and grant device permissions. End calls and leave rooms when finished.</p>
+      <h3>Availability and changes</h3><p>The service is provided on an “as available” basis. We do not guarantee uninterrupted access, error-free operation, permanent room storage, matchmaking, compatibility with every device, or recovery of an interrupted game. Features may be changed, suspended or removed.</p>
+      <h3>Intellectual property</h3><p>Viral Cage branding, site design and original content belong to their respective owners. Do not copy or redistribute site assets in a way that violates applicable rights. Third-party services and libraries remain subject to their own licenses and terms.</p>
+      <h3>Disclaimers and limits</h3><p>To the extent permitted by law, the site is provided without warranties, and the site owner is not responsible for indirect loss caused by interruptions, lost game state, network failures or third-party services. Nothing in these terms excludes rights that cannot legally be excluded.</p>
+      <h3>Suspension and updates</h3><p>Access may be limited if use threatens service security or other players. Terms may be updated by posting a revised version here. Continued use after an update means you accept the revised terms to the extent permitted by law.</p>
+      <p class="vc-legal-note">This is a general template, not legal advice. Have it reviewed for the jurisdiction where the service is operated and used.</p>`},
+    safety:{title:'Safety & Fair Play',html:`
+      <h3>Protect your identity</h3><ul><li>Use a nickname; do not use a full legal name if you do not want other players to see it.</li><li>Never share passwords, payment details, home address, personal phone number or private account information in game rooms.</li><li>Only share room links with people you want to play with.</li></ul>
+      <h3>Voice and video</h3><ul><li>Microphone and camera access should be granted only when you intend to call.</li><li>You can mute or end a call at any time. The other participant can hear or see anything your enabled microphone/camera captures.</li><li>Use browser settings to revoke camera/microphone permissions after play if desired.</li></ul>
+      <h3>Fair play</h3><p>Do not harass, threaten, spam or intentionally disrupt other players. Do not attempt to access rooms or data you are not authorized to use. If an opponent behaves inappropriately, leave the room and stop the call.</p>
+      <h3>Technical security</h3><p>Public client-side Firebase configuration is not a secret; database security must be enforced by Firebase Realtime Database Security Rules and authentication checks. Never rely on hiding a project ID or API key to protect room data. Site owners should test rules in the Firebase Rules Playground and monitor abuse.</p>`}
+  };
+  function openPage(key){const page=pages[key]||pages.instructions; title.textContent=page.title; content.innerHTML=page.html; modal.hidden=false; document.body.style.overflow='hidden'; root.querySelectorAll('[data-legal-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.legalTab===key))); const close=root.querySelector('#vcLegalClose'); if(close)close.focus();}
+  function closePage(){modal.hidden=true;document.body.style.overflow='';}
+  root.querySelectorAll('[data-legal-open]').forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.legalOpen)));
+  root.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.legalTab)));
+  root.querySelector('#vcLegalClose').addEventListener('click',closePage);
+  modal.addEventListener('click',e=>{if(e.target===modal)closePage();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closePage();});
+  // Basic internet + Firebase Realtime Database connectivity indicator.
+  const status=root.querySelector('#vcConnectionStatus'), dot=root.querySelector('#vcNetworkDot'), retry=root.querySelector('#vcReconnectBtn');
+  let dbConnected=null;
+  function showStatus(){if(!navigator.onLine){status.textContent='You are offline';dot.className='vc-network-dot is-offline';return;}if(dbConnected===true){status.textContent='Online · Game service connected';dot.className='vc-network-dot is-online';}else if(dbConnected===false){status.textContent='Internet available · Game service reconnecting';dot.className='vc-network-dot is-offline';}else{status.textContent='Internet connected · Checking game service';dot.className='vc-network-dot';}}
+  window.addEventListener('online',()=>{dbConnected=null;showStatus();try{if(window.firebase&&firebase.apps.length)firebase.database().goOnline();}catch(e){} });
+  window.addEventListener('offline',()=>{dbConnected=false;showStatus();});
+  retry.addEventListener('click',()=>{if(!navigator.onLine){showStatus();return;}status.textContent='Reconnecting to game service…';dot.className='vc-network-dot';try{if(window.firebase&&firebase.apps.length){const db=firebase.database();db.goOnline();db.ref('.info/connected').once('value').then(snap=>{dbConnected=!!snap.val();showStatus();}).catch(()=>{dbConnected=false;showStatus();});}else{status.textContent='Internet connected · Game service is starting';}}catch(e){dbConnected=false;showStatus();}});
+  let connectionWatchStarted=false;
+  const watchTimer=setInterval(()=>{if(connectionWatchStarted){clearInterval(watchTimer);return;}try{if(window.firebase&&firebase.apps.length&&firebase.database){connectionWatchStarted=true;firebase.database().ref('.info/connected').on('value',snap=>{dbConnected=!!snap.val();showStatus();});clearInterval(watchTimer);}}catch(e){}},1000);
+  showStatus();
+})();
+</script>
+
+
+<script id="vc-top-navigation-profile-script">
+(function(){
+ const root=document.getElementById('bagchal-blogger-container');if(!root)return;
+ const menu=root.querySelector('#vcMainNav'),menuBtn=root.querySelector('#vcMobileMenuBtn'),profile=root.querySelector('#vcProfileModal');
+ const profileBtn=root.querySelector('#vcProfileBtn'),profileName=root.querySelector('#vcProfileNickname');
+ function syncName(){const n=(root.querySelector('#editGuestNameBtn')?.textContent||'Guest').trim();if(profileName)profileName.textContent=n;}
+ function closeProfile(){if(profile)profile.hidden=true;document.body.style.overflow='';}
+ menuBtn?.addEventListener('click',()=>{const open=menu.classList.toggle('vc-nav-open');menuBtn.setAttribute('aria-expanded',String(open));menuBtn.setAttribute('aria-label',open?'Close menu':'Open menu');menuBtn.textContent=open?'✕':'☰';});
+ menu?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('vc-nav-open');menuBtn?.setAttribute('aria-expanded','false');if(menuBtn){menuBtn.textContent='☰';menuBtn.setAttribute('aria-label','Open menu');}}));
+ profileBtn?.addEventListener('click',()=>{syncName();profile.hidden=false;document.body.style.overflow='hidden';root.querySelector('#vcProfileClose')?.focus();});
+ root.querySelector('#vcProfileClose')?.addEventListener('click',closeProfile);
+ profile?.addEventListener('click',e=>{if(e.target===profile)closeProfile();});
+ root.querySelector('#vcChangeNicknameBtn')?.addEventListener('click',()=>{closeProfile();const talkToggle=root.querySelector('#chatPopupToggle');const chat=root.querySelector('#playerChat');if(chat?.hidden&&talkToggle)talkToggle.click();setTimeout(()=>root.querySelector('#editGuestNameBtn')?.click(),80);});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&profile&&!profile.hidden)closeProfile();});
+ const nameButton=root.querySelector('#editGuestNameBtn');if(nameButton)new MutationObserver(syncName).observe(nameButton,{childList:true,characterData:true,subtree:true});syncName();
+})();
+</script>
+
+<style id="vc-online-panel-redesign">
+
+/* Redesigned online multiplayer panel: premium dark interface, responsive and presentation-only. */
+#bagchal-blogger-container #onlinePanel{
+  margin:18px 0 20px!important;padding:18px!important;overflow:visible!important;
+  border:1px solid #293651!important;border-radius:20px!important;
+  background:radial-gradient(ellipse at 100% 0%,rgba(124,92,246,.16),transparent 42%),linear-gradient(145deg,#111b2d 0%,#0b1220 100%)!important;
+  color:#eef3ff!important;box-shadow:0 18px 40px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+#bagchal-blogger-container #onlinePanel .vc-online-panel-heading{
+  display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 16px!important;padding:0 0 15px!important;
+  border-bottom:1px solid #26334c!important;color:#f5f7ff!important;
+}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-icon{
+  width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:14px;
+  border:1px solid #5447a2;background:linear-gradient(145deg,#29234d,#191f3b);color:#c6baff;font-size:26px;font-weight:700;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-copy strong{font-size:17px;line-height:1.2;font-weight:850;letter-spacing:-.025em;color:#f5f7ff}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-copy small{font-size:11px;line-height:1.4;font-weight:500;color:#8f9fbc}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #254a43;border-radius:8px;background:#102923;color:#8de1c0;font-size:8px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
+#bagchal-blogger-container #onlinePanel .vc-online-heading-badge i{width:6px;height:6px;border-radius:50%;background:#4adea5;box-shadow:0 0 10px rgba(74,222,165,.6)}
+#bagchal-blogger-container #onlinePanel .vc-room-game-picker{margin:0 0 12px!important;padding:13px!important;border:1px solid #26344d!important;border-radius:15px!important;background:rgba(7,13,25,.55)!important}
+#bagchal-blogger-container #onlinePanel .vc-room-picker-label{margin:0 0 10px!important;color:#9eacc7!important;font-size:10px!important;font-weight:850!important;letter-spacing:.12em!important;text-transform:uppercase}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icons{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon{position:relative;display:grid!important;place-items:center;min-width:0!important;min-height:52px!important;padding:7px 4px!important;border:1px solid #2b3854!important;border-radius:12px!important;background:linear-gradient(145deg,#17243a,#101a2d)!important;color:#c9d5ee!important;font-size:22px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;transition:border-color .16s,background .16s,transform .16s!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon:hover{transform:translateY(-2px);border-color:#5a55a4!important;background:#1a2741!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon.active{border-color:#8b7bff!important;background:linear-gradient(145deg,rgba(124,92,246,.27),rgba(56,60,118,.3))!important;color:#fff!important;box-shadow:0 0 0 1px rgba(139,123,255,.15) inset,0 5px 16px rgba(87,70,190,.15)!important}
+#bagchal-blogger-container #onlinePanel .vc-room-game-icon small{font-size:10px!important}
+#bagchal-blogger-container #onlinePanel > div:nth-child(3){display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;margin:0 0 12px!important;padding:13px!important;border:1px solid #26344d!important;border-radius:15px!important;background:rgba(7,13,25,.55)!important}
+#bagchal-blogger-container #onlinePanel > div:nth-child(3) label{display:block!important;color:#9eacc7!important;font-size:10px!important;font-weight:850!important;letter-spacing:.12em!important;text-transform:uppercase}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole{width:100%!important;max-width:none!important;min-height:46px!important;padding:11px 38px 11px 13px!important;border:1px solid #384766!important;border-radius:12px!important;background-color:#111c30!important;color:#f0f4ff!important;font-size:13px!important;font-weight:750!important;box-shadow:none!important}
+#bagchal-blogger-container #onlinePanel #roomCodeInput{background:#0a1323!important;color:#f3f6ff!important;border-color:#34425f!important}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay{border-color:#33415e!important;background:#111c30!important;color:#eaf0ff!important}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay span{color:#9eacc7!important}
+#bagchal-blogger-container #onlinePanel #roomCodeText{color:#c5b9ff!important}
+#bagchal-blogger-container #onlinePanel #copyRoomCodeBtn{background:#211d42!important;border:1px solid #5549a0!important;color:#d8d0ff!important}
+#bagchal-blogger-container #onlinePanel #onlineStatus{margin-top:12px!important;padding:11px 13px!important;border:1px solid #26344d!important;border-radius:12px!important;background:#101a2b!important;color:#b8c5df!important;font-size:12px!important;line-height:1.5!important}
+#bagchal-blogger-container #onlinePanel > div:last-child{margin-top:9px!important;color:#8796b1!important;font-size:11px!important;line-height:1.65!important}
+#bagchal-blogger-container #onlinePanel #createRoomBtn,#bagchal-blogger-container #onlinePanel #joinRoomBtn,#bagchal-blogger-container #onlinePanel #quickMatchBtn{min-height:42px!important;border-radius:11px!important;font-size:12px!important;font-weight:850!important}
+@media(max-width:520px){
+ #bagchal-blogger-container #onlinePanel{padding:13px!important;border-radius:17px!important}
+ #bagchal-blogger-container #onlinePanel .vc-online-heading-icon{width:39px;height:39px;flex-basis:39px;border-radius:12px}
+ #bagchal-blogger-container #onlinePanel .vc-online-heading-copy strong{font-size:15px}
+ #bagchal-blogger-container #onlinePanel .vc-online-heading-badge{font-size:7px;padding:6px 7px}
+ #bagchal-blogger-container #onlinePanel .vc-room-game-picker{padding:10px!important}
+ #bagchal-blogger-container #onlinePanel .vc-room-game-icons{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+ #bagchal-blogger-container #onlinePanel .vc-room-game-icon{min-height:46px!important}
+ #bagchal-blogger-container #onlinePanel > div:nth-child(3){padding:11px!important}
+}
+@media(max-width:350px){#bagchal-blogger-container #onlinePanel .vc-online-heading-badge{display:none}}
+
+</style>
 </body>
 </html>
