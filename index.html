@@ -6468,12 +6468,56 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   var source=root.querySelector('#roomCodeText');
   var display=root.querySelector('#roomCodeDisplay');
   if(!heroCode||!source)return;
+  function currentCode(){return (source.textContent||'').trim();}
   function sync(){
-    var code=(source.textContent||'').trim();
-    var visible=/^\d{4}$/.test(code);
+    var code=currentCode();
+    var visible=/^\\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
-    heroCode.setAttribute('aria-label',visible?'Room code '+code:'No room code yet');
+    heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'No room code yet');
+    heroCode.setAttribute('role','button');
+    heroCode.setAttribute('tabindex','0');
+    heroCode.setAttribute('title',visible?'Click to copy room code':'Create or join a room first');
+    heroCode.setAttribute('aria-disabled',visible?'false':'true');
   }
+  function copyRoomCode(){
+    var code=currentCode();
+    if(!/^\\d{4}$/.test(code))return;
+    function copied(){
+      heroCode.setAttribute('data-copy-state','COPIED');
+      heroCode.setAttribute('aria-label','Room code '+code+' copied');
+      clearTimeout(heroCode._copyFeedbackTimer);
+      heroCode._copyFeedbackTimer=setTimeout(function(){
+        heroCode.removeAttribute('data-copy-state');
+        sync();
+      },1400);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(copied).catch(function(){fallbackCopy(code);});
+    }else fallbackCopy(code);
+  }
+  function fallbackCopy(code){
+    var field=document.createElement('textarea');
+    field.value=code;field.setAttribute('readonly','');
+    field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
+    document.body.appendChild(field);field.select();
+    var ok=false;
+    try{ok=document.execCommand('copy');}catch(e){}
+    field.remove();
+    if(ok){
+      heroCode.setAttribute('data-copy-state','COPIED');
+      heroCode.setAttribute('aria-label','Room code '+code+' copied');
+      clearTimeout(heroCode._copyFeedbackTimer);
+      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1400);
+    }else{
+      heroCode.setAttribute('data-copy-state','COPY FAILED');
+      clearTimeout(heroCode._copyFeedbackTimer);
+      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1800);
+    }
+  }
+  heroCode.addEventListener('click',copyRoomCode);
+  heroCode.addEventListener('keydown',function(event){
+    if(event.key==='Enter'||event.key===' '){event.preventDefault();copyRoomCode();}
+  });
   new MutationObserver(sync).observe(source,{childList:true,characterData:true,subtree:true});
   if(display)new MutationObserver(sync).observe(display,{attributes:true,attributeFilter:['style','class']});
   sync();
@@ -6500,6 +6544,14 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 <style id="vc-hide-bottom-room-code">
 /* The live room code is shown in the hero; hide the duplicate in the lower room panel. */
 #bagchal-blogger-container #onlinePanel #roomCodeDisplay{display:none!important}
+</style>
+
+<style id="vc-hero-room-code-click-copy">
+#bagchal-blogger-container #vcHeroRoomCode{cursor:pointer;position:relative;display:inline-block;user-select:none;-webkit-user-select:none;transition:transform .16s ease,filter .16s ease}
+#bagchal-blogger-container #vcHeroRoomCode[aria-disabled="true"]{cursor:default}
+#bagchal-blogger-container #vcHeroRoomCode:not([aria-disabled="true"]):active{transform:scale(.97)}
+#bagchal-blogger-container #vcHeroRoomCode:focus-visible{outline:2px solid #9b8cff;outline-offset:7px;border-radius:7px}
+#bagchal-blogger-container #vcHeroRoomCode[data-copy-state]::after{content:attr(data-copy-state);position:absolute;top:-15px;right:-43px;padding:3px 6px;border:1px solid rgba(167,243,208,.45);border-radius:6px;background:#12352f;color:#a7f3d0;font:700 9px/1.2 Inter,Arial,sans-serif;letter-spacing:.08em;white-space:nowrap}
 </style>
 </body>
 </html>
