@@ -6471,7 +6471,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   if(!heroCode||!source)return;
   function sync(){
     var code=(source.textContent||'').trim();
-    var visible=display&&getComputedStyle(display).display!=='none'&&/^\\d{4}$/.test(code);
+    var visible=display&&getComputedStyle(display).display!=='none'&&/^\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
     heroCode.setAttribute('aria-label',visible?'Room code '+code:'No room code yet');
   }
