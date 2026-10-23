@@ -2914,17 +2914,37 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         return perspective === GOAT ? score : -score;
     }
 
-    function hardestSearch(position, turn, depth, perspective, alpha, beta) {
-        const terminal = position.goatsCaptured >= 5;
-        if (terminal || depth <= 0) return hardestEvaluate(position, perspective);
+    function hardestOrderScore(position, action, turn) {
+        const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
+        let score = action.type === 'capture' ? 100000 + next.goatsCaptured * 1000 : 0;
+        const {board} = next;
+        if (turn === GOAT) {
+            const {row,col} = getRowCol(action.dest);
+            score += (4 - Math.abs(2-row) - Math.abs(2-col)) * 12;
+            let neighbours = 0;
+            for (let i=0;i<25;i++) if (board[i]===GOAT && i!==action.dest && isValidConnection(action.dest,i)) neighbours++;
+            score += neighbours * 5;
+            // Prioritize placements that immediately reduce tiger mobility.
+            let tigerMoves = 0;
+            for (let i=0;i<25;i++) if(board[i]===TIGER) tigerMoves += getValidMovesForBoard(i,board).length + getValidCapturesForBoard(i,board).length;
+            score -= tigerMoves * 2;
+        } else {
+            const {row,col} = getRowCol(action.dest);
+            score += (4 - Math.abs(2-row) - Math.abs(2-col)) * 8;
+            if (action.type !== 'capture') score += getValidCapturesForBoard(action.dest,board).length * 700;
+        }
+        return score;
+    }
 
+    function hardestSearch(position, turn, depth, perspective, alpha, beta) {
+        if (position.goatsCaptured >= 5 || depth <= 0) return hardestEvaluate(position, perspective);
         const actions = hardestGetActions(position.board, turn, position.goatsToPlace);
         if (!actions.length) return hardestEvaluate(position, perspective);
-        // Order captures and tactically useful moves first so alpha-beta pruning is effective.
-        actions.sort((a,b) => (b.type === 'capture' ? 1000 : 0) - (a.type === 'capture' ? 1000 : 0));
+        // Search every legal action. Ordering improves alpha-beta pruning without silently
+        // discarding legal moves, which the previous eight-move cutoff did.
+        actions.sort((a,b) => hardestOrderScore(position,b,turn) - hardestOrderScore(position,a,turn));
         const maximizing = turn === perspective;
         let best = maximizing ? -Infinity : Infinity;
-        let considered = 0;
         for (const action of actions) {
             const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
             const value = hardestSearch(next, turn === GOAT ? TIGER : GOAT, depth - 1, perspective, alpha, beta);
@@ -2936,8 +2956,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 beta = Math.min(beta, best);
             }
             if (beta <= alpha) break;
-            // Keep browser response time predictable on mobile.
-            if (++considered >= 8) break;
         }
         return best;
     }
