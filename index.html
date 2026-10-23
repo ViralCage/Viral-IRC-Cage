@@ -4862,8 +4862,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     async function startVoiceChat() {
-        if (!onlineRoomRef || !onlineRole || !firebaseReady || onlineAiOpponent) {
-            setVoiceStatus('Join an invite room or connect to a real player before starting voice chat.');
+        if (!onlineRoomRef || !onlineRole || !firebaseReady || onlineAiOpponent || !vcOpponentConnected) {
+            setVoiceStatus('Voice and video calls become available when another human player joins this room.');
             return;
         }
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.RTCPeerConnection) {
@@ -6116,12 +6116,18 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 #bagchal-blogger-container #chatInput { flex:1; min-width:0; width:100%; box-sizing:border-box; padding:11px 12px; border:1px solid #344765; border-radius:11px; background:#101c30; color:#f4f7ff; }
 #bagchal-blogger-container #sendChatBtn { display:inline-flex !important; width:42px; height:42px; flex:0 0 42px; align-items:center; justify-content:center; padding:9px; border:0; border-radius:11px; background:linear-gradient(135deg,#6d5dfc,#3578f6); color:#fff; }
 #bagchal-blogger-container #sendChatBtn svg { width:20px; height:20px; }
+/* Calls stay hidden until a second human player is present in this room. */
 #bagchal-blogger-container #startVoiceBtn,
-#bagchal-blogger-container #stopVoiceBtn,
 #bagchal-blogger-container #startVideoBtn,
-#bagchal-blogger-container #voiceChatPanel,
-#bagchal-blogger-container #videoCallStage,
-#bagchal-blogger-container #incomingCallPopup { display:none !important; }
+#bagchal-blogger-container #stopVoiceBtn,
+#bagchal-blogger-container #voiceChatPanel { display:none !important; }
+#bagchal-blogger-container.vc-call-ready #startVoiceBtn,
+#bagchal-blogger-container.vc-call-ready #startVideoBtn { display:inline-flex !important; }
+#bagchal-blogger-container.vc-call-ready #voiceChatPanel { display:block !important; }
+#bagchal-blogger-container.vc-call-active #stopVoiceBtn { display:inline-flex !important; }
+#bagchal-blogger-container #videoCallStage { display:none !important; }
+#bagchal-blogger-container #videoCallStage.active { display:block !important; }
+#incomingCallPopup:not([hidden]) { display:block !important; }
 #bagchal-blogger-container #vcP2PChatStatus { margin:0 12px 12px; min-height:16px; color:#91a4c5; font-size:11px; line-height:1.4; }
 #bagchal-blogger-container .vc-p2p-message { margin:0 0 9px; padding:8px 10px; border-radius:10px; background:#17243a; overflow-wrap:anywhere; }
 #bagchal-blogger-container .vc-p2p-message.vc-mine { background:#1b3762; }
@@ -6366,6 +6372,63 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     destroyed = true;
     clearInterval(syncTimer);
     stopPeer();
+  });
+})();
+</script>
+
+
+<style id="vc-p2p-call-availability-style">
+#bagchal-blogger-container.vc-call-ready #startVoiceBtn,
+#bagchal-blogger-container.vc-call-ready #startVideoBtn { opacity:1; }
+#bagchal-blogger-container:not(.vc-call-ready) #startVoiceBtn,
+#bagchal-blogger-container:not(.vc-call-ready) #startVideoBtn,
+#bagchal-blogger-container:not(.vc-call-active) #stopVoiceBtn { display:none !important; }
+#bagchal-blogger-container.vc-call-ready #voiceChatPanel { display:block !important; }
+#bagchal-blogger-container #videoCallStage.active { display:block !important; }
+#incomingCallPopup[hidden] { display:none !important; }
+</style>
+<script id="vc-p2p-call-availability-script">
+(function () {
+  'use strict';
+  var root = document.getElementById('bagchal-blogger-container');
+  if (!root) return;
+  var voiceButton = root.querySelector('#startVoiceBtn');
+  var videoButton = root.querySelector('#startVideoBtn');
+  var endButton = root.querySelector('#stopVoiceBtn');
+  var panel = root.querySelector('#voiceChatPanel');
+  var popup = document.getElementById('incomingCallPopup');
+
+  function syncCallAvailability() {
+    var roomJoined = typeof state !== 'undefined' && state.mode === 'online' &&
+      typeof onlineRoomId !== 'undefined' && !!onlineRoomId &&
+      typeof onlineRole !== 'undefined' && !!onlineRole &&
+      typeof onlineRoomRef !== 'undefined' && !!onlineRoomRef &&
+      typeof firebaseReady !== 'undefined' && firebaseReady;
+    var humanOpponentPresent = roomJoined &&
+      typeof vcOpponentConnected !== 'undefined' && vcOpponentConnected &&
+      !(typeof onlineAiOpponent !== 'undefined' && onlineAiOpponent);
+    var callActive = humanOpponentPresent &&
+      typeof voiceActive !== 'undefined' && voiceActive;
+
+    root.classList.toggle('vc-call-ready', humanOpponentPresent);
+    root.classList.toggle('vc-call-active', callActive);
+
+    if (voiceButton) voiceButton.disabled = !humanOpponentPresent || !!(typeof voiceActive !== 'undefined' && voiceActive);
+    if (videoButton) videoButton.disabled = !humanOpponentPresent || !!(typeof voiceActive !== 'undefined' && voiceActive);
+    if (endButton) endButton.disabled = !callActive;
+    if (panel && !humanOpponentPresent) panel.style.display = 'none';
+    if (!humanOpponentPresent && popup && !popup.hidden) popup.hidden = true;
+
+    if (!humanOpponentPresent && typeof voiceActive !== 'undefined' && voiceActive &&
+        typeof stopVoiceChat === 'function') {
+      stopVoiceChat(true);
+    }
+  }
+
+  syncCallAvailability();
+  window.setInterval(syncCallAvailability, 400);
+  window.addEventListener('pagehide', function () {
+    root.classList.remove('vc-call-ready', 'vc-call-active');
   });
 })();
 </script>
