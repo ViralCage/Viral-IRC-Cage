@@ -421,7 +421,8 @@
     
     
     /* Facebook Messenger-style incoming voice call card */
-    #incomingCallPopup { position:fixed; right:18px; bottom:88px; z-index:2147483001; width:min(330px, calc(100vw - 24px)); box-sizing:border-box; padding:16px; border:1px solid #dbe3ef; border-radius:16px; background:#fff; color:#172033; box-shadow:0 12px 36px rgba(0,0,0,.28); font-family:system-ui,sans-serif; }
+    #incomingCallPopup { position:fixed; left:50%; top:50%; right:auto; bottom:auto; transform:translate(-50%,-50%); z-index:2147483647; width:min(420px,calc(100vw - 28px)); box-sizing:border-box; padding:24px; border:1px solid #dbe3ef; border-radius:22px; background:#fff; color:#172033; box-shadow:0 24px 80px rgba(0,0,0,.42); font-family:system-ui,sans-serif; }
+    body:has(#incomingCallPopup:not([hidden]))::after { content:""; position:fixed; inset:0; z-index:2147483646; background:rgba(8,15,30,.62); backdrop-filter:blur(5px); pointer-events:none; }
     #incomingCallPopup[hidden] { display:none !important; }
     .incoming-call-person { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
     .incoming-call-avatar { width:48px; height:48px; flex:0 0 48px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#e7f0ff; color:#1877f2; }
@@ -433,7 +434,7 @@
     #acceptVoiceCallBtn { background:#16a34a; color:#fff; }
     #declineVoiceCallBtn { background:#f1f3f6; color:#b42318; }
     @media (max-width:600px) {
-      #incomingCallPopup { right:12px; left:12px; bottom:calc(74px + env(safe-area-inset-bottom)); width:auto; max-width:390px; margin-left:auto; margin-right:auto; padding:14px; }
+      #incomingCallPopup { left:50%; top:50%; right:auto; bottom:auto; width:calc(100vw - 28px); max-width:420px; margin:0; padding:20px; transform:translate(-50%,-50%); }
       .incoming-call-actions button { min-height:46px; }
     }
 
@@ -1703,10 +1704,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     
 
-    <div id="incomingCallPopup" role="dialog" aria-modal="false" aria-labelledby="incomingCallName" hidden>
+    <div id="incomingCallPopup" role="dialog" aria-modal="true" aria-labelledby="incomingCallName" hidden>
         <div class="incoming-call-person">
             <div class="incoming-call-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg></div>
-            <div><div id="incomingCallName">Incoming voice call</div><div class="incoming-call-subtitle">Your opponent is calling you</div></div>
+            <div><div id="incomingCallName">Incoming voice call</div><div class="incoming-call-subtitle">Your opponent is calling you</div><div id="incomingCallCountdown" class="incoming-call-subtitle">Ringing · 30 seconds to answer</div></div>
         </div>
         <div class="incoming-call-actions"><button id="declineVoiceCallBtn" type="button">Decline</button><button id="acceptVoiceCallBtn" type="button">Answer</button></div>
     </div>
@@ -1774,6 +1775,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         <select id="aiLevel" aria-label="AI level" style="display:none" tabindex="-1" aria-hidden="true">
             <option value="hardest" selected>Strongest AI</option>
         </select>
+        <button id="undoBtn" style="display:none" tabindex="-1" aria-hidden="true">Undo</button>
     </div>
 
 
@@ -1945,6 +1947,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let voiceCandidateListener = null;
     let incomingVoiceListener = null;
     let incomingVoiceOffer = null;
+    let incomingCallTimeout = null;
+    let incomingCallCountdownInterval = null;
+    let outgoingCallTimeout = null;
+    let outgoingDeclineListener = null;
     let voiceCallerRole = null;
     let ringtoneHandle = null;
     let outgoingRingtoneHandle = null;
@@ -4000,6 +4006,34 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 setVoiceStatus('Incoming ' + (offer.mediaType === 'video' ? 'video' : 'voice') + ' call from ' + (offer.callerName || 'your opponent') + '. Answer the call popup.');
                 if (offerId !== previousId || !ringtoneHandle) startIncomingRingtone();
                 if (offerId !== previousId) {
+                    if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
+                    if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
+                    let left = 30;
+                    const countdown = document.getElementById('incomingCallCountdown');
+                    if (countdown) countdown.textContent = 'Ringing · 30 seconds to answer';
+                    incomingCallCountdownInterval = setInterval(() => {
+                        left = Math.max(0, left - 1);
+                        if (countdown) countdown.textContent = 'Ringing · ' + left + ' seconds to answer';
+                        if (!left) { clearInterval(incomingCallCountdownInterval); incomingCallCountdownInterval = null; }
+                    }, 1000);
+                    incomingCallTimeout = setTimeout(async () => {
+                        if (!incomingVoiceOffer || voiceActive) return;
+                        const missed = incomingVoiceOffer;
+                        incomingVoiceOffer = null;
+                        stopIncomingRingtone();
+                        if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
+                        const callPopup = document.getElementById('incomingCallPopup');
+                        if (callPopup) callPopup.hidden = true;
+                        setVoiceStatus('No answer. The incoming call expired.');
+                        try {
+                            const ref = onlineRoomRef.child('voiceChat');
+                            await ref.child('noAnswer').set({ callerRole: missed.callerRole, missedBy: roleKey(onlineRole), at: firebase.database.ServerValue.TIMESTAMP });
+                            const latest = (await ref.child('offer').once('value')).val();
+                            if (latest && latest.callerRole === missed.callerRole && latest.sdp === missed.sdp) await ref.child('offer').remove();
+                        } catch (err) { console.warn('Could not finish unanswered call:', err); }
+                    }, 30000);
+                }
+                if (offerId !== previousId) {
                     try {
                         if ('Notification' in window && Notification.permission === 'granted') {
                             const callNotice = new Notification('Incoming ' + (offer.mediaType === 'video' ? 'video call' : 'voice call'), { body: (offer.callerName || 'Your opponent') + ' is calling you in Viral Cage Play.', tag: 'baghchal-incoming-call', requireInteraction: true });
@@ -4760,7 +4794,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             };
             voicePeerConnection.onconnectionstatechange = () => {
                 const connectionState = voicePeerConnection && voicePeerConnection.connectionState;
-                if (connectionState === 'connected') { stopOutgoingRingtone(); stopIncomingRingtone(); setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.'); }
+                if (connectionState === 'connected') { if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout); if (incomingCallTimeout) clearTimeout(incomingCallTimeout); if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval); stopOutgoingRingtone(); stopIncomingRingtone(); setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.'); }
                 else if (connectionState === 'failed') setVoiceStatus('Call connection failed. This network may require a TURN relay. If Firebase errors appear in Console, fix the room voiceChat rules too.');
                 else if (connectionState === 'disconnected') setVoiceStatus('Call temporarily disconnected. Waiting to reconnect…');
             };
@@ -4795,8 +4829,31 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 await voiceRef.child('callerRole').set(roleKey(onlineRole));
                 const offer = await voicePeerConnection.createOffer();
                 await voicePeerConnection.setLocalDescription(offer);
-                await voiceRef.child('offer').set({ type: offer.type, sdp: offer.sdp, callerRole: roleKey(onlineRole), callerName: getDisplayName(), mediaType: voiceCallMediaType, at: firebase.database.ServerValue.TIMESTAMP });
+                await voiceRef.child('offer').set({ type: offer.type, sdp: offer.sdp, callerRole: roleKey(onlineRole), callerName: getDisplayName(), mediaType: voiceCallMediaType, at: firebase.database.ServerValue.TIMESTAMP, status: 'ringing' });
                 startOutgoingRingtone();
+                if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout);
+                if (outgoingDeclineListener) voiceRef.child('declined').off('value', outgoingDeclineListener);
+                outgoingDeclineListener = snap => {
+                    const result = snap.val();
+                    if (result && result.callerRole === roleKey(onlineRole)) {
+                        stopOutgoingRingtone();
+                        if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout);
+                        setVoiceStatus('Call declined.');
+                        voiceRef.child('declined').off('value', outgoingDeclineListener);
+                        outgoingDeclineListener = null;
+                    }
+                };
+                voiceRef.child('declined').on('value', outgoingDeclineListener);
+                outgoingCallTimeout = setTimeout(async () => {
+                    if (!voicePeerConnection || voicePeerConnection.connectionState !== 'connected') {
+                        stopOutgoingRingtone();
+                        setVoiceStatus('No answer. The call ended after 30 seconds.');
+                        try {
+                            const latest = (await voiceRef.child('offer').once('value')).val();
+                            if (latest && latest.callerRole === roleKey(onlineRole) && latest.sdp === offer.sdp) await voiceRef.child('offer').remove();
+                        } catch (err) { console.warn('Could not clear unanswered outgoing call:', err); }
+                    }
+                }, 30000);
             }
         } catch (err) {
             console.error('Could not start voice/video call:', err);
@@ -4848,6 +4905,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         voiceActive = false;
         voiceMuted = false;
         voiceCallerRole = null;
+        if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
+        if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
+        if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout);
+        if (outgoingDeclineListener && onlineRoomRef) onlineRoomRef.child('voiceChat/declined').off('value', outgoingDeclineListener);
+        outgoingDeclineListener = null;
+        stopOutgoingRingtone();
         stopIncomingRingtone();
         stopOutgoingRingtone();
         const incomingPopup = document.getElementById('incomingCallPopup');
@@ -5005,6 +5068,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const popup = document.getElementById('incomingCallPopup');
         if (popup) popup.hidden = true;
         stopIncomingRingtone();
+        if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
+        if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
         setVoiceStatus('Incoming call declined.');
         const declinedOffer = incomingVoiceOffer;
         incomingVoiceOffer = null;
@@ -5095,6 +5160,24 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }).catch(err => { console.error(err); setOnlineStatus('Could not decline restart request.'); });
     });
 
+    document.getElementById('undoBtn').addEventListener('click', () => {
+        if (state.mode === 'online') {
+            setOnlineStatus('Undo is disabled in online multiplayer to keep both players synchronized.');
+            return;
+        }
+        if (state.history.length === 0) return;
+        const prev = JSON.parse(state.history.pop());
+        state.board = prev.board;
+        state.goatsToPlace = prev.goatsToPlace;
+        state.goatsCaptured = prev.goatsCaptured;
+        state.turn = prev.turn;
+        state.selectedPosition = prev.selectedPosition;
+        state.winner = prev.winner;
+
+        document.getElementById('messageOverlay').classList.remove('active');
+        updateStatusUI();
+        drawBoard();
+    });
 
     function syncModeCardUI() {
         const selector = document.getElementById('gameSelection');
@@ -5214,6 +5297,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         document.getElementById('checkersPlayerCards').style.display = (state.mode === 'ai-checkers' || state.mode === 'ai-chess' || (isOnline && (onlineGameType === 'checkers' || onlineGameType === 'chess'))) ? 'grid' : 'none';
         updateInstructionsVisibility();
         document.querySelector('.status-board').style.gridTemplateColumns = 'repeat(3, 1fr)';
+        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isCheckersActive() || isFourConnectActive() || isChipBombActive()) ? 'none' : '';
         document.getElementById('onlinePreferredRole').closest('div').style.display = isOnline ? 'flex' : 'none';
         document.getElementById('playerNamesStatus').style.display = isOnline ? '' : 'none';
         const localHelp = document.getElementById('localModeHelp');
