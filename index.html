@@ -1529,15 +1529,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
 <div id="bagchal-blogger-container">
     <div class="game-topbar">
-        <div class="vc-brand-lockup"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
+        <a class="vc-brand-lockup vc-logo-home" href="#bagchal-blogger-container" data-vc-nav="home" aria-label="Viral Cage Play home"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id="vcBrandGradient" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#B39AFF"/><stop offset=".52" stop-color="#7770FF"/><stop offset="1" stop-color="#38C7F2"/></linearGradient></defs>
   <rect x="2" y="2" width="44" height="44" rx="14" fill="#10192B" stroke="url(#vcBrandGradient)" stroke-width="1.5"/>
   <path d="M13 10H35V38H13Z" fill="none" stroke="url(#vcBrandGradient)" stroke-width="1.6" stroke-linejoin="round"/>
   <path d="M16 17L24 34L32 17M18.5 23H29.5" fill="none" stroke="#F8FAFF" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="13" cy="10" r="2" fill="#38C7F2"/><circle cx="35" cy="38" r="2" fill="#B39AFF"/>
-</svg></span><span class="vc-brand-words"><strong>VIRAL CAGE <em>PLAY</em></strong><small>Strategy starts here</small></span></div>
+</svg></span><span class="vc-brand-words"><strong>VIRAL CAGE <em>PLAY</em></strong><small>Strategy starts here</small></span></a>
         <nav class="vc-main-nav" id="vcMainNav" aria-label="Main navigation">
-          <a href="#bagchal-blogger-container" data-vc-nav="home">Home</a>
           <a href="#vcGameArena" data-vc-nav="games">Games</a>
           <button type="button" data-legal-open="instructions">Rules &amp; Help</button>
           <button type="button" data-legal-open="privacy">Privacy</button>
@@ -1819,13 +1818,13 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     </section>
 
     <footer class="vc-portal-footer">
-      <div class="vc-footer-brand"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
+      <a class="vc-footer-brand vc-logo-home" href="#bagchal-blogger-container" data-vc-nav="home" aria-label="Viral Cage Play home"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id="vcBrandGradientFooter" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#B39AFF"/><stop offset=".52" stop-color="#7770FF"/><stop offset="1" stop-color="#38C7F2"/></linearGradient></defs>
   <rect x="2" y="2" width="44" height="44" rx="14" fill="#10192B" stroke="url(#vcBrandGradientFooter)" stroke-width="1.5"/>
   <path d="M13 10H35V38H13Z" fill="none" stroke="url(#vcBrandGradientFooter)" stroke-width="1.6" stroke-linejoin="round"/>
   <path d="M16 17L24 34L32 17M18.5 23H29.5" fill="none" stroke="#F8FAFF" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="13" cy="10" r="2" fill="#38C7F2"/><circle cx="35" cy="38" r="2" fill="#B39AFF"/>
-</svg></span><span><strong>VIRAL CAGE <em>PLAY</em></strong><small>Play. Think. Connect.</small></span></div>
+</svg></span><span><strong>VIRAL CAGE <em>PLAY</em></strong><small>Play. Think. Connect.</small></span></a>
       <p>Free strategy games for friends, families and curious minds.</p>
       <div class="vc-legal-links">
         <button type="button" data-legal-open="instructions">Instructions &amp; Rules</button>
@@ -1922,7 +1921,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let matchPollHandle = null;
     let onlineChatListener = null;
     let onlinePointerListener = null;
-    let lastPointerSendAt = 0;
     let opponentPointer = null;
     let displayName = '';
     let randomMatchCancelled = false;
@@ -3533,31 +3531,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             }
         }
 
-        // Live opponent cursor: position is normalized so it remains aligned on resized boards.
-        if (state.mode === 'online' && opponentPointer && Number.isFinite(Number(opponentPointer.x)) && Number.isFinite(Number(opponentPointer.y))) {
-            const px = Math.max(0, Math.min(1, Number(opponentPointer.x))) * width;
-            const py = Math.max(0, Math.min(1, Number(opponentPointer.y))) * height;
-            ctx.save();
-            ctx.fillStyle = '#f6c400';
-            ctx.strokeStyle = '#5b4700';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(px, py);
-            ctx.lineTo(px, py + Math.max(13, width * 0.045));
-            ctx.lineTo(px + Math.max(9, width * 0.03), py + Math.max(10, width * 0.034));
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            if (opponentPointer.name) {
-                ctx.font = `600 ${Math.max(10, width * 0.027)}px system-ui, sans-serif`;
-                const label = String(opponentPointer.name).slice(0, 24);
-                const labelX = Math.min(width - ctx.measureText(label).width - 8, px + 9);
-                const labelY = Math.max(15, py - 5);
-                ctx.fillStyle = 'rgba(255,255,255,0.92)';
-                ctx.fillRect(labelX - 3, labelY - 11, ctx.measureText(label).width + 6, 16);
-                ctx.fillStyle = '#1a202c'; ctx.fillText(label, labelX, labelY);
-            }
-            ctx.restore();
-        }
+
 
         if (state.selectedPosition !== -1) {
             let options = [];
@@ -3923,14 +3897,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineGameListener = null;
         if (onlineRoomRef && onlineLiveClickListener) onlineRoomRef.child('liveClicks').off('value', onlineLiveClickListener);
         if (onlineRoomRef && onlineRestartListener) onlineRoomRef.child('restartRequests').off('value', onlineRestartListener);
-        if (onlineRoomRef && onlinePointerListener) onlineRoomRef.child('livePointers').off('value', onlinePointerListener);
         if (onlineRoomRef && incomingVoiceListener) onlineRoomRef.child('voiceChat/offer').off('value', incomingVoiceListener);
         if (onlineRoomRef && onlinePlayerNamesListener) onlineRoomRef.child('playerNames').off('value', onlinePlayerNamesListener);
         incomingVoiceListener = null; onlinePlayerNamesListener = null;
         incomingVoiceOffer = null; stopIncomingRingtone();
         onlineChatListener = null;
-        onlinePointerListener = null;
-        opponentPointer = null;
         onlineLiveClickListener = null;
         onlineRestartListener = null;
         onlineOpponentClick = null;
@@ -3997,6 +3968,13 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const previousId = previousOffer ? String(previousOffer.at || '') + '|' + String(previousOffer.callerRole) + '|' + String(previousOffer.sdp || '').slice(-80) : '';
             incomingVoiceOffer = offer;
             if (!voiceActive && !onlineAiOpponent) {
+                // A new offer after disconnect/decline/no-answer starts a fresh alert cycle.
+                if (offerId !== previousId) {
+                    if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
+                    if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
+                    const freshPopup = document.getElementById('incomingCallPopup');
+                    if (freshPopup) freshPopup.hidden = false;
+                }
                 const popup = document.getElementById('incomingCallPopup');
                 const callerLabel = document.getElementById('incomingCallName');
                 if (callerLabel) callerLabel.textContent = (offer.mediaType === 'video' ? 'Incoming video call from ' : 'Incoming call from ') + (offer.callerName || 'your opponent');
@@ -4044,13 +4022,36 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             }
         };
         onlineRoomRef.child('voiceChat/offer').on('value', incomingVoiceListener);
-        // Track live room presence so abandoned player slots can be reclaimed.
+        // Publish this player's presence and watch the opponent. If an opponent who
+        // was present disconnects, immediately close any voice/video call on this device.
         if (firebaseUser && role != null) {
             const presenceRef = onlineRoomRef.child('presence/' + roleKey(role));
             presenceRef.onDisconnect().remove().then(() => {
                 presenceRef.set({ uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP })
                     .catch(err => console.warn('Could not update room presence:', err));
             }).catch(err => console.warn('Could not register room presence:', err));
+            const opponentPresenceRef = onlineRoomRef.child('presence/' + roleKey(oppositeRole(role)));
+            let opponentWasPresent = false;
+            if (window.vcOpponentPresenceRef && window.vcOpponentPresenceListener) {
+                window.vcOpponentPresenceRef.off('value', window.vcOpponentPresenceListener);
+            }
+            window.vcOpponentPresenceRef = opponentPresenceRef;
+            window.vcOpponentPresenceListener = snap => {
+                if (snap.exists()) {
+                    opponentWasPresent = true;
+                    return;
+                }
+                if (!opponentWasPresent) return;
+                opponentWasPresent = false;
+                const callWasOpen = !!(voiceActive || voicePeerConnection || incomingVoiceOffer || ringtoneHandle || outgoingRingtoneHandle);
+                if (callWasOpen) {
+                    stopVoiceChat(true);
+                    const popup = document.getElementById('incomingCallPopup');
+                    if (popup) popup.hidden = true;
+                    setVoiceStatus('Your opponent left the room. The voice/video call has ended.');
+                }
+            };
+            opponentPresenceRef.on('value', window.vcOpponentPresenceListener);
         }
         state.mode = 'online';
         document.getElementById('gameMode').value = 'online';
@@ -4162,13 +4163,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         };
         onlineRoomRef.child('liveClicks').on('value', onlineLiveClickListener);
 
-        // Text chat is disabled: no Firebase chat listener or chat database reads.
-        onlinePointerListener = snap => {
-            const pointers = snap.val() || {};
-            opponentPointer = pointers[roleKey(oppositeRole(onlineRole))] || null;
-            drawBoard();
-        };
-        onlineRoomRef.child('livePointers').on('value', onlinePointerListener);
+        // Live mouse/touch cursor sharing is disabled for all games.
         document.getElementById('startVoiceBtn').disabled = !!onlineAiOpponent;
         document.getElementById('startVideoBtn').disabled = !!onlineAiOpponent;
         document.getElementById('voiceStatus').textContent = onlineAiOpponent ? 'Voice chat is available only when playing against another person.' : 'Start a voice call. Your opponent will hear a ringtone and can click Answer.';
@@ -4824,6 +4819,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 // Clear old signaling before starting a new call, then publish this player's offer.
                 await voiceRef.child('offer').remove();
                 await voiceRef.child('answer').remove();
+                await voiceRef.child('declined').remove();
+                await voiceRef.child('noAnswer').remove();
                 await voiceRef.child('candidates/goat').remove();
                 await voiceRef.child('candidates/tiger').remove();
                 await voiceRef.child('callerRole').set(roleKey(onlineRole));
@@ -4905,6 +4902,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         voiceActive = false;
         voiceMuted = false;
         voiceCallerRole = null;
+        // Reset the previous incoming offer so the next call from the same player
+        // is always treated as a new call and can show its popup/ringtone again.
+        incomingVoiceOffer = null;
         if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
         if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
         if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout);
@@ -5090,21 +5090,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     const videoEndCallBtn = document.getElementById('videoEndCallBtn');
     if (videoEndCallBtn) videoEndCallBtn.addEventListener('click', () => stopVoiceChat(false));
 
-    function publishLivePointer(event) {
-        if (state.mode !== 'online' || !onlineRoomRef || !onlineRole || !firebaseReady || onlineAiOpponent) return;
-        const now = Date.now();
-        if (now - lastPointerSendAt < 70) return;
-        lastPointerSendAt = now;
-        const rect = canvas.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
-        const point = { x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)), y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)), name: getDisplayName(), at: firebase.database.ServerValue.TIMESTAMP };
-        onlineRoomRef.child('livePointers/' + roleKey(onlineRole)).set(point).catch(() => {});
-    }
-    canvas.addEventListener('mousemove', publishLivePointer, {passive:true});
-    canvas.addEventListener('touchmove', e => { if (e.touches && e.touches[0]) publishLivePointer(e.touches[0]); }, {passive:true});
-    canvas.addEventListener('mouseleave', () => {
-        if (onlineRoomRef && onlineRole && firebaseReady) onlineRoomRef.child('livePointers/' + roleKey(onlineRole)).remove().catch(() => {});
-    });
+    // No live mouse/touch position is published to Firebase.
+
 
     canvas.addEventListener('mousedown', processInteractionEvent);
     canvas.addEventListener('touchstart', processInteractionEvent, {passive: false});
@@ -5839,6 +5826,11 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 <style id="vc-remove-create-account-section">
 /* Account creation UI removed; guest/profile nickname and game features remain available. */
 #vcAccountOpen, #vcAccountModal { display:none !important; visibility:hidden !important; pointer-events:none !important; }
+
+/* Clickable Viral Cage logo: return to the portal home */
+#bagchal-blogger-container .vc-logo-home{color:inherit;text-decoration:none;cursor:pointer}
+#bagchal-blogger-container .vc-logo-home:focus-visible{outline:2px solid #8b83ff;outline-offset:5px;border-radius:8px}
+#bagchal-blogger-container .vc-footer-brand.vc-logo-home{display:flex;align-items:center}
 </style>
 </body>
 </html>
