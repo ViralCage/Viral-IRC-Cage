@@ -2942,11 +2942,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (!actions.length) return hardestEvaluate(position, perspective);
         // Search every legal action. Ordering improves alpha-beta pruning without silently
         // discarding legal moves, which the previous eight-move cutoff did.
-        actions.sort((a,b) => hardestOrderScore(position,b,turn) - hardestOrderScore(position,a,turn));
+        // Score each candidate once. Calling the evaluator from Array.sort's comparator
+        // repeatedly was needlessly expensive on phones and tablets.
+        const ordered = actions.map(action => ({
+            action,
+            order: hardestOrderScore(position, action, turn)
+        })).sort((a,b) => b.order - a.order);
         const maximizing = turn === perspective;
         let best = maximizing ? -Infinity : Infinity;
-        for (const action of actions) {
-            const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
+        for (const item of ordered) {
+            const next = hardestApply(position.board, item.action, position.goatsToPlace, position.goatsCaptured);
             const value = hardestSearch(next, turn === GOAT ? TIGER : GOAT, depth - 1, perspective, alpha, beta);
             if (maximizing) {
                 if (value > best) best = value;
@@ -2966,12 +2971,17 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const position = {board: state.board.slice(), goatsToPlace: state.goatsToPlace, goatsCaptured: state.goatsCaptured};
         const perspective = state.turn;
         let best = -Infinity, candidates = [];
-        // Depth 3 searches the chosen move, opponent reply, and next response.
-        for (const action of actions) {
-            const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
+        // Search tactically promising root moves first so alpha-beta pruning is effective.
+        const ordered = actions.map(action => ({
+            action,
+            order: hardestOrderScore(position, action, perspective)
+        })).sort((a,b) => b.order - a.order);
+        // Three plies total: our candidate, the opponent reply, and our next response.
+        for (const item of ordered) {
+            const next = hardestApply(position.board, item.action, position.goatsToPlace, position.goatsCaptured);
             const score = hardestSearch(next, perspective === GOAT ? TIGER : GOAT, 2, perspective, -Infinity, Infinity);
-            if (score > best) { best = score; candidates = [action]; }
-            else if (score === best) candidates.push(action);
+            if (score > best) { best = score; candidates = [item.action]; }
+            else if (score === best) candidates.push(item.action);
         }
         const choice = candidates[Math.floor(Math.random() * candidates.length)];
         if (choice.type === 'place') {
