@@ -6481,38 +6481,28 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function copyRoomCode(){
     var code=currentCode();
-    if(!/^\d{4}$/.test(code))return;
-    function copied(){
-      heroCode.setAttribute('data-copy-state','COPIED');
-      heroCode.setAttribute('aria-label','Room code '+code+' copied');
+    if(!/^\\d{4}$/.test(code))return;
+    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
+    var invite=new URL('/'+routeSlug,window.location.origin);
+    invite.searchParams.set('room',code);
+    var link=invite.toString();
+    function showCopied(ok){
+      heroCode.setAttribute('data-copy-state',ok?'LINK COPIED':'COPY FAILED');
+      heroCode.setAttribute('aria-label',ok?'Room invite link copied':'Could not copy room invite link');
       clearTimeout(heroCode._copyFeedbackTimer);
-      heroCode._copyFeedbackTimer=setTimeout(function(){
-        heroCode.removeAttribute('data-copy-state');
-        sync();
-      },1400);
+      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1600);
+    }
+    function fallbackCopy(){
+      var field=document.createElement('textarea');
+      field.value=link;field.setAttribute('readonly','');
+      field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
+      document.body.appendChild(field);field.select();
+      var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+      field.remove();showCopied(ok);
     }
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(code).then(copied).catch(function(){fallbackCopy(code);});
-    }else fallbackCopy(code);
-  }
-  function fallbackCopy(code){
-    var field=document.createElement('textarea');
-    field.value=code;field.setAttribute('readonly','');
-    field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
-    document.body.appendChild(field);field.select();
-    var ok=false;
-    try{ok=document.execCommand('copy');}catch(e){}
-    field.remove();
-    if(ok){
-      heroCode.setAttribute('data-copy-state','COPIED');
-      heroCode.setAttribute('aria-label','Room code '+code+' copied');
-      clearTimeout(heroCode._copyFeedbackTimer);
-      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1400);
-    }else{
-      heroCode.setAttribute('data-copy-state','COPY FAILED');
-      clearTimeout(heroCode._copyFeedbackTimer);
-      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1800);
-    }
+      navigator.clipboard.writeText(link).then(function(){showCopied(true);}).catch(fallbackCopy);
+    }else fallbackCopy();
   }
   heroCode.addEventListener('click',copyRoomCode);
   heroCode.addEventListener('keydown',function(event){
