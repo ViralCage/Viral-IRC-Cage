@@ -1289,6 +1289,19 @@
 #bagchal-blogger-container .vc-legal-content ul{padding-left:20px}
 #bagchal-blogger-container .vc-legal-note{padding:11px 13px;border:1px solid #3b3867;border-radius:10px;background:#171932;color:#d9d5ff}
 @media(max-width:600px){#bagchal-blogger-container .vc-network-strip{font-size:10px}#bagchal-blogger-container #vcLegalModal{padding:8px}#bagchal-blogger-container .vc-legal-sheet{max-height:94dvh;border-radius:14px}#bagchal-blogger-container .vc-legal-tabs button{flex:1 1 42%;min-height:38px}}
+
+    /* Calls-only panel: disable text chat UI and all text-chat database traffic. */
+    #bagchal-blogger-container #chatMessages,
+    #bagchal-blogger-container #chatInput,
+    #bagchal-blogger-container #sendChatBtn,
+    #bagchal-blogger-container #chatStatus,
+    #bagchal-blogger-container .chat-room-divider,
+    #bagchal-blogger-container #chatUnreadDot { display:none !important; }
+    #bagchal-blogger-container #playerChat .chat-popup-header strong { letter-spacing:.2px; }
+    #bagchal-blogger-container #chatForm { display:flex !important; justify-content:center; flex-wrap:wrap; gap:10px; }
+    #bagchal-blogger-container #chatForm #startVoiceBtn,
+    #bagchal-blogger-container #chatForm #startVideoBtn { flex:1 1 120px !important; min-width:100px; }
+
 </style>
 
 <style id="vc-premium-portal-theme">
@@ -1362,6 +1375,8 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
 #bagchal-blogger-container .checkers-player-card{border-color:#34435f!important;background:#111b2d!important;color:#f2f5ff!important}
 #bagchal-blogger-container .vc-mode-current-text{color:#b4c1da!important}
 #bagchal-blogger-container .vc-mode-picker button:focus-visible,#bagchal-blogger-container button:focus-visible{outline:2px solid #a995ff!important;outline-offset:3px!important}
+
+.vc-guest-divider{display:flex;align-items:center;gap:12px;margin:16px 0 11px;color:#7081a2;font-size:9px;font-weight:900;letter-spacing:.18em}.vc-guest-divider:before,.vc-guest-divider:after{content:"";height:1px;flex:1;background:rgba(148,163,184,.18)}.vc-continue-guest{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:45px;padding:11px 14px;border:1px solid rgba(148,163,184,.3);border-radius:12px;background:rgba(255,255,255,.035);color:#eef3ff;font-size:12px;font-weight:850;cursor:pointer;transition:background .2s,border-color .2s}.vc-continue-guest:hover{background:rgba(255,255,255,.08);border-color:rgba(139,223,255,.55)}.vc-continue-guest:disabled{opacity:.6;cursor:wait}.vc-guest-note{margin:9px 0 0;color:#8294b5;font-size:10px;line-height:1.5;text-align:center}
 @media(max-width:760px){#bagchal-blogger-container{width:calc(100% - 16px)!important;margin:8px auto 22px!important;padding:12px!important;border-radius:18px!important}#bagchal-blogger-container .vc-portal-hero{min-height:0;padding:23px 18px;border-radius:17px}#bagchal-blogger-container .vc-hero-art{flex-basis:130px;width:130px;height:150px;margin-right:-12px}#bagchal-blogger-container .vc-orbit-one{width:125px;height:90px}#bagchal-blogger-container .vc-orbit-two{width:100px;height:130px}#bagchal-blogger-container .vc-piece-king{width:64px;height:73px;font-size:51px;right:12px;top:27px;border-radius:17px}#bagchal-blogger-container .vc-piece-knight{width:48px;height:52px;font-size:36px;left:4px;bottom:15px;border-radius:15px}#bagchal-blogger-container .vc-hero-mini{left:0;font-size:7px}#bagchal-blogger-container .vc-hero-spark{right:0;bottom:10px}#bagchal-blogger-container .vc-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#bagchal-blogger-container .vc-library-badge{display:none}}
 @media(max-width:460px){#bagchal-blogger-container .game-topbar{padding-bottom:15px!important;margin-bottom:15px!important}#bagchal-blogger-container .vc-brand-mark{width:38px;height:38px;flex-basis:38px;border-radius:12px}#bagchal-blogger-container .vc-brand-words strong{font-size:13px}#bagchal-blogger-container #fullscreenBtn{padding:8px 9px!important;font-size:10px!important;min-height:36px!important}#bagchal-blogger-container .vc-portal-hero{padding:22px 15px}#bagchal-blogger-container .vc-portal-hero h1{font-size:31px!important}#bagchal-blogger-container .vc-portal-hero p{font-size:11px!important;max-width:260px}#bagchal-blogger-container .vc-hero-art{position:absolute;right:-16px;bottom:0;opacity:.45;transform:scale(.86);transform-origin:bottom right}#bagchal-blogger-container .vc-hero-copy{max-width:100%}#bagchal-blogger-container .vc-hero-pills{max-width:260px}#bagchal-blogger-container .vc-hero-pills span{font-size:9px;padding:6px 8px}#bagchal-blogger-container .vc-section-heading{align-items:flex-start}#bagchal-blogger-container .vc-section-heading h2{font-size:23px!important}#bagchal-blogger-container .vc-mode-picker{padding:9px!important}#bagchal-blogger-container .vc-mode-card{min-height:73px!important;padding:9px!important;gap:8px!important}#bagchal-blogger-container .vc-mode-icon{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:18px!important}#bagchal-blogger-container .vc-mode-card-copy strong{font-size:10.5px!important}#bagchal-blogger-container .vc-mode-card-copy small{font-size:9px!important}#bagchal-blogger-container .vc-mode-tag{display:none!important}}
 @media(prefers-reduced-motion:reduce){#bagchal-blogger-container *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
@@ -1468,8 +1483,57 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
 }
 </style>
 
+<style id="vc-premium-complete-theme">
+/* Viral Cage Play — cohesive premium dark UI. Game rules and state logic remain unchanged. */
+:root{color-scheme:dark;--vc-bg:#080d18;--vc-panel:#101827;--vc-panel2:#151f32;--vc-line:#26344c;--vc-text:#edf3ff;--vc-muted:#93a4bf;--vc-blue:#6d8cff;--vc-cyan:#5de0d2;--vc-shadow:0 20px 55px rgba(0,0,0,.28)}
+html{background:#080d18!important}body{margin:0!important;background:radial-gradient(ellipse at 50% -12%,rgba(61,93,171,.22),transparent 48%),#080d18!important;color:var(--vc-text)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+#bagchal-blogger-container{width:min(100% - 24px,1080px)!important;max-width:1080px!important;margin:22px auto!important;padding:clamp(12px,2.2vw,24px)!important;box-sizing:border-box!important;background:linear-gradient(155deg,rgba(17,27,45,.98),rgba(8,14,25,.99))!important;color:var(--vc-text)!important;border:1px solid rgba(130,157,208,.22)!important;border-radius:24px!important;box-shadow:var(--vc-shadow)!important;overflow:visible!important}
+#bagchal-blogger-container *{box-sizing:border-box}#bagchal-blogger-container button,#bagchal-blogger-container input,#bagchal-blogger-container select,#bagchal-blogger-container textarea{font:inherit}#bagchal-blogger-container button{transition:transform .16s ease,border-color .16s ease,filter .16s ease}#bagchal-blogger-container button:not(:disabled):hover{filter:brightness(1.08)}#bagchal-blogger-container button:not(:disabled):active{transform:scale(.98)}
+#bagchal-blogger-container h1,#bagchal-blogger-container h2,#bagchal-blogger-container h3{color:#f5f8ff;letter-spacing:-.025em}#bagchal-blogger-container p,#bagchal-blogger-container small{color:var(--vc-muted)}
+#bagchal-blogger-container input,#bagchal-blogger-container select,#bagchal-blogger-container textarea{min-width:0;background:#0b1322!important;color:#edf3ff!important;border:1px solid #30405b!important;border-radius:12px!important;box-shadow:inset 0 1px 1px rgba(0,0,0,.16)}#bagchal-blogger-container input::placeholder,#bagchal-blogger-container textarea::placeholder{color:#70819d!important}#bagchal-blogger-container input:focus,#bagchal-blogger-container select:focus,#bagchal-blogger-container textarea:focus{outline:2px solid rgba(109,140,255,.5)!important;outline-offset:1px}
+#bagchal-blogger-container button{border-radius:12px!important}#bagchal-blogger-container #gameMode,#bagchal-blogger-container #gameType,#bagchal-blogger-container #difficulty,#bagchal-blogger-container #playAs{min-height:42px}
+#bagchal-blogger-container #gameCanvas,#bagchal-blogger-container canvas{max-width:100%;touch-action:manipulation}#bagchal-blogger-container #gameCanvas{border-radius:18px!important;box-shadow:0 12px 32px rgba(0,0,0,.28)!important}
+#bagchal-blogger-container #onlinePanel,#bagchal-blogger-container #playerChat,#bagchal-blogger-container .vc-online-directory,#bagchal-blogger-container #gameControls,#bagchal-blogger-container .game-controls,#bagchal-blogger-container .control-panel{background:rgba(16,24,39,.92)!important;color:var(--vc-text)!important;border-color:var(--vc-line)!important;border-radius:18px!important}
+#bagchal-blogger-container #playerChat{border:1px solid #2a3a54!important;box-shadow:0 18px 48px rgba(0,0,0,.4)!important}#bagchal-blogger-container .chat-popup-header{background:linear-gradient(110deg,#182641,#101827)!important;color:#f4f7ff!important;border-color:#2a3a54!important;border-radius:16px 16px 0 0!important}#bagchal-blogger-container #chatMessages{background:#0a1220!important;color:#e7efff!important;border-color:#2b3b55!important;border-radius:12px!important}#bagchal-blogger-container #guestNameDisplayRow{color:#b6c4dc}#bagchal-blogger-container #editGuestNameBtn{color:#8ca8ff!important}
+#bagchal-blogger-container .vc-online-directory{padding:16px!important;border:1px solid rgba(130,157,208,.2)!important;background:linear-gradient(145deg,rgba(18,29,48,.98),rgba(12,20,34,.98))!important;box-shadow:0 12px 28px rgba(0,0,0,.16)!important}#bagchal-blogger-container .vc-online-directory-head{align-items:center!important;gap:12px!important}#bagchal-blogger-container .vc-online-directory-head strong{font-size:14px!important;letter-spacing:-.01em}#bagchal-blogger-container .vc-directory-player,#bagchal-blogger-container .vc-invite-item{background:rgba(255,255,255,.035)!important;border:1px solid rgba(130,157,208,.16)!important;border-radius:12px!important;padding:11px!important}#bagchal-blogger-container .vc-profile-caption{color:#91a4c5!important}
+#bagchal-blogger-container #chatPopupToggle{box-shadow:0 12px 30px rgba(70,105,220,.35)!important;border:1px solid rgba(255,255,255,.15)!important}#videoCallStage{border:1px solid rgba(142,167,219,.35)!important;box-shadow:0 28px 80px rgba(0,0,0,.62)!important}#videoCallStage video{background:#0a0e17}#videoCallStage .video-call-controls{padding-bottom:env(safe-area-inset-bottom);height:calc(62px + env(safe-area-inset-bottom))!important}
+#bagchal-blogger-container #voiceStatus,#bagchal-blogger-container #chatStatus,#bagchal-blogger-container #onlineStatus,#bagchal-blogger-container #playerNamesStatus{color:#9fb2d1!important;font-size:12px!important;line-height:1.5!important}
+#bagchal-blogger-container .status,#bagchal-blogger-container [role=status]{overflow-wrap:anywhere}
+@media(max-width:640px){#bagchal-blogger-container{width:calc(100% - 12px)!important;margin:6px auto!important;padding:10px!important;border-radius:17px!important}#bagchal-blogger-container .vc-online-directory{padding:12px!important}#bagchal-blogger-container #playerChat{max-width:calc(100vw - 16px)!important}#videoCallStage{max-width:calc(100vw - 12px)!important;max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px)!important;border-radius:14px!important}}
+@media(prefers-reduced-motion:reduce){#bagchal-blogger-container *,#videoCallStage *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+
 </head>
 <body>
+
+<section id="vcAccountModal" class="vc-account-modal" hidden aria-modal="true" role="dialog" aria-labelledby="vcAccountTitle">
+  <div class="vc-account-card" role="document">
+    <button type="button" id="vcAccountClose" class="vc-account-close" aria-label="Close account window">×</button>
+    <div class="vc-account-brand"><span class="vc-account-brand-mark">VC</span><span><strong>VIRAL CAGE <em>PLAY</em></strong><small>Your games. Your profile.</small></span></div>
+    <div class="vc-account-kicker">FREE PLAYER ACCOUNT</div>
+    <h2 id="vcAccountTitle">Keep your place in the game.</h2>
+    <p class="vc-account-subtitle">Create an account with Firebase to save your nickname and sign in on another device.</p>
+    <div class="vc-account-tabs" role="tablist" aria-label="Account action">
+      <button type="button" class="active" id="vcSignupTab" role="tab" aria-selected="true">Create account</button>
+      <button type="button" id="vcSigninTab" role="tab" aria-selected="false">Sign in</button>
+    </div>
+    <form id="vcAccountForm" novalidate>
+      <label for="vcAccountNickname">Player nickname</label>
+      <input id="vcAccountNickname" name="nickname" autocomplete="nickname" minlength="2" maxlength="24" placeholder="Choose a player name" required>
+      <label for="vcAccountEmail">Email address</label>
+      <input id="vcAccountEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+      <label for="vcAccountPassword">Password</label>
+      <input id="vcAccountPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
+      <button id="vcAccountSubmit" class="vc-account-submit" type="submit">Create my free account <span aria-hidden="true">→</span></button>
+      <p id="vcAccountStatus" class="vc-account-status" role="status" aria-live="polite"></p>
+    </form>
+    <div class="vc-guest-divider"><span>OR</span></div>
+    <button type="button" id="vcContinueGuest" class="vc-continue-guest">Continue as guest <span aria-hidden="true">→</span></button>
+    <p class="vc-guest-note">Play without an email or password. Guest progress may not transfer to another device.</p>
+    <p class="vc-account-footnote">Your password is handled by Firebase Authentication. Never share it with another player.</p>
+  </div>
+</section>
+
 <div id="bagchal-blogger-container">
     <div class="game-topbar">
         <div class="vc-brand-lockup"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
@@ -1487,6 +1551,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
           <button type="button" data-legal-open="terms">Terms</button>
         </nav>
         <div class="vc-top-actions">
+          <button type="button" id="vcAccountOpen" class="vc-account-open">Create account</button>
           <button type="button" id="vcProfileBtn" class="vc-profile-btn" aria-haspopup="dialog" aria-controls="vcProfileModal" title="View or change nickname"><span class="vc-profile-avatar" aria-hidden="true">♙</span><span class="vc-profile-label" id="vcTopNickname">Guest</span></button>
           <button type="button" id="vcMobileMenuBtn" class="vc-mobile-menu-btn" aria-expanded="false" aria-controls="vcMainNav" aria-label="Open menu">☰</button>
           
@@ -1655,9 +1720,9 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         </div>
         <div class="incoming-call-actions"><button id="declineVoiceCallBtn" type="button">Decline</button><button id="acceptVoiceCallBtn" type="button">Answer</button></div>
     </div>
-    <button id="chatPopupToggle" type="button" aria-expanded="false" aria-controls="playerChat" aria-label="Open Talk and Chat" title="Talk & Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Talk</span> <span id="chatUnreadDot" aria-hidden="true"></span></button>
+    <button id="chatPopupToggle" type="button" aria-expanded="false" aria-controls="playerChat" aria-label="Open Talk and Chat" title="Talk & Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Calls</span></button>
     <div id="playerChat" hidden>
-        <div class="chat-popup-header"><strong>Talk &amp; Video</strong><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Talk panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat" title="Close">×</button></div></div>
+        <div class="chat-popup-header"><strong>Voice &amp; Video Calls</strong><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Talk panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close calls panel" title="Close">×</button></div></div>
         <div id="guestNameDisplayRow" style="display:flex; align-items:center; gap:6px; margin:8px 12px 0;">
             <span style="font-size:12px;color:#687386;">Nickname</span>
             <button id="editGuestNameBtn" type="button" title="Click to change your nickname" aria-label="Change nickname" style="border:0;background:transparent;color:#1877f2;font-weight:700;padding:4px 0;text-align:left;overflow-wrap:anywhere;">Guest</button>
@@ -1668,7 +1733,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             <button id="cancelGuestNameBtn" type="button">Cancel</button>
         </div>
         <div id="chatMessages" role="log" aria-live="polite" style="height:150px; overflow-y:auto; padding:8px; border:1px solid #e2e8f0; border-radius:7px; background:#fff; font-size:13px; overflow-wrap:anywhere;">
-            <div style="color:#718096;">Join or create an online room to chat with your opponent.</div>
+            <div style="color:#718096;">Text chat is disabled. Use voice or video calls.</div>
         </div>
         <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
             <input id="chatInput" maxlength="500" autocomplete="off" placeholder="Type a message…" aria-label="Chat message" style="flex:1; min-width:0; padding:9px; border:1px solid #a0aec0; border-radius:6px;">
@@ -1690,7 +1755,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             <button id="joinRoomBtn" type="button" title="Join with a room code"><span aria-hidden="true">↗</span> Join Room</button>
             <button id="quickMatchBtn" type="button" title="Find a random opponent"><span aria-hidden="true">⇄</span> Quick Match</button>
         </div>
-        <div id="chatStatus">Chat is available when connected to an online room.</div>
+        <div id="chatStatus">Text chat disabled.</div>
         <div class="chat-room-divider" aria-hidden="true"></div>
 
     </div>
@@ -1756,17 +1821,13 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
     <section id="vcProfileModal" class="vc-profile-modal" hidden aria-modal="true" role="dialog" aria-labelledby="vcProfileTitle">
       <div class="vc-profile-sheet" role="document">
         <div class="vc-profile-head"><div class="vc-profile-avatar vc-profile-avatar-large" aria-hidden="true">♙</div><div><h2 id="vcProfileTitle">Your player profile</h2><p>Guest profile on this device</p></div><button type="button" id="vcProfileClose" aria-label="Close profile">✕</button></div>
-        <div class="vc-profile-body"><span class="vc-profile-caption">CURRENT NICKNAME</span><strong id="vcProfileNickname">Guest</strong><p>You are playing as a guest. No password or registered account is required. Your nickname is saved in this browser.</p><div class="vc-profile-room-card" aria-label="Room sharing">
+        <div class="vc-profile-body"><span class="vc-profile-caption">CURRENT NICKNAME</span><strong id="vcProfileNickname">Guest</strong><p>Create a free account to save your nickname and profile across devices.</p><div class="vc-profile-room-card" aria-label="Room sharing">
           <span class="vc-room-card-title">CURRENT GAME ROOM</span>
           <strong id="vcProfileRoomCode">----</strong>
           <span id="vcProfileRoomHint">Create or join an online room to see its code here.</span>
+          <button type="button" id="vcProfileJoinRoomBtn">Join a Room</button>
           <button type="button" id="vcProfileShareRoomBtn" disabled>Share Room Link</button>
           <span id="vcProfileRoomStatus" aria-live="polite"></span>
-        </div>
-        <div class="vc-online-directory" aria-label="Online players">
-          <div class="vc-online-directory-head"><div><strong>Players online</strong><span id="vcDirectoryStatus">Connect to see other players</span></div><button type="button" id="vcRefreshPlayersBtn">Refresh</button></div>
-          <div id="vcOnlinePlayersList" class="vc-online-players-list"><div class="vc-directory-empty">Set up the player directory to discover players.</div></div>
-          <div class="vc-incoming-invites" id="vcIncomingInvites" hidden><strong>Game invitations</strong><div id="vcIncomingInvitesList"></div></div>
         </div>
         <div class="vc-profile-actions"><button type="button" id="vcChangeNicknameBtn" class="vc-profile-primary">Change nickname</button></div></div>
       </div>
@@ -1787,9 +1848,9 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
 
     <footer class="vc-portal-footer">
       <div class="vc-footer-brand"><span class="vc-brand-mark" aria-label="Viral Cage emblem"><svg class="vc-brand-svg" viewBox="0 0 48 48" role="img" aria-label="Viral Cage logo" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="vcBrandGradient" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#B39AFF"/><stop offset=".52" stop-color="#7770FF"/><stop offset="1" stop-color="#38C7F2"/></linearGradient></defs>
-  <rect x="2" y="2" width="44" height="44" rx="14" fill="#10192B" stroke="url(#vcBrandGradient)" stroke-width="1.5"/>
-  <path d="M13 10H35V38H13Z" fill="none" stroke="url(#vcBrandGradient)" stroke-width="1.6" stroke-linejoin="round"/>
+  <defs><linearGradient id="vcBrandGradientFooter" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#B39AFF"/><stop offset=".52" stop-color="#7770FF"/><stop offset="1" stop-color="#38C7F2"/></linearGradient></defs>
+  <rect x="2" y="2" width="44" height="44" rx="14" fill="#10192B" stroke="url(#vcBrandGradientFooter)" stroke-width="1.5"/>
+  <path d="M13 10H35V38H13Z" fill="none" stroke="url(#vcBrandGradientFooter)" stroke-width="1.6" stroke-linejoin="round"/>
   <path d="M16 17L24 34L32 17M18.5 23H29.5" fill="none" stroke="#F8FAFF" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="13" cy="10" r="2" fill="#38C7F2"/><circle cx="35" cy="38" r="2" fill="#B39AFF"/>
 </svg></span><span><strong>VIRAL CAGE <em>PLAY</em></strong><small>Play. Think. Connect.</small></span></div>
@@ -1907,6 +1968,8 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
     let voiceMuted = false;
     let voiceCallMediaType = 'audio';
     let voiceRemoteCandidates = [];
+    let voiceOfferInProgress = false;
+    let voiceSeenCandidateKeys = new Set();
     let voiceOfferListener = null;
     let voiceAnswerListener = null;
     let voiceCandidateListener = null;
@@ -1914,8 +1977,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
     let incomingVoiceOffer = null;
     let voiceCallerRole = null;
     let ringtoneHandle = null;
-    let chatHasLoaded = false;
-    let previousChatIds = new Set();
+    let outgoingRingtoneHandle = null;
     let onlinePlayerNamesListener = null;
     const SAVED_ROOM_KEY = 'bagchal.savedOnlineRoom.v1';
 
@@ -2087,6 +2149,23 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
     function stopIncomingRingtone() {
         if (ringtoneHandle) clearInterval(ringtoneHandle);
         ringtoneHandle = null;
+    }
+
+    // Local ringback for the caller; incoming callers hear startIncomingRingtone().
+    function startOutgoingRingtone() {
+        stopOutgoingRingtone();
+        playNotificationTone('ring');
+        outgoingRingtoneHandle = setInterval(() => {
+            if (!voicePeerConnection || !voiceCallerRole) { stopOutgoingRingtone(); return; }
+            const pcState = voicePeerConnection.connectionState;
+            if (pcState === 'connected' || pcState === 'failed' || pcState === 'closed') { stopOutgoingRingtone(); return; }
+            playNotificationTone('ring');
+        }, 2300);
+    }
+
+    function stopOutgoingRingtone() {
+        if (outgoingRingtoneHandle) clearInterval(outgoingRingtoneHandle);
+        outgoingRingtoneHandle = null;
     }
 
     // Play a sound only when the Firebase update represents the opponent's move.
@@ -3827,13 +3906,11 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         onlineGameListener = null;
         if (onlineRoomRef && onlineLiveClickListener) onlineRoomRef.child('liveClicks').off('value', onlineLiveClickListener);
         if (onlineRoomRef && onlineRestartListener) onlineRoomRef.child('restartRequests').off('value', onlineRestartListener);
-        if (onlineRoomRef && onlineChatListener) onlineRoomRef.child('chat').off('value', onlineChatListener);
         if (onlineRoomRef && onlinePointerListener) onlineRoomRef.child('livePointers').off('value', onlinePointerListener);
         if (onlineRoomRef && incomingVoiceListener) onlineRoomRef.child('voiceChat/offer').off('value', incomingVoiceListener);
         if (onlineRoomRef && onlinePlayerNamesListener) onlineRoomRef.child('playerNames').off('value', onlinePlayerNamesListener);
         incomingVoiceListener = null; onlinePlayerNamesListener = null;
         incomingVoiceOffer = null; stopIncomingRingtone();
-        chatHasLoaded = false; previousChatIds = new Set();
         onlineChatListener = null;
         onlinePointerListener = null;
         opponentPointer = null;
@@ -4030,27 +4107,13 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         };
         onlineRoomRef.child('liveClicks').on('value', onlineLiveClickListener);
 
-        onlineChatListener = snap => {
-            const messages = snap.val() || {};
-            const ids = Object.keys(messages);
-            if (chatHasLoaded) {
-                const newIncoming = ids.some(id => !previousChatIds.has(id) && messages[id] && messages[id].uid && messages[id].uid !== (firebaseUser && firebaseUser.uid));
-                if (newIncoming) playNotificationTone('message');
-            }
-            previousChatIds = new Set(ids);
-            chatHasLoaded = true;
-            renderChatMessages(messages);
-        };
-        onlineRoomRef.child('chat').limitToLast(100).on('value', onlineChatListener);
+        // Text chat is disabled: no Firebase chat listener or chat database reads.
         onlinePointerListener = snap => {
             const pointers = snap.val() || {};
             opponentPointer = pointers[roleKey(oppositeRole(onlineRole))] || null;
             drawBoard();
         };
         onlineRoomRef.child('livePointers').on('value', onlinePointerListener);
-        document.getElementById('chatStatus').textContent = onlineAiOpponent ? 'Chat is unavailable against the AI bot.' : 'Connected to room chat.';
-        document.getElementById('chatInput').disabled = !!onlineAiOpponent;
-        document.getElementById('sendChatBtn').disabled = !!onlineAiOpponent;
         document.getElementById('startVoiceBtn').disabled = !!onlineAiOpponent;
         document.getElementById('startVideoBtn').disabled = !!onlineAiOpponent;
         document.getElementById('voiceStatus').textContent = onlineAiOpponent ? 'Voice chat is available only when playing against another person.' : 'Start a voice call. Your opponent will hear a ringtone and can click Answer.';
@@ -4146,22 +4209,41 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         return (typed || displayName || ('Guest' + String(firebaseUser?.uid || 'Player').slice(-4))).trim().replace(/\s+/g, ' ').slice(0, 24);
     }
 
-    function setGuestName() {
-        displayName = (document.getElementById('guestNameInput').value || '').trim().replace(/\s+/g, ' ').slice(0, 24);
-        if (!displayName) displayName = 'Guest' + String(Math.floor(1000 + Math.random() * 9000));
-        document.getElementById('guestNameInput').value = displayName;
-        document.getElementById('editGuestNameBtn').textContent = displayName;
-        document.getElementById('guestNameEditor').style.display = 'none';
-        document.getElementById('guestNameDisplayRow').style.display = 'flex';
-        try { localStorage.setItem('bagchal.guestName.v1', displayName); } catch (e) {}
-        if (onlineRoomRef && onlineRole && firebaseUser) {
-            const chosenName = getDisplayName();
-            onlineRoomRef.child('presence/' + roleKey(onlineRole) + '/name').set(chosenName).catch(() => {});
-            onlineRoomRef.child('playerNames/' + roleKey(onlineRole)).set(chosenName).catch(() => {});
+    async function setGuestName() {
+        const saveButton = document.getElementById('saveGuestNameBtn');
+        const requested = (document.getElementById('guestNameInput').value || '').trim().replace(/\s+/g, ' ').slice(0, 24);
+        if (requested.length < 2) {
+            document.getElementById('chatStatus').textContent = 'Choose a nickname with at least 2 characters.';
+            return;
         }
-        document.getElementById('chatStatus').textContent = 'Your in-game name is ' + getDisplayName() + '.';
-        const nameLabel = document.getElementById('playerNamesStatus');
-        if (nameLabel) nameLabel.textContent = getDisplayName() + '  ·  ' + (nameLabel.textContent.split('·').slice(1).join('·').trim() || 'Waiting for opponent');
+        if (saveButton) { saveButton.disabled = true; saveButton.textContent = 'Saving…'; }
+        try {
+            displayName = requested;
+            document.getElementById('guestNameInput').value = displayName;
+            document.getElementById('editGuestNameBtn').textContent = displayName;
+            document.getElementById('guestNameEditor').style.display = 'none';
+            document.getElementById('guestNameDisplayRow').style.display = 'flex';
+            try { localStorage.setItem('bagchal.guestName.v1', displayName); localStorage.setItem('vc.nickname.v1', displayName); } catch (e) {}
+            if (onlineRoomRef && onlineRole && firebaseUser) {
+                const chosenName = getDisplayName();
+                await Promise.all([
+                    onlineRoomRef.child('presence/' + roleKey(onlineRole) + '/name').set(chosenName),
+                    onlineRoomRef.child('playerNames/' + roleKey(onlineRole)).set(chosenName)
+                ]);
+            }
+            if (firebaseReady && firebaseUser && !firebaseUser.isAnonymous && window.firebase && window.firebase.database) {
+                await window.firebase.database().ref('userProfiles/' + firebaseUser.uid).update({nickname: displayName, updatedAt: window.firebase.database.ServerValue.TIMESTAMP});
+                try { await firebaseUser.updateProfile({displayName}); } catch (e) { console.warn('Could not update Firebase display name', e); }
+            }
+            document.getElementById('chatStatus').textContent = 'Nickname saved' + (firebaseUser && !firebaseUser.isAnonymous ? ' to your Firebase account.' : ' on this device. Create an account to keep it across devices.');
+            const nameLabel = document.getElementById('playerNamesStatus');
+            if (nameLabel) nameLabel.textContent = getDisplayName() + '  ·  ' + (nameLabel.textContent.split('·').slice(1).join('·').trim() || 'Waiting for opponent');
+            const top = document.getElementById('vcTopNickname'); if (top) top.textContent = displayName;
+        } catch (error) {
+            document.getElementById('chatStatus').textContent = error && error.message ? error.message : 'Nickname could not be saved. Check Firebase rules.';
+        } finally {
+            if (saveButton) { saveButton.disabled = false; saveButton.textContent = 'Save Name'; }
+        }
     }
 
     function renderChatMessages(messages) {
@@ -4181,20 +4263,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         box.scrollTop = box.scrollHeight;
     }
 
-    async function sendChatMessage(event) {
-        event.preventDefault();
-        const textValue = document.getElementById('chatInput').value.trim();
-        if (!textValue) return;
-        if (!onlineRoomRef || !onlineRole || !firebaseReady || onlineAiOpponent) {
-            document.getElementById('chatStatus').textContent = 'Join a human online room before sending messages.'; return;
-        }
-        try {
-            await onlineRoomRef.child('chat').push({ uid: firebaseUser.uid, role: roleKey(onlineRole), name: getDisplayName(), text: textValue.slice(0, 500), at: firebase.database.ServerValue.TIMESTAMP });
-            document.getElementById('chatInput').value = '';
-        } catch (err) {
-            document.getElementById('chatStatus').textContent = 'Message could not send. Check server permissions.';
-        }
-    }
+    // Text chat removed to reduce Firebase database reads and writes.
 
     async function createInviteRoom() {
         const createButton = document.getElementById('createRoomBtn');
@@ -4460,7 +4529,6 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         document.getElementById('guestNameEditor').style.display = 'none';
         document.getElementById('guestNameDisplayRow').style.display = 'flex';
     });
-    document.getElementById('chatForm').addEventListener('submit', sendChatMessage);
     const chatPopup = document.getElementById('playerChat');
     const chatPopupToggle = document.getElementById('chatPopupToggle');
     function setChatPopupOpen(open) {
@@ -4468,7 +4536,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         if (open) { chatPopup.classList.remove('chat-minimized'); const minBtn = document.getElementById('chatPopupMinimize'); if (minBtn) { minBtn.textContent = '-'; minBtn.title = 'Minimize'; } }
         chatPopupToggle.setAttribute('aria-expanded', String(open));
         chatPopupToggle.setAttribute('aria-label', open ? 'Close voice call panel' : 'Open voice call panel');
-        chatPopupToggle.innerHTML = `<svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Talk</span> ${open ? '' : '<span id="chatUnreadDot" aria-hidden="true"></span>'}`;
+        chatPopupToggle.innerHTML = `<svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Calls</span>`;
         // Voice-only panel: do not focus the hidden message input.
     }
     chatPopupToggle.addEventListener('click', () => { if (window.toggleVideoWindowFromTalk && window.toggleVideoWindowFromTalk()) { setChatPopupOpen(false); return; } setChatPopupOpen(chatPopup.hidden); });
@@ -4557,20 +4625,39 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         voiceOfferListener = voiceAnswerListener = voiceCandidateListener = null;
     }
 
+    async function addRemoteVoiceCandidate(candidate) {
+        if (!candidate || !voicePeerConnection) return;
+        const key = [candidate.candidate || '', candidate.sdpMid || '', candidate.sdpMLineIndex ?? ''].join('|');
+        if (voiceSeenCandidateKeys.has(key)) return;
+        voiceSeenCandidateKeys.add(key);
+        if (!voicePeerConnection.remoteDescription) {
+            voiceRemoteCandidates.push(candidate);
+            return;
+        }
+        try {
+            await voicePeerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+            // Candidates can arrive just as a new offer is being installed; queue them for the flush.
+            if (!voicePeerConnection || !voicePeerConnection.remoteDescription) voiceRemoteCandidates.push(candidate);
+            else console.warn('Could not add remote voice ICE candidate:', err);
+        }
+    }
+
     async function flushVoiceCandidates() {
         if (!voicePeerConnection || !voicePeerConnection.remoteDescription) return;
         const pending = voiceRemoteCandidates.splice(0);
         for (const candidate of pending) {
             try { await voicePeerConnection.addIceCandidate(new RTCIceCandidate(candidate)); }
-            catch (err) { console.warn('Could not add voice ICE candidate:', err); }
+            catch (err) { console.warn('Could not add queued voice ICE candidate:', err); }
         }
     }
 
     async function handleVoiceOffer(offer) {
-        if (!voicePeerConnection || !offer || !offer.sdp || onlineRole === voiceCallerRole) return;
+        if (!voicePeerConnection || !offer || !offer.sdp || onlineRole === voiceCallerRole || voiceOfferInProgress) return;
+        if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === offer.sdp) return;
+        voiceOfferInProgress = true;
         try {
-            if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === offer.sdp) return;
-            await voicePeerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            await voicePeerConnection.setRemoteDescription(new RTCSessionDescription({ type: offer.type || 'offer', sdp: offer.sdp }));
             await flushVoiceCandidates();
             const answer = await voicePeerConnection.createAnswer();
             await voicePeerConnection.setLocalDescription(answer);
@@ -4578,13 +4665,16 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             setVoiceStatus('Connecting to your opponent…');
         } catch (err) {
             console.error('Voice offer error:', err);
-            setVoiceStatus('Could not answer the voice call. Disconnect and try again.');
+            setVoiceStatus('Could not answer the call. Check Firebase voiceChat permissions and try again.');
+        } finally {
+            voiceOfferInProgress = false;
         }
     }
 
     async function handleVoiceAnswer(answer) {
         if (!voicePeerConnection || onlineRole !== voiceCallerRole || !answer || !answer.sdp) return;
         try {
+            stopOutgoingRingtone();
             if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === answer.sdp) return;
             await voicePeerConnection.setRemoteDescription(new RTCSessionDescription(answer));
             await flushVoiceCandidates();
@@ -4596,6 +4686,24 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
                 ? 'Firebase blocked the call answer. Check Realtime Database rules for bagchalRooms/{roomId}/voiceChat.'
                 : 'Could not connect the call (' + (err && err.name || 'connection error') + '). Check the browser Console.');
         }
+    }
+
+    async function getVoiceIceServers() {
+        // Firebase carries call signaling; STUN discovers direct routes. For networks that
+        // block peer-to-peer traffic, provide short-lived TURN credentials from a trusted backend
+        // as window.VC_TURN_SERVERS = [{ urls, username, credential }]. Never put a permanent
+        // TURN secret in this public HTML file.
+        const servers = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun.services.mozilla.com' }
+        ];
+        const turnServers = Array.isArray(window.VC_TURN_SERVERS) ? window.VC_TURN_SERVERS : [];
+        for (const server of turnServers) {
+            if (server && server.urls && server.username && server.credential) servers.push(server);
+        }
+        return servers;
     }
 
     async function startVoiceChat() {
@@ -4617,14 +4725,10 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             const localVideo = document.getElementById('localVideo');
             if (stage) { stage.classList.toggle('active', voiceCallMediaType === 'video'); if (voiceCallMediaType === 'video') { stage.classList.remove('video-minimized'); stage.style.display = 'block'; const mb = document.getElementById('videoMuteBtn'); if (mb) mb.textContent = 'Mute mic'; const title = document.getElementById('videoCallTitle'); if (title) title.textContent = 'Video call with ' + getOpponentDisplayName(); } }
             if (localVideo) { localVideo.srcObject = voiceCallMediaType === 'video' ? voiceLocalStream : null; localVideo.style.display = voiceCallMediaType === 'video' ? 'block' : 'none'; }
-            // Multiple STUN servers improve discovery, but networks that block direct peer traffic still need a TURN relay.
-            voicePeerConnection = new RTCPeerConnection({ iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' }
-            ] });
+            voicePeerConnection = new RTCPeerConnection({ iceServers: await getVoiceIceServers() });
             voiceRemoteCandidates = [];
+            voiceSeenCandidateKeys = new Set();
+            voiceOfferInProgress = false;
             voiceActive = true;
             voiceMuted = false;
             voiceCallerRole = answeringIncoming ? oppositeRole(onlineRole) : onlineRole;
@@ -4651,9 +4755,17 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
                     });
                 }
             };
+            voicePeerConnection.onicecandidateerror = event => {
+                console.warn('WebRTC ICE candidate error:', { code: event.errorCode, text: event.errorText, url: event.url });
+            };
+            voicePeerConnection.oniceconnectionstatechange = () => {
+                const iceState = voicePeerConnection && voicePeerConnection.iceConnectionState;
+                if (iceState === 'checking') setVoiceStatus('Finding a secure connection…');
+                else if (iceState === 'failed') setVoiceStatus('Direct connection failed. A TURN relay may be required on this network.');
+            };
             voicePeerConnection.onconnectionstatechange = () => {
                 const connectionState = voicePeerConnection && voicePeerConnection.connectionState;
-                if (connectionState === 'connected') setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.');
+                if (connectionState === 'connected') { stopOutgoingRingtone(); stopIncomingRingtone(); setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.'); }
                 else if (connectionState === 'failed') setVoiceStatus('Call connection failed. This network may require a TURN relay. If Firebase errors appear in Console, fix the room voiceChat rules too.');
                 else if (connectionState === 'disconnected') setVoiceStatus('Call temporarily disconnected. Waiting to reconnect…');
             };
@@ -4665,10 +4777,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             voiceAnswerListener = snap => { if (onlineRole === voiceCallerRole) handleVoiceAnswer(snap.val()); };
             voiceCandidateListener = snap => {
                 const candidate = snap.val();
-                if (!candidate || !voicePeerConnection) return;
-                if (voicePeerConnection.remoteDescription) {
-                    voicePeerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(err => console.warn('Could not add remote voice candidate:', err));
-                } else voiceRemoteCandidates.push(candidate);
+                if (candidate) addRemoteVoiceCandidate(candidate);
             };
             voiceRef.child('offer').on('value', voiceOfferListener);
             voiceRef.child('answer').on('value', voiceAnswerListener);
@@ -4692,6 +4801,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
                 const offer = await voicePeerConnection.createOffer();
                 await voicePeerConnection.setLocalDescription(offer);
                 await voiceRef.child('offer').set({ type: offer.type, sdp: offer.sdp, callerRole: roleKey(onlineRole), callerName: getDisplayName(), mediaType: voiceCallMediaType, at: firebase.database.ServerValue.TIMESTAMP });
+                startOutgoingRingtone();
             }
         } catch (err) {
             console.error('Could not start voice/video call:', err);
@@ -4730,16 +4840,21 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             voicePeerConnection.ontrack = null;
             voicePeerConnection.onicecandidate = null;
             voicePeerConnection.onconnectionstatechange = null;
+            voicePeerConnection.oniceconnectionstatechange = null;
+            voicePeerConnection.onicecandidateerror = null;
             try { voicePeerConnection.close(); } catch (e) {}
         }
         voicePeerConnection = null;
         if (voiceLocalStream) voiceLocalStream.getTracks().forEach(track => track.stop());
         voiceLocalStream = null;
         voiceRemoteCandidates = [];
+        voiceSeenCandidateKeys = new Set();
+        voiceOfferInProgress = false;
         voiceActive = false;
         voiceMuted = false;
         voiceCallerRole = null;
         stopIncomingRingtone();
+        stopOutgoingRingtone();
         const incomingPopup = document.getElementById('incomingCallPopup');
         if (incomingPopup) incomingPopup.hidden = true;
         const audio = document.getElementById('remoteVoiceAudio');
@@ -4753,6 +4868,17 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         if (localVideo) { localVideo.pause(); localVideo.srcObject = null; localVideo.style.display = 'none'; }
         if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
         voiceCallMediaType = 'audio';
+        // Best-effort cleanup prevents a stale offer from ringing after the previous call has ended.
+        if (onlineRoomRef && onlineRole) {
+            const signaling = onlineRoomRef.child('voiceChat');
+            const role = roleKey(onlineRole);
+            Promise.all([
+                signaling.child('offer').remove().catch(() => {}),
+                signaling.child('answer').remove().catch(() => {}),
+                signaling.child('candidates/' + role).remove().catch(() => {}),
+                signaling.child('candidates/' + roleKey(oppositeRole(onlineRole))).remove().catch(() => {})
+            ]).catch(() => {});
+        }
         const start = document.getElementById('startVoiceBtn');
         const mute = document.getElementById('muteVoiceBtn');
         const stop = document.getElementById('stopVoiceBtn');
@@ -5573,6 +5699,12 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
   document.addEventListener('click',async function(e){
     if(e.target.closest('#vcProfileBtn')){setTimeout(refreshProfileRoom,0);}
     if(e.target.closest('#createRoomBtn')||e.target.closest('#joinRoomBtn')||e.target.closest('#copyRoomCodeBtn')){setTimeout(refreshProfileRoom,250);setTimeout(refreshProfileRoom,900);}
+    if(e.target.closest('#vcProfileJoinRoomBtn')){
+      const profile=$('vcProfileModal');
+      if(profile)profile.hidden=true;
+      const existingJoinButton=$('joinRoomBtn');
+      if(existingJoinButton)existingJoinButton.click();
+    }
     if(e.target.closest('#vcProfileShareRoomBtn')){
       const code=currentRoomCode(),status=$('vcProfileRoomStatus');
       if(!code){refreshProfileRoom();return;}
@@ -5620,116 +5752,129 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
 </style>
 
 
-<style id="vc-cloudflare-player-directory-styles">
-#bagchal-blogger-container .vc-online-directory{width:100%;box-sizing:border-box;margin-top:8px;padding:15px;border:1px solid rgba(148,163,184,.18);border-radius:17px;background:rgba(3,9,20,.42)}
-#bagchal-blogger-container .vc-online-directory-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px}
-#bagchal-blogger-container .vc-online-directory-head>div{display:flex;flex-direction:column;gap:4px}#bagchal-blogger-container .vc-online-directory-head strong,#bagchal-blogger-container .vc-incoming-invites>strong{font-size:13px;color:#f1f5ff}#bagchal-blogger-container #vcDirectoryStatus{font-size:10px;color:#8fa2c0}
-#bagchal-blogger-container #vcRefreshPlayersBtn{border:1px solid #35435f;border-radius:9px;padding:8px 10px;background:#17243a;color:#e8efff;font-size:11px;font-weight:800;cursor:pointer}
-#bagchal-blogger-container .vc-online-players-list,#bagchal-blogger-container #vcIncomingInvitesList{display:flex;flex-direction:column;gap:7px;max-height:210px;overflow:auto}
-#bagchal-blogger-container .vc-directory-player{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid rgba(148,163,184,.14);border-radius:11px;background:rgba(255,255,255,.025)}
-#bagchal-blogger-container .vc-directory-player .vc-directory-name{flex:1;min-width:0;overflow-wrap:anywhere;color:#e5edff;font-size:12px;font-weight:750}
-#bagchal-blogger-container .vc-directory-player .vc-directory-state{display:block;margin-top:3px;color:#8fa2c0;font-size:9px;font-weight:500}
-#bagchal-blogger-container .vc-directory-player button,#bagchal-blogger-container .vc-invite-item button{flex-shrink:0;border:1px solid rgba(129,140,248,.4);border-radius:8px;background:linear-gradient(135deg,#7062ee,#4e65d8);color:#fff;padding:8px 10px;font-size:10px;font-weight:800;cursor:pointer}
-#bagchal-blogger-container .vc-directory-empty{padding:12px 5px;color:#8fa2c0;font-size:11px;line-height:1.5}
-#bagchal-blogger-container .vc-incoming-invites{margin-top:13px;padding-top:12px;border-top:1px solid rgba(148,163,184,.16)}#bagchal-blogger-container .vc-incoming-invites>strong{display:block;margin-bottom:8px}
-#bagchal-blogger-container .vc-invite-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;color:#dbe6ff;font-size:11px}
+<style id="vc-firebase-premium-redesign">
+:root{color-scheme:dark}
+html{scroll-behavior:smooth;background:#070b16}
+body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78,255,.20),transparent 38%),radial-gradient(ellipse at 90% 12%,rgba(35,193,232,.12),transparent 34%),#070b16!important;color:#edf2ff!important}
+#bagchal-blogger-container{width:min(100% - 28px,1180px)!important;max-width:1180px!important;margin:18px auto 48px!important;padding:clamp(14px,2.5vw,30px)!important;background:linear-gradient(160deg,rgba(17,26,47,.96),rgba(9,15,29,.98))!important;border:1px solid rgba(153,171,220,.17)!important;border-radius:28px!important;box-shadow:0 30px 100px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.035)!important;color:#edf2ff!important;overflow:hidden}
+#bagchal-blogger-container *{box-sizing:border-box}
+#bagchal-blogger-container .game-topbar{min-height:62px!important;gap:18px!important;padding:8px 0 18px!important;border-bottom:1px solid rgba(148,163,184,.15)!important;align-items:center!important;flex-wrap:wrap!important}
+#bagchal-blogger-container .vc-brand-lockup{gap:11px!important}
+#bagchal-blogger-container .vc-brand-words strong{font-size:clamp(15px,1.8vw,20px)!important;letter-spacing:.06em!important;color:#f7f8ff!important}
+#bagchal-blogger-container .vc-brand-words small{color:#91a2c4!important;letter-spacing:.08em!important;text-transform:uppercase!important;font-size:9px!important}
+#bagchal-blogger-container .vc-main-nav{gap:5px!important;flex-wrap:wrap!important}
+#bagchal-blogger-container .vc-main-nav a,#bagchal-blogger-container .vc-main-nav button{color:#b9c7e4!important;border-radius:10px!important;padding:9px 11px!important;text-decoration:none!important;font-weight:650!important;font-size:12px!important;transition:background .18s ease,color .18s ease!important}
+#bagchal-blogger-container .vc-main-nav a:hover,#bagchal-blogger-container .vc-main-nav button:hover{background:rgba(128,143,255,.12)!important;color:#fff!important}
+#bagchal-blogger-container .vc-top-actions{margin-left:auto!important;gap:8px!important;align-items:center!important}
+#bagchal-blogger-container .vc-account-open{border:1px solid rgba(132,119,255,.5)!important;background:linear-gradient(135deg,#7567ff,#4b75ed)!important;color:#fff!important;padding:10px 14px!important;border-radius:12px!important;font-weight:800!important;font-size:12px!important;box-shadow:0 8px 24px rgba(88,91,239,.22)!important;cursor:pointer}
+#bagchal-blogger-container .vc-profile-btn{border:1px solid rgba(148,163,184,.23)!important;background:rgba(255,255,255,.045)!important;color:#f2f5ff!important;border-radius:12px!important;min-height:40px!important;padding:6px 10px!important}
+#bagchal-blogger-container .vc-network-strip{margin:16px 0 24px!important;padding:10px 13px!important;border:1px solid rgba(148,163,184,.14)!important;background:rgba(7,13,25,.58)!important;border-radius:13px!important;color:#9eb0d0!important;font-size:11px!important}
+#bagchal-blogger-container .vc-portal-hero{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr)!important;gap:24px!important;align-items:center!important;padding:clamp(22px,4vw,48px)!important;margin:0 0 24px!important;border:1px solid rgba(145,158,255,.2)!important;border-radius:24px!important;background:radial-gradient(ellipse at 80% 10%,rgba(69,181,240,.16),transparent 38%),linear-gradient(125deg,rgba(38,42,84,.72),rgba(12,24,43,.82))!important;overflow:hidden!important}
+#bagchal-blogger-container .vc-eyebrow{color:#9ddfff!important;font-size:10px!important;font-weight:850!important;letter-spacing:.17em!important}
+#bagchal-blogger-container .vc-hero-copy h1{color:#f7f8ff!important;font-size:clamp(34px,5.3vw,64px)!important;line-height:1.02!important;letter-spacing:-.055em!important;margin:15px 0!important;max-width:650px!important}
+#bagchal-blogger-container .vc-hero-copy h1 span{background:linear-gradient(90deg,#b5a8ff,#67d8ff)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+#bagchal-blogger-container .vc-hero-copy p{max-width:520px!important;color:#aab9d7!important;font-size:clamp(13px,1.5vw,16px)!important;line-height:1.75!important}
+#bagchal-blogger-container .vc-hero-pills{gap:8px!important;flex-wrap:wrap!important}
+#bagchal-blogger-container .vc-hero-pills span{border:1px solid rgba(148,163,184,.19)!important;background:rgba(4,10,23,.35)!important;color:#c7d5ef!important;border-radius:999px!important;padding:8px 11px!important;font-size:10px!important}
+#bagchal-blogger-container .vc-hero-cta{display:inline-flex!important;align-items:center!important;gap:10px!important;margin-top:18px!important;padding:12px 16px!important;border-radius:12px!important;background:linear-gradient(135deg,#8a78ff,#4f82ef)!important;color:#fff!important;text-decoration:none!important;font-size:12px!important;font-weight:850!important;box-shadow:0 12px 28px rgba(87,103,239,.24)!important}
+#bagchal-blogger-container .vc-hero-art{min-height:230px!important}
+#bagchal-blogger-container .vc-section-heading{margin:24px 0 16px!important}
+#bagchal-blogger-container .vc-section-heading h2,#bagchal-blogger-container .vc-section-heading h3{color:#f5f7ff!important;letter-spacing:-.03em!important}
+#bagchal-blogger-container .vc-section-heading p{color:#91a2c4!important}
+#bagchal-blogger-container .vc-game-card,#bagchal-blogger-container .vc-game-tile,#bagchal-blogger-container .game-card{background:linear-gradient(145deg,rgba(24,35,59,.96),rgba(12,20,35,.96))!important;border:1px solid rgba(148,163,184,.16)!important;border-radius:18px!important;box-shadow:0 12px 28px rgba(0,0,0,.13)!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}
+#bagchal-blogger-container .vc-game-card:hover,#bagchal-blogger-container .vc-game-tile:hover,#bagchal-blogger-container .game-card:hover{transform:translateY(-3px)!important;border-color:rgba(132,137,255,.48)!important;box-shadow:0 18px 36px rgba(0,0,0,.23)!important}
+#bagchal-blogger-container #onlinePanel,#bagchal-blogger-container #playerChat,#bagchal-blogger-container #gameControls,#bagchal-blogger-container .game-controls,#bagchal-blogger-container .control-panel{background:linear-gradient(150deg,rgba(19,29,49,.98),rgba(10,17,30,.98))!important;color:#edf2ff!important;border-color:rgba(148,163,184,.19)!important;border-radius:18px!important}
+#bagchal-blogger-container #gameCanvas{border:1px solid rgba(144,163,209,.2)!important;border-radius:18px!important;background:#f8fafc!important;box-shadow:0 18px 45px rgba(0,0,0,.28)!important}
+#bagchal-blogger-container button,#bagchal-blogger-container select,#bagchal-blogger-container input{font-family:inherit!important}
+#bagchal-blogger-container button{transition:filter .15s ease,transform .15s ease!important}
+#bagchal-blogger-container button:hover{filter:brightness(1.08)}
+#bagchal-blogger-container input,#bagchal-blogger-container select{background:#0c1526!important;color:#edf2ff!important;border-color:#34435e!important;border-radius:11px!important;min-height:40px!important}
+#bagchal-blogger-container input::placeholder{color:#7184a6!important}
+#bagchal-blogger-container .vc-profile-modal{backdrop-filter:blur(16px)!important}
+#bagchal-blogger-container .vc-profile-sheet{background:#101a2d!important;color:#f4f7ff!important;border-color:rgba(148,163,184,.2)!important}
+#bagchal-blogger-container .vc-profile-body p,#bagchal-blogger-container .vc-profile-caption{color:#9eb0d0!important}
+#bagchal-blogger-container footer{border-color:rgba(148,163,184,.14)!important;color:#91a2c4!important}
+.vc-account-modal[hidden]{display:none!important}.vc-account-modal{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;background:rgba(2,6,16,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto}
+.vc-account-card{position:relative;width:min(100%,470px);padding:clamp(22px,5vw,38px);border:1px solid rgba(151,165,255,.24);border-radius:26px;background:radial-gradient(ellipse at 90% 0%,rgba(66,189,234,.13),transparent 38%),linear-gradient(145deg,#151e35,#0b1221);box-shadow:0 35px 100px rgba(0,0,0,.58);color:#f3f6ff}
+.vc-account-close{position:absolute;top:13px;right:14px;width:36px;height:36px;border:1px solid rgba(148,163,184,.2);border-radius:11px;background:rgba(255,255,255,.05);color:#eaf0ff;font-size:24px;cursor:pointer}
+.vc-account-brand{display:flex;align-items:center;gap:11px;margin-bottom:26px}.vc-account-brand-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#8a78ff,#36c8ec);color:#fff;font-size:14px;font-weight:950;letter-spacing:.06em}.vc-account-brand strong{display:block;font-size:13px;letter-spacing:.07em}.vc-account-brand em{font-style:normal;color:#8bdfff}.vc-account-brand small{display:block;margin-top:4px;color:#91a3c7;font-size:9px;letter-spacing:.13em;text-transform:uppercase}
+.vc-account-kicker{color:#9ddfff;font-size:9px;font-weight:900;letter-spacing:.18em}.vc-account-card h2{font-size:clamp(27px,6vw,36px);line-height:1.08;letter-spacing:-.045em;margin:10px 0 12px}.vc-account-subtitle{color:#a5b5d3;font-size:13px;line-height:1.7;margin:0 0 22px}.vc-account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;margin-bottom:20px;background:#080f1d;border:1px solid rgba(148,163,184,.12);border-radius:13px}.vc-account-tabs button{border:0;border-radius:9px;padding:11px 8px;background:transparent;color:#93a4c3;font-weight:800;font-size:12px;cursor:pointer}.vc-account-tabs button.active{background:linear-gradient(135deg,#7466f6,#4d7be8);color:white;box-shadow:0 6px 16px rgba(80,90,230,.2)}
+#vcAccountForm{display:grid;gap:8px}#vcAccountForm label{margin-top:5px;color:#cbd6ec;font-size:11px;font-weight:800}#vcAccountForm input{width:100%;min-width:0;padding:12px 13px;border:1px solid #34435e;border-radius:11px;background:#091323;color:#f5f7ff;font:inherit;font-size:13px;outline:none}#vcAccountForm input:focus{border-color:#8a82ff;box-shadow:0 0 0 3px rgba(126,112,255,.13)}#vcAccountForm input::placeholder{color:#697b9e}.vc-account-submit{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:13px;min-height:48px;border:0;border-radius:12px;background:linear-gradient(105deg,#8875ff,#4d83ed);color:#fff;font-size:12px;font-weight:900;box-shadow:0 12px 25px rgba(76,103,235,.24);cursor:pointer}.vc-account-submit:disabled{opacity:.6;cursor:wait}.vc-account-status{min-height:18px;margin:5px 0 0;color:#9fe2cb;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.vc-account-status.error{color:#ff9eae}.vc-account-footnote{margin:17px 0 0;padding-top:14px;border-top:1px solid rgba(148,163,184,.13);color:#8294b5;font-size:10px;line-height:1.6}
+@media(max-width:760px){#bagchal-blogger-container{width:calc(100% - 12px)!important;margin:6px auto 24px!important;padding:12px!important;border-radius:19px!important}#bagchal-blogger-container .game-topbar{gap:10px!important;padding-bottom:12px!important}#bagchal-blogger-container .vc-main-nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap!important}#bagchal-blogger-container .vc-main-nav a,#bagchal-blogger-container .vc-main-nav button{white-space:nowrap!important}#bagchal-blogger-container .vc-top-actions{margin-left:auto!important}#bagchal-blogger-container .vc-account-open{padding:9px 10px!important;font-size:11px!important}#bagchal-blogger-container .vc-portal-hero{grid-template-columns:1fr!important;padding:23px 18px!important;gap:8px!important}#bagchal-blogger-container .vc-hero-art{min-height:155px!important;transform:scale(.82);transform-origin:center top;margin-bottom:-20px}#bagchal-blogger-container .vc-hero-copy h1{font-size:clamp(35px,10vw,52px)!important}}
+@media(max-width:400px){#bagchal-blogger-container .vc-brand-words strong{font-size:12px!important}#bagchal-blogger-container .vc-profile-label{max-width:75px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#bagchal-blogger-container .vc-account-open{font-size:10px!important;padding:8px!important}.vc-account-card{padding:23px 19px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}#bagchal-blogger-container *,.vc-account-card *{transition:none!important;animation:none!important}}
 </style>
 
-
-<script id="vc-cloudflare-player-directory">
+<script id="vc-firebase-account-system">
 (function(){
   'use strict';
-  // After deploying the supplied Cloudflare Worker, paste its URL below.
-  const API_BASE = 'https://viral-cage-players-api.viralcage.workers.dev';
-  const root = document.getElementById('bagchal-blogger-container');
-  if (!root) return;
-  const $ = id => document.getElementById(id);
-  const status = $('vcDirectoryStatus'), list = $('vcOnlinePlayersList');
-  if (!status || !list) return;
-  let enabled = false, heartbeatTimer = null, pollTimer = null, busy = false;
-  let playerId = '';
-  try { playerId = localStorage.getItem('vc.playerId.v1') || ''; } catch(e) {}
-  if (!/^[a-zA-Z0-9_-]{20,80}$/.test(playerId)) {
-    const bytes = new Uint8Array(18); crypto.getRandomValues(bytes);
-    playerId = Array.from(bytes, b => b.toString(16).padStart(2,'0')).join('');
-    try { localStorage.setItem('vc.playerId.v1', playerId); } catch(e) {}
-  }
-  const apiReady = () => API_BASE === 'https://viral-cage-players-api.viralcage.workers.dev';
-  function name(){return (($('editGuestNameBtn')?.textContent || $('guestNameInput')?.value || 'Guest').trim().replace(/\s+/g,' ').slice(0,24)) || 'Guest';}
-  function roomCode(){
-    const url = new URLSearchParams(location.search).get('room') || '';
-    const shown = ($('roomCodeText')?.textContent || '').trim();
-    const typed = ($('roomCodeInput')?.value || '').trim();
-    return /^\d{4}$/.test(shown)&&shown!=='----' ? shown : (/^\d{4}$/.test(url) ? url : (/^\d{4}$/.test(typed) ? typed : ''));
-  }
-  async function api(path, options={}){
-    const response = await fetch(API_BASE + path, { ...options, headers:{'content-type':'application/json', ...(options.headers||{})}, cache:'no-store' });
-    const data = await response.json().catch(()=>({}));
-    if(!response.ok) throw new Error(data.error || ('Request failed ('+response.status+')'));
-    return data;
-  }
-  function node(tag, cls, txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
-  function empty(message){list.replaceChildren(node('div','vc-directory-empty',message));}
-  async function heartbeat(){
-    if(!enabled)return;
-    try{await api('/api/heartbeat',{method:'POST',body:JSON.stringify({playerId,name:name(),roomCode:roomCode()})});}
-    catch(e){status.textContent='Directory unavailable — check Worker setup';}
-  }
-  async function refreshPlayers(){
-    if(!apiReady()){status.textContent='Cloudflare Worker URL needs setup';empty('Deploy the Worker and paste its URL into API_BASE in this HTML.');return;}
-    if(busy)return;busy=true;
+  const modal=document.getElementById('vcAccountModal');
+  const openBtn=document.getElementById('vcAccountOpen');
+  const closeBtn=document.getElementById('vcAccountClose');
+  const form=document.getElementById('vcAccountForm');
+  const nicknameInput=document.getElementById('vcAccountNickname');
+  const emailInput=document.getElementById('vcAccountEmail');
+  const passwordInput=document.getElementById('vcAccountPassword');
+  const submitBtn=document.getElementById('vcAccountSubmit');
+  const status=document.getElementById('vcAccountStatus');
+  const guestBtn=document.getElementById('vcContinueGuest');
+  const signupTab=document.getElementById('vcSignupTab');
+  const signinTab=document.getElementById('vcSigninTab');
+  if(!modal||!form)return;
+  let mode='signup';
+  const setStatus=(msg,error=false)=>{status.textContent=msg;status.classList.toggle('error',error)};
+  const showModal=()=>{modal.hidden=false;document.body.style.overflow='hidden';const current=localStorage.getItem('vc.nickname.v1')||localStorage.getItem('bagchal.nickname')||'';if(current&&!nicknameInput.value)nicknameInput.value=current;setStatus('');setTimeout(()=>emailInput.focus(),40)};
+  const hideModal=()=>{modal.hidden=true;document.body.style.overflow='' };
+  const setMode=(next)=>{mode=next;const signup=mode==='signup';signupTab.classList.toggle('active',signup);signinTab.classList.toggle('active',!signup);signupTab.setAttribute('aria-selected',String(signup));signinTab.setAttribute('aria-selected',String(!signup));document.querySelector("label[for=\'vcAccountNickname\']")?.toggleAttribute('hidden',!signup);nicknameInput.hidden=!signup;submitBtn.innerHTML=signup?'Create my free account <span aria-hidden="true">→</span>':'Sign in to Viral Cage <span aria-hidden="true">→</span>';passwordInput.autocomplete=signup?'new-password':'current-password';setStatus('')};
+  openBtn?.addEventListener('click',showModal);closeBtn?.addEventListener('click',hideModal);modal.addEventListener('click',e=>{if(e.target===modal)hideModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)hideModal()});signupTab.addEventListener('click',()=>setMode('signup'));signinTab.addEventListener('click',()=>setMode('signin'));
+  guestBtn?.addEventListener('click',async()=>{
+    guestBtn.disabled=true;submitBtn.disabled=true;setStatus('Starting your guest session…');
     try{
-      await heartbeat();
-      const data=await api('/api/players?playerId='+encodeURIComponent(playerId));
-      list.replaceChildren();
-      const players=Array.isArray(data.players)?data.players:[];
-      status.textContent=players.length+' other player'+(players.length===1?'':'s')+' online';
-      if(!players.length)empty('No other players are online right now. Keep this panel open and check again shortly.');
-      players.forEach(player=>{
-        const row=node('div','vc-directory-player');
-        const details=node('div','vc-directory-name',player.name||'Player');
-        details.appendChild(node('span','vc-directory-state',player.roomCode?'In a game room':'Available to play'));
-        const btn=node('button','', 'Invite');btn.type='button';
-        btn.addEventListener('click',()=>sendInvite(player.playerId,player.name||'Player',btn));
-        row.append(details,btn);list.appendChild(row);
-      });
-      await refreshInvites();
-    }catch(e){console.error('Player directory request failed:', e);status.textContent='Could not load players';empty('Player directory error: '+(e && e.message ? e.message : 'Check Worker URL, deployment, and browser Console.'));}
-    finally{busy=false;}
+      if(typeof ensureFirebase==='function'){const ready=await ensureFirebase();if(!ready)throw new Error('Firebase could not connect. Check your connection and Firebase settings.')}
+      if(typeof window.firebase==='undefined'||typeof window.firebase.auth!=='function'||typeof window.firebase.database!=='function')throw new Error('Firebase SDK did not load. Reload the page and try again.');
+      const auth=window.firebase.auth();let user=auth.currentUser;
+      if(!user)user=(await auth.signInAnonymously()).user;
+      let guestName=(nicknameInput.value||localStorage.getItem('vc.nickname.v1')||localStorage.getItem('bagchal.nickname')||'').replace(/\s+/g,' ').trim().slice(0,24);
+      if(guestName.length<2)guestName='Guest '+String(user.uid||'').slice(0,5).toUpperCase();
+      if(user.isAnonymous)await saveNickname(user,guestName);
+      else {const snap=await window.firebase.database().ref('userProfiles/'+user.uid).once('value');const profile=snap.val()||{};if(profile.nickname)guestName=profile.nickname;const top=document.getElementById('vcTopNickname');if(top)top.textContent=user.displayName||guestName;}
+      setStatus('Guest session ready. You can start playing.');setTimeout(hideModal,650);
+    }catch(err){console.error('Firebase guest session error',err);setStatus(friendlyError(err),true)}finally{guestBtn.disabled=false;submitBtn.disabled=false}
+  });
+  function friendlyError(err){const code=String(err&&err.code||'');const messages={'auth/email-already-in-use':'This email already has an account. Choose Sign in.','auth/invalid-email':'Enter a valid email address.','auth/weak-password':'Choose a stronger password with at least 6 characters.','auth/user-not-found':'No account was found for this email. Create an account first.','auth/wrong-password':'Incorrect email or password.','auth/invalid-credential':'Email or password is incorrect.','auth/operation-not-allowed':'Email/password sign-in is disabled in Firebase Console → Authentication → Sign-in method.','auth/network-request-failed':'Network connection failed. Check your connection and try again.','auth/credential-already-in-use':'This email is already linked to an account. Switch to Sign in.','auth/email-already-in-use':'This email already has an account. Switch to Sign in.'};return messages[code]||String(err&&err.message||'Could not complete account request. Check Firebase Authentication settings.').replace(/^Firebase:\s*/i,'')}
+  async function saveNickname(user,nickname){
+    const db=window.firebase.database();const clean=nickname.replace(/\s+/g,' ').trim().slice(0,24);const key=clean.toLowerCase().replace(/[^a-z0-9_-]/g,'_');if(clean.length<2)throw new Error('Nickname must contain at least 2 characters.');
+    await db.ref('userProfiles/'+user.uid).update({uid:user.uid,nickname:clean,nicknameKey:key,email:user.email||'',updatedAt:window.firebase.database.ServerValue.TIMESTAMP,createdAt:window.firebase.database.ServerValue.TIMESTAMP});
+    try{localStorage.setItem('vc.nickname.v1',clean);localStorage.setItem('bagchal.nickname',clean)}catch(e){}
+    const guestInput=document.getElementById('guestNameInput');if(guestInput)guestInput.value=clean;const display=document.getElementById('editGuestNameBtn');if(display)display.textContent=clean;const top=document.getElementById('vcTopNickname');if(top)top.textContent=clean;const profile=document.getElementById('vcProfileNickname');if(profile)profile.textContent=clean;
+    try{await user.updateProfile({displayName:clean})}catch(e){console.warn('Could not update Firebase Auth display name',e)}
   }
-  async function sendInvite(targetId,targetName,btn){
-    const code=roomCode();
-    if(!code){alert('Create or join a Firebase game room first, then invite '+targetName+'.');return;}
-    if(targetId===playerId)return;
-    btn.disabled=true;btn.textContent='Sending…';
-    try{await api('/api/invite',{method:'POST',body:JSON.stringify({playerId,targetId,fromName:name(),roomCode:code})});btn.textContent='Sent';}
-    catch(e){btn.disabled=false;btn.textContent='Invite';alert('Could not send invitation. '+e.message);}
-  }
-  async function refreshInvites(){
-    const wrap=$('vcIncomingInvites'), inviteList=$('vcIncomingInvitesList');if(!wrap||!inviteList)return;
+  form.addEventListener('submit',async e=>{e.preventDefault();setStatus('Connecting securely to Firebase…');submitBtn.disabled=true;
     try{
-      const data=await api('/api/invites?playerId='+encodeURIComponent(playerId));
-      const invites=Array.isArray(data.invites)?data.invites:[];wrap.hidden=!invites.length;inviteList.replaceChildren();
-      invites.forEach(inv=>{
-        const row=node('div','vc-invite-item');const label=node('span','', (inv.fromName||'A player')+' invited you');
-        const join=node('button','', 'Join game');join.type='button';
-        join.addEventListener('click',()=>{const u=new URL(location.href);u.searchParams.set('room',String(inv.roomCode||''));location.href=u.toString();});
-        row.append(label,join);inviteList.appendChild(row);
-      });
-    }catch(e){/* Keep directory usable if invite polling fails. */}
-  }
-  function start(){
-    if(!apiReady()){status.textContent='Cloudflare Worker URL needs setup';return;}
-    enabled=true;refreshPlayers();
-    if(heartbeatTimer)clearInterval(heartbeatTimer);if(pollTimer)clearInterval(pollTimer);
-    heartbeatTimer=setInterval(heartbeat,45000);pollTimer=setInterval(refreshPlayers,30000);
-  }
-  $('vcRefreshPlayersBtn')?.addEventListener('click',refreshPlayers);
-  $('vcProfileBtn')?.addEventListener('click',()=>{if(apiReady())start();else{status.textContent='Cloudflare Worker URL needs setup';empty('Deploy the supplied Worker and replace API_BASE in this HTML with its URL.');}});
-  // A valid room link can be joined without opening the profile first; only directory presence starts on profile open.
-  window.addEventListener('beforeunload',()=>{if(heartbeatTimer)clearInterval(heartbeatTimer);if(pollTimer)clearInterval(pollTimer);});
+      if(typeof ensureFirebase==='function'){const ready=await ensureFirebase();if(!ready)throw new Error('Firebase could not connect. Check your connection and Firebase settings.')}
+      if(typeof window.firebase==='undefined'||typeof window.firebase.auth!=='function'||typeof window.firebase.database!=='function')throw new Error('Firebase SDK did not load. Reload the page and try again.');
+      if(!window.firebase.apps.length)throw new Error('Firebase has not initialized. Check the Firebase configuration in this page.');
+      const auth=window.firebase.auth();const email=emailInput.value.trim().toLowerCase();const password=passwordInput.value;let user;
+      if(mode==='signup'){
+        const nickname=nicknameInput.value.replace(/\s+/g,' ').trim().slice(0,24);if(nickname.length<2)throw new Error('Nickname must contain at least 2 characters.');if(password.length<6)throw new Error('Password must be at least 6 characters.');
+        const current=auth.currentUser;
+        if(current&&current.isAnonymous){try{const credential=window.firebase.auth.EmailAuthProvider.credential(email,password);const linked=await current.linkWithCredential(credential);user=linked.user}catch(err){if(err.code==='auth/email-already-in-use'||err.code==='auth/credential-already-in-use'){const signed=await auth.signInWithEmailAndPassword(email,password);user=signed.user}else throw err}}
+        else {const created=await auth.createUserWithEmailAndPassword(email,password);user=created.user}
+        await saveNickname(user,nickname);setStatus('Account created. Your nickname is saved to Firebase.');submitBtn.textContent='Account created ✓';
+      }else{const signed=await auth.signInWithEmailAndPassword(email,password);user=signed.user;const snap=await window.firebase.database().ref('userProfiles/'+user.uid).once('value');const profile=snap.val()||{};if(profile.nickname){await saveNickname(user,profile.nickname)}else if(nicknameInput.value.trim().length>=2){await saveNickname(user,nicknameInput.value)}else{const top=document.getElementById('vcTopNickname');if(top)top.textContent=user.displayName||email.split('@')[0]}setStatus('Signed in successfully.');submitBtn.textContent='Signed in ✓'}
+      const top=document.getElementById('vcTopNickname');if(top&&user)top.textContent=user.displayName||nicknameInput.value.trim()||email.split('@')[0];
+      setTimeout(hideModal,900);
+    }catch(err){console.error('Firebase account error',err);setStatus(friendlyError(err),true)}finally{submitBtn.disabled=false;if(mode==='signup')submitBtn.innerHTML='Create my free account <span aria-hidden="true">→</span>';else submitBtn.innerHTML='Sign in to Viral Cage <span aria-hidden="true">→</span>'}
+  });
+  // Refresh the account label when Firebase restores a saved login.
+  try{if(window.firebase&&window.firebase.auth){window.firebase.auth().onAuthStateChanged(user=>{if(user&&!user.isAnonymous){if(openBtn)openBtn.textContent='My account';const top=document.getElementById('vcTopNickname');if(top&&user.displayName)top.textContent=user.displayName}else if(openBtn)openBtn.textContent='Create account'})}}catch(e){console.warn('Auth state listener not attached yet',e)}
 })();
 </script>
 
+
+<style id="vc-profile-join-room-style">
+#bagchal-blogger-container #vcProfileJoinRoomBtn{width:100%;min-height:44px;padding:12px 15px;margin:0 0 8px;border:1px solid #3c5278;border-radius:12px;background:linear-gradient(145deg,#1b2a43,#111c30);color:#eef3ff;font-size:13px;font-weight:850;cursor:pointer}
+#bagchal-blogger-container #vcProfileJoinRoomBtn:hover{border-color:#8b7bff;background:linear-gradient(135deg,#27385a,#17263f)}
+</style>
 </body>
 </html>
