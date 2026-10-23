@@ -4034,6 +4034,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if (!ended || ended.from === roleKey(onlineRole)) return;
             const callWasOpen = !!(voiceActive || voicePeerConnection || incomingVoiceOffer || ringtoneHandle || outgoingRingtoneHandle);
             if (!callWasOpen) return;
+            playCallEndedBeep();
             stopVoiceChat(true);
             setVoiceStatus((ended.name || 'Your opponent') + ' ended the call. The voice/video call has ended for both players.');
         };
@@ -4919,6 +4920,30 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         voiceLocalStream.getAudioTracks().forEach(track => { track.enabled = !voiceMuted; });
         document.getElementById('muteVoiceBtn').textContent = voiceMuted ? 'Unmute Microphone' : 'Mute Microphone';
         setVoiceStatus(voiceMuted ? 'Microphone muted.' : 'Microphone unmuted.');
+    }
+
+    function playCallEndedBeep() {
+        // Short two-tone hang-up alert on the device receiving the remote end-call signal.
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const now = ctx.currentTime;
+            [0, 0.18].forEach((offset, index) => {
+                const oscillator = ctx.createOscillator();
+                const gain = ctx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(index === 0 ? 880 : 660, now + offset);
+                gain.gain.setValueAtTime(0.0001, now + offset);
+                gain.gain.exponentialRampToValueAtTime(0.16, now + offset + 0.012);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.13);
+                oscillator.connect(gain);
+                gain.connect(ctx.destination);
+                oscillator.start(now + offset);
+                oscillator.stop(now + offset + 0.14);
+            });
+            setTimeout(() => { try { ctx.close(); } catch (e) {} }, 500);
+        } catch (err) { console.warn('Could not play call-ended beep:', err); }
     }
 
     function stopVoiceChat(silent = false) {
