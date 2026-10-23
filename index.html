@@ -1774,7 +1774,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         <select id="aiLevel" aria-label="AI level" style="display:none" tabindex="-1" aria-hidden="true">
             <option value="hardest" selected>Strongest AI</option>
         </select>
-        <button id="undoBtn" style="display:none" tabindex="-1" aria-hidden="true">Undo</button>
     </div>
 
 
@@ -5096,24 +5095,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }).catch(err => { console.error(err); setOnlineStatus('Could not decline restart request.'); });
     });
 
-    document.getElementById('undoBtn').addEventListener('click', () => {
-        if (state.mode === 'online') {
-            setOnlineStatus('Undo is disabled in online multiplayer to keep both players synchronized.');
-            return;
-        }
-        if (state.history.length === 0) return;
-        const prev = JSON.parse(state.history.pop());
-        state.board = prev.board;
-        state.goatsToPlace = prev.goatsToPlace;
-        state.goatsCaptured = prev.goatsCaptured;
-        state.turn = prev.turn;
-        state.selectedPosition = prev.selectedPosition;
-        state.winner = prev.winner;
-
-        document.getElementById('messageOverlay').classList.remove('active');
-        updateStatusUI();
-        drawBoard();
-    });
 
     function syncModeCardUI() {
         const selector = document.getElementById('gameSelection');
@@ -5233,7 +5214,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         document.getElementById('checkersPlayerCards').style.display = (state.mode === 'ai-checkers' || state.mode === 'ai-chess' || (isOnline && (onlineGameType === 'checkers' || onlineGameType === 'chess'))) ? 'grid' : 'none';
         updateInstructionsVisibility();
         document.querySelector('.status-board').style.gridTemplateColumns = 'repeat(3, 1fr)';
-        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isCheckersActive() || isFourConnectActive() || isChipBombActive()) ? 'none' : '';
         document.getElementById('onlinePreferredRole').closest('div').style.display = isOnline ? 'flex' : 'none';
         document.getElementById('playerNamesStatus').style.display = isOnline ? '' : 'none';
         const localHelp = document.getElementById('localModeHelp');
