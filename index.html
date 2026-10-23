@@ -6067,5 +6067,42 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 })();
 </script>
 
+<style id="vc-remove-youtube-embeds">
+/* Keep external YouTube embeds out of the Viral Cage Play page. */
+iframe[src*="youtube.com/embed"],iframe[src*="youtube-nocookie.com/embed"],iframe[src*="youtu.be/"],
+lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-youtube {
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  border:0!important;
+}
+</style>
+<script id="vc-remove-youtube-embeds-script">
+(function(){
+  'use strict';
+  function removeYouTubeEmbeds(root){
+    if(!root||!root.querySelectorAll)return;
+    root.querySelectorAll('iframe[src*="youtube.com/embed"],iframe[src*="youtube-nocookie.com/embed"],iframe[src*="youtu.be/"],lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-youtube').forEach(function(node){
+      node.remove();
+    });
+  }
+  removeYouTubeEmbeds(document);
+  if(window.MutationObserver){
+    new MutationObserver(function(records){
+      records.forEach(function(record){
+        record.addedNodes.forEach(function(node){
+          if(node.nodeType===1){
+            if(node.matches&&node.matches('iframe[src*="youtube.com/embed"],iframe[src*="youtube-nocookie.com/embed"],iframe[src*="youtu.be/"],lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-youtube'))node.remove();
+            else removeYouTubeEmbeds(node);
+          }
+        });
+      });
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }
+})();
+</script>
+
 </body>
 </html>
