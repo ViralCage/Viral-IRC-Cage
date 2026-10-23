@@ -6470,7 +6470,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   if(!heroCode||!source)return;
   function sync(){
     var code=(source.textContent||'').trim();
-    var visible=display&&getComputedStyle(display).display!=='none'&&/^\d{4}$/.test(code);
+    var visible=/^\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
     heroCode.setAttribute('aria-label',visible?'Room code '+code:'No room code yet');
   }
@@ -6495,6 +6495,11 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 #bagchal-blogger-container .vc-hero-copy .vc-hero-tagline{margin:15px 0 0!important;font-size:clamp(15px,2vw,20px)!important;line-height:1.3!important;font-weight:850!important;letter-spacing:-.025em!important}
 #bagchal-blogger-container .vc-portal-hero{min-height:205px!important}
 @media(max-width:600px){#bagchal-blogger-container .vc-hero-copy .vc-hero-tagline{margin-top:12px!important;font-size:15px!important}#bagchal-blogger-container .vc-portal-hero{min-height:0!important}}
+</style>
+
+<style id="vc-hide-bottom-room-code">
+/* The live room code is shown in the hero; hide the duplicate in the lower room panel. */
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay{display:none!important}
 </style>
 </body>
 </html>
