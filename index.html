@@ -6471,7 +6471,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   function currentCode(){return (source.textContent||'').trim();}
   function sync(){
     var code=currentCode();
-    var visible=/^\\d{4}$/.test(code);
+    var visible=/^\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
     heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'No room code yet');
     heroCode.setAttribute('role','button');
@@ -6481,7 +6481,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function copyRoomCode(){
     var code=currentCode();
-    if(!/^\\d{4}$/.test(code))return;
+    if(!/^\d{4}$/.test(code))return;
     function copied(){
       heroCode.setAttribute('data-copy-state','COPIED');
       heroCode.setAttribute('aria-label','Room code '+code+' copied');
