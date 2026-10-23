@@ -1,0 +1,15 @@
+{
+  "id": "/",
+  "name": "Viral Cage Play",
+  "short_name": "Viral Cage",
+  "description": "Play strategy and classic games online, locally, or against AI.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080d18",
+  "theme_color": "#0a0f1d",
+  "orientation": "any",
+  "icons": [
+    { "src": "/offline-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
