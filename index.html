@@ -4389,8 +4389,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const firstTurnMark = 'X';
         await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
-        const inviteUrl = new URL('/' + routeSlug, window.location.origin);
+        const inviteUrl = new URL('https://play.viralcage.com/');
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
         const link = inviteUrl.toString();
@@ -5741,7 +5740,7 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
     if(e.target.closest('#vcProfileShareRoomBtn')){
       const code=currentRoomCode(),status=$('vcProfileRoomStatus');
       if(!code){refreshProfileRoom();return;}
-      const routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType]||'baghchal';const invite=new URL('/'+routeSlug,window.location.origin);invite.searchParams.set('room',code);
+      const invite=new URL('https://play.viralcage.com/');invite.searchParams.set('room',code);
       const link=invite.toString();
       try{
         await copyText(link);
@@ -5929,29 +5928,5 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 #bagchal-blogger-container .vc-logo-home:focus-visible{outline:2px solid #8b83ff;outline-offset:5px;border-radius:8px}
 #bagchal-blogger-container .vc-footer-brand.vc-logo-home{display:flex;align-items:center}
 </style>
-
-<!-- Viral Cage clean game routes -->
-<script id="vc-clean-game-routes">
-(function(){
-  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},chess:{value:'online-chess',name:'Chess'}};
-  var slug=location.pathname.replace(/^\\/+|\\/+$/g,'').toLowerCase();
-  var route=routes[slug];
-  if(!route)return;
-  function openGame(){
-    var selector=document.getElementById('gameSelection');
-    if(!selector)return false;
-    selector.value=route.value;
-    selector.dispatchEvent(new Event('change',{bubbles:true}));
-    if(typeof syncModeCardUI==='function')syncModeCardUI();
-    document.title=route.name+' | Viral Cage Play';
-    var canonical=document.querySelector('link[rel="canonical"]');
-    if(canonical)canonical.href=location.origin+'/'+slug;
-    return true;
-  }
-  var tries=0;
-  var timer=setInterval(function(){tries++;if(openGame()||tries>=40)clearInterval(timer);},100);
-})();
-</script>
-
 </body>
 </html>
