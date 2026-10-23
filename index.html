@@ -4561,8 +4561,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         try {
             await myQueueRef.set({ uid, name: myName, preferredRole: roleKey(preferredRole), status: 'waiting', createdAt: firebase.database.ServerValue.TIMESTAMP });
             if (randomMatchCancelled) return;
-            setOnlineStatus('Searching for a real player… 60 seconds remaining.');
-            while (!randomMatchCancelled && Date.now() - startedAt < 60000) {
+            setOnlineStatus('Searching for a real player… 10 seconds remaining.');
+            while (!randomMatchCancelled && Date.now() - startedAt < 10000) {
                 const mineSnap = await myQueueRef.once('value');
                 if (randomMatchCancelled) return;
                 const mine = mineSnap.val() || {};
@@ -4626,14 +4626,36 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                         return;
                     }
                 }
-                const remaining = Math.max(0, 60 - Math.floor((Date.now() - startedAt) / 1000));
+                const remaining = Math.max(0, 10 - Math.floor((Date.now() - startedAt) / 1000));
                 setOnlineStatus('Searching for a real player… ' + remaining + ' seconds remaining.');
                 await new Promise(resolve => setTimeout(resolve, 1800));
             }
             if (randomMatchCancelled) return;
             randomMatchQueueRef = null;
             await myQueueRef.remove().catch(() => {});
-            setOnlineStatus('No real player found within 60 seconds. Random Match stopped. Try again or create an invite room.');
+            // No human match after 10 seconds: fall back to the strongest local AI.
+            // This does not create a fake online room or expose matchmaking internals.
+            const aiModeByGame = {
+                baghchal: preferredRole === GOAT ? 'ai-tiger-hardest' : 'ai-goat-hardest',
+                tictactoe: 'ai-tictactoe',
+                dotsboxes: 'ai-dotsboxes',
+                checkers: 'ai-checkers',
+                fourconnect: 'ai-fourconnect',
+                chess: 'ai-chess'
+            };
+            const fallbackMode = aiModeByGame[onlineGameType];
+            if (fallbackMode) {
+                const selector = document.getElementById('gameSelection');
+                if (selector && Array.from(selector.options).some(option => option.value === fallbackMode)) {
+                    selector.value = fallbackMode;
+                    selector.dispatchEvent(new Event('change', { bubbles: true }));
+                    setOnlineStatus('No player is available right now. Starting a game against the strongest AI.');
+                } else {
+                    setOnlineStatus('No real player found. Choose a computer game or create an invite room.');
+                }
+            } else {
+                setOnlineStatus('No real player found. Choose a computer game or create an invite room.');
+            }
         } catch (err) {
             if (randomMatchCancelled) return;
             randomMatchQueueRef = null;
@@ -6015,8 +6037,8 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 <!-- Viral Cage clean game routes -->
 <script id="vc-clean-game-routes">
 (function(){
-  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},chess:{value:'online-chess',name:'Chess'}};
-  var slug=location.pathname.replace(/^\\/+|\\/+$/g,'').toLowerCase();
+  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},dotsboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},checkers:{value:'online-checkers',name:'Checkers'},chess:{value:'online-chess',name:'Chess'}};
+  var slug=location.pathname.replace(/^\/+|\/+$/g,'').toLowerCase();
   var route=routes[slug];
   if(!route)return;
   function openGame(){
