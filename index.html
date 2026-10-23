@@ -2566,22 +2566,58 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }, 420);
     }
     function makeHardTttMove() {
-        const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        const scoreBoard=(board,player,depth)=>{
-            const win=wins.find(line=>line.every(i=>board[i]===player));
-            if(win) return board[win[0]]==='O'?10-depth:depth-10;
-            if(board.every(Boolean)) return 0;
-            const next=player==='O'?'X':'O'; let best=player==='O'?-Infinity:Infinity;
-            for(let i=0;i<9;i++) if(!board[i]) { board[i]=player; const val=scoreBoard(board,next,depth+1); board[i]=''; best=player==='O'?Math.max(best,val):Math.min(best,val); }
+        // Exact minimax with memoization: this searches every reachable position,
+        // so the AI cannot lose when it is playing as O.
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        const moveOrder = [4,0,2,6,8,1,3,5,7]; // centre, corners, then edges
+        const memo = new Map();
+
+        const solve = (board, player) => {
+            const winner = checkTttWinner(board);
+            if (winner === 'O') return 10;
+            if (winner === 'X') return -10;
+            if (winner === 'draw') return 0;
+
+            const key = board.join('') + ':' + player;
+            if (memo.has(key)) return memo.get(key);
+
+            let best = player === 'O' ? -Infinity : Infinity;
+            for (const i of moveOrder) {
+                if (board[i]) continue;
+                board[i] = player;
+                const value = solve(board, player === 'O' ? 'X' : 'O');
+                board[i] = '';
+                best = player === 'O' ? Math.max(best, value) : Math.min(best, value);
+            }
+            memo.set(key, best);
             return best;
         };
-        let best=-Infinity, choices=[];
-        for(let i=0;i<9;i++) if(!tttBoard[i]) { tttBoard[i]='O'; const val=scoreBoard(tttBoard,'X',0); tttBoard[i]=''; if(val>best){best=val;choices=[i]}else if(val===best)choices.push(i); }
-        if(!choices.length)return;
-        tttBoard[choices[Math.floor(Math.random()*choices.length)]]='O';
-        tttWinner=checkTttWinner(tttBoard); if(!tttWinner)tttTurn='X';
-        playMoveSound('place'); updateStatusUI(); drawBoard();
-        if(tttWinner) showMiniGameResult(tttWinner==='draw'?'Draw!':tttWinner==='X'?'You Win!':'AI Wins','Tic Tac Toe finished.');
+
+        let best = -Infinity;
+        let choices = [];
+        for (const i of moveOrder) {
+            if (tttBoard[i]) continue;
+            tttBoard[i] = 'O';
+            const value = solve(tttBoard, 'X');
+            tttBoard[i] = '';
+            if (value > best) {
+                best = value;
+                choices = [i];
+            } else if (value === best) {
+                choices.push(i);
+            }
+        }
+        if (!choices.length) return;
+
+        // Stable priority makes the AI less erratic while preserving optimal play.
+        const chosen = choices[0];
+        tttBoard[chosen] = 'O';
+        tttWinner = checkTttWinner(tttBoard);
+        if (!tttWinner) tttTurn = 'X';
+        playMoveSound('place');
+        updateStatusUI();
+        drawBoard();
+        if (tttWinner) showMiniGameResult(tttWinner === 'draw' ? 'Draw!' : tttWinner === 'X' ? 'You Win!' : 'AI Wins', 'Tic Tac Toe finished.');
     }
     function applyDotsEdge(stateObj, edgeIndex, mark) {
         if(edgeIndex<0||edgeIndex>=40||stateObj.edges[edgeIndex]) return false;
