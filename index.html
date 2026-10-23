@@ -1729,13 +1729,13 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <input id="chatInput" maxlength="500" autocomplete="off" placeholder="Type a message…" aria-label="Chat message" style="flex:1; min-width:0; padding:9px; border:1px solid #a0aec0; border-radius:6px;">
             <button id="sendChatBtn" type="submit" aria-label="Send message" title="Send message"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 20.5 21 12 3 3.5l.1 6.6L15 12 3.1 13.9 3 20.5Z" fill="currentColor"/></svg></button>
             <button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg></button>
+            <button id="stopVoiceBtn" type="button" title="End voice call" aria-label="End voice call" disabled>End call</button>
             <button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg></button>
         </form>
         <div id="videoCallStage" aria-label="Video call window"><div class="video-drag-bar" id="videoDragBar"><button id="videoDragGrip" class="video-drag-grip" type="button" title="Drag video window" aria-label="Drag video window"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h.01M16 4h.01M8 12h.01M16 12h.01M8 20h.01M16 20h.01"/></svg></button><span id="videoCallTitle" style="flex:1">Video call</span><div class="video-drag-actions"><button id="videoCloseHideBtn" type="button" title="Hide video window (call continues)" aria-label="Hide video window">×</button></div></div><video id="remoteVideo" autoplay playsinline></video><div id="videoPlaceholder" class="video-placeholder">Waiting for opponent video…</div><video id="localVideo" autoplay muted playsinline></video><div id="videoOpponentLabel" class="video-side-label">Opponent</div><div id="videoMeLabel" class="video-side-label">You</div><div class="video-call-controls"><button id="videoMuteBtn" type="button">Mute mic</button><button id="videoEndCallBtn" type="button">End call</button></div><div id="videoResizeHandle" class="video-resize-handle resize-se" data-resize="se" aria-label="Resize video call window from bottom right" title="Drag to resize" role="button"></div><div class="video-resize-handle resize-sw" data-resize="sw" aria-label="Resize video call window from bottom left" title="Drag to resize" role="button"></div><div class="video-resize-handle resize-ne" data-resize="ne" aria-label="Resize video call window from top right" title="Drag to resize" role="button"></div><div class="video-resize-handle resize-nw" data-resize="nw" aria-label="Resize video call window from top left" title="Drag to resize" role="button"></div></div>
         <div id="voiceChatPanel">
             <div class="voice-controls">
                 <button id="muteVoiceBtn" type="button" disabled>Mute</button>
-                <button id="stopVoiceBtn" type="button" disabled>Disconnect Voice</button>
             </div>
             <div id="voiceStatus" role="status" aria-live="polite">Join an online room, then choose Voice or Video. Both players must allow microphone access.</div>
             <audio id="remoteVoiceAudio" autoplay playsinline></audio>
@@ -4062,6 +4062,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 opponentWasPresent = false;
                 const callWasOpen = !!(voiceActive || voicePeerConnection || incomingVoiceOffer || ringtoneHandle || outgoingRingtoneHandle);
                 if (callWasOpen) {
+                    playCallEndedBeep();
                     stopVoiceChat(true);
                     const popup = document.getElementById('incomingCallPopup');
                     if (popup) popup.hidden = true;
@@ -4949,8 +4950,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function stopVoiceChat(silent = false) {
         if (voiceDisconnectEndTimer) { clearTimeout(voiceDisconnectEndTimer); voiceDisconnectEndTimer = null; }
         // A manual hang-up is broadcast so the other player cannot remain in a one-sided call.
-        if (!silent && onlineRoomRef && onlineRole) {
-            onlineRoomRef.child('voiceChat/end').set({ from: roleKey(onlineRole), name: getDisplayName(), at: firebase.database.ServerValue.TIMESTAMP }).catch(err => console.warn('Could not notify opponent that the call ended:', err));
+        if (!silent) {
+            // Play locally as well as broadcasting the hang-up, so both players hear the end tone.
+            playCallEndedBeep();
+            if (onlineRoomRef && onlineRole) {
+                onlineRoomRef.child('voiceChat/end').set({ from: roleKey(onlineRole), name: getDisplayName(), at: firebase.database.ServerValue.TIMESTAMP }).catch(err => console.warn('Could not notify opponent that the call ended:', err));
+            }
         }
         detachVoiceSignaling();
         if (voicePeerConnection) {
@@ -5649,6 +5654,9 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
 #bagchal-blogger-container #chatForm #sendChatBtn{display:inline-flex!important;order:1;flex:0 0 40px!important;width:40px!important;height:40px!important;border-radius:11px!important;background:linear-gradient(135deg,#7c5cff,#3979f6)!important;color:white!important}
 #bagchal-blogger-container #chatForm #startVoiceBtn,#bagchal-blogger-container #chatForm #startVideoBtn{display:inline-flex!important;order:2;flex:1 1 0!important;width:auto!important;height:40px!important;min-width:0!important;border-radius:11px!important;align-items:center;justify-content:center;gap:7px;box-shadow:none!important;border:1px solid #34435f!important;background:#14233a!important;color:#eaf0ff!important}
 #bagchal-blogger-container #chatForm #startVoiceBtn:after{content:"Voice call";font-size:11px;font-weight:800}
+#bagchal-blogger-container #chatForm #stopVoiceBtn{display:inline-flex!important;order:3;flex:1 1 0!important;width:auto!important;height:40px!important;min-width:0!important;align-items:center;justify-content:center;border-radius:11px!important;background:linear-gradient(135deg,#fb4b57,#cf2638)!important;color:#fff!important;border:0!important;font-size:11px!important;font-weight:800!important;box-shadow:none!important}
+#bagchal-blogger-container #chatForm #stopVoiceBtn:disabled{display:none!important}
+
 #bagchal-blogger-container #chatForm #startVideoBtn:after{content:"Video call";font-size:11px;font-weight:800}
 #bagchal-blogger-container #chatForm #startVoiceBtn svg,#bagchal-blogger-container #chatForm #startVideoBtn svg{width:17px!important;height:17px!important;flex:0 0 17px}
 #bagchal-blogger-container #voiceChatPanel{order:7;margin:0 12px 12px!important;padding:10px!important;border:1px solid #2b3954!important;border-radius:12px!important;background:#0d1728!important}
