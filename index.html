@@ -1944,6 +1944,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let voiceAnswerListener = null;
     let voiceCandidateListener = null;
     let incomingVoiceListener = null;
+    let voiceCallEndListener = null;
     let incomingVoiceOffer = null;
     let incomingCallTimeout = null;
     let incomingCallCountdownInterval = null;
@@ -3898,6 +3899,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (onlineRoomRef && onlineLiveClickListener) onlineRoomRef.child('liveClicks').off('value', onlineLiveClickListener);
         if (onlineRoomRef && onlineRestartListener) onlineRoomRef.child('restartRequests').off('value', onlineRestartListener);
         if (onlineRoomRef && incomingVoiceListener) onlineRoomRef.child('voiceChat/offer').off('value', incomingVoiceListener);
+        if (onlineRoomRef && voiceCallEndListener) onlineRoomRef.child('voiceChat/end').off('value', voiceCallEndListener);
+        voiceCallEndListener = null;
         if (onlineRoomRef && onlinePlayerNamesListener) onlineRoomRef.child('playerNames').off('value', onlinePlayerNamesListener);
         incomingVoiceListener = null; onlinePlayerNamesListener = null;
         incomingVoiceOffer = null; stopIncomingRingtone();
@@ -4022,6 +4025,18 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             }
         };
         onlineRoomRef.child('voiceChat/offer').on('value', incomingVoiceListener);
+        // If either player ends a call, immediately close the matching call on the other device.
+        let callEndListenerReady = false;
+        voiceCallEndListener = snap => {
+            if (!callEndListenerReady) { callEndListenerReady = true; return; }
+            const ended = snap.val();
+            if (!ended || ended.from === roleKey(onlineRole)) return;
+            const callWasOpen = !!(voiceActive || voicePeerConnection || incomingVoiceOffer || ringtoneHandle || outgoingRingtoneHandle);
+            if (!callWasOpen) return;
+            stopVoiceChat(true);
+            setVoiceStatus((ended.name || 'Your opponent') + ' ended the call. The voice/video call has ended for both players.');
+        };
+        onlineRoomRef.child('voiceChat/end').on('value', voiceCallEndListener);
         // Publish this player's presence and watch the opponent. If an opponent who
         // was present disconnects, immediately close any voice/video call on this device.
         if (firebaseUser && role != null) {
@@ -4884,6 +4899,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     function stopVoiceChat(silent = false) {
+        // A manual hang-up is broadcast so the other player cannot remain in a one-sided call.
+        if (!silent && onlineRoomRef && onlineRole) {
+            onlineRoomRef.child('voiceChat/end').set({ from: roleKey(onlineRole), name: getDisplayName(), at: firebase.database.ServerValue.TIMESTAMP }).catch(err => console.warn('Could not notify opponent that the call ended:', err));
+        }
         detachVoiceSignaling();
         if (voicePeerConnection) {
             voicePeerConnection.ontrack = null;
