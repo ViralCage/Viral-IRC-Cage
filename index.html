@@ -4639,7 +4639,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 baghchal: preferredRole === GOAT ? 'ai-tiger-hardest' : 'ai-goat-hardest',
                 tictactoe: 'ai-tictactoe',
                 dotsboxes: 'ai-dotsboxes',
-                checkers: 'ai-checkers',
                 fourconnect: 'ai-fourconnect',
                 chess: 'ai-chess'
             };
@@ -6037,7 +6036,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 <!-- Viral Cage clean game routes -->
 <script id="vc-clean-game-routes">
 (function(){
-  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},dotsboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},checkers:{value:'online-checkers',name:'Checkers'},chess:{value:'online-chess',name:'Chess'}};
+  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},dotsboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},chess:{value:'online-chess',name:'Chess'}};
   var slug=location.pathname.replace(/^\/+|\/+$/g,'').toLowerCase();
   var route=routes[slug];
   if(!route)return;
