@@ -2122,13 +2122,30 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         try { if (navigator.vibrate) navigator.vibrate([350, 120, 350]); } catch (e) {}
     }
 
-    // Unlock/resume audio after any real user gesture. Browsers can otherwise allow
-    // the call popup but silently block its ringtone on one of the devices.
+    // Unlock Web Audio during a user gesture, before an incoming call arrives.
+    // Merely resuming an already-created context was unreliable on Safari/iOS because
+    // some visitors had never triggered a board sound (so no context existed yet).
+    function unlockCallAudio() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            if (!gameAudioContext || gameAudioContext.state === 'closed') gameAudioContext = new AudioCtx();
+            if (gameAudioContext.state === 'suspended') gameAudioContext.resume().catch(() => {});
+            if (incomingVoiceOffer && !voiceActive) {
+                if (!ringtoneHandle) startIncomingRingtone();
+                else if (gameAudioContext.state === 'running') playNotificationTone('ring');
+            }
+        } catch (error) { console.warn('Call audio could not be unlocked:', error); }
+    }
     ['pointerdown', 'touchstart', 'keydown'].forEach(type => {
-        document.addEventListener(type, () => {
-            if (gameAudioContext && gameAudioContext.state === 'suspended') gameAudioContext.resume().catch(() => {});
-            if (incomingVoiceOffer && !voiceActive && !ringtoneHandle) startIncomingRingtone();
-        }, { passive: true });
+        document.addEventListener(type, unlockCallAudio, { passive: true });
+    });
+    // Returning to a visible tab should refresh audio playback where the browser allows it.
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && incomingVoiceOffer && !voiceActive) {
+            unlockCallAudio();
+            if (!ringtoneHandle) startIncomingRingtone();
+        }
     });
 
     function stopIncomingRingtone() {
@@ -4691,7 +4708,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const localVideo = document.getElementById('localVideo');
             if (stage) { stage.classList.toggle('active', voiceCallMediaType === 'video'); if (voiceCallMediaType === 'video') { stage.classList.remove('video-minimized'); stage.style.display = 'block'; const mb = document.getElementById('videoMuteBtn'); if (mb) mb.textContent = 'Mute mic'; const title = document.getElementById('videoCallTitle'); if (title) title.textContent = 'Video call with ' + getOpponentDisplayName(); } }
             if (localVideo) { localVideo.srcObject = voiceCallMediaType === 'video' ? voiceLocalStream : null; localVideo.style.display = voiceCallMediaType === 'video' ? 'block' : 'none'; }
-            voicePeerConnection = new RTCPeerConnection({ iceServers: await getVoiceIceServers() });
+            voicePeerConnection = new RTCPeerConnection({ iceServers: await getVoiceIceServers(), iceCandidatePoolSize: 10, bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require' });
             voiceRemoteCandidates = [];
             voiceSeenCandidateKeys = new Set();
             voiceOfferInProgress = false;
@@ -4703,10 +4720,23 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
                 const audio = document.getElementById('remoteVoiceAudio');
                 const remoteVideo = document.getElementById('remoteVideo');
-                if (audio) { audio.srcObject = stream; audio.play().catch(() => setVoiceStatus('Call connected. Tap the page once if audio does not start.')); }
+                // Attach the same remote stream to the dedicated audio element on both
+                // voice and video calls; retry playback after browser autoplay blocks.
+                if (audio) {
+                    audio.autoplay = true;
+                    audio.playsInline = true;
+                    audio.srcObject = stream;
+                    const playRemoteAudio = () => audio.play().catch(() => {
+                        setVoiceStatus('Call is connected. Tap the page or press Answer again to enable incoming audio.');
+                    });
+                    playRemoteAudio();
+                    event.track.addEventListener('unmute', playRemoteAudio, { once: true });
+                }
                 if (remoteVideo && voiceCallMediaType === 'video') {
+                    remoteVideo.autoplay = true;
+                    remoteVideo.playsInline = true;
                     remoteVideo.srcObject = stream;
-                    remoteVideo.play().catch(() => {});
+                    remoteVideo.play().catch(() => setVoiceStatus('Video is connected. Tap the video window to start playback.'));
                     const placeholder = document.getElementById('videoPlaceholder');
                     if (placeholder && event.track.kind === 'video') placeholder.style.display = 'none';
                 }
