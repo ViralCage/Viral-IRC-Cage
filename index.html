@@ -1933,6 +1933,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (pendingRef) pendingRef.remove().catch(() => {});
     }
     let voicePeerConnection = null;
+    let voiceDisconnectEndTimer = null;
     let voiceLocalStream = null;
     let voiceActive = false;
     let voiceMuted = false;
@@ -4802,11 +4803,33 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 if (iceState === 'checking') setVoiceStatus('Finding a secure connection…');
                 else if (iceState === 'failed') setVoiceStatus('Direct connection failed. A TURN relay may be required on this network.');
             };
+            const thisPeerConnection = voicePeerConnection;
             voicePeerConnection.onconnectionstatechange = () => {
-                const connectionState = voicePeerConnection && voicePeerConnection.connectionState;
-                if (connectionState === 'connected') { if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout); if (incomingCallTimeout) clearTimeout(incomingCallTimeout); if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval); stopOutgoingRingtone(); stopIncomingRingtone(); setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.'); }
-                else if (connectionState === 'failed') setVoiceStatus('Call connection failed. This network may require a TURN relay. If Firebase errors appear in Console, fix the room voiceChat rules too.');
-                else if (connectionState === 'disconnected') setVoiceStatus('Call temporarily disconnected. Waiting to reconnect…');
+                const connectionState = thisPeerConnection && thisPeerConnection.connectionState;
+                if (connectionState === 'connected') {
+                    if (voiceDisconnectEndTimer) { clearTimeout(voiceDisconnectEndTimer); voiceDisconnectEndTimer = null; }
+                    if (outgoingCallTimeout) clearTimeout(outgoingCallTimeout);
+                    if (incomingCallTimeout) clearTimeout(incomingCallTimeout);
+                    if (incomingCallCountdownInterval) clearInterval(incomingCallCountdownInterval);
+                    stopOutgoingRingtone(); stopIncomingRingtone();
+                    setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.');
+                } else if (connectionState === 'failed' || connectionState === 'closed') {
+                    if (voiceDisconnectEndTimer) { clearTimeout(voiceDisconnectEndTimer); voiceDisconnectEndTimer = null; }
+                    if (voicePeerConnection === thisPeerConnection && voiceActive) {
+                        setVoiceStatus('Your opponent disconnected from the call. Ending the call for both players.');
+                        stopVoiceChat(false);
+                    }
+                } else if (connectionState === 'disconnected') {
+                    setVoiceStatus('Your opponent disconnected from the call. Waiting briefly for reconnection…');
+                    if (voiceDisconnectEndTimer) clearTimeout(voiceDisconnectEndTimer);
+                    voiceDisconnectEndTimer = setTimeout(() => {
+                        voiceDisconnectEndTimer = null;
+                        if (voicePeerConnection === thisPeerConnection && thisPeerConnection.connectionState === 'disconnected' && voiceActive) {
+                            setVoiceStatus('Call connection was lost. Ending the call for both players.');
+                            stopVoiceChat(false);
+                        }
+                    }, 7000);
+                }
             };
             const voiceRef = onlineRoomRef.child('voiceChat');
             voiceOfferListener = snap => {
@@ -4899,6 +4922,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     function stopVoiceChat(silent = false) {
+        if (voiceDisconnectEndTimer) { clearTimeout(voiceDisconnectEndTimer); voiceDisconnectEndTimer = null; }
         // A manual hang-up is broadcast so the other player cannot remain in a one-sided call.
         if (!silent && onlineRoomRef && onlineRole) {
             onlineRoomRef.child('voiceChat/end').set({ from: roleKey(onlineRole), name: getDisplayName(), at: firebase.database.ServerValue.TIMESTAMP }).catch(err => console.warn('Could not notify opponent that the call ended:', err));
