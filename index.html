@@ -1884,6 +1884,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let onlineRole = null; // GOAT or TIGER for this browser
     let onlineRoomId = null;
     let onlineRoomCode = null;
+    let vcOpponentConnected = false;
     let onlineRoomRef = null;
     let onlineGameListener = null;
     let onlineLiveClickListener = null;
@@ -3733,9 +3734,22 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
 
+    function updateViralCageRoomInfo() {
+        const codeEl = document.getElementById('vcInfoRoomCode');
+        const playersEl = document.getElementById('vcInfoPlayers');
+        const gameEl = document.getElementById('vcInfoGame');
+        const callEl = document.getElementById('vcInfoCall');
+        if (codeEl) codeEl.textContent = onlineRoomCode || 'Not joined';
+        if (playersEl) playersEl.textContent = onlineRoomId ? (vcOpponentConnected || onlineAiOpponent ? '2 / 2' : '1 / 2') : '0 / 2';
+        const gameNames = { baghchal:'BaghChal', tictactoe:'Tic-Tac-Toe', dotsboxes:'Dots & Boxes', fourconnect:'Four Connect', chess:'Chess', checkers:'Checkers' };
+        if (gameEl) gameEl.textContent = gameNames[onlineGameType] || 'Game';
+        if (callEl) { callEl.textContent = voiceActive ? 'Connected' : 'Off'; callEl.className = voiceActive ? 'vc-info-online' : ''; }
+    }
+
     function setOnlineStatus(message) {
         const el = document.getElementById('onlineStatus');
         if (el) el.textContent = message;
+        updateViralCageRoomInfo();
     }
 
     function firebaseConfigIsSet() {
@@ -3944,7 +3958,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlinePreviousBoard = null;
         state.lastMove = null;
         onlineRoomCode = code || null;
+        vcOpponentConnected = !!aiOpponent;
         onlineRole = role;
+        updateViralCageRoomInfo();
         onlineAiOpponent = !!aiOpponent;
         onlineAiMovePending = false;
         onlineRoomRef = firebase.database().ref('bagchalRooms/' + roomId);
@@ -4056,8 +4072,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             window.vcOpponentPresenceListener = snap => {
                 if (snap.exists()) {
                     opponentWasPresent = true;
+                    vcOpponentConnected = true;
+                    updateViralCageRoomInfo();
                     return;
                 }
+                vcOpponentConnected = false;
+                updateViralCageRoomInfo();
                 if (!opponentWasPresent) return;
                 opponentWasPresent = false;
                 const callWasOpen = !!(voiceActive || voicePeerConnection || incomingVoiceOffer || ringtoneHandle || outgoingRingtoneHandle);
@@ -4651,6 +4671,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function setVoiceStatus(message) {
         const el = document.getElementById('voiceStatus');
         if (el) el.textContent = message;
+        updateViralCageRoomInfo();
     }
 
     function detachVoiceSignaling() {
@@ -4822,15 +4843,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                         stopVoiceChat(false);
                     }
                 } else if (connectionState === 'disconnected') {
-                    setVoiceStatus('Your opponent disconnected from the call. Waiting briefly for reconnection…');
-                    if (voiceDisconnectEndTimer) clearTimeout(voiceDisconnectEndTimer);
-                    voiceDisconnectEndTimer = setTimeout(() => {
-                        voiceDisconnectEndTimer = null;
-                        if (voicePeerConnection === thisPeerConnection && thisPeerConnection.connectionState === 'disconnected' && voiceActive) {
-                            setVoiceStatus('Call connection was lost. Ending the call for both players.');
-                            stopVoiceChat(false);
-                        }
-                    }, 7000);
+                    // End immediately: do not leave either player in a one-sided call
+                    // while waiting for a possible WebRTC reconnection.
+                    if (voicePeerConnection === thisPeerConnection && voiceActive) {
+                        setVoiceStatus('Call connection lost. Ending the call for both players.');
+                        stopVoiceChat(false);
+                    }
                 }
             };
             const voiceRef = onlineRoomRef.child('voiceChat');
@@ -5369,6 +5387,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             onlineRoomRef = null;
             onlineRoomId = null;
             onlineRoomCode = null;
+            vcOpponentConnected = false;
+            updateViralCageRoomInfo();
             onlineRole = null;
         } else {
             setOnlineStatus('Create an invite room, join with a 4-digit code, or choose Random Match.');
