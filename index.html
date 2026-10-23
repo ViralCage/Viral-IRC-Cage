@@ -1723,7 +1723,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="cancelGuestNameBtn" type="button">Cancel</button>
         </div>
         <div id="chatMessages" role="log" aria-live="polite" style="height:150px; overflow-y:auto; padding:8px; border:1px solid #e2e8f0; border-radius:7px; background:#fff; font-size:13px; overflow-wrap:anywhere;">
-            <div style="color:#718096;">Text chat is disabled. Use voice or video calls.</div>
+            <div style="color:#718096;">Join an online room to start peer-to-peer chat.</div>
         </div>
         <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
             <input id="chatInput" maxlength="500" autocomplete="off" placeholder="Type a message…" aria-label="Chat message" style="flex:1; min-width:0; padding:9px; border:1px solid #a0aec0; border-radius:6px;">
@@ -1745,7 +1745,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="joinRoomBtn" type="button" title="Join with a room code"><span aria-hidden="true">↗</span> Join Room</button>
             <button id="quickMatchBtn" type="button" title="Find a random opponent"><span aria-hidden="true">⇄</span> Quick Match</button>
         </div>
-        <div id="chatStatus">Text chat disabled.</div>
+        <div id="chatStatus">Peer-to-peer chat is enabled. Join a two-player online room to connect.</div>
         <div class="chat-room-divider" aria-hidden="true"></div>
 
     </div>
@@ -6147,6 +6147,8 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   if (!popup || !toggle || !form || !input || !messages) return;
 
   var status = document.createElement('div');
+  var legacyStatus = root.querySelector('#chatStatus');
+  if (legacyStatus) legacyStatus.textContent = 'Peer-to-peer chat is enabled. Join a two-player online room to connect.';
   status.id = 'vcP2PChatStatus';
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
