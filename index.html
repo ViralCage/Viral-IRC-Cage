@@ -1796,6 +1796,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
           <span class="vc-room-card-title">CURRENT GAME ROOM</span>
           <strong id="vcProfileRoomCode">----</strong>
           <span id="vcProfileRoomHint">Create or join an online room to see its code here.</span>
+          <button type="button" id="vcProfileCreateRoomBtn">＋ Create Room</button>
           <button type="button" id="vcProfileJoinRoomBtn">Join a Room</button>
           <button type="button" id="vcProfileShareRoomBtn" disabled>Copy Share Link</button>
           <span id="vcProfileRoomStatus" aria-live="polite"></span>
@@ -5803,6 +5804,8 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
 #baghchal-blogger-container .vc-profile-room-card .vc-room-card-title{display:block;font-size:10px;letter-spacing:.14em;font-weight:900;color:#a8b6d0;margin-bottom:8px}
 #baghchal-blogger-container #vcProfileRoomCode{display:block;font-size:27px;font-weight:900;letter-spacing:.18em;color:#fff;line-height:1.25;overflow-wrap:anywhere}
 #baghchal-blogger-container #vcProfileRoomHint{display:block;font-size:11px;color:#a8b6d0;line-height:1.5;margin:7px 0 10px}
+#baghchal-blogger-container #vcProfileCreateRoomBtn,#baghchal-blogger-container #vcProfileJoinRoomBtn{width:100%;min-height:42px;border:1px solid #344766;border-radius:10px;background:#15243a;color:#eaf3ff;font-weight:850;cursor:pointer}
+#baghchal-blogger-container #vcProfileCreateRoomBtn{border-color:#168b70;background:linear-gradient(135deg,#10b981,#059669);color:#fff}
 #baghchal-blogger-container #vcProfileShareRoomBtn{width:100%;min-height:42px;border:1px solid #8174ff;border-radius:10px;background:linear-gradient(135deg,#805cf4,#5366e9);color:#fff;font-weight:850;cursor:pointer}
 #baghchal-blogger-container #vcProfileShareRoomBtn:disabled{opacity:.45;cursor:not-allowed}
 #baghchal-blogger-container #vcProfileRoomStatus{display:block;min-height:15px;margin-top:7px;color:#b8c6df;font-size:11px}
@@ -5835,7 +5838,15 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
   document.addEventListener('click',async function(e){
     if(e.target.closest('#vcProfileBtn')){setTimeout(refreshProfileRoom,0);}
     if(e.target.closest('#createRoomBtn')||e.target.closest('#joinRoomBtn')){setTimeout(refreshProfileRoom,250);setTimeout(refreshProfileRoom,900);}
-    if(e.target.closest('#vcProfileJoinRoomBtn')){
+    if(e.target.closest('#vcProfileCreateRoomBtn')){
+       const createButton=$('createRoomBtn'),status=$('vcProfileRoomStatus');
+       if(!createButton){if(status)status.textContent='Create Room is unavailable right now.';return;}
+       if(status)status.textContent='Creating your room…';
+       createButton.click();
+       setTimeout(refreshProfileRoom,300);
+       setTimeout(refreshProfileRoom,900);
+     }
+     if(e.target.closest('#vcProfileJoinRoomBtn')){
       const profile=$('vcProfileModal');
       if(profile)profile.hidden=true;
       const existingJoinButton=$('joinRoomBtn');
