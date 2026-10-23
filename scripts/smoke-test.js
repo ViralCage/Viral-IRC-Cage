@@ -15,7 +15,7 @@ inlineScripts.forEach((source, index) => {
 assert.ok(html.includes('<title>Viral Cage Play'), 'Homepage title must exist');
 assert.ok(html.includes('<meta name="description"'), 'Meta description must exist');
 assert.ok(html.includes('<link rel="canonical" href="https://play.viralcage.com/">'), 'Canonical URL must point to the production homepage');
-const routeLine = html.split('\\n').find(line => line.includes('var slug=location.pathname'));
+const routeLine = html.split(String.fromCharCode(10)).find(line => line.includes('var slug=location.pathname'));
 assert.ok(routeLine && routeLine.includes(String.raw`replace(/^\\/+|\\/+$/g`), 'Clean route parser must strip leading and trailing slashes');
 
 for (const slug of ['baghchal', 'tictactoe', 'dotsandboxes', 'dotsboxes', 'fourconnect', 'chess']) {
