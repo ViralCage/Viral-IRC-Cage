@@ -2083,14 +2083,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
 
-    // Short synthesized notification sounds: no external audio files required.
-    function playNotificationTone(kind = 'message') {
+    // Synthesized call ringtone. Resume Web Audio before scheduling tones; scheduling
+    // while the context is suspended was causing intermittent silent incoming calls.
+    async function playNotificationTone(kind = 'message') {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-            if (!gameAudioContext) gameAudioContext = new AudioCtx();
+            if (!AudioCtx) return false;
+            if (!gameAudioContext || gameAudioContext.state === 'closed') gameAudioContext = new AudioCtx();
             const audio = gameAudioContext;
-            if (audio.state === 'suspended') audio.resume().catch(() => {});
+            if (audio.state === 'suspended') await audio.resume();
+            if (audio.state !== 'running') return false;
             const now = audio.currentTime;
             const notes = kind === 'ring' ? [{f:660,t:0,d:0.30},{f:880,t:0.34,d:0.34},{f:660,t:0.82,d:0.30},{f:880,t:1.16,d:0.34}] : [{f:880,t:0,d:0.10},{f:1175,t:0.12,d:0.11}];
             notes.forEach(note => {
@@ -2099,23 +2101,35 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 osc.type = kind === 'ring' ? 'triangle' : 'sine';
                 osc.frequency.setValueAtTime(note.f, now + note.t);
                 gain.gain.setValueAtTime(0.0001, now + note.t);
-                gain.gain.exponentialRampToValueAtTime(kind === 'ring' ? 0.78 : 0.09, now + note.t + 0.015);
+                gain.gain.exponentialRampToValueAtTime(kind === 'ring' ? 0.42 : 0.09, now + note.t + 0.02);
                 gain.gain.exponentialRampToValueAtTime(0.0001, now + note.t + note.d);
                 osc.connect(gain); gain.connect(audio.destination);
                 osc.start(now + note.t); osc.stop(now + note.t + note.d + 0.02);
             });
-        } catch (e) { /* Notification audio is optional. */ }
+            return true;
+        } catch (e) { console.warn('Call ringtone audio is unavailable until the page is interacted with:', e); return false; }
     }
 
     function startIncomingRingtone() {
         stopIncomingRingtone();
+        if (!incomingVoiceOffer || voiceActive) return;
         playNotificationTone('ring');
         ringtoneHandle = setInterval(() => {
             if (!incomingVoiceOffer || voiceActive) { stopIncomingRingtone(); return; }
+            // Retry resume/play each cycle in case the browser initially suspended audio.
             playNotificationTone('ring');
-        }, 2100);
+        }, 2300);
         try { if (navigator.vibrate) navigator.vibrate([350, 120, 350]); } catch (e) {}
     }
+
+    // Unlock/resume audio after any real user gesture. Browsers can otherwise allow
+    // the call popup but silently block its ringtone on one of the devices.
+    ['pointerdown', 'touchstart', 'keydown'].forEach(type => {
+        document.addEventListener(type, () => {
+            if (gameAudioContext && gameAudioContext.state === 'suspended') gameAudioContext.resume().catch(() => {});
+            if (incomingVoiceOffer && !voiceActive && !ringtoneHandle) startIncomingRingtone();
+        }, { passive: true });
+    });
 
     function stopIncomingRingtone() {
         if (ringtoneHandle) clearInterval(ringtoneHandle);
@@ -3950,7 +3964,15 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         // Ring for an incoming call before the callee opens the voice connection.
         incomingVoiceListener = snap => {
             const offer = snap.val();
-            if (!offer || !offer.sdp || !onlineRole || offer.callerRole === roleKey(onlineRole)) return;
+            if (!offer || !offer.sdp || !offer.callerRole || !onlineRole || offer.callerRole === roleKey(onlineRole)) {
+                if (!offer && !voiceActive) { incomingVoiceOffer = null; stopIncomingRingtone(); const oldPopup = document.getElementById('incomingCallPopup'); if (oldPopup) oldPopup.hidden = true; }
+                return;
+            }
+            // Ignore duplicate Firebase value events for the same offer, but always
+            // restore the popup/ringtone if a valid incoming call is still unanswered.
+            const offerId = String(offer.at || '') + '|' + String(offer.callerRole) + '|' + String(offer.sdp).slice(-80);
+            const previousOffer = incomingVoiceOffer;
+            const previousId = previousOffer ? String(previousOffer.at || '') + '|' + String(previousOffer.callerRole) + '|' + String(previousOffer.sdp || '').slice(-80) : '';
             incomingVoiceOffer = offer;
             if (!voiceActive && !onlineAiOpponent) {
                 const popup = document.getElementById('incomingCallPopup');
@@ -3960,13 +3982,15 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 if (videoTitle) videoTitle.textContent = 'Video call with ' + (offer.callerName || 'opponent');
                 if (popup) popup.hidden = false;
                 setVoiceStatus('Incoming ' + (offer.mediaType === 'video' ? 'video' : 'voice') + ' call from ' + (offer.callerName || 'your opponent') + '. Answer the call popup.');
-                try {
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        const callNotice = new Notification('Incoming ' + (offer.mediaType === 'video' ? 'video call' : 'voice call'), { body: (offer.callerName || 'Your opponent') + ' is calling you in BaghChal.', tag: 'baghchal-incoming-call', requireInteraction: true });
-                        callNotice.onclick = () => { window.focus(); callNotice.close(); };
-                    }
-                } catch (e) {}
-                startIncomingRingtone();
+                if (offerId !== previousId || !ringtoneHandle) startIncomingRingtone();
+                if (offerId !== previousId) {
+                    try {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            const callNotice = new Notification('Incoming ' + (offer.mediaType === 'video' ? 'video call' : 'voice call'), { body: (offer.callerName || 'Your opponent') + ' is calling you in Viral Cage Play.', tag: 'baghchal-incoming-call', requireInteraction: true });
+                            callNotice.onclick = () => { window.focus(); callNotice.close(); };
+                        }
+                    } catch (e) {}
+                }
             }
         };
         onlineRoomRef.child('voiceChat/offer').on('value', incomingVoiceListener);
