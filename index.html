@@ -1763,6 +1763,11 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
           <button type="button" id="vcProfileShareRoomBtn" disabled>Share Room Link</button>
           <span id="vcProfileRoomStatus" aria-live="polite"></span>
         </div>
+        <div class="vc-online-directory" aria-label="Online players">
+          <div class="vc-online-directory-head"><div><strong>Players online</strong><span id="vcDirectoryStatus">Connect to see other players</span></div><button type="button" id="vcRefreshPlayersBtn">Refresh</button></div>
+          <div id="vcOnlinePlayersList" class="vc-online-players-list"><div class="vc-directory-empty">Set up the player directory to discover players.</div></div>
+          <div class="vc-incoming-invites" id="vcIncomingInvites" hidden><strong>Game invitations</strong><div id="vcIncomingInvitesList"></div></div>
+        </div>
         <div class="vc-profile-actions"><button type="button" id="vcChangeNicknameBtn" class="vc-profile-primary">Change nickname</button></div></div>
       </div>
     </section>
@@ -4227,7 +4232,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
         const firstTurnMark = 'X';
         await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const inviteUrl = new URL('https://www.viralcage.com/p/bagh-chal-game.html');
+        const inviteUrl = new URL('https://play.viralcage.com/');
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
         const link = inviteUrl.toString();
@@ -4490,7 +4495,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             if (status) status.textContent = 'Create or join a room first.';
             return;
         }
-        const inviteUrl = new URL('https://www.viralcage.com/p/bagh-chal-game.html');
+        const inviteUrl = new URL('https://play.viralcage.com/');
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
         const link = inviteUrl.toString();
@@ -4586,7 +4591,10 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             setVoiceStatus('Connecting to your opponent…');
         } catch (err) {
             console.error('Voice answer error:', err);
-            setVoiceStatus('Could not connect the voice call. Disconnect and try again.');
+            const msg = String(err && (err.message || err) || '');
+            setVoiceStatus(/permission|PERMISSION_DENIED/i.test(msg)
+                ? 'Firebase blocked the call answer. Check Realtime Database rules for bagchalRooms/{roomId}/voiceChat.'
+                : 'Could not connect the call (' + (err && err.name || 'connection error') + '). Check the browser Console.');
         }
     }
 
@@ -4609,7 +4617,13 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             const localVideo = document.getElementById('localVideo');
             if (stage) { stage.classList.toggle('active', voiceCallMediaType === 'video'); if (voiceCallMediaType === 'video') { stage.classList.remove('video-minimized'); stage.style.display = 'block'; const mb = document.getElementById('videoMuteBtn'); if (mb) mb.textContent = 'Mute mic'; const title = document.getElementById('videoCallTitle'); if (title) title.textContent = 'Video call with ' + getOpponentDisplayName(); } }
             if (localVideo) { localVideo.srcObject = voiceCallMediaType === 'video' ? voiceLocalStream : null; localVideo.style.display = voiceCallMediaType === 'video' ? 'block' : 'none'; }
-            voicePeerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+            // Multiple STUN servers improve discovery, but networks that block direct peer traffic still need a TURN relay.
+            voicePeerConnection = new RTCPeerConnection({ iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' }
+            ] });
             voiceRemoteCandidates = [];
             voiceActive = true;
             voiceMuted = false;
@@ -4629,14 +4643,19 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
             };
             voicePeerConnection.onicecandidate = event => {
                 if (event.candidate && onlineRoomRef && onlineRole) {
-                    onlineRoomRef.child('voiceChat/candidates/' + roleKey(onlineRole)).push(event.candidate.toJSON()).catch(err => console.warn('Could not send voice candidate:', err));
+                    onlineRoomRef.child('voiceChat/candidates/' + roleKey(onlineRole)).push(event.candidate.toJSON()).catch(err => {
+                        console.warn('Could not send call ICE candidate:', err);
+                        setVoiceStatus(/permission|PERMISSION_DENIED/i.test(String(err && (err.message || err)))
+                            ? 'Firebase denied call signaling. Update the Realtime Database rules for voiceChat.'
+                            : 'Could not send a call connection candidate. Check your Firebase connection.');
+                    });
                 }
             };
             voicePeerConnection.onconnectionstatechange = () => {
                 const connectionState = voicePeerConnection && voicePeerConnection.connectionState;
                 if (connectionState === 'connected') setVoiceStatus((voiceCallMediaType === 'video' ? 'Video call connected with ' : 'Voice connected with ') + getOpponentDisplayName() + '.');
-                else if (connectionState === 'failed') setVoiceStatus('Voice connection failed. Your network may require a TURN relay; text chat still works.');
-                else if (connectionState === 'disconnected') setVoiceStatus('Voice temporarily disconnected. Waiting to reconnect…');
+                else if (connectionState === 'failed') setVoiceStatus('Call connection failed. This network may require a TURN relay. If Firebase errors appear in Console, fix the room voiceChat rules too.');
+                else if (connectionState === 'disconnected') setVoiceStatus('Call temporarily disconnected. Waiting to reconnect…');
             };
             const voiceRef = onlineRoomRef.child('voiceChat');
             voiceOfferListener = snap => {
@@ -4675,9 +4694,18 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
                 await voiceRef.child('offer').set({ type: offer.type, sdp: offer.sdp, callerRole: roleKey(onlineRole), callerName: getDisplayName(), mediaType: voiceCallMediaType, at: firebase.database.ServerValue.TIMESTAMP });
             }
         } catch (err) {
-            console.error('Could not start voice chat:', err);
-            setVoiceStatus(err && err.name === 'NotAllowedError' ? 'Microphone permission was denied. Allow microphone access in your browser settings.' : 'Could not start voice chat. Check microphone access and server permissions.');
-            stopVoiceChat(false);
+            console.error('Could not start voice/video call:', err);
+            const msg = String(err && (err.message || err) || '');
+            if (err && err.name === 'NotAllowedError') {
+                setVoiceStatus('Microphone/camera permission was denied. Allow access for play.viralcage.com in browser settings, then try again.');
+            } else if (err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) {
+                setVoiceStatus('No usable microphone or camera was found. Check your device settings.');
+            } else if (/permission|PERMISSION_DENIED/i.test(msg)) {
+                setVoiceStatus('Firebase blocked call signaling. Check Realtime Database rules for bagchalRooms/{roomId}/voiceChat.');
+            } else {
+                setVoiceStatus('Could not start the call (' + (err && err.name || 'connection error') + '). Open the browser Console for the exact error.');
+            }
+            stopVoiceChat(true);
         }
     }
 
@@ -5548,7 +5576,7 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
     if(e.target.closest('#vcProfileShareRoomBtn')){
       const code=currentRoomCode(),status=$('vcProfileRoomStatus');
       if(!code){refreshProfileRoom();return;}
-      const invite=new URL('https://www.viralcage.com/p/bagh-chal-game.html');invite.searchParams.set('room',code);
+      const invite=new URL('https://play.viralcage.com/');invite.searchParams.set('room',code);
       const link=invite.toString();
       try{
         if(navigator.share){await navigator.share({title:'Join my Viral Cage Play game',text:'Join my game with room code '+code, url:link});if(status)status.textContent='Share sheet opened.';}
@@ -5590,6 +5618,118 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
 #bagchal-blogger-container .vc-profile-actions #vcChangeNicknameBtn{width:100%;min-height:44px;border-radius:12px!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(148,163,184,.22)!important;color:#eef2ff!important;font-size:13px!important;font-weight:800!important}
 @media(max-width:480px){#bagchal-blogger-container .vc-profile-modal{padding:12px!important}#bagchal-blogger-container .vc-profile-sheet{border-radius:20px!important}#bagchal-blogger-container .vc-profile-head{padding:18px!important}#bagchal-blogger-container .vc-profile-body{padding:18px!important}#bagchal-blogger-container #vcProfileNickname{font-size:23px!important}#bagchal-blogger-container #vcProfileRoomCode{font-size:29px!important}}
 </style>
+
+
+<style id="vc-cloudflare-player-directory-styles">
+#bagchal-blogger-container .vc-online-directory{width:100%;box-sizing:border-box;margin-top:8px;padding:15px;border:1px solid rgba(148,163,184,.18);border-radius:17px;background:rgba(3,9,20,.42)}
+#bagchal-blogger-container .vc-online-directory-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px}
+#bagchal-blogger-container .vc-online-directory-head>div{display:flex;flex-direction:column;gap:4px}#bagchal-blogger-container .vc-online-directory-head strong,#bagchal-blogger-container .vc-incoming-invites>strong{font-size:13px;color:#f1f5ff}#bagchal-blogger-container #vcDirectoryStatus{font-size:10px;color:#8fa2c0}
+#bagchal-blogger-container #vcRefreshPlayersBtn{border:1px solid #35435f;border-radius:9px;padding:8px 10px;background:#17243a;color:#e8efff;font-size:11px;font-weight:800;cursor:pointer}
+#bagchal-blogger-container .vc-online-players-list,#bagchal-blogger-container #vcIncomingInvitesList{display:flex;flex-direction:column;gap:7px;max-height:210px;overflow:auto}
+#bagchal-blogger-container .vc-directory-player{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid rgba(148,163,184,.14);border-radius:11px;background:rgba(255,255,255,.025)}
+#bagchal-blogger-container .vc-directory-player .vc-directory-name{flex:1;min-width:0;overflow-wrap:anywhere;color:#e5edff;font-size:12px;font-weight:750}
+#bagchal-blogger-container .vc-directory-player .vc-directory-state{display:block;margin-top:3px;color:#8fa2c0;font-size:9px;font-weight:500}
+#bagchal-blogger-container .vc-directory-player button,#bagchal-blogger-container .vc-invite-item button{flex-shrink:0;border:1px solid rgba(129,140,248,.4);border-radius:8px;background:linear-gradient(135deg,#7062ee,#4e65d8);color:#fff;padding:8px 10px;font-size:10px;font-weight:800;cursor:pointer}
+#bagchal-blogger-container .vc-directory-empty{padding:12px 5px;color:#8fa2c0;font-size:11px;line-height:1.5}
+#bagchal-blogger-container .vc-incoming-invites{margin-top:13px;padding-top:12px;border-top:1px solid rgba(148,163,184,.16)}#bagchal-blogger-container .vc-incoming-invites>strong{display:block;margin-bottom:8px}
+#bagchal-blogger-container .vc-invite-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;color:#dbe6ff;font-size:11px}
+</style>
+
+
+<script id="vc-cloudflare-player-directory">
+(function(){
+  'use strict';
+  // After deploying the supplied Cloudflare Worker, paste its URL below.
+  const API_BASE = 'https://viral-cage-players-api.viralcage.workers.dev';
+  const root = document.getElementById('bagchal-blogger-container');
+  if (!root) return;
+  const $ = id => document.getElementById(id);
+  const status = $('vcDirectoryStatus'), list = $('vcOnlinePlayersList');
+  if (!status || !list) return;
+  let enabled = false, heartbeatTimer = null, pollTimer = null, busy = false;
+  let playerId = '';
+  try { playerId = localStorage.getItem('vc.playerId.v1') || ''; } catch(e) {}
+  if (!/^[a-zA-Z0-9_-]{20,80}$/.test(playerId)) {
+    const bytes = new Uint8Array(18); crypto.getRandomValues(bytes);
+    playerId = Array.from(bytes, b => b.toString(16).padStart(2,'0')).join('');
+    try { localStorage.setItem('vc.playerId.v1', playerId); } catch(e) {}
+  }
+  const apiReady = () => API_BASE === 'https://viral-cage-players-api.viralcage.workers.dev';
+  function name(){return (($('editGuestNameBtn')?.textContent || $('guestNameInput')?.value || 'Guest').trim().replace(/\s+/g,' ').slice(0,24)) || 'Guest';}
+  function roomCode(){
+    const url = new URLSearchParams(location.search).get('room') || '';
+    const shown = ($('roomCodeText')?.textContent || '').trim();
+    const typed = ($('roomCodeInput')?.value || '').trim();
+    return /^\d{4}$/.test(shown)&&shown!=='----' ? shown : (/^\d{4}$/.test(url) ? url : (/^\d{4}$/.test(typed) ? typed : ''));
+  }
+  async function api(path, options={}){
+    const response = await fetch(API_BASE + path, { ...options, headers:{'content-type':'application/json', ...(options.headers||{})}, cache:'no-store' });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error || ('Request failed ('+response.status+')'));
+    return data;
+  }
+  function node(tag, cls, txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+  function empty(message){list.replaceChildren(node('div','vc-directory-empty',message));}
+  async function heartbeat(){
+    if(!enabled)return;
+    try{await api('/api/heartbeat',{method:'POST',body:JSON.stringify({playerId,name:name(),roomCode:roomCode()})});}
+    catch(e){status.textContent='Directory unavailable — check Worker setup';}
+  }
+  async function refreshPlayers(){
+    if(!apiReady()){status.textContent='Cloudflare Worker URL needs setup';empty('Deploy the Worker and paste its URL into API_BASE in this HTML.');return;}
+    if(busy)return;busy=true;
+    try{
+      await heartbeat();
+      const data=await api('/api/players?playerId='+encodeURIComponent(playerId));
+      list.replaceChildren();
+      const players=Array.isArray(data.players)?data.players:[];
+      status.textContent=players.length+' other player'+(players.length===1?'':'s')+' online';
+      if(!players.length)empty('No other players are online right now. Keep this panel open and check again shortly.');
+      players.forEach(player=>{
+        const row=node('div','vc-directory-player');
+        const details=node('div','vc-directory-name',player.name||'Player');
+        details.appendChild(node('span','vc-directory-state',player.roomCode?'In a game room':'Available to play'));
+        const btn=node('button','', 'Invite');btn.type='button';
+        btn.addEventListener('click',()=>sendInvite(player.playerId,player.name||'Player',btn));
+        row.append(details,btn);list.appendChild(row);
+      });
+      await refreshInvites();
+    }catch(e){console.error('Player directory request failed:', e);status.textContent='Could not load players';empty('Player directory error: '+(e && e.message ? e.message : 'Check Worker URL, deployment, and browser Console.'));}
+    finally{busy=false;}
+  }
+  async function sendInvite(targetId,targetName,btn){
+    const code=roomCode();
+    if(!code){alert('Create or join a Firebase game room first, then invite '+targetName+'.');return;}
+    if(targetId===playerId)return;
+    btn.disabled=true;btn.textContent='Sending…';
+    try{await api('/api/invite',{method:'POST',body:JSON.stringify({playerId,targetId,fromName:name(),roomCode:code})});btn.textContent='Sent';}
+    catch(e){btn.disabled=false;btn.textContent='Invite';alert('Could not send invitation. '+e.message);}
+  }
+  async function refreshInvites(){
+    const wrap=$('vcIncomingInvites'), inviteList=$('vcIncomingInvitesList');if(!wrap||!inviteList)return;
+    try{
+      const data=await api('/api/invites?playerId='+encodeURIComponent(playerId));
+      const invites=Array.isArray(data.invites)?data.invites:[];wrap.hidden=!invites.length;inviteList.replaceChildren();
+      invites.forEach(inv=>{
+        const row=node('div','vc-invite-item');const label=node('span','', (inv.fromName||'A player')+' invited you');
+        const join=node('button','', 'Join game');join.type='button';
+        join.addEventListener('click',()=>{const u=new URL(location.href);u.searchParams.set('room',String(inv.roomCode||''));location.href=u.toString();});
+        row.append(label,join);inviteList.appendChild(row);
+      });
+    }catch(e){/* Keep directory usable if invite polling fails. */}
+  }
+  function start(){
+    if(!apiReady()){status.textContent='Cloudflare Worker URL needs setup';return;}
+    enabled=true;refreshPlayers();
+    if(heartbeatTimer)clearInterval(heartbeatTimer);if(pollTimer)clearInterval(pollTimer);
+    heartbeatTimer=setInterval(heartbeat,45000);pollTimer=setInterval(refreshPlayers,30000);
+  }
+  $('vcRefreshPlayersBtn')?.addEventListener('click',refreshPlayers);
+  $('vcProfileBtn')?.addEventListener('click',()=>{if(apiReady())start();else{status.textContent='Cloudflare Worker URL needs setup';empty('Deploy the supplied Worker and replace API_BASE in this HTML with its URL.');}});
+  // A valid room link can be joined without opening the profile first; only directory presence starts on profile open.
+  window.addEventListener('beforeunload',()=>{if(heartbeatTimer)clearInterval(heartbeatTimer);if(pollTimer)clearInterval(pollTimer);});
+})();
+</script>
 
 </body>
 </html>
