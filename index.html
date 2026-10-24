@@ -6510,5 +6510,33 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
   font-weight:700 !important;
 }
 </style>
+
+<style id="vc-fullscreen-room-code-visibility">
+/* Keep the active room code visible in fullscreen on large screens without restoring the full hero. */
+#bagchal-blogger-container:fullscreen > .vc-portal-hero,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero{
+  display:flex!important;position:relative!important;align-items:center!important;justify-content:flex-start!important;
+  width:100%!important;min-height:0!important;height:auto!important;margin:0 0 8px!important;
+  padding:4px 120px 4px 8px!important;overflow:visible!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-art,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-art,
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-eyebrow,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-eyebrow,
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-share-hint,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-share-hint,
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-tagline,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-tagline{display:none!important}
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-copy,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-copy{max-width:none!important;width:auto!important}
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-room-code-title,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-room-code-title{
+  display:block!important;margin:0!important;font-size:12px!important;line-height:1!important;letter-spacing:.08em!important;
+}
+#bagchal-blogger-container:fullscreen > .vc-portal-hero .vc-hero-room-code-title span,
+#bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-room-code-title span{padding:4px 9px 5px!important;border-radius:7px!important}
+</style>
+
 </body>
 </html>
