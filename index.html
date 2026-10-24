@@ -1830,6 +1830,14 @@ body {
       #bagchal-blogger-container .vc-mode-card,#bagchal-blogger-container .vc-mode-tab { transition:none !important; }
     }
 
+
+/* Online multiplayer is removed from the visible game interface. */
+#bagchal-blogger-container #onlinePanel,
+#bagchal-blogger-container [data-mode-tab="online"],
+#bagchal-blogger-container [data-mode-group="online"],
+#bagchal-blogger-container .vc-mode-section-label:not(.vc-ai-label),
+#bagchal-blogger-container .vc-mode-source { display:none !important; }
+#bagchal-blogger-container [data-mode-group="ai"] { display:grid !important; }
 </style>
 
 </head>
@@ -1925,11 +1933,11 @@ body {
 
     <section class="vc-mode-picker" aria-label="Choose a game mode">
         <div class="vc-mode-tabs" role="group" aria-label="Game type">
-            <button type="button" class="vc-mode-tab active" data-mode-tab="online">Online Games</button>
-            <button type="button" class="vc-mode-tab" data-mode-tab="ai">Play with AI</button>
+            <button type="button" class="vc-mode-tab" data-mode-tab="online" hidden>Online Games</button>
+            <button type="button" class="vc-mode-tab active" data-mode-tab="ai" aria-pressed="true">Play with AI</button>
         </div>
-        <div class="vc-mode-section-label">CHOOSE YOUR GAME <span>— MULTIPLAYER</span></div>
-        <div class="vc-mode-grid" data-mode-group="online">
+        <div class="vc-mode-section-label" hidden>CHOOSE YOUR GAME <span>— MULTIPLAYER</span></div>
+        <div class="vc-mode-grid" data-mode-group="online" hidden>
             <button type="button" class="vc-mode-card active" data-game-mode="online"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>BaghChal</strong><small>Goats vs Tigers</small></span><span class="vc-mode-tag">Online</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="online-tictactoe"><span class="vc-mode-icon">⭕</span><span class="vc-mode-card-copy"><strong>Tic-Tac-Toe</strong><small>Quick strategy</small></span><span class="vc-mode-tag">Online</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="online-dotsboxes"><span class="vc-mode-icon">▦</span><span class="vc-mode-card-copy"><strong>Dots &amp; Boxes</strong><small>Claim the squares</small></span><span class="vc-mode-tag">Online</span></button>
@@ -1938,20 +1946,20 @@ body {
             <button type="button" class="vc-mode-card" data-game-mode="online-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Full standard chess rules</small></span><span class="vc-mode-tag">Online</span></button>
         </div>
         <div class="vc-mode-section-label vc-ai-label">PLAY WITH AI</div>
-        <div class="vc-mode-grid" data-mode-group="ai" hidden>
+        <div class="vc-mode-grid" data-mode-group="ai">
             <button type="button" class="vc-mode-card" data-game-mode="ai-tictactoe"><span class="vc-mode-icon">⭕</span><span class="vc-mode-card-copy"><strong>Tic-Tac-Toe</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-dotsboxes"><span class="vc-mode-icon">▦</span><span class="vc-mode-card-copy"><strong>Dots &amp; Boxes</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-checkers"><span class="vc-mode-icon">⚫</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
-            <button type="button" class="vc-mode-card" data-game-mode="ai-tiger-hardest"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>Play as Goats</strong><small>Face the Tiger AI</small></span><span class="vc-mode-tag">Computer</span></button>
+            <button type="button" class="vc-mode-card active" data-game-mode="ai-tiger-hardest" aria-pressed="true"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>Play as Goats</strong><small>Face the Tiger AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-goat-hardest"><span class="vc-mode-icon">🐐</span><span class="vc-mode-card-copy"><strong>Play as Tigers</strong><small>Face the Goat AI</small></span><span class="vc-mode-tag">Computer</span></button>
         </div>
         <div class="vc-mode-current" aria-live="polite"><span class="vc-live-dot"></span><span id="vcModeCurrentText">BaghChal · Online multiplayer</span></div>
         <div class="chat-mode-row game-mode-below-board vc-mode-source">
             <label for="gameSelection">Game mode</label>
             <select id="gameSelection" aria-label="Choose game mode and AI level">
-                <option value="online" selected>BaghChal — Online Multiplayer</option>
+                <option value="online">BaghChal — Online Multiplayer</option>
                 <option value="online-tictactoe">Tic Tac Toe — Same Room Multiplayer</option>
                 <option value="online-dotsboxes">Dots &amp; Boxes — Same Room Multiplayer</option>
                 <option value="online-checkers">Checkers — Same Room Multiplayer</option>
@@ -1965,7 +1973,7 @@ body {
                     <option value="ai-chess">Chess — Computer</option>
                 </optgroup>
                 <optgroup label="Play as Goats vs Tiger AI">
-                    <option value="ai-tiger-hardest">AI</option>
+                    <option value="ai-tiger-hardest" selected>AI</option>
                 </optgroup>
                 <optgroup label="Play as Tigers vs Goat AI">
                     <option value="ai-goat-hardest">AI</option>
@@ -2043,8 +2051,8 @@ body {
 
     <div class="game-controls">
         <select id="gameMode" aria-label="Game mode" style="display:none" tabindex="-1" aria-hidden="true">
-            <option value="online" selected>Online Multiplayer</option>
-            <option value="ai-tiger">Play with Tiger AI</option>
+            <option value="online">Online Multiplayer</option>
+            <option value="ai-tiger" selected>Play with Tiger AI</option>
             <option value="ai-goat">Play with Goat AI</option>
             <option value="ai-tictactoe">Tic Tac Toe — Computer</option>
             <option value="ai-dotsboxes">Dots &amp; Boxes — Computer</option>
