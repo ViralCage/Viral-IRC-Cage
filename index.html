@@ -214,7 +214,6 @@
             background: #2d3748;
         }
         #bagchal-blogger-container #checkersPlayerCards { display:none; width:100%; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0 12px; }
-        @media (max-width:767px) { #vcAutoHealth { display:none !important; } }
         /* Chess labels stay side-by-side and show only the color names. */
         #bagchal-blogger-container.chess-active #checkersPlayerCards { grid-template-columns:repeat(2,minmax(0,1fr)); }
         #bagchal-blogger-container.chess-active .checkers-player-role { display:block !important; font-size:12px; font-weight:600; margin-top:4px; } #bagchal-blogger-container.chess-active .checkers-player-move { display:none !important; }
@@ -2068,13 +2067,7 @@ body {
 
 
 
-    <section id="vcAutoHealth" aria-label="Built-in game health checker" style="margin:12px 0 8px;padding:10px 12px;border:1px solid #cbd5e0;border-radius:12px;background:#f8fafc;color:#1e293b;font:13px/1.45 system-ui,sans-serif;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div><strong>Built-in Game Check</strong><div id="vcAutoHealthSummary" aria-live="polite" style="font-size:12px;color:#475569;">Automatic checks are starting…</div></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;"><button type="button" id="vcAutoHealthRun" style="border:1px solid #94a3b8;border-radius:8px;padding:7px 10px;background:#fff;color:#0f172a;cursor:pointer;font-weight:650;">Check now</button><button type="button" id="vcAutoHealthRepair" style="border:0;border-radius:8px;padding:7px 10px;background:#1e293b;color:#fff;cursor:pointer;font-weight:650;">Repair display</button></div>
-      </div>
-      <details style="margin-top:7px;"><summary style="cursor:pointer;font-weight:600;">Diagnostics and detected issues</summary><ul id="vcAutoHealthResults" style="margin:7px 0 0;padding-left:20px;"><li>Waiting for the first check.</li></ul></details>
-    </section>
+
 
     <div id="restartPrompt" role="dialog" aria-modal="true" aria-labelledby="restartPromptTitle" style="display:none; pointer-events:none; position:absolute; inset:0; z-index:50; background:rgba(15,23,42,.55); align-items:center; justify-content:center; padding:18px;">
         <div style="width:min(100%,340px); background:#fff; border:1px solid #cbd5e0; border-radius:14px; padding:20px; box-shadow:0 12px 35px rgba(0,0,0,.22); text-align:center;">
@@ -5453,117 +5446,7 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
 -->
 
 
-<script>
-/* Viral Cage: free, local game-health monitor and safe display recovery. */
-(function () {
-  'use strict';
-  var rootId = 'bagchal-blogger-container';
-  var issueLog = [];
-  var lastCheck = 0;
-  var checking = false;
-  function el(id) { return document.getElementById(id); }
-  function recordIssue(message) {
-    issueLog.push(String(message || 'Unknown error').slice(0, 220));
-    if (issueLog.length > 12) issueLog.shift();
-    if (lastCheck && Date.now() - lastCheck > 800) runCheck(true);
-  }
-  window.addEventListener('error', function (event) {
-    if (event && event.message) recordIssue('JavaScript: ' + event.message);
-  });
-  window.addEventListener('unhandledrejection', function (event) {
-    var reason = event && event.reason;
-    recordIssue('Async error: ' + (reason && reason.message ? reason.message : String(reason || 'Promise rejected')));
-  });
-  function addResult(list, ok, label, detail) {
-    var li = document.createElement('li');
-    li.textContent = (ok ? 'PASS — ' : 'CHECK — ') + label + (detail ? ': ' + detail : '');
-    li.style.color = ok ? '#166534' : '#b45309';
-    list.appendChild(li);
-  }
-  function runCheck(fromError) {
-    if (checking) return;
-    checking = true;
-    lastCheck = Date.now();
-    var list = el('vcAutoHealthResults'), summary = el('vcAutoHealthSummary'), root = el(rootId);
-    if (!list || !summary) { checking = false; return; }
-    list.replaceChildren();
-    var problems = 0, checks = 0;
-    function check(ok, name, detail) { checks++; if (!ok) problems++; addResult(list, !!ok, name, detail); }
-    check(!!root, 'Game container', root ? 'found' : 'missing from page');
-    var canvas = el('gameCanvas');
-    check(!!canvas && !!(canvas && canvas.getContext), 'Game canvas', canvas ? 'available' : 'not found');
-    if (canvas) {
-      var rect = canvas.getBoundingClientRect();
-      check(rect.width > 0 && rect.height > 0, 'Board dimensions', rect.width > 0 && rect.height > 0 ? Math.round(rect.width) + ' × ' + Math.round(rect.height) + ' CSS px' : 'board has zero size');
-      check(!!canvas.getContext('2d'), 'Canvas drawing context', canvas.getContext('2d') ? '2D context ready' : 'unavailable');
-    }
-    var mode = el('gameMode');
-    check(!!mode, 'Game mode selector', mode ? (mode.value || 'available') : 'not found');
-    var aiReady = typeof window.chooseHardChessMove === 'function' || typeof window.handleAILogic === 'function';
-    // Classic-script function declarations may be global properties, so check known AI functions safely.
-    try { aiReady = aiReady || typeof chooseHardChessMove === 'function' || typeof handleAILogic === 'function' || typeof scheduleHardMiniAi === 'function'; } catch (_) {}
-    check(aiReady, 'Built-in AI routines', aiReady ? 'available' : 'AI routine not detected; verify the selected game mode');
-    var fb = !!(window.firebase && typeof window.firebase.initializeApp === 'function' && typeof window.firebase.database === 'function');
-    check(fb, 'Server connection support', fb ? 'available; server connection and permissions still require a live test' : 'not available; online play may be unavailable');
-    try {
-      if (typeof chessHistory !== 'undefined' && Array.isArray(chessHistory) && chessHistory.length) {
-        var pos = chessHistory[chessHistory.length - 1];
-        var boardOk = !!pos && Array.isArray(pos.b) && pos.b.length >= 128;
-        var kingsOk = boardOk && pos.b.filter(function (piece, i) { return !(i & 0x88) && piece === 'K'; }).length === 1 && pos.b.filter(function (piece, i) { return !(i & 0x88) && piece === 'k'; }).length === 1;
-        check(boardOk, 'Chess position structure', boardOk ? 'board array available' : 'invalid board structure');
-        check(kingsOk, 'Chess king count', kingsOk ? 'one king per side' : 'king count is invalid');
-      }
-    } catch (err) { check(false, 'Chess state inspection', err.message); }
-    if (issueLog.length) {
-      problems++;
-      addResult(list, false, 'Recent runtime errors', issueLog.slice(-3).join(' | '));
-    } else addResult(list, true, 'Runtime error monitor', 'no captured errors since this page loaded');
-    if (problems) {
-      summary.textContent = problems + ' item(s) need attention · checked ' + new Date().toLocaleTimeString();
-      summary.style.color = '#b45309';
-    } else {
-      summary.textContent = 'No detected issues · ' + checks + ' checks passed · ' + new Date().toLocaleTimeString();
-      summary.style.color = '#166534';
-    }
-    if (fromError) {
-      // Safe recovery only: redraw the board. Never alter a player's saved game or server data.
-      try { if (typeof resizeCanvas === 'function') resizeCanvas(); if (typeof drawBoard === 'function') drawBoard(); } catch (_) {}
-    }
-    checking = false;
-  }
-  function repairDisplay() {
-    var summary = el('vcAutoHealthSummary');
-    try {
-      var canvas = el('gameCanvas');
-      if (canvas) { canvas.style.display = 'block'; canvas.style.visibility = 'visible'; canvas.style.opacity = '1'; }
-      if (typeof resizeCanvas === 'function') resizeCanvas();
-      if (typeof drawBoard === 'function') drawBoard();
-      if (typeof updateStatusUI === 'function') updateStatusUI();
-      if (summary) { summary.textContent = 'Display recovery attempted; running checks…'; summary.style.color = '#1d4ed8'; }
-    } catch (err) {
-      recordIssue('Display recovery failed: ' + (err && err.message ? err.message : err));
-      if (summary) { summary.textContent = 'Display recovery failed; see diagnostics.'; summary.style.color = '#b45309'; }
-    }
-    runCheck(false);
-  }
-  document.addEventListener('DOMContentLoaded', function () {
-    var run = el('vcAutoHealthRun'), repair = el('vcAutoHealthRepair');
-    if (run) run.addEventListener('click', function () { runCheck(false); });
-    if (repair) repair.addEventListener('click', repairDisplay);
-    setTimeout(function () { runCheck(false); }, 1400);
-    // Low-cost periodic checks; no network calls and no API fees.
-    setInterval(function () { if (!document.hidden) runCheck(false); }, 30000);
-  });
-  // If Blogger injects this script after DOMContentLoaded, initialize immediately too.
-  if (document.readyState !== 'loading') {
-    var run = el('vcAutoHealthRun'), repair = el('vcAutoHealthRepair');
-    if (run && !run.dataset.vcBound) { run.dataset.vcBound = '1'; run.addEventListener('click', function () { runCheck(false); }); }
-    if (repair && !repair.dataset.vcBound) { repair.dataset.vcBound = '1'; repair.addEventListener('click', repairDisplay); }
-    setTimeout(function () { runCheck(false); }, 1400);
-    setInterval(function () { if (!document.hidden) runCheck(false); }, 30000);
-  }
-})();
-</script>
+
 
 <script>
 /* Keep Blogger-rendered and dynamically updated game text free of visible HTML entities. */
