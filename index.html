@@ -4041,6 +4041,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlinePreviousBoard = null;
         state.lastMove = null;
         onlineRoomCode = code || null;
+        const heroRoomCode = document.getElementById('vcHeroRoomCode');
+        if (heroRoomCode) heroRoomCode.textContent = /^\\d{4}$/.test(String(code || '')) ? code : '----';
         vcOpponentConnected = !!aiOpponent;
         onlineRole = role;
         updateViralCageRoomInfo();
@@ -4573,7 +4575,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                     const role = roleFromPlayers(room.players, uid);
                     if (role != null) {
                         randomMatchQueueRef = null;
-                        listenToOnlineRoom(mine.roomId, null, role, false);
+                        listenToOnlineRoom(mine.roomId, room.roomCode || null, role, false);
                         setOnlineStatus('Real player found. You play ' + (role === GOAT ? 'Goats' : 'Tigers') + '.');
                         return;
                     }
@@ -4613,7 +4615,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                         const players = { goat: null, tiger: null };
                         players[roleKey(role)] = uid;
                         players[roleKey(otherRole)] = candidate.uid;
+                        let matchCode = null;
+                        for (let attempt = 0; attempt < 50; attempt++) {
+                            const candidateCode = makeRoomCode();
+                            const reservation = await db.ref('bagchalRoomCodes/' + candidateCode).transaction(current => current == null ? roomId : undefined);
+                            if (reservation.committed) { matchCode = candidateCode; break; }
+                        }
                         await db.ref('bagchalRooms/' + roomId).set({
+                            roomCode: matchCode,
                             players,
                             playerNames: { [roleKey(role)]: myName, [roleKey(otherRole)]: candidate.name || 'Guest' },
                             game: initialOnlineGame(), activeGameType: onlineGameType,
@@ -4621,7 +4630,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                         });
                         if (randomMatchCancelled) return;
                         randomMatchQueueRef = null;
-                        listenToOnlineRoom(roomId, null, role, false);
+                        listenToOnlineRoom(roomId, matchCode, role, false);
                         setOnlineStatus('Real player found: ' + (candidate.name || 'Guest') + '. You play ' + (role === GOAT ? 'Goats' : 'Tigers') + '.');
                         return;
                     }
@@ -6140,10 +6149,12 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 
 
 <style id="vc-p2p-call-availability-style">
+#bagchal-blogger-container #startVoiceBtn,
+#bagchal-blogger-container #startVideoBtn { display:inline-flex !important; }
 #bagchal-blogger-container.vc-call-ready #startVoiceBtn,
 #bagchal-blogger-container.vc-call-ready #startVideoBtn { opacity:1; }
 #bagchal-blogger-container:not(.vc-call-ready) #startVoiceBtn,
-#bagchal-blogger-container:not(.vc-call-ready) #startVideoBtn,
+#bagchal-blogger-container:not(.vc-call-ready) #startVideoBtn { opacity:.45; cursor:not-allowed; }
 #bagchal-blogger-container:not(.vc-call-active) #stopVoiceBtn { display:none !important; }
 #bagchal-blogger-container.vc-call-ready #voiceChatPanel { display:block !important; }
 #bagchal-blogger-container #videoCallStage.active { display:block !important; }
