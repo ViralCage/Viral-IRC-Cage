@@ -2393,7 +2393,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function checkersMoves(s,from){const p=s.board[from],r=from>>3,c=from%8,king=p===p.toUpperCase(),dirs=king?[-1,1]:(p==='r'?[-1]:[1]),out=[];for(const dr of dirs)for(const dc of [-1,1]){const rr=r+dr,cc=c+dc;if(rr<0||rr>7||cc<0||cc>7)continue;const to=rr*8+cc;if(!s.board[to])out.push({from,to,cap:-1});else if(s.board[to].toLowerCase()!==p.toLowerCase()){const ar=rr+dr,ac=cc+dc;if(ar>=0&&ar<8&&ac>=0&&ac<8&&!s.board[ar*8+ac])out.push({from,to:ar*8+ac,cap:to});}}return out;}
     function checkersAll(s,side){let a=[];for(let i=0;i<64;i++)if(s.board[i]&&s.board[i].toLowerCase()===side)a.push(...checkersMoves(s,i));const caps=a.filter(m=>m.cap>=0);return caps.length?caps:a;}
     function checkersCommit(m){const old=checkersState,n={...old,board:old.board.slice(),selected:-1};let p=n.board[m.from];n.board[m.from]='';if(m.cap>=0)n.board[m.cap]='';if((p==='r'&&m.to<8)||(p==='b'&&m.to>=56))p=p.toUpperCase();n.board[m.to]=p;const jumps=checkersMoves(n,m.to).filter(x=>x.cap>=0);if(m.cap>=0&&jumps.length){n.turn=old.turn;n.forced=m.to;}else{n.turn=old.turn==='r'?'b':'r';n.forced=-1;}if(!checkersAll(n,n.turn).length)n.winner=old.turn;checkersState=n;drawBoard();updateStatusUI();if(state.mode==='online'&&onlineRoomRef&&onlineRole){onlineRoomRef.child('miniGames/checkers').set({board:n.board.slice(),turn:n.turn,winner:n.winner,forced:n.forced,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{console.error(err);setOnlineStatus('Checkers move could not sync. Check server permissions.');});}if(state.mode==='ai-checkers'&&n.turn==='b'&&!n.winner)setTimeout(checkersAi,300);if(n.winner)showMiniGameResult(n.winner==='r'?'Red wins':'Black wins','Checkers finished');}
-    function checkersClick(i){const s=checkersState;if(!s||s.winner)return;const side=state.mode==='ai-checkers'?'r':(getRoleMark()==='X'?'r':'b');if(s.turn!==side)return;const moves=checkersAll(s,side);if(s.forced>=0){const m=moves.find(x=>x.from===s.forced&&x.to===i);if(m)checkersCommit(m);return;}if(s.selected>=0){const m=moves.find(x=>x.from===s.selected&&x.to===i);if(m){checkersCommit(m);return;}}if(s.board[i]&&s.board[i].toLowerCase()===side){s.selected=i;drawBoard();}}
+    function checkersClick(i){if(state.mode==='online'&&(!onlineRoomRef||!onlineRole||!firebaseReady||onlineAiOpponent)){setOnlineStatus('Join an online room with another player before moving.');return;}const s=checkersState;if(!s||s.winner)return;const side=state.mode==='ai-checkers'?'r':(getRoleMark()==='X'?'r':'b');if(s.turn!==side)return;const moves=checkersAll(s,side);if(s.forced>=0){const m=moves.find(x=>x.from===s.forced&&x.to===i);if(m)checkersCommit(m);return;}if(s.selected>=0){const m=moves.find(x=>x.from===s.selected&&x.to===i);if(m){checkersCommit(m);return;}}if(s.board[i]&&s.board[i].toLowerCase()===side){s.selected=i;drawBoard();}}
     function checkersAi(){const s=checkersState;if(!s||s.turn!=='b'||s.winner)return;const m=checkersAll(s,'b').sort((a,b)=>(b.cap>=0?1:0)-(a.cap>=0?1:0))[0];if(m)checkersCommit(m);}
     function drawCheckersBoard(w){const cell=w/8;ctx.fillStyle='#d6d3d1';ctx.fillRect(0,0,w,w);for(let r=0;r<8;r++)for(let c=0;c<8;c++){if((r+c)%2){ctx.fillStyle='#475569';ctx.fillRect(c*cell,r*cell,cell,cell);}const p=checkersState.board[r*8+c];if(p){ctx.beginPath();ctx.arc((c+.5)*cell,(r+.5)*cell,cell*.37,0,Math.PI*2);ctx.fillStyle=p.toLowerCase()==='r'?'#dc5555':'#111827';ctx.fill();ctx.lineWidth=cell*.05;ctx.strokeStyle=p===p.toUpperCase()?'#facc15':'#e5e7eb';ctx.stroke();if(p===p.toUpperCase()){ctx.fillStyle='#facc15';ctx.font='bold '+cell*.3+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('K',(c+.5)*cell,(r+.5)*cell);}}}if(checkersState.selected>=0){ctx.strokeStyle='#38bdf8';ctx.lineWidth=3;ctx.strokeRect((checkersState.selected%8)*cell+2,(checkersState.selected>>3)*cell+2,cell-4,cell-4);}}
     function isTicTacToeActive() { return state.mode === 'tictactoe' || state.mode === 'ai-tictactoe' || (state.mode === 'online' && onlineGameType === 'tictactoe'); }
@@ -4056,6 +4056,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineAiOpponent = !!aiOpponent;
         onlineAiMovePending = false;
         onlineRoomRef = firebase.database().ref('bagchalRooms/' + roomId);
+        // Keep explicit references for the mini-game state initialization listener below.
+        const tttRef = onlineRoomRef.child('miniGames/tictactoe');
+        const dotsRef = onlineRoomRef.child('miniGames/dotsboxes');
+        const fourRef = onlineRoomRef.child('miniGames/fourconnect');
+        const chessRef = onlineRoomRef.child('miniGames/chess');
+        const bombRef = onlineRoomRef.child('miniGames/chipbomb');
         // Reflect the actual Firebase transport state so a room cannot appear connected
         // while this browser is offline or blocked from Realtime Database.
         const connectionRef = firebase.database().ref('.info/connected');
@@ -4717,7 +4723,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 tictactoe: 'ai-tictactoe',
                 dotsboxes: 'ai-dotsboxes',
                 fourconnect: 'ai-fourconnect',
-                chess: 'ai-chess'
+                chess: 'ai-chess',
+                checkers: 'ai-checkers'
             };
             const fallbackMode = aiModeByGame[onlineGameType];
             if (fallbackMode) {
