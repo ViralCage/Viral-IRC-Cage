@@ -1820,7 +1820,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         <div id="chatMessages" class="vc-game-stats-panel" role="status" aria-live="polite">
             <div class="vc-game-stats-title"><span>LIVE MATCH</span><strong id="vcMatchGame">BaghChal</strong></div>
             <div class="vc-game-stats-row"><span>Players</span><strong id="vcMatchPlayers">0 / 2</strong></div>
-            <div class="vc-game-stats-row"><span>Your side</span><strong id="vcMatchSide">Not joined</strong></div>
+            <div class="vc-game-stats-row"><span>You play</span><strong id="vcMatchSide">Not joined</strong></div>
             <div class="vc-game-stats-row"><span>Turn</span><strong id="vcMatchTurn">Join a room to begin</strong></div>
             <div class="vc-game-stats-metrics">
                 <div><span id="vcMatchMetricALabel">In hand</span><strong id="vcMatchMetricA">20</strong></div>
@@ -1845,7 +1845,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="joinRoomBtn" type="button" title="Join with a room code"><span aria-hidden="true">↗</span> Join Room</button>
             <button id="quickMatchBtn" type="button" title="Find a random opponent"><span aria-hidden="true">⇄</span> Quick Match</button>
         </div>
-        <div id="chatStatus">Match stats update here. Create or join a room to play online.</div>
+        <div id="chatStatus">Live turn and game stats update as the match changes.</div>
         <div class="chat-room-divider" aria-hidden="true"></div>
 
     </div>
@@ -3861,7 +3861,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (!game || !players || !side || !turn || !metricALabel || !metricBLabel || !metricA || !metricB || !status) return;
         game.textContent = gameName;
         players.textContent = onlineRoomId ? (vcOpponentConnected || onlineAiOpponent ? '2 / 2' : '1 / 2') : '0 / 2';
-        side.textContent = onlineRole === GOAT ? 'Goats' : onlineRole === TIGER ? 'Tigers' : onlineAiOpponent ? 'Playing AI' : 'Not joined';
+        const sideNames = {
+            baghchal:['Goats','Tigers'], chess:['White','Black'], checkers:['Red','Black'],
+            tictactoe:['X','O'], dotsboxes:['X','O'], fourconnect:['X','O'], chipbomb:['X','O']
+        }[onlineGameType] || ['Side 1','Side 2'];
+        side.textContent = onlineRole === GOAT ? sideNames[0] : onlineRole === TIGER ? sideNames[1] : onlineAiOpponent ? 'Computer match' : 'Not joined';
         turn.textContent = document.getElementById('turnStatus')?.textContent || 'Waiting to start';
         const labels = {
             baghchal:['Goats in hand','Goats captured'],
@@ -3876,8 +3880,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         metricBLabel.textContent = labels[1];
         metricA.textContent = document.getElementById('goatsHandStatus')?.textContent || '—';
         metricB.textContent = document.getElementById('goatsDeadStatus')?.textContent || '—';
-        const gameStatus = document.getElementById('onlineStatus')?.textContent.trim();
-        status.textContent = gameStatus || (onlineRoomId ? (vcOpponentConnected ? 'Opponent connected.' : 'Waiting for opponent to join.') : 'Create or join a room to start a match.');
+        status.textContent = !onlineRoomId ? 'Create or join a room to start a match.' :
+            onlineAiOpponent ? 'Playing against the computer.' :
+            vcOpponentConnected ? 'Both players are in the room.' : 'Waiting for another player to join.';
     }
     setInterval(refreshRoomGameStats, 800);
 
