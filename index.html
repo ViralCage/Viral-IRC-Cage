@@ -2630,7 +2630,15 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 console.error(err); setOnlineStatus('Could not switch games. Check server permissions for the active game.');
             });
         }
-        updateStatusUI(); drawBoard();
+        updateStatusUI();
+        if (state.mode === 'online' && onlineGameType === 'checkers') {
+            // The room's game-type snapshot can arrive before the canvas has its final layout.
+            // Resize and redraw after the browser has applied the Checkers layout.
+            requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
+            setTimeout(() => { if (state.mode === 'online' && onlineGameType === 'checkers') { resizeCanvas(); drawBoard(); } }, 160);
+        } else {
+            drawBoard();
+        }
     }
     function getRoleMark(role = onlineRole) { return role === TIGER ? 'O' : 'X'; }
     function checkTttWinner(board) {
@@ -2812,8 +2820,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent = 'Red Pieces';
             document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent = 'Black Pieces';
             updateStatusUI();
-            resizeCanvas();
-            drawBoard();
+            requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
+            setTimeout(() => { if (state.mode === 'online' && onlineGameType === 'checkers') { resizeCanvas(); drawBoard(); } }, 160);
             return;
         }
         if (state.mode === 'ai-checkers') { checkersState=initialCheckersState(); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Checkers — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Red Pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black Pieces'; updateStatusUI(); resizeCanvas(); return; }
