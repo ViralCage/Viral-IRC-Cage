@@ -439,8 +439,15 @@
     }
 
 
-    /* Voice-first Talk popup: show nickname controls, hide text messaging only. */
-    #chatMessages, #sendChatBtn, #chatInput, #chatStatus, .chat-room-divider { display:none !important; }
+    /* Restore room text chat while keeping the compact call controls available. */
+    #chatMessages, #sendChatBtn, #chatInput { display:block !important; }
+    #chatMessages { min-height:90px; }
+    #chatStatus, .chat-room-divider { display:none !important; }
+    #chatForm { display:flex !important; align-items:center; justify-content:stretch !important; gap:6px; }
+    #chatForm #chatInput { display:block !important; flex:1 1 auto; min-width:0; }
+    #chatForm #sendChatBtn { display:inline-flex !important; flex:0 0 38px; width:38px; height:38px; align-items:center; justify-content:center; padding:8px; border:0; border-radius:9px; background:#1877f2; color:#fff; }
+    #chatForm #sendChatBtn svg { width:19px; height:19px; fill:currentColor; }
+    #chatForm #startVoiceBtn, #chatForm #startVideoBtn { flex:0 0 42px; width:42px; height:42px; }
     #guestNameDisplayRow { display:flex !important; align-items:center; gap:7px; margin:10px 12px 4px !important; padding:9px 10px; border:1px solid #e2e8f0; border-radius:9px; background:#f8fafc; }
     #guestNameDisplayRow > span { font-size:12px; color:#687386; white-space:nowrap; }
     #editGuestNameBtn { display:inline-flex; align-items:center; gap:6px; max-width:100%; border:0; background:transparent; color:#1877f2; font-weight:750; padding:4px 0; text-align:left; overflow-wrap:anywhere; cursor:pointer; }
@@ -6249,237 +6256,28 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 </style>
 <script id="vc-p2p-room-chat-script">
 (function () {
-  'use strict';
-  var root = document.getElementById('bagchal-blogger-container');
-  if (!root) return;
-  var popup = root.querySelector('#playerChat');
-  var toggle = root.querySelector('#chatPopupToggle');
-  var form = root.querySelector('#chatForm');
-  var input = root.querySelector('#chatInput');
-  var messages = root.querySelector('#chatMessages');
-  if (!popup || !toggle || !form || !input || !messages) return;
-
-  var status = document.createElement('div');
-  var legacyStatus = root.querySelector('#chatStatus');
-  if (legacyStatus) legacyStatus.textContent = 'Peer-to-peer chat is enabled. Join a two-player online room to connect.';
-  status.id = 'vcP2PChatStatus';
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
-  form.insertAdjacentElement('afterend', status);
-
-  var peer = null;
-  var connection = null;
-  var activeKey = '';
-  var loadingPromise = null;
-  var retryTimer = null;
-  var lastSentAt = 0;
-  var receivedAt = [];
-  var messageCount = 0;
-  var destroyed = false;
-
-  function setStatus(message) { status.textContent = message; }
-  function updateLabels() {
-    var heading = popup.querySelector('.chat-popup-header strong');
-    if (heading) heading.textContent = 'Room Chat';
-    toggle.innerHTML = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';
-    toggle.setAttribute('aria-label', popup.hidden ? 'Open room chat' : 'Close room chat');
-    toggle.setAttribute('title', 'Room Chat');
-  }
-  function clearMessages() {
-    messages.replaceChildren();
-    messageCount = 0;
-  }
-  function addMessage(name, text, mine, timestamp) {
-    var row = document.createElement('div');
-    row.className = 'vc-p2p-message' + (mine ? ' vc-mine' : '');
-    var head = document.createElement('div');
-    head.className = 'vc-p2p-message-head';
-    var time = new Date(Number(timestamp) || Date.now());
-    head.textContent = (mine ? 'You' : String(name || 'Guest').slice(0,24)) + ' · ' + time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    var body = document.createElement('div');
-    body.className = 'vc-p2p-message-body';
-    body.textContent = String(text || '').slice(0,500);
-    row.append(head, body);
-    messages.appendChild(row);
-    messageCount++;
-    while (messages.children.length > 60) messages.removeChild(messages.firstChild);
-    messages.scrollTop = messages.scrollHeight;
-  }
-  function appendSystem(text) {
-    var row = document.createElement('div');
-    row.style.cssText = 'padding:5px 8px;margin:0 0 8px;color:#91a4c5;font-size:11px;text-align:center;';
-    row.textContent = text;
-    messages.appendChild(row);
-    messages.scrollTop = messages.scrollHeight;
-  }
-  function loadPeerJS() {
-    if (window.Peer) return Promise.resolve();
-    if (loadingPromise) return loadingPromise;
-    loadingPromise = new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
-      script.src = 'https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js';
-      script.async = true;
-      script.onload = function () { window.Peer ? resolve() : reject(new Error('PeerJS did not load')); };
-      script.onerror = function () { reject(new Error('Could not load the peer connection library')); };
-      document.head.appendChild(script);
-    });
-    return loadingPromise;
-  }
-  function closeConnection() {
-    if (connection) {
-      try { connection.close(); } catch (e) {}
-    }
-    connection = null;
-  }
-  function stopPeer() {
-    if (retryTimer) { clearInterval(retryTimer); retryTimer = null; }
-    closeConnection();
-    if (peer) {
-      try { peer.destroy(); } catch (e) {}
-    }
-    peer = null;
-    activeKey = '';
-  }
-  function roomToken(roomId) {
-    return String(roomId || '').replace(/[^a-zA-Z0-9]/g, '').slice(-36);
-  }
-  function connectToOpponent(myRole, token) {
-    if (!peer || peer.destroyed || !peer.open || connection || myRole !== 'goat') return;
-    var remoteId = 'vcchat' + token + 'tiger';
-    try {
-      var candidate = peer.connect(remoteId, { reliable: true, serialization: 'json' });
-      if (!candidate) return;
-      connection = candidate;
-      bindConnection(candidate, remoteId);
-    } catch (error) {
-      connection = null;
-    }
-  }
-  function bindConnection(conn, expectedId) {
-    conn.on('open', function () {
-      if (conn.peer !== expectedId) { conn.close(); return; }
-      connection = conn;
-      setStatus('Connected directly to your opponent. Messages are not saved.');
-      appendSystem('Peer-to-peer chat connected.');
-    });
-    conn.on('data', function (packet) {
-      if (!packet || packet.type !== 'vc-chat' || typeof packet.text !== 'string') return;
-      var clean = packet.text.trim().slice(0,500);
-      if (!clean) return;
-      var now = Date.now();
-      receivedAt = receivedAt.filter(function (t) { return now - t < 5000; });
-      if (receivedAt.length >= 8) return;
-      receivedAt.push(now);
-      addMessage(packet.name || 'Guest', clean, false, packet.sentAt);
-    });
-    conn.on('close', function () {
-      if (connection === conn) connection = null;
-      setStatus('Opponent disconnected. Waiting for the peer connection to return…');
-    });
-    conn.on('error', function () {
-      if (connection === conn) connection = null;
-      setStatus('Chat connection interrupted. Reconnecting…');
-    });
-  }
-  async function startPeer(roomId, role) {
-    var token = roomToken(roomId);
-    if (!token || !role) return;
-    var key = token + ':' + role;
-    if (key === activeKey) return;
-    stopPeer();
-    activeKey = key;
-    clearMessages();
-    setStatus('Starting private peer-to-peer chat…');
-    try {
-      await loadPeerJS();
-      if (activeKey !== key || destroyed) return;
-      if (!window.RTCPeerConnection) throw new Error('WebRTC is not supported by this browser');
-      var roleName = role === GOAT ? 'goat' : 'tiger';
-      var ownId = 'vcchat' + token + roleName;
-      var remoteId = 'vcchat' + token + (roleName === 'goat' ? 'tiger' : 'goat');
-      peer = new window.Peer(ownId, { debug: 0 });
-      peer.on('open', function () {
-        if (activeKey !== key) return;
-        setStatus(roleName === 'goat' ? 'Waiting for the other player to connect…' : 'Waiting for the room host…');
-        if (roleName === 'goat') {
-          connectToOpponent(role, token);
-          retryTimer = setInterval(function () { connectToOpponent(role, token); }, 2500);
-        }
-      });
-      peer.on('connection', function (incoming) {
-        if (activeKey !== key || incoming.peer !== remoteId) { incoming.close(); return; }
-        if (connection && connection.open) { incoming.close(); return; }
-        closeConnection();
-        connection = incoming;
-        bindConnection(incoming, remoteId);
-      });
-      peer.on('error', function (error) {
-        if (activeKey !== key) return;
-        if (error && error.type === 'peer-unavailable') {
-          if (connection && !connection.open) connection = null;
-          setStatus('Waiting for the other player to connect…');
-        } else if (error && error.type === 'unavailable-id') {
-          setStatus('This room already has an active chat session in this browser. Close the other game tab and rejoin.');
-        } else {
-          setStatus('Peer connection issue: ' + String(error && (error.type || error.message) || 'unknown error').slice(0,100));
-        }
-      });
-      peer.on('disconnected', function () {
-        if (activeKey === key) setStatus('Chat signaling disconnected. Trying to reconnect…');
-        try { if (peer && !peer.destroyed) peer.reconnect(); } catch (e) {}
-      });
-    } catch (error) {
-      if (activeKey === key) setStatus('Peer chat could not start: ' + String(error.message || error).slice(0,120));
-    }
-  }
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var text = input.value.trim().slice(0,500);
-    if (!text) return;
-    var now = Date.now();
-    if (now - lastSentAt < 500) return;
-    if (!connection || !connection.open) {
-      setStatus('Your opponent is not connected yet. Your message was not sent.');
-      return;
-    }
-    lastSentAt = now;
-    try {
-      connection.send({ type:'vc-chat', text:text, name:(typeof displayName !== 'undefined' ? displayName : 'Guest').slice(0,24), sentAt:now });
-      addMessage('You', text, true, now);
-      input.value = '';
-      setStatus('Connected directly. Messages are not saved.');
-    } catch (error) {
-      setStatus('Message could not be sent. Check your connection.');
-    }
-  });
-  toggle.addEventListener('click', function () { setTimeout(updateLabels, 0); });
-  var oldToggleVideo = window.toggleVideoWindowFromTalk;
-  window.toggleVideoWindowFromTalk = function () { return false; };
-  updateLabels();
-  clearMessages();
-  setStatus('Create or join a two-player online room to chat.');
-
-  var syncTimer = setInterval(function () {
-    var active = typeof state !== 'undefined' && state.mode === 'online' &&
-      typeof onlineRoomId !== 'undefined' && !!onlineRoomId &&
-      typeof onlineRole !== 'undefined' && !!onlineRole &&
-      !(typeof onlineAiOpponent !== 'undefined' && onlineAiOpponent);
-    if (!active) {
-      if (activeKey) {
-        stopPeer();
-        clearMessages();
-        setStatus('Create or join a two-player online room to chat.');
-      }
-      return;
-    }
-    startPeer(onlineRoomId, onlineRole);
-  }, 1000);
-
-  window.addEventListener('beforeunload', function () {
-    destroyed = true;
-    clearInterval(syncTimer);
-    stopPeer();
-  });
+'use strict';
+var root=document.getElementById('bagchal-blogger-container'); if(!root)return;
+var popup=root.querySelector('#playerChat'),toggle=root.querySelector('#chatPopupToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
+if(!popup||!toggle||!form||!input||!messages)return;
+var status=document.createElement('div');status.id='vcP2PChatStatus';status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.insertAdjacentElement('afterend',status);
+var peer=null,connection=null,activeKey='',ownPeerId='',opponentPeerId='',opponentListener=null,retryTimer=null,loadingPromise=null,lastSentAt=0,receivedAt=[],destroyed=false,roleName='',peerRecordRef=null;
+function setStatus(v){status.textContent=v;}
+function updateLabels(){var h=popup.querySelector('.chat-popup-header strong');if(h)h.textContent='Room Chat & Calls';toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';toggle.setAttribute('aria-label',popup.hidden?'Open room chat':'Close room chat');toggle.setAttribute('title','Room Chat');}
+function clearMessages(){messages.replaceChildren();}
+function addMessage(name,value,mine,timestamp){var row=document.createElement('div');row.className='vc-p2p-message'+(mine?' vc-mine':'');var head=document.createElement('div');head.className='vc-p2p-message-head';head.textContent=(mine?'You':String(name||'Guest').slice(0,24))+' · '+new Date(Number(timestamp)||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var body=document.createElement('div');body.className='vc-p2p-message-body';body.textContent=String(value||'').slice(0,500);row.append(head,body);messages.appendChild(row);while(messages.children.length>60)messages.removeChild(messages.firstChild);messages.scrollTop=messages.scrollHeight;}
+function appendSystem(v){var row=document.createElement('div');row.style.cssText='padding:5px 8px;margin:0 0 8px;color:#91a4c5;font-size:11px;text-align:center;';row.textContent=v;messages.appendChild(row);messages.scrollTop=messages.scrollHeight;}
+function loadPeerJS(){if(window.Peer)return Promise.resolve();if(loadingPromise)return loadingPromise;loadingPromise=new Promise(function(resolve,reject){var script=document.createElement('script');script.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js';script.async=true;script.onload=function(){window.Peer?resolve():reject(new Error('PeerJS did not load'));};script.onerror=function(){reject(new Error('Could not load PeerJS'));};document.head.appendChild(script);});return loadingPromise;}
+function closeConnection(){if(connection){try{connection.close();}catch(e){}}connection=null;}
+function clearOwnPeerRecord(){if(!peerRecordRef||!ownPeerId)return Promise.resolve();var expected=ownPeerId;return peerRecordRef.transaction(function(current){return current&&current.peerId===expected?null:current;}).catch(function(e){console.warn('Could not clear chat presence:',e);});}
+function stopPeer(){if(retryTimer){clearInterval(retryTimer);retryTimer=null;}if(peerRecordRef&&opponentListener)peerRecordRef.parent.child(roleName==='goat'?'tiger':'goat').off('value',opponentListener);opponentListener=null;clearOwnPeerRecord();closeConnection();if(peer){try{peer.destroy();}catch(e){}}peer=null;peerRecordRef=null;ownPeerId='';opponentPeerId='';activeKey='';}
+function bindConnection(conn,expectedId){conn.on('open',function(){if(conn.peer!==expectedId){conn.close();return;}connection=conn;setStatus('Peer-to-peer chat connected. Messages are not saved.');appendSystem('Direct chat connected.');});conn.on('data',function(packet){if(!packet||packet.type!=='vc-chat'||typeof packet.text!=='string')return;var clean=packet.text.trim().slice(0,500);if(!clean)return;var now=Date.now();receivedAt=receivedAt.filter(function(t){return now-t<5000;});if(receivedAt.length>=8)return;receivedAt.push(now);addMessage(packet.name||'Guest',clean,false,packet.sentAt);});conn.on('close',function(){if(connection===conn)connection=null;setStatus('Chat connection interrupted. Reconnecting…');});conn.on('error',function(){if(connection===conn)connection=null;setStatus('Chat connection interrupted. Reconnecting…');});}
+function connectToOpponent(){if(!peer||!peer.open||!opponentPeerId||connection||roleName!=='goat')return;try{var c=peer.connect(opponentPeerId,{reliable:true,serialization:'json'});if(!c)return;connection=c;bindConnection(c,opponentPeerId);}catch(e){connection=null;}}
+async function startPeer(roomId,role){var token=String(roomId||'').replace(/[^a-zA-Z0-9]/g,'').slice(-36);if(!token||!role||!firebaseReady||!onlineRoomRef)return;var nextRole=role===GOAT?'goat':'tiger',key=token+':'+nextRole;if(key===activeKey)return;stopPeer();activeKey=key;roleName=nextRole;clearMessages();setStatus('Starting room chat…');try{await loadPeerJS();if(activeKey!==key||destroyed)return;if(!window.RTCPeerConnection)throw new Error('WebRTC is not supported in this browser');var peersRef=onlineRoomRef.child('peerChat/peers');peerRecordRef=peersRef.child(roleName);var remoteRef=peersRef.child(roleName==='goat'?'tiger':'goat');ownPeerId='vcchat-'+token+'-'+roleName+'-'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-5);peer=new window.Peer(ownPeerId,{debug:0});peer.on('open',async function(){if(activeKey!==key)return;try{await peerRecordRef.set({peerId:ownPeerId,at:firebase.database.ServerValue.TIMESTAMP});setStatus('Waiting for the other player to connect…');opponentListener=function(snap){var record=snap.val(),nextId=record&&typeof record.peerId==='string'?record.peerId:'';if(nextId!==opponentPeerId){opponentPeerId=nextId;if(connection&&connection.peer!==nextId)closeConnection();}if(roleName==='goat')connectToOpponent();else if(!connection)setStatus(nextId?'Room player found. Waiting for direct chat…':'Waiting for the room host…');};remoteRef.on('value',opponentListener);if(roleName==='goat'){connectToOpponent();retryTimer=setInterval(connectToOpponent,1800);}}catch(e){setStatus('Firebase blocked chat setup. Check authenticated access to bagchalRooms/{roomId}/peerChat.');console.error('Peer chat presence error:',e);}});peer.on('connection',function(incoming){if(activeKey!==key||!opponentPeerId||incoming.peer!==opponentPeerId){incoming.close();return;}if(connection&&connection.open){incoming.close();return;}closeConnection();connection=incoming;bindConnection(incoming,opponentPeerId);});peer.on('error',function(error){if(activeKey!==key)return;if(error&&error.type==='peer-unavailable'){if(connection&&!connection.open)connection=null;setStatus('Opponent found; establishing direct chat…');}else setStatus('Peer connection issue: '+String(error&&(error.type||error.message)||'unknown error').slice(0,90));});peer.on('disconnected',function(){if(activeKey!==key)return;setStatus('Chat signaling disconnected. Reconnecting…');try{if(peer&&!peer.destroyed)peer.reconnect();}catch(e){}});}catch(error){if(activeKey===key)setStatus('Peer chat could not start: '+String(error.message||error).slice(0,120));}}
+form.addEventListener('submit',function(event){event.preventDefault();var value=input.value.trim().slice(0,500);if(!value)return;var now=Date.now();if(now-lastSentAt<400)return;if(!connection||!connection.open){setStatus('Direct chat is still connecting. Your message was not sent.');return;}lastSentAt=now;try{connection.send({type:'vc-chat',text:value,name:(typeof displayName!=='undefined'?displayName:'Guest').slice(0,24),sentAt:now});addMessage('You',value,true,now);input.value='';setStatus('Peer-to-peer chat connected. Messages are not saved.');}catch(e){setStatus('Message could not be sent. Check the connection.');}});
+toggle.addEventListener('click',function(){setTimeout(updateLabels,0);});updateLabels();setStatus('Create or join a two-player online room to start chat.');
+var syncTimer=setInterval(function(){var active=typeof state!=='undefined'&&state.mode==='online'&&typeof onlineRoomId!=='undefined'&&!!onlineRoomId&&typeof onlineRole!=='undefined'&&!!onlineRole&&typeof firebaseReady!=='undefined'&&firebaseReady&&!(typeof onlineAiOpponent!=='undefined'&&onlineAiOpponent);if(!active){if(activeKey){stopPeer();clearMessages();setStatus('Create or join a two-player online room to start chat.');}return;}startPeer(onlineRoomId,onlineRole);},1000);
+window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(syncTimer);stopPeer();});
 })();
 </script>
 
