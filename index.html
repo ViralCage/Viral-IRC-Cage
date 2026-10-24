@@ -5497,7 +5497,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if (!selector) return;
             selector.value = card.getAttribute('data-game-mode');
             selector.dispatchEvent(new Event('change', { bubbles: true }));
-            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
             syncModeCardUI();
             const arena = document.getElementById('vcArenaTitle');
             if (arena) arena.scrollIntoView({behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
@@ -5508,7 +5508,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const showAi = tab.getAttribute('data-mode-tab') === 'ai';
             const grid = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"]');
             if (grid && !grid.hidden) {
-                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
                 return;
             }
@@ -5537,7 +5537,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         applyOnlineGameType(onlineGameType, true);
         syncGameSelection();
     });
-        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
     updateInstructionsVisibility();
 
