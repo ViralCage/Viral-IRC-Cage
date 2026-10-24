@@ -4414,9 +4414,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const prompt = document.getElementById('restartPrompt');
             if (opponentRequested && !IAccepted) {
                 prompt.style.display = 'flex';
+                prompt.style.pointerEvents = 'auto';
                 document.getElementById('restartPromptText').textContent = 'Your opponent wants to restart Checkers/game. Both players must accept before it resets.';
             } else if (!opponentRequested || IAccepted) {
                 prompt.style.display = 'none';
+                prompt.style.pointerEvents = 'none';
             }
             const bothAccepted = !!(requests.goat && requests.goat.accepted) && !!(requests.tiger && requests.tiger.accepted);
             if (bothAccepted && onlineRole === GOAT && !onlineRestartHandling) {
@@ -5434,7 +5436,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     document.getElementById('acceptRestartBtn').addEventListener('click', () => {
         if (!onlineRoomRef || !onlineRole || !firebaseReady) return;
         onlineRoomRef.child('restartRequests/' + roleKey(onlineRole)).set({ requested: true, accepted: true, at: firebase.database.ServerValue.TIMESTAMP })
-            .then(() => { document.getElementById('restartPrompt').style.display = 'none'; setOnlineStatus('Restart accepted. Waiting for the game to restart…'); })
+            .then(() => { const p=document.getElementById('restartPrompt'); p.style.display = 'none'; p.style.pointerEvents = 'none'; setOnlineStatus('Restart accepted. Waiting for the game to restart…'); })
             .catch(err => { console.error(err); setOnlineStatus('Could not accept restart. Check server permissions.'); });
     });
     document.getElementById('declineRestartBtn').addEventListener('click', () => {
@@ -5442,6 +5444,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const opponentKey = roleKey(oppositeRole(onlineRole));
         onlineRoomRef.child('restartRequests').remove().then(() => {
             document.getElementById('restartPrompt').style.display = 'none';
+            document.getElementById('restartPrompt').style.pointerEvents = 'none';
             setOnlineStatus('Restart request declined.');
         }).catch(err => { console.error(err); setOnlineStatus('Could not decline restart request.'); });
     });
