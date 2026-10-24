@@ -6487,5 +6487,19 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 /* The multiplayer panel only asks which side the player wants. */
 #bagchal-blogger-container #onlinePanel #onlinePreferredRole{max-width:100%;min-width:150px}
 </style>
+
+<style id="vc-single-room-chat-panel-fix">
+/* Use one room-chat window. The legacy popup is emptied by the room-chat bootstrap. */
+#bagchal-blogger-container #chatPopupToggle,
+#bagchal-blogger-container #playerChat { display:none !important; }
+#bagchal-blogger-container #roomChatToggle { display:flex !important; }
+#bagchal-blogger-container #roomChatPopup[hidden] { display:none !important; }
+#bagchal-blogger-container #roomChatPopup:not([hidden]) { display:flex !important; }
+/* Keep the side-selection label readable against the light multiplayer panel. */
+#bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] {
+  color:#172033 !important;
+  font-weight:700 !important;
+}
+</style>
 </body>
 </html>
