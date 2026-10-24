@@ -3881,12 +3881,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const changed = [];
         const added = [];
         const removed = [];
+        const replaced = [];
         for (let i=0;i<Math.min(previous.board.length,current.board.length);i++) {
             const before=previous.board[i],after=current.board[i];
             if (before===after) continue;
             changed.push(i);
             if (moveCellEmpty(before) && !moveCellEmpty(after)) added.push(i);
             if (!moveCellEmpty(before) && moveCellEmpty(after)) removed.push(i);
+            if (!moveCellEmpty(before) && !moveCellEmpty(after)) replaced.push(i);
         }
         if (!changed.length) return '';
         const mover = previous.turn;
@@ -3894,12 +3896,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             type === 'checkers' ? (mover === 'r' ? 'Red' : 'Black') :
             type === 'chess' ? (mover === 1 ? 'White' : 'Black') : String(mover || 'Player');
         if (type === 'fourconnect' && added.length) return sideName + ' dropped a piece in column ' + ((added[0] % 7) + 1) + '.';
-        if (added.length && removed.length) {
-            const captured = changed.some(i=>!moveCellEmpty(previous.board[i])&&!moveCellEmpty(current.board[i])&&previous.board[i]!==current.board[i]) || removed.length > 1;
-            return sideName + ' moved ' + moveSquare(removed[0],type) + ' → ' + moveSquare(added[0],type) + (captured ? ' (capture).' : '.');
+        const destinations = added.concat(replaced);
+        if (destinations.length && removed.length) {
+            const destination = destinations[0];
+            const movingPiece = current.board[destination];
+            const source = removed.find(i=>previous.board[i]===movingPiece) ?? removed[0];
+            const captured = removed.length > 1 || replaced.length > 0;
+            return sideName + ' moved ' + moveSquare(source,type) + ' → ' + moveSquare(destination,type) + (captured ? ' (capture).' : '.');
         }
         if (added.length) {
-            if (type === 'tictactoe') return added[0] === undefined ? '' : String(current.board[added[0]]) + ' chose ' + moveSquare(added[0],type) + '.';
+            if (type === 'tictactoe') return String(current.board[added[0]]) + ' chose ' + moveSquare(added[0],type) + '.';
             if (type === 'baghchal') return sideName + ' placed a goat at ' + moveSquare(added[0],type) + '.';
             return sideName + ' placed at ' + moveSquare(added[0],type) + '.';
         }
@@ -3922,7 +3928,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         } else if (snapshot && moveLogSnapshot) {
             const move = describeMove(moveLogSnapshot,snapshot,onlineGameType);
             if (move) {
-                const next = document.getElementById('turnStatus')?.textContent || '';
                 const stamp = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
                 moveLogEntries.unshift({text:move,stamp});
                 moveLogEntries = moveLogEntries.slice(0,12);
