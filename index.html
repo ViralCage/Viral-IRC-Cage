@@ -1562,7 +1562,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     <section class="vc-portal-hero" aria-labelledby="vcPortalTitle">
       <div class="vc-hero-copy">
         <div class="vc-eyebrow"><span class="vc-live-dot"></span> YOUR ROOM CODE</div>
-        <div class="vc-hero-share-hint">Click once to copy the room link · Double-click to create a new room.</div>
+        <div class="vc-hero-share-hint">Click to copy your room link · Creates a room if needed. Double-click for a new room.</div>
         <h1 id="vcPortalTitle" class="vc-hero-room-code-title"><span id="vcHeroRoomCode">----</span></h1>
         <div class="vc-hero-tagline">Play together. <span>Think different.</span></div>
       </div>
@@ -6479,11 +6479,11 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     var code=currentCode();
     var visible=/^\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
-    heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'No room code yet');
+    heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'Create a room and copy its invite link');
     heroCode.setAttribute('role','button');
     heroCode.setAttribute('tabindex','0');
-    heroCode.setAttribute('title',visible?'Click to copy room code':'Create or join a room first');
-    heroCode.setAttribute('aria-disabled',visible?'false':'true');
+    heroCode.setAttribute('title',visible?'Click to copy room link':'Click to create a room and copy its link');
+    heroCode.setAttribute('aria-disabled','false');
   }
   function showCopyState(label,ok){
     heroCode.setAttribute('data-copy-state',label);
@@ -6493,7 +6493,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function copyCurrentRoom(){
     var code=currentCode();
-    if(!/^\\d{4}$/.test(code)){showCopyState('NO ROOM',false);return;}
+    if(!/^\\d{4}$/.test(code)){createFreshRoom();return;}
     var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
