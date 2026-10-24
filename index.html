@@ -6138,6 +6138,23 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 #bagchal-blogger-container #vcP2PChatStatus { margin:0 12px 12px; min-height:16px; color:#91a4c5; font-size:11px; line-height:1.4; }
 #bagchal-blogger-container .vc-p2p-message { margin:0 0 9px; padding:8px 10px; border-radius:10px; background:#17243a; overflow-wrap:anywhere; }
 #bagchal-blogger-container .vc-p2p-message.vc-mine { background:#1b3762; }
+
+#bagchal-blogger-container #roomChatToggle{position:fixed!important;right:18px!important;bottom:18px!important;z-index:2147483002!important;display:none;align-items:center;gap:8px;padding:12px 17px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;background:linear-gradient(135deg,#1877f2,#0866ff)!important;color:#fff!important;font-weight:800!important;box-shadow:0 10px 30px rgba(24,119,242,.35)!important}
+#bagchal-blogger-container.vc-chat-ready #roomChatToggle{display:flex!important}
+#bagchal-blogger-container #roomChatPopup{position:fixed!important;right:18px!important;bottom:78px!important;z-index:2147483003!important;display:flex;flex-direction:column;width:min(360px,calc(100vw - 24px));max-height:min(68dvh,560px);overflow:hidden;border:1px solid #2c3b57!important;border-radius:16px!important;background:#0b1424!important;color:#eef4ff!important;box-shadow:0 22px 65px rgba(0,0,0,.48)!important}
+#bagchal-blogger-container #roomChatPopup[hidden]{display:none!important}
+#bagchal-blogger-container #roomChatPopup .room-chat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 15px;background:linear-gradient(110deg,#1c3153,#111d32);border-bottom:1px solid #2c3b57}
+#bagchal-blogger-container #roomChatPopup .room-chat-head strong{font-size:14px;font-weight:850}
+#bagchal-blogger-container #roomChatPopup .room-chat-head button{width:30px;height:30px;padding:0;border:0!important;border-radius:8px!important;background:rgba(255,255,255,.1)!important;color:#fff!important;font-size:20px}
+#bagchal-blogger-container #roomChatPopup #guestNameDisplayRow{margin:8px 10px 5px!important;padding:6px 8px!important;background:#111e32!important;border-color:#293b59!important}
+#bagchal-blogger-container #roomChatPopup #chatMessages{flex:1 1 auto;min-height:130px!important;height:clamp(150px,28dvh,310px)!important;max-height:none!important;margin:5px 10px 8px!important;background:#080f1c!important;border-color:#293b59!important}
+#bagchal-blogger-container #roomChatPopup #chatForm{margin:0 10px 8px!important;padding:0!important}
+#bagchal-blogger-container #roomChatPopup #chatInput{min-height:42px!important;background:#111e32!important;color:#f4f7ff!important;border-color:#344766!important;border-radius:22px!important}
+#bagchal-blogger-container #roomChatPopup #sendChatBtn{width:42px!important;height:42px!important;flex-basis:42px!important;border-radius:50%!important}
+#bagchal-blogger-container #roomChatPopup #vcP2PChatStatus{margin:0 12px 9px!important}
+#bagchal-blogger-container #roomChatPopup #chatStatus,#bagchal-blogger-container #roomChatPopup .chat-room-divider{display:none!important}
+@media(max-width:600px){#bagchal-blogger-container #roomChatToggle{right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}#bagchal-blogger-container #roomChatPopup{right:8px!important;left:8px!important;bottom:calc(68px + env(safe-area-inset-bottom))!important;width:auto!important;max-height:65dvh!important}}
+
 #bagchal-blogger-container .vc-p2p-message-head { margin-bottom:3px; color:#aebfe0; font-size:10px; font-weight:800; }
 #bagchal-blogger-container .vc-p2p-message-body { color:#f2f6ff; font-size:13px; line-height:1.4; white-space:pre-wrap; }
 #bagchal-blogger-container #chatPopupToggle { font-size:13px; }
@@ -6147,16 +6164,38 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  #bagchal-blogger-container #chatInput { font-size:16px; }
 }
 </style>
+<script id="vc-room-chat-window-bootstrap">
+(function(){
+ 'use strict';
+ var root=document.getElementById('bagchal-blogger-container');if(!root)return;
+ var calls=root.querySelector('#playerChat');if(!calls)return;
+ var toggle=document.createElement('button');toggle.id='roomChatToggle';toggle.type='button';toggle.setAttribute('aria-controls','roomChatPopup');toggle.setAttribute('aria-expanded','false');toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';
+ var popup=document.createElement('section');popup.id='roomChatPopup';popup.hidden=true;popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Room chat');
+ var head=document.createElement('div');head.className='room-chat-head';head.innerHTML='<strong>Room Chat</strong><button type="button" id="roomChatClose" aria-label="Close chat">×</button>';popup.appendChild(head);
+ ['guestNameDisplayRow','guestNameEditor','chatStatus','chatMessages','chatForm','vcP2PChatStatus'].forEach(function(id){var el=document.getElementById(id);if(el)popup.appendChild(el);});
+ root.append(toggle,popup);
+ function show(open){popup.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open){var input=popup.querySelector('#chatInput');if(input)setTimeout(function(){input.focus();},30);}}
+ toggle.addEventListener('click',function(){show(popup.hidden);});
+ popup.querySelector('#roomChatClose').addEventListener('click',function(){show(false);});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!popup.hidden)show(false);});
+ setInterval(function(){
+  var online=typeof state!=='undefined'&&state.mode==='online'&&typeof onlineRoomId!=='undefined'&&!!onlineRoomId&&typeof onlineRole!=='undefined'&&!!onlineRole&&typeof firebaseReady!=='undefined'&&firebaseReady&&!(typeof onlineAiOpponent!=='undefined'&&onlineAiOpponent);
+  var ready=online&&typeof vcOpponentConnected!=='undefined'&&vcOpponentConnected;
+  root.classList.toggle('vc-chat-ready',!!ready);
+  if(!ready&&!popup.hidden)show(false);
+ },400);
+})();
+</script>
 <script id="vc-p2p-room-chat-script">
 (function () {
 'use strict';
 var root=document.getElementById('bagchal-blogger-container'); if(!root)return;
-var popup=root.querySelector('#playerChat'),toggle=root.querySelector('#chatPopupToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
+var popup=root.querySelector('#roomChatPopup'),toggle=root.querySelector('#roomChatToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
 if(!popup||!toggle||!form||!input||!messages)return;
 var status=document.createElement('div');status.id='vcP2PChatStatus';status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.insertAdjacentElement('afterend',status);
 var peer=null,connection=null,activeKey='',ownPeerId='',opponentPeerId='',opponentListener=null,retryTimer=null,loadingPromise=null,lastSentAt=0,receivedAt=[],destroyed=false,roleName='',peerRecordRef=null;
 function setStatus(v){status.textContent=v;}
-function updateLabels(){var h=popup.querySelector('.chat-popup-header strong');if(h)h.textContent='Room Chat & Calls';toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';toggle.setAttribute('aria-label',popup.hidden?'Open room chat':'Close room chat');toggle.setAttribute('title','Room Chat');}
+function updateLabels(){var h=popup.querySelector('.chat-popup-header strong');if(h)h.textContent='Room Chat';toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';toggle.setAttribute('aria-label',popup.hidden?'Open room chat':'Close room chat');toggle.setAttribute('title','Room Chat');}
 function clearMessages(){messages.replaceChildren();}
 function addMessage(name,value,mine,timestamp){var row=document.createElement('div');row.className='vc-p2p-message'+(mine?' vc-mine':'');var head=document.createElement('div');head.className='vc-p2p-message-head';head.textContent=(mine?'You':String(name||'Guest').slice(0,24))+' · '+new Date(Number(timestamp)||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var body=document.createElement('div');body.className='vc-p2p-message-body';body.textContent=String(value||'').slice(0,500);row.append(head,body);messages.appendChild(row);while(messages.children.length>60)messages.removeChild(messages.firstChild);messages.scrollTop=messages.scrollHeight;}
 function appendSystem(v){var row=document.createElement('div');row.style.cssText='padding:5px 8px;margin:0 0 8px;color:#91a4c5;font-size:11px;text-align:center;';row.textContent=v;messages.appendChild(row);messages.scrollTop=messages.scrollHeight;}
