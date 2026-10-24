@@ -1781,19 +1781,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
         <div class="vc-online-panel-heading"><span class="vc-online-heading-icon" aria-hidden="true">⇄</span><span class="vc-online-heading-copy"><strong>Online Multiplayer</strong><small>Play together in real time</small></span><span class="vc-online-heading-badge"><i></i> LIVE PLAY</span></div>
-        <div class="vc-room-game-picker">
-            <div class="vc-room-picker-label">1. Choose a game</div>
-            <div class="vc-room-game-icons" role="group" aria-label="Choose game for this room">
-                <button type="button" class="vc-room-game-icon active" data-room-game="baghchal" data-tooltip="BaghChal" title="BaghChal" aria-label="BaghChal" aria-pressed="true"><span aria-hidden="true">🐅</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="tictactoe" data-tooltip="Tic-Tac-Toe" title="Tic-Tac-Toe" aria-label="Tic-Tac-Toe" aria-pressed="false"><span aria-hidden="true">✕<small>○</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
-
-                <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
-            </div>
-            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
-        </div>
+        <select id="onlineGameType" aria-label="Active multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true" style="display:none!important"></select>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
             <label for="onlinePreferredRole" style="font-size:13px;">Choose your side</label>
             <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
@@ -5451,24 +5439,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         applyOnlineGameType(onlineGameType, true);
         syncGameSelection();
     });
-    // Keep the icon-only room game picker connected to the existing game selector logic.
-    function syncRoomGameIcons() {
-        document.querySelectorAll('#bagchal-blogger-container .vc-room-game-icon').forEach(btn => {
-            const active = btn.dataset.roomGame === onlineGameType;
-            btn.classList.toggle('active', active);
-            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-        });
-    }
-    document.querySelectorAll('#bagchal-blogger-container .vc-room-game-icon').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const picker = document.getElementById('onlineGameType');
-            if (!picker || !Array.from(picker.options).some(o => o.value === btn.dataset.roomGame)) return;
-            picker.value = btn.dataset.roomGame;
-            picker.dispatchEvent(new Event('change', { bubbles: true }));
-            syncRoomGameIcons();
-        });
-    });
-    (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
     updateInstructionsVisibility();
 
@@ -6514,8 +6485,7 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 </style>
 
 <style id="vc-online-side-only">
-/* Game selection remains in the main game lounge; the multiplayer panel only asks for a side. */
-#bagchal-blogger-container #onlinePanel .vc-room-game-picker{display:none!important}
+/* The multiplayer panel only asks which side the player wants. */
 #bagchal-blogger-container #onlinePanel #onlinePreferredRole{max-width:100%;min-width:150px}
 </style>
 </body>
