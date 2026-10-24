@@ -6165,19 +6165,13 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  #bagchal-blogger-container #chatInput { font-size:16px; }
 }
  #bagchal-blogger-container #roomChatPopup #vcP2PChatStatus{margin:0 12px 9px!important}
- #bagchal-blogger-container #roomCallsToggle{position:fixed!important;right:18px!important;bottom:76px!important;z-index:2147483002!important;display:none;align-items:center;gap:8px;padding:12px 17px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px!important;background:linear-gradient(135deg,#16a34a,#15803d)!important;color:#fff!important;font-weight:800!important;box-shadow:0 10px 30px rgba(22,163,74,.28)!important}
- #bagchal-blogger-container.vc-chat-ready #roomCallsToggle{display:flex!important}
- #bagchal-blogger-container #roomCallsPopup{position:fixed!important;right:18px!important;bottom:136px!important;z-index:2147483004!important;display:flex;flex-direction:column;width:min(320px,calc(100vw - 24px));overflow:hidden;border:1px solid #2c3b57!important;border-radius:16px!important;background:#0b1424!important;color:#eef4ff!important;box-shadow:0 22px 65px rgba(0,0,0,.48)!important}
- #bagchal-blogger-container #roomCallsPopup[hidden]{display:none!important}
- #bagchal-blogger-container #roomCallsPopup .room-calls-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;background:linear-gradient(110deg,#1c3153,#111d32);border-bottom:1px solid #2c3b57}
- #bagchal-blogger-container #roomCallsPopup .room-calls-head strong{font-size:14px;font-weight:850}
- #bagchal-blogger-container #roomCallsPopup .room-calls-head button{width:30px;height:30px;border:0!important;border-radius:8px!important;background:rgba(255,255,255,.1)!important;color:#fff!important;font-size:20px}
- #bagchal-blogger-container #roomCallsPopup .room-call-actions{display:flex;align-items:center;justify-content:center;gap:14px;padding:20px 12px;background:#0b1424}
- #bagchal-blogger-container #roomCallsPopup .room-call-actions button{width:58px;height:58px;min-width:58px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:#1877f2;color:#fff;font-size:14px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer}
- #bagchal-blogger-container #roomCallsPopup .room-call-actions #startVoiceBtn{background:#16a34a}
- #bagchal-blogger-container #roomCallsPopup .room-call-actions #stopVoiceBtn{width:auto;min-width:76px;height:42px;border-radius:22px;background:#dc2626;padding:0 14px}
- #bagchal-blogger-container #roomCallsPopup .room-call-actions svg{width:24px;height:24px;fill:currentColor}
- @media(max-width:600px){#bagchal-blogger-container #roomCallsToggle{right:12px!important;bottom:72px!important}#bagchal-blogger-container #roomCallsPopup{right:12px!important;bottom:130px!important}}
+ #bagchal-blogger-container #roomChatPopup .room-call-actions{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:12px 14px;background:#101d31;border-bottom:1px solid #2c3b57}
+ #bagchal-blogger-container #roomChatPopup .room-call-actions button{width:44px;height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:#1877f2;color:#fff;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer}
+ #bagchal-blogger-container #roomChatPopup .room-call-actions #startVoiceBtn{background:#16a34a}
+ #bagchal-blogger-container #roomChatPopup .room-call-actions #stopVoiceBtn{width:auto;min-width:70px;height:38px;border-radius:20px;background:#dc2626;padding:0 13px}
+ #bagchal-blogger-container #roomChatPopup .room-call-actions svg{width:21px;height:21px;fill:currentColor}
+ #bagchal-blogger-container #roomChatPopup #guestNameDisplayRow{margin-top:8px!important}
+ @media(max-width:600px){#bagchal-blogger-container #roomChatPopup{right:12px!important;bottom:72px!important;width:calc(100vw - 24px)!important;max-height:72dvh!important}}
 </style>
 <script id="vc-room-chat-window-bootstrap">
 (function(){
@@ -6185,28 +6179,23 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  var root=document.getElementById('bagchal-blogger-container');if(!root)return;
  var calls=root.querySelector('#playerChat');if(!calls)return;
  var toggle=document.createElement('button');toggle.id='roomChatToggle';toggle.type='button';toggle.setAttribute('aria-controls','roomChatPopup');toggle.setAttribute('aria-expanded','false');toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';
- var popup=document.createElement('section');popup.id='roomChatPopup';popup.hidden=true;popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Room chat');
+ var popup=document.createElement('section');popup.id='roomChatPopup';popup.hidden=true;popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Room chat and calls');
  var head=document.createElement('div');head.className='room-chat-head';head.innerHTML='<strong>Room Chat</strong><button type="button" id="roomChatClose" aria-label="Close chat">×</button>';popup.appendChild(head);
- ['guestNameDisplayRow','guestNameEditor','chatStatus','chatMessages','chatForm','vcP2PChatStatus'].forEach(function(id){var el=document.getElementById(id);if(el)popup.appendChild(el);});
- /* Dedicated Calls popup uses the same dark navy Messenger-style panel as Room Chat. */
- var callsToggle=document.createElement('button');callsToggle.id='roomCallsToggle';callsToggle.type='button';callsToggle.setAttribute('aria-controls','roomCallsPopup');callsToggle.setAttribute('aria-expanded','false');callsToggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.32.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.6 21 3 13.4 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.26.2 2.46.57 3.58.11.35.03.75-.24 1.02L6.6 10.8Z"/></svg><span>Calls</span>';
- var callsPopup=document.createElement('section');callsPopup.id='roomCallsPopup';callsPopup.hidden=true;callsPopup.setAttribute('role','dialog');callsPopup.setAttribute('aria-label','Voice and video calls');
- var callsHead=document.createElement('div');callsHead.className='room-calls-head';callsHead.innerHTML='<strong>Voice & Video</strong><button type="button" id="roomCallsClose" aria-label="Close calls">×</button>';callsPopup.appendChild(callsHead);
+ /* Facebook-style combined panel: call controls at the top, conversation underneath. */
  var callActions=document.createElement('div');callActions.className='room-call-actions';callActions.setAttribute('aria-label','Voice and video call controls');
  ['startVoiceBtn','stopVoiceBtn','startVideoBtn'].forEach(function(id){var el=document.getElementById(id);if(el)callActions.appendChild(el);});
- callsPopup.appendChild(callActions);root.append(toggle,popup,callsToggle,callsPopup);
+ popup.appendChild(callActions);
+ ['guestNameDisplayRow','guestNameEditor','chatStatus','chatMessages','chatForm','vcP2PChatStatus'].forEach(function(id){var el=document.getElementById(id);if(el)popup.appendChild(el);});
+ root.append(toggle,popup);
  function show(open){popup.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open){var input=popup.querySelector('#chatInput');if(input)setTimeout(function(){input.focus();},30);}}
- function showCalls(open){callsPopup.hidden=!open;callsToggle.setAttribute('aria-expanded',String(open));}
  toggle.addEventListener('click',function(){show(popup.hidden);});
  popup.querySelector('#roomChatClose').addEventListener('click',function(){show(false);});
- callsToggle.addEventListener('click',function(){showCalls(callsPopup.hidden);});
- callsPopup.querySelector('#roomCallsClose').addEventListener('click',function(){showCalls(false);});
- document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!popup.hidden)show(false);if(!callsPopup.hidden)showCalls(false);}});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!popup.hidden)show(false);});
  setInterval(function(){
   var online=typeof state!=='undefined'&&state.mode==='online'&&typeof onlineRoomId!=='undefined'&&!!onlineRoomId&&typeof onlineRole!=='undefined'&&!!onlineRole&&typeof firebaseReady!=='undefined'&&firebaseReady&&!(typeof onlineAiOpponent!=='undefined'&&onlineAiOpponent);
   var ready=online&&typeof vcOpponentConnected!=='undefined'&&vcOpponentConnected;
   root.classList.toggle('vc-chat-ready',!!ready);
-  if(!ready&&!popup.hidden)show(false);if(!ready&&!callsPopup.hidden)showCalls(false);
+  if(!ready&&!popup.hidden)show(false);
  },400);
 })();
 </script>
