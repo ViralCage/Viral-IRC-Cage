@@ -2421,25 +2421,72 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function initialFourConnectState() { return { board:Array(42).fill(''), turn:'X', winner:null, lastMove:null, updatedAt:Date.now() }; }
     function initialChipBombState() { return { bombs:{X:null,O:null}, placed:{X:false,O:false}, guesses:[], turn:'X', phase:'setup', winner:null, updatedAt:Date.now() }; }
     function isLocalHardAiMode() { return ['ai-tictactoe','ai-dotsboxes','ai-checkers','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode); }
-    function initialCheckersState() { const board=Array(64).fill(''); for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)%2===1)board[r*8+c]='O'; for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)%2===1)board[r*8+c]='X'; return {board,turn:'X',winner:null,lastMove:null,chainFrom:null,updatedAt:Date.now()}; }
-    function checkersSquareName(index) { return String.fromCharCode(65 + (index % 8)) + (8 - Math.floor(index / 8)); }
-    function checkersMoveDescription(move) { if(!move) return ''; const sideName=move.piece && move.piece[0]==='X' ? 'Red (X)' : 'Black (O)'; return sideName + ': ' + checkersSquareName(move.from) + ' → ' + checkersSquareName(move.to) + (move.capture ? ' — capture' : '') + (move.promoted ? ' — king promoted' : ''); }
-    function checkersMovesFrom(board, index, capturesOnly=false) { const piece=board[index]; if(!piece)return []; const side=piece[0], king=piece.length>1, r=Math.floor(index/8), c=index%8; const dirs=king?[-1,1]:(side==='X'?[-1]:[1]); const out=[]; for(const dr of dirs)for(const dc of [-1,1]){const nr=r+dr,nc=c+dc;if(nr<0||nr>7||nc<0||nc>7)continue;const ni=nr*8+nc;if(!board[ni]){if(!capturesOnly)out.push({to:ni,capture:-1});}else if(board[ni][0]!==side){const jr=r+2*dr,jc=c+2*dc;if(jr>=0&&jr<8&&jc>=0&&jc<8&&!board[jr*8+jc])out.push({to:jr*8+jc,capture:ni});}} return out; }
-    function checkersAllMoves(board, side, chainFrom=null) { const captures=[]; const normal=[]; const start=Number.isInteger(chainFrom)?[chainFrom]:Array.from({length:64},(_,i)=>i); for(const i of start)if(board[i]&&board[i][0]===side){for(const m of checkersMovesFrom(board,i,!!chainFrom)){(m.capture>=0?captures:normal).push({from:i,...m});}} return captures.length?captures:normal; }
+    function initialCheckersState() {
+        const board=Array(64).fill('');
+        for(let r=0;r<3;r++)for(let col=0;col<8;col++)if((r+col)%2===1)board[r*8+col]='O';
+        for(let r=5;r<8;r++)for(let col=0;col<8;col++)if((r+col)%2===1)board[r*8+col]='X';
+        return {board,turn:'X',winner:null,lastMove:null,chainFrom:null,updatedAt:Date.now()};
+    }
+    function checkersSquareName(index) { return String.fromCharCode(65+(index%8))+(8-Math.floor(index/8)); }
+    function checkersMoveDescription(move) {
+        if(!move)return '';
+        const sideName=move.piece&&move.piece[0]==='X'?'Red (X)':'Black (O)';
+        return sideName+': '+checkersSquareName(move.from)+' → '+checkersSquareName(move.to)+(move.capture?' — capture':'')+(move.promoted?' — king promoted':'');
+    }
+    function checkersMovesFrom(board,index,capturesOnly=false) {
+        const piece=board[index]; if(!piece)return [];
+        const side=piece[0],king=piece.length>1,row=Math.floor(index/8),col=index%8;
+        const dirs=king?[-1,1]:(side==='X'?[-1]:[1]),moves=[];
+        for(const dr of dirs)for(const dc of [-1,1]){
+            const r1=row+dr,c1=col+dc;
+            if(r1<0||r1>7||c1<0||c1>7)continue;
+            const adjacent=r1*8+c1;
+            if(!board[adjacent]){if(!capturesOnly)moves.push({to:adjacent,capture:-1});continue;}
+            if(board[adjacent][0]===side)continue;
+            const r2=row+2*dr,c2=col+2*dc;
+            if(r2>=0&&r2<8&&c2>=0&&c2<8&&!board[r2*8+c2])moves.push({to:r2*8+c2,capture:adjacent});
+        }
+        return moves;
+    }
+    function checkersAllMoves(board,side,chainFrom=null) {
+        const captures=[],quiet=[];
+        const indexes=Number.isInteger(chainFrom)?[chainFrom]:Array.from({length:64},(_,i)=>i);
+        for(const i of indexes)if(board[i]&&board[i][0]===side){
+            for(const move of checkersMovesFrom(board,i,!!chainFrom)){
+                (move.capture>=0?captures:quiet).push({from:i,...move});
+            }
+        }
+        return captures.length?captures:quiet;
+    }
     function playCheckersSquare(index) {
         const localAi=state.mode==='ai-checkers';
-        if(!isCheckersActive()||checkersState.winner||(!localAi&&(!onlineRoomRef||!onlineRole||!firebaseReady)))return;
-        const side=localAi?'X':getRoleMark(); if(checkersState.turn!==side)return;
-        const board=checkersState.board.slice();
-        if(checkersSelected<0){if(board[index]&&board[index][0]===side&&(!Number.isInteger(checkersState.chainFrom)||index===checkersState.chainFrom)){checkersSelected=index;drawBoard();}return;}
-        if(index===checkersSelected){if(Number.isInteger(checkersState.chainFrom))return;checkersSelected=-1;drawBoard();return;}
-        const legal=checkersAllMoves(board,side,checkersState.chainFrom).filter(m=>m.from===checkersSelected&&m.to===index);
-        if(!legal.length){if(board[index]&&board[index][0]===side&&!Number.isInteger(checkersState.chainFrom))checkersSelected=index;drawBoard();return;}
-        checkersState=applyCheckersMoveToState(checkersState,legal[0],side);checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
+        if(!Number.isInteger(index)||index<0||index>63||!isCheckersActive()||checkersState.winner||(!localAi&&(!onlineRoomRef||!onlineRole||!firebaseReady)))return;
+        const side=localAi?'X':getRoleMark();
+        if(checkersState.turn!==side)return;
+        const legalMoves=checkersAllMoves(checkersState.board,side,checkersState.chainFrom);
+        if(checkersSelected<0){
+            if(checkersState.board[index]&&checkersState.board[index][0]===side&&legalMoves.some(m=>m.from===index)){
+                checkersSelected=index;drawBoard();
+            }
+            return;
+        }
+        if(index===checkersSelected){
+            if(!Number.isInteger(checkersState.chainFrom)){checkersSelected=-1;drawBoard();}
+            return;
+        }
+        const move=legalMoves.find(m=>m.from===checkersSelected&&m.to===index);
+        if(!move){
+            if(!Number.isInteger(checkersState.chainFrom)&&checkersState.board[index]&&checkersState.board[index][0]===side&&legalMoves.some(m=>m.from===index))checkersSelected=index;
+            drawBoard();return;
+        }
+        checkersState=applyCheckersMoveToState(checkersState,move,side);
+        checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
         playMoveSound(checkersState.lastMove.capture?'capture':'move');drawBoard();updateStatusUI();
         if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?(localAi?'You Win!':'X Wins!'):(localAi?'AI Wins':'O Wins!'),'Checkers finished.');
         if(localAi){if(!checkersState.winner)scheduleHardMiniAi();return;}
-        onlineRoomRef.child('miniGames/checkers').set({...checkersState,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{console.error(err);setOnlineStatus('Checkers move could not sync. Check server permissions for this game.');});
+        onlineRoomRef.child('miniGames/checkers').set({...checkersState,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{
+            console.error(err);setOnlineStatus('Checkers move could not sync. Check server permissions for this game.');
+        });
     }
 
     function fourConnectWinner(board) {
@@ -2784,27 +2831,69 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if(dotsBoxesState.winner)showMiniGameResult(dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner==='X'?'You Win!':'AI Wins','Dots & Boxes finished.');
         else scheduleHardMiniAi();
     }
-    function applyCheckersMoveToState(st, move, side) {
-        const board=st.board.slice(), piece=board[move.from]; board[move.from]=''; board[move.to]=piece; if(move.capture>=0)board[move.capture]='';
-        let promoted=false; const row=Math.floor(move.to/8); if(piece==='X'&&row===0){board[move.to]='XK';promoted=true;} if(piece==='O'&&row===7){board[move.to]='OK';promoted=true;}
-        // Standard checkers rule: after a capture, the same piece must continue jumping if another capture is available.
+    function applyCheckersMoveToState(st,move,side) {
+        const board=st.board.slice(),piece=board[move.from];
+        if(!piece||piece[0]!==side||!Number.isInteger(move.to)||move.to<0||move.to>63)return st;
+        board[move.from]='';board[move.to]=piece;
+        if(move.capture>=0)board[move.capture]='';
+        let promoted=false;const row=Math.floor(move.to/8);
+        if(piece==='X'&&row===0){board[move.to]='XK';promoted=true;}
+        if(piece==='O'&&row===7){board[move.to]='OK';promoted=true;}
         const followUps=move.capture>=0&&!promoted?checkersMovesFrom(board,move.to,true):[];
         const chainFrom=followUps.length?move.to:null;
-        const nextTurn=chainFrom?side:(side==='X'?'O':'X'); const winner=chainFrom?null:(checkersAllMoves(board,nextTurn).length?null:side);
+        const nextTurn=chainFrom?side:(side==='X'?'O':'X');
+        const winner=chainFrom?null:(checkersAllMoves(board,nextTurn).length?null:side);
         return {board,turn:nextTurn,winner,chainFrom,lastMove:{id:String(Date.now())+'-'+Math.random().toString(36).slice(2,8),from:move.from,to:move.to,piece,capture:move.capture>=0,promoted,by:side},updatedAt:Date.now()};
     }
-    function makeHardCheckersMove() {
-        let moves=checkersAllMoves(checkersState.board,'O',checkersState.chainFrom); if(!moves.length){checkersState.winner='X';checkersState.chainFrom=null;updateStatusUI();drawBoard();showMiniGameResult('You Win!','The AI has no legal moves.');return;}
-        let best=-Infinity, choices=[];
-        for(const m of moves){const next=applyCheckersMoveToState(checkersState,m,'O');let score=(m.capture>=0?100:0)+(next.lastMove.promoted?35:0);
-            const replies=checkersAllMoves(next.board,'X',next.chainFrom); score-=replies.filter(r=>r.capture>=0).length*24;
-            score+=next.board.filter(v=>v==='OK').length*8;
-            if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
+    function evaluateCheckersState(st) {
+        let score=0;
+        for(let i=0;i<64;i++){
+            const p=st.board[i];if(!p)continue;
+            const side=p[0],king=p.length>1,row=Math.floor(i/8),col=i%8;
+            const value=king?190:100;
+            const advancement=king?0:(side==='O'?row:7-row)*5;
+            const center=(3.5-Math.abs(3.5-col))+(3.5-Math.abs(3.5-row));
+            const pieceScore=value+advancement+center*3;
+            score+=(side==='O'?pieceScore:-pieceScore);
         }
-        checkersState=applyCheckersMoveToState(checkersState,choices[Math.floor(Math.random()*choices.length)],'O'); checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
-        playMoveSound(checkersState.lastMove.capture?'capture':'move'); updateStatusUI();drawBoard();
+        const oMoves=checkersAllMoves(st.board,'O',st.turn==='O'?st.chainFrom:null).length;
+        const xMoves=checkersAllMoves(st.board,'X',st.turn==='X'?st.chainFrom:null).length;
+        return score+(oMoves-xMoves)*2;
+    }
+    function makeHardCheckersMove() {
+        if(state.mode!=='ai-checkers'||checkersState.winner||checkersState.turn!=='O')return;
+        const rootMoves=checkersAllMoves(checkersState.board,'O',checkersState.chainFrom);
+        if(!rootMoves.length){
+            checkersState={...checkersState,winner:'X',chainFrom:null};
+            updateStatusUI();drawBoard();showMiniGameResult('You Win!','The AI has no legal moves.');return;
+        }
+        const search=(st,depth,alpha,beta)=>{
+            if(st.winner==='O')return 100000+depth;
+            if(st.winner==='X')return -100000-depth;
+            if(depth<=0)return evaluateCheckersState(st);
+            const side=st.turn,moves=checkersAllMoves(st.board,side,st.chainFrom);
+            if(!moves.length)return side==='O'?-100000-depth:100000+depth;
+            moves.sort((a,b)=>(b.capture>=0?1:0)-(a.capture>=0?1:0));
+            if(side==='O'){
+                let best=-Infinity;
+                for(const m of moves){const v=search(applyCheckersMoveToState(st,m,'O'),depth-1,alpha,beta);best=Math.max(best,v);alpha=Math.max(alpha,best);if(beta<=alpha)break;}
+                return best;
+            }
+            let best=Infinity;
+            for(const m of moves){const v=search(applyCheckersMoveToState(st,m,'X'),depth-1,alpha,beta);best=Math.min(best,v);beta=Math.min(beta,best);if(beta<=alpha)break;}
+            return best;
+        };
+        let best=-Infinity,choices=[];
+        for(const m of rootMoves){
+            const value=search(applyCheckersMoveToState(checkersState,m,'O'),5,-Infinity,Infinity);
+            if(value>best){best=value;choices=[m];}else if(value===best)choices.push(m);
+        }
+        const chosen=choices[Math.floor(Math.random()*choices.length)];
+        checkersState=applyCheckersMoveToState(checkersState,chosen,'O');
+        checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
+        playMoveSound(checkersState.lastMove.capture?'capture':'move');updateStatusUI();drawBoard();
         if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?'You Win!':'AI Wins','Checkers finished.');
-        else if(checkersState.turn==='O'&&Number.isInteger(checkersState.chainFrom))scheduleHardMiniAi();
+        else if(checkersState.turn==='O')scheduleHardMiniAi();
     }
 
     function initGame() {
