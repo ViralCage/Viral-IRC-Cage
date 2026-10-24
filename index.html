@@ -1805,9 +1805,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         </div>
         <div class="incoming-call-actions"><button id="declineVoiceCallBtn" type="button">Decline</button><button id="acceptVoiceCallBtn" type="button">Answer</button></div>
     </div>
-    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Chat</span></button>
+    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Calls</span></button>
     <div id="playerChat">
-        <div class="chat-popup-header"><strong>Room Chat</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
+        <div class="chat-popup-header"><strong>Room Calls</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
         <div id="guestNameDisplayRow" style="display:flex; align-items:center; gap:6px; margin:8px 12px 0;">
             <span style="font-size:12px;color:#687386;">Nickname</span>
             <button id="editGuestNameBtn" type="button" title="Click to change your nickname" aria-label="Change nickname" style="border:0;background:transparent;color:#1877f2;font-weight:700;padding:4px 0;text-align:left;overflow-wrap:anywhere;">Guest</button>
@@ -6239,10 +6239,14 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  #bagchal-blogger-container #chatMessages { height:clamp(120px,24dvh,220px) !important; max-height:30dvh; }
  #bagchal-blogger-container #chatInput { font-size:16px; }
 }
+#bagchal-blogger-container #chatMessages,
+#bagchal-blogger-container #chatForm,
+#bagchal-blogger-container #vcP2PChatStatus { display:none !important; }
 </style>
 <script id="vc-p2p-room-chat-script">
 (function () {
 'use strict';
+return; // Text chat is disabled while online game play is being stabilized.
 var root=document.getElementById('bagchal-blogger-container'); if(!root)return;
 var popup=root.querySelector('#playerChat'),toggle=root.querySelector('#chatPopupToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
 if(!popup||!toggle||!form||!input||!messages)return;
