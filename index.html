@@ -4055,6 +4055,19 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineAiOpponent = !!aiOpponent;
         onlineAiMovePending = false;
         onlineRoomRef = firebase.database().ref('bagchalRooms/' + roomId);
+        // Reflect the actual Firebase transport state so a room cannot appear connected
+        // while this browser is offline or blocked from Realtime Database.
+        const connectionRef = firebase.database().ref('.info/connected');
+        if (window.vcDatabaseConnectionRef && window.vcDatabaseConnectionListener) {
+            window.vcDatabaseConnectionRef.off('value', window.vcDatabaseConnectionListener);
+        }
+        window.vcDatabaseConnectionRef = connectionRef;
+        window.vcDatabaseConnectionListener = snap => {
+            const connected = snap.val() === true;
+            if (!connected) setOnlineStatus('Room connection lost. Reconnecting to the game server…');
+            else setOnlineStatus('Game server connected. Syncing room…');
+        };
+        connectionRef.on('value', window.vcDatabaseConnectionListener);
         // Recover the room code from the room record if this session joined through a
         // saved/random-match room that did not pass the code into this function.
         if (!onlineRoomCode) {
@@ -4781,7 +4794,17 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }
     });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && !chatPopup.hidden) setChatPopupOpen(false); });
-    document.getElementById('createRoomBtn').addEventListener('click', createInviteRoom);
+    document.getElementById('createRoomBtn').addEventListener('click', async () => {
+        try {
+            await createInviteRoom();
+        } catch (err) {
+            console.error('Room creation failed:', err);
+            const button = document.getElementById('createRoomBtn');
+            if (button) button.disabled = false;
+            const detail = String(err && (err.code || err.message) || 'unknown Firebase error');
+            setOnlineStatus('Room creation failed (' + detail + '). Check Firebase Authentication and Realtime Database write rules.');
+        }
+    });
     const roomCodeInput = document.getElementById('roomCodeInput');
     roomCodeInput.addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); });
     // Pass the visible input value explicitly so an old ?room= URL can never override manual entry.
@@ -4800,7 +4823,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     document.getElementById('joinRoomModalForm').addEventListener('submit', e => {
         e.preventDefault(); const code = joinRoomModalCode.value.trim();
         if (!/^\d{4}$/.test(code)) { joinRoomModalError.textContent = 'Enter a valid 4-digit code.'; return; }
-        roomCodeInput.value = code; closeJoinRoomModal(); joinInviteRoom(code, true);
+        roomCodeInput.value = code; closeJoinRoomModal();
+        joinInviteRoom(code, true).catch(err => {
+            console.error('Manual room join failed:', err);
+            const detail = String(err && (err.code || err.message) || 'unknown Firebase error');
+            setOnlineStatus('Room connection failed (' + detail + '). Check Firebase Realtime Database read/write rules.');
+        });
     });
 
     document.getElementById('quickMatchBtn').addEventListener('click', quickMatch);
