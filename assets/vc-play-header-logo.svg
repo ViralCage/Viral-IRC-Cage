@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 150" role="img" aria-labelledby="title desc">
+<title id="title">VC Play</title><desc id="desc">VC Play logo with a crowned gradient VC monogram and Play Connect Enjoy tagline</desc>
+<defs>
+ <linearGradient id="vc" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c12cff"/><stop offset=".48" stop-color="#7158ff"/><stop offset="1" stop-color="#13b8ed"/></linearGradient>
+ <linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#1bb9ee"/><stop offset=".55" stop-color="#168fe8"/><stop offset="1" stop-color="#6b36f5"/></linearGradient>
+ <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g filter="url(#glow)">
+ <path d="M73 29 89 7 104 29 122 16 119 43 58 43 55 16Z" fill="url(#vc)"/>
+ <path d="M58 48 88 48 112 107 137 48 168 48 126 132 91 132Z" fill="url(#vc)"/>
+ <path d="M160 48H211L190 69H174L156 110 183 110 171 132H116L139 88Z" fill="url(#vc)"/>
+</g>
+<text x="246" y="92" font-family="Arial,Helvetica,sans-serif" font-size="75" font-weight="900" letter-spacing="1" fill="url(#word)">VC <tspan fill="#8c35ee">PLAY</tspan></text>
+<text x="249" y="129" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="700" letter-spacing="6.5" fill="#f4f5fb">PLAY  •  CONNECT  •  ENJOY</text>
+</svg>
