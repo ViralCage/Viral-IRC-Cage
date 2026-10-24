@@ -1687,7 +1687,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
             <button type="button" class="vc-mode-card" data-game-mode="online-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Connect four in a row</small></span><span class="vc-mode-tag">Online</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="online-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Full standard chess rules</small></span><span class="vc-mode-tag">Online</span></button>
-            <button type="button" class="vc-mode-card" data-game-mode="online-checkers"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Classic online board game</small></span><span class="vc-mode-tag">Online</span></button>
+            <button type="button" class="vc-mode-card" ><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Classic online board game</small></span><span class="vc-mode-tag">Online</span></button>
         </div>
         <div class="vc-mode-section-label vc-ai-label">PLAY WITH AI</div>
         <div class="vc-mode-grid" data-mode-group="ai" hidden>
@@ -1696,7 +1696,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
             <button type="button" class="vc-mode-card" data-game-mode="ai-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
-            <button type="button" class="vc-mode-card" data-game-mode="ai-checkers"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Play against AI</small></span><span class="vc-mode-tag">Computer</span></button>
+            <button type="button" class="vc-mode-card" ><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Play against AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-tiger-hardest"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>Play as Goats</strong><small>Face the Tiger AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-goat-hardest"><span class="vc-mode-icon">🐐</span><span class="vc-mode-card-copy"><strong>Play as Tigers</strong><small>Face the Goat AI</small></span><span class="vc-mode-tag">Computer</span></button>
         </div>
@@ -1764,13 +1764,13 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     </div>
 
     <div id="chessPlayerCards" aria-live="polite" style="display:none">
-        <div id="chessWhiteCard" class="chess-player-card red-card">
-            <div class="chess-player-title">Red pieces (X)</div>
+        <div id="chessWhiteCard" class="chess-player-card">
+            <div class="chess-player-title">White pieces</div>
             <div id="chessWhiteRole" class="chess-player-role">Opponent</div>
             <div id="chessWhiteMove" class="chess-player-move" hidden></div>
         </div>
-        <div id="chessBlackCard" class="chess-player-card black-card">
-            <div class="chess-player-title">Black pieces (O)</div>
+        <div id="chessBlackCard" class="chess-player-card">
+            <div class="chess-player-title">Black pieces</div>
             <div id="chessBlackRole" class="chess-player-role">You</div>
             <div id="chessBlackMove" class="chess-player-move" hidden></div>
         </div>
@@ -2558,17 +2558,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function initialTicTacToeState(firstTurn = 'X') { return { board: Array(9).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', winner: null, updatedAt: Date.now() }; }
     function initialDotsBoxesState(firstTurn = 'X') { return { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', scores: { X: 0, O: 0 }, winner: null, updatedAt: Date.now() }; }
     function updateOnlineRoleOptions() {
-        const select = document.getElementById('onlinePreferredRole');
-        if (!select) return;
-        const current = select.value || 'goat';
-        const labels = onlineGameType === 'chess' ? ['White pieces', 'Black pieces'] : onlineGameType === 'tictactoe'
-            ? ['X (first player)', 'O (second player)']
-            : onlineGameType === 'dotsboxes'
-                ? ['Player 1 (X)', 'Player 2 (O)']
-        select.options[0].textContent = labels[0];
-        select.options[1].textContent = labels[1];
-        select.value = current;
-        select.setAttribute('aria-label', onlineGameType === 'baghchal' ? 'Choose Goats or Tigers' : 'Choose your side for ' + (onlineGameType === 'tictactoe' ? 'Tic Tac Toe' : 'Dots & Boxes'));
+        const select=document.getElementById('onlinePreferredRole');
+        if(!select)return;
+        const current=select.value||'goat';
+        const labels=onlineGameType==='chess'?['White pieces','Black pieces']:onlineGameType==='tictactoe'?['X (first player)','O (second player)']:onlineGameType==='dotsboxes'?['Player 1 (X)','Player 2 (O)']:onlineGameType==='fourconnect'?['Red chips (X)','Yellow chips (O)']:onlineGameType==='chipbomb'?['Player 1 (X)','Player 2 (O)']:['Goats','Tigers'];
+        select.options[0].textContent=labels[0];select.options[1].textContent=labels[1];select.value=current;
+        select.setAttribute('aria-label',onlineGameType==='baghchal'?'Choose Goats or Tigers':'Choose your side for '+onlineGameType);
     }
 
     function updateInstructionsVisibility() {
@@ -2578,30 +2573,20 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     function applyOnlineGameType(type, writeToRoom = false) {
-        onlineGameType = ['baghchal','tictactoe','dotsboxes','fourconnect','chess'].includes(type) ? type : 'baghchal';
+        onlineGameType=['baghchal','tictactoe','dotsboxes','fourconnect','chess'].includes(type)?type:'baghchal';
         updateOnlineRoleOptions();
-        const picker = document.getElementById('onlineGameType');
-        if (picker) picker.value = onlineGameType;
-        const selection = document.getElementById('gameSelection');
-        if (selection && state.mode === 'online') selection.value = onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType;
-        const heading = document.querySelector('#bagchal-blogger-container h2');
-        const labels = document.querySelectorAll('#bagchal-blogger-container .status-label');
-        if (labels.length >= 3) {
-            labels[0].textContent = 'Turn';
-        }
+        const picker=document.getElementById('onlineGameType');if(picker)picker.value=onlineGameType;
+        const selection=document.getElementById('gameSelection');if(selection&&state.mode==='online')selection.value=onlineGameType==='baghchal'?'online':'online-'+onlineGameType;
+        const cards=document.getElementById('chessPlayerCards');
+        if(cards)cards.style.display=onlineGameType==='chess'&&state.mode==='online'?'grid':'none';
+        const wrap=document.getElementById('bagchal-blogger-container');if(wrap)wrap.classList.toggle('chess-active',onlineGameType==='chess'&&state.mode==='online');
+        const heading=document.querySelector('#bagchal-blogger-container h2');
+        if(heading)heading.textContent=onlineGameType==='tictactoe'?'Tic Tac Toe':onlineGameType==='dotsboxes'?'Dots & Boxes':onlineGameType==='fourconnect'?'Four Connect':onlineGameType==='chess'?'Chess':onlineGameType==='chipbomb'?'Chip Bomb':'🐅 Bagchal 🐐';
+        const labels=document.querySelectorAll('#bagchal-blogger-container .status-label');
+        if(labels.length>=3){labels[0].textContent='Turn';labels[1].textContent=onlineGameType==='baghchal'?'In Hand':onlineGameType==='tictactoe'?'X Wins':onlineGameType==='fourconnect'?'X Chips':onlineGameType==='chess'?'White pieces':onlineGameType==='chipbomb'?'Bombs Found':onlineGameType==='dotsboxes'?'X Boxes':'X Boxes';labels[2].textContent=onlineGameType==='baghchal'?'Captured':onlineGameType==='tictactoe'?'O Wins':onlineGameType==='fourconnect'?'O Chips':onlineGameType==='chess'?'Black pieces':onlineGameType==='chipbomb'?'Guesses':'O Boxes';}
         updateInstructionsVisibility();
-        if (writeToRoom && onlineRoomRef && firebaseReady && onlineRole) {
-            onlineRoomRef.child('activeGameType').set(onlineGameType).catch(err => {
-                console.error(err); setOnlineStatus('Could not switch games. Check server permissions for the active game.');
-            });
-        }
-        updateStatusUI();
-            // The room's game-type snapshot can arrive before the canvas has its final layout.
-            // Resize and redraw after the browser has applied the Checkers layout.
-            requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
-        } else {
-            drawBoard();
-        }
+        if(writeToRoom&&onlineRoomRef&&firebaseReady&&onlineRole)onlineRoomRef.child('activeGameType').set(onlineGameType).catch(err=>{console.error(err);setOnlineStatus('Could not switch games. Check server permissions for the active game.');});
+        updateStatusUI();requestAnimationFrame(()=>{resizeCanvas();drawBoard();});
     }
     function getRoleMark(role = onlineRole) { return role === TIGER ? 'O' : 'X'; }
     function checkTttWinner(board) {
@@ -2750,17 +2735,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (state.mode === 'ai-chess' || (state.mode === 'online' && onlineGameType === 'chess')) { if(state.mode==='ai-chess') chessHistory=[initialChessPosition()]; chessSelected=-1; chessPremove=null; chessLastMove=null; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent=state.mode==='ai-chess'?'Chess — Play with AI':'Chess'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='White pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black pieces'; updateStatusUI(); requestAnimationFrame(() => { resizeCanvas(); drawBoard(); }); setTimeout(() => { resizeCanvas(); drawBoard(); }, 120); return; }
         if (state.mode === 'ai-fourconnect') { fourConnectState=initialFourConnectState(); document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Four Connect — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Chips'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Chips'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-chipbomb') { chipBombState=initialChipBombState(); chipBombState.bombs={X:null,O:null}; chipBombState.placed={X:false,O:false}; chipBombState.guesses=[]; chipBombState.phase='setup'; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Chip Bomb — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Status'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Bomb Found'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Guesses'; updateStatusUI(); resizeCanvas(); return; }
-        if (state.mode === 'ai-dotsboxes') { dotsBoxesState=initialDotsBoxesState('X'); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Dots & Boxes — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Boxes'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Boxes'; updateStatusUI(); resizeCanvas(); return; }
-            checkersSelected = -1;
-            document.getElementById('messageOverlay').classList.remove('active');
-            document.querySelector('#bagchal-blogger-container h2').textContent = 'Checkers';
-            document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent = 'Turn';
-            document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent = 'Red Pieces';
-            document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent = 'Black Pieces';
-            updateStatusUI();
-            requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
-            return;
-        }
+        if (state.mode === 'ai-dotsboxes') { dotsBoxesState=initialDotsBoxesState('X'); document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Dots & Boxes — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Boxes'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Boxes'; updateStatusUI(); resizeCanvas(); return; }
         if (isTicTacToeActive()) {
             if (state.mode !== 'online') { tttBoard = Array(9).fill(''); tttTurn = 'X'; tttWinner = null; }
             document.getElementById('messageOverlay').classList.remove('active');
