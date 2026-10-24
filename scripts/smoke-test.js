@@ -18,7 +18,7 @@ assert.ok(html.includes('<link rel="canonical" href="https://play.viralcage.com/
 const routeLine = html.split(String.fromCharCode(10)).find(line => line.includes('var slug=location.pathname'));
 assert.ok(routeLine && routeLine.includes('replace(') && routeLine.includes('|') && routeLine.includes('$'), 'Clean route parser must strip leading and trailing slashes');
 
-for (const slug of ['baghchal', 'tictactoe', 'dotsandboxes', 'dotsboxes', 'fourconnect', 'chess']) {
+for (const slug of ['baghchal', 'tictactoe', 'dotsandboxes', 'dotsboxes', 'fourconnect', 'chess', 'checkers']) {
   assert.ok(html.includes(slug + ':{value:'), `Expected clean route for /${slug}`);
 }
 assert.ok(html.includes('Date.now() - startedAt < 10000'), 'Random Match should wait 10 seconds');
@@ -45,6 +45,9 @@ for (const game of ['tictactoe', 'dotsboxes', 'fourconnect', 'chess', 'checkers'
   assert.ok(html.includes(`child('miniGames/${game}').on('value'`) || html.includes(`child('miniGames/${game}').on(`), `Expected live Firebase listener for ${game}`);
 }
 assert.ok(html.includes("checkers: 'ai-checkers'"), 'Checkers Random Match must have a valid AI fallback');
+assert.ok((html.match(/\['baghchal','BaghChal'.*?\['checkers','Checkers'\]\]/g) || []).length >= 3, 'Every dynamically populated game selector must include Checkers');
+assert.ok(html.includes('data-game-mode="online-checkers"'), 'Checkers online card must be present and selectable');
+assert.ok(html.includes('data-game-mode="ai-checkers"'), 'Checkers AI card must be present and selectable');
 assert.ok(html.includes("function checkersClick(i){if(state.mode==='online'&&(!onlineRoomRef||!onlineRole||!firebaseReady||onlineAiOpponent))"), 'Checkers must reject moves without a valid online room');
 
 console.log(`PASS: ${inlineScripts.length} inline scripts parse; SEO, clean routes, matchmaking, AI fallbacks and online game sync paths verified.`);
