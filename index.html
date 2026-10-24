@@ -2615,7 +2615,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (picker) picker.value = onlineGameType;
         const selection = document.getElementById('gameSelection');
         if (selection && state.mode === 'online') selection.value = onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType;
-        const cards=document.getElementById('checkersPlayerCards'); if(cards) cards.style.display=((onlineGameType==='checkers'||onlineGameType==='chess')&&state.mode==='online')?'grid':'none'; const gameWrap=document.getElementById('bagchal-blogger-container'); if(gameWrap){gameWrap.classList.toggle('chess-active',onlineGameType==='chess'&&state.mode==='online');if(onlineGameType!=='checkers')gameWrap.classList.remove('checkers-active');}
+        const cards=document.getElementById('checkersPlayerCards'); if(cards) cards.style.display=((onlineGameType==='checkers'||onlineGameType==='chess')&&state.mode==='online')?'grid':'none'; const gameWrap=document.getElementById('bagchal-blogger-container'); if(gameWrap){gameWrap.classList.toggle('chess-active',onlineGameType==='chess'&&state.mode==='online');gameWrap.classList.toggle('checkers-active',onlineGameType==='checkers'&&state.mode==='online');}
         const heading = document.querySelector('#bagchal-blogger-container h2');
         if (heading) heading.textContent = onlineGameType === 'tictactoe' ? 'Tic Tac Toe' : (onlineGameType === 'dotsboxes' ? 'Dots & Boxes' : (onlineGameType === 'checkers' ? 'Checkers' : (onlineGameType === 'fourconnect' ? 'Four Connect' : (onlineGameType === 'chess' ? 'Chess' : (onlineGameType === 'chipbomb' ? 'Chip Bomb' : '🐅 Bagchal 🐐')))));
         const labels = document.querySelectorAll('#bagchal-blogger-container .status-label');
@@ -4409,16 +4409,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const requests = snap.val() || {};
             const myKey = roleKey(onlineRole);
             const opponentKey = roleKey(oppositeRole(onlineRole));
-            const opponentRequested = !!requests[opponentKey];
-            const IAccepted = !!requests[myKey];
+            const opponentRequested = !!(requests[opponentKey] && requests[opponentKey].requested);
+            const IAccepted = !!(requests[myKey] && requests[myKey].accepted);
             const prompt = document.getElementById('restartPrompt');
             if (opponentRequested && !IAccepted) {
                 prompt.style.display = 'flex';
-                document.getElementById('restartPromptText').textContent = 'Your opponent wants to restart the game. Do you accept?';
+                document.getElementById('restartPromptText').textContent = 'Your opponent wants to restart Checkers/game. Both players must accept before it resets.';
             } else if (!opponentRequested || IAccepted) {
                 prompt.style.display = 'none';
             }
-            const bothAccepted = !!requests.goat && !!requests.tiger;
+            const bothAccepted = !!(requests.goat && requests.goat.accepted) && !!(requests.tiger && requests.tiger.accepted);
             if (bothAccepted && onlineRole === GOAT && !onlineRestartHandling) {
                 onlineRestartHandling = true;
                 const configSnap = await onlineRoomRef.once('value');
@@ -5415,45 +5415,32 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             return;
         }
         try {
-            const configSnap = await onlineRoomRef.once('value');
-            const roomConfig = configSnap.val() || {};
-            const firstMark = roomConfig.firstMoveMark === 'O' ? 'O' : 'X';
-            const fresh = onlineGameType === 'tictactoe' ? initialTicTacToeState(firstMark)
-                : onlineGameType === 'dotsboxes' ? initialDotsBoxesState(firstMark)
-                : onlineGameType === 'checkers' ? initialCheckersState()
-                : onlineGameType === 'fourconnect' ? initialFourConnectState()
-                : onlineGameType === 'chess' ? {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()}
-                : initialOnlineGame();
-            const freshRef = onlineGameType === 'tictactoe' ? onlineRoomRef.child('miniGames/tictactoe')
-                : onlineGameType === 'dotsboxes' ? onlineRoomRef.child('miniGames/dotsboxes')
-                : onlineGameType === 'checkers' ? onlineRoomRef.child('miniGames/checkers')
-                : onlineGameType === 'fourconnect' ? onlineRoomRef.child('miniGames/fourconnect')
-                : onlineGameType === 'chess' ? onlineRoomRef.child('miniGames/chess')
-                : onlineRoomRef.child('game');
-            await freshRef.set(fresh);
-            await onlineRoomRef.child('restartRequests').remove().catch(() => {});
+            const requestsRef = onlineRoomRef.child('restartRequests');
+            await requestsRef.remove();
+            await requestsRef.child(roleKey(onlineRole)).set({
+                requested: true,
+                accepted: true,
+                at: firebase.database.ServerValue.TIMESTAMP
+            });
             document.getElementById('restartPrompt').style.display = 'none';
-            document.getElementById('messageOverlay').classList.remove('active');
-            setOnlineStatus('Match restarted. Both players are ready to play.');
-            updateStatusUI();
-            drawBoard();
+            setOnlineStatus('Restart request sent. Waiting for your opponent to accept.');
         } catch (err) {
-            console.error('Restart failed:', err);
-            setOnlineStatus('Restart failed. Check server permissions for the active game.');
+            console.error('Restart request failed:', err);
+            setOnlineStatus('Could not request restart. Check server permissions.');
         }
     }
     document.getElementById('resetBtn').addEventListener('click', requestRestart);
     document.getElementById('overlayCloseBtn').addEventListener('click', requestRestart);
     document.getElementById('acceptRestartBtn').addEventListener('click', () => {
         if (!onlineRoomRef || !onlineRole || !firebaseReady) return;
-        onlineRoomRef.child('restartRequests/' + roleKey(onlineRole)).set({ accepted: true, at: firebase.database.ServerValue.TIMESTAMP })
+        onlineRoomRef.child('restartRequests/' + roleKey(onlineRole)).set({ requested: true, accepted: true, at: firebase.database.ServerValue.TIMESTAMP })
             .then(() => { document.getElementById('restartPrompt').style.display = 'none'; setOnlineStatus('Restart accepted. Waiting for the game to restart…'); })
             .catch(err => { console.error(err); setOnlineStatus('Could not accept restart. Check server permissions.'); });
     });
     document.getElementById('declineRestartBtn').addEventListener('click', () => {
         if (!onlineRoomRef || !onlineRole) return;
         const opponentKey = roleKey(oppositeRole(onlineRole));
-        onlineRoomRef.child('restartRequests/' + opponentKey).remove().then(() => {
+        onlineRoomRef.child('restartRequests').remove().then(() => {
             document.getElementById('restartPrompt').style.display = 'none';
             setOnlineStatus('Restart request declined.');
         }).catch(err => { console.error(err); setOnlineStatus('Could not decline restart request.'); });
@@ -5590,7 +5577,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         state.mode = e.target.value;
         const isOnline = state.mode === 'online';
         const gameWrap = document.getElementById('bagchal-blogger-container');
-        if (gameWrap) { gameWrap.classList.remove('chess-active','checkers-active'); if (state.mode === 'ai-chess' || (isOnline && onlineGameType === 'chess')) gameWrap.classList.add('chess-active'); else if (state.mode === 'ai-checkers' || (isOnline && onlineGameType === 'checkers')) gameWrap.classList.add('checkers-active'); }
+        if (gameWrap) { gameWrap.classList.toggle('chess-active', state.mode === 'ai-chess' || (isOnline && onlineGameType === 'chess')); gameWrap.classList.toggle('checkers-active', state.mode === 'ai-checkers' || (isOnline && onlineGameType === 'checkers')); }
         const localAiMode = ['ai-tictactoe','ai-dotsboxes','ai-checkers','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode);
         document.getElementById('onlinePanel').style.display = isOnline ? 'block' : 'none';
         document.getElementById('checkersPlayerCards').style.display = (state.mode === 'ai-checkers' || state.mode === 'ai-chess' || (isOnline && (onlineGameType === 'checkers' || onlineGameType === 'chess'))) ? 'grid' : 'none';
