@@ -1805,9 +1805,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         </div>
         <div class="incoming-call-actions"><button id="declineVoiceCallBtn" type="button">Decline</button><button id="acceptVoiceCallBtn" type="button">Answer</button></div>
     </div>
-    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Game</span></button>
+    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Moves</span></button>
     <div id="playerChat">
-        <div class="chat-popup-header"><strong>Game Status</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
+        <div class="chat-popup-header"><strong>Move History</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
         <div id="guestNameDisplayRow" style="display:flex; align-items:center; gap:6px; margin:8px 12px 0;">
             <span style="font-size:12px;color:#687386;">Nickname</span>
             <button id="editGuestNameBtn" type="button" title="Click to change your nickname" aria-label="Change nickname" style="border:0;background:transparent;color:#1877f2;font-weight:700;padding:4px 0;text-align:left;overflow-wrap:anywhere;">Guest</button>
@@ -1817,18 +1817,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="saveGuestNameBtn" type="button">Save Name</button>
             <button id="cancelGuestNameBtn" type="button">Cancel</button>
         </div>
-        <div id="chatMessages" class="vc-game-stats-panel" role="status" aria-live="polite">
-            <div class="vc-game-stats-title"><span>LIVE MATCH</span><strong id="vcMatchGame">BaghChal</strong></div>
-            <div class="vc-game-stats-row"><span>Players</span><strong id="vcMatchPlayers">0 / 2</strong></div>
-            <div class="vc-game-stats-row"><span>You play</span><strong id="vcMatchSide">Not joined</strong></div>
-            <div class="vc-game-stats-row"><span>Turn</span><strong id="vcMatchTurn">Join a room to begin</strong></div>
-            <div class="vc-game-stats-metrics">
-                <div><span id="vcMatchMetricALabel">In hand</span><strong id="vcMatchMetricA">20</strong></div>
-                <div><span id="vcMatchMetricBLabel">Captured</span><strong id="vcMatchMetricB">0 / 5</strong></div>
-            </div>
-            <div id="vcMatchStatus" class="vc-game-stats-status">Create or join a room to start a match.</div>
-        </div>
-        <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
+        <div id="chatMessages" class="vc-game-move-panel" role="log" aria-live="polite">
+            <div class="vc-move-title"><span>RECENT MOVES</span><strong id="vcMatchGame">BaghChal</strong></div>
+            <div id="vcMatchTurn" class="vc-move-turn">Join or create a room to begin.</div>
+            <div id="vcMoveLogList" class="vc-move-log-list">Moves will appear here as players take their turns.</div>
+        </div>        <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
             <input id="chatInput" maxlength="500" autocomplete="off" placeholder="Type a message…" aria-label="Chat message" style="flex:1; min-width:0; padding:9px; border:1px solid #a0aec0; border-radius:6px;">
             <button id="sendChatBtn" type="submit" aria-label="Send message" title="Send message"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 20.5 21 12 3 3.5l.1 6.6L15 12 3.1 13.9 3 20.5Z" fill="currentColor"/></svg></button>
         </form>
@@ -1845,7 +1838,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="joinRoomBtn" type="button" title="Join with a room code"><span aria-hidden="true">↗</span> Join Room</button>
             <button id="quickMatchBtn" type="button" title="Find a random opponent"><span aria-hidden="true">⇄</span> Quick Match</button>
         </div>
-        <div id="chatStatus">Live turn and game stats update as the match changes.</div>
+        <div id="chatStatus">Recent moves appear here as players take their turns.</div>
         <div class="chat-room-divider" aria-hidden="true"></div>
 
     </div>
@@ -3847,44 +3840,112 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (callEl) { callEl.textContent = voiceActive ? 'Connected' : 'Off'; callEl.className = voiceActive ? 'vc-info-online' : ''; }
     }
 
-    function refreshRoomGameStats() {
+    let moveLogGameType = '';
+    let moveLogSnapshot = null;
+    let moveLogEntries = [];
+
+    function captureMoveSnapshot() {
+        if (onlineGameType === 'baghchal') return { board:state.board.slice(), turn:state.turn, captured:state.goatsCaptured };
+        if (onlineGameType === 'tictactoe') return { board:tttBoard.slice(), turn:tttTurn };
+        if (onlineGameType === 'dotsboxes') return { edges:dotsBoxesState.edges.slice(), boxes:dotsBoxesState.boxes.slice(), scores:{...dotsBoxesState.scores}, turn:dotsBoxesState.turn };
+        if (onlineGameType === 'fourconnect') return { board:fourConnectState.board.slice(), turn:fourConnectState.turn };
+        if (onlineGameType === 'checkers') return { board:checkersState.board.slice(), turn:checkersState.turn };
+        if (onlineGameType === 'chess') {
+            const position = chessHistory[chessHistory.length - 1];
+            return position ? { board:position.b.slice(), turn:position.t, count:chessHistory.length } : null;
+        }
+        if (onlineGameType === 'chipbomb') return { guesses:(chipBombState.guesses || []).map(g=>({...g})), turn:chipBombState.turn, phase:chipBombState.phase };
+        return null;
+    }
+    function moveCellEmpty(value) { return value == null || value === '' || value === '.' || value === 0 || value === false; }
+    function moveSquare(index, type) {
+        if (type === 'baghchal') return String.fromCharCode(65 + index % 5) + (Math.floor(index / 5) + 1);
+        if (type === 'chess') return String.fromCharCode(97 + index % 16) + (8 - Math.floor(index / 16));
+        if (type === 'checkers') return String.fromCharCode(65 + index % 8) + (8 - Math.floor(index / 8));
+        const cols = type === 'tictactoe' ? 3 : 7;
+        return 'row ' + (Math.floor(index / cols) + 1) + ', column ' + (index % cols + 1);
+    }
+    function describeMove(previous, current, type) {
+        if (type === 'dotsboxes') {
+            const edge = current.edges.findIndex((v,i)=>v && !previous.edges[i]);
+            if (edge < 0) return '';
+            const scorer = previous.turn || 'X';
+            return scorer + ' drew line ' + (edge + 1) + '.';
+        }
+        if (type === 'chipbomb') {
+            if ((current.guesses || []).length > (previous.guesses || []).length) return 'A guess was made.';
+            if (previous.phase === 'setup' && current.phase !== 'setup') return 'Both secret chips are set. Guessing begins.';
+            return '';
+        }
+        if (!Array.isArray(previous.board) || !Array.isArray(current.board)) return '';
+        const changed = [];
+        const added = [];
+        const removed = [];
+        for (let i=0;i<Math.min(previous.board.length,current.board.length);i++) {
+            const before=previous.board[i],after=current.board[i];
+            if (before===after) continue;
+            changed.push(i);
+            if (moveCellEmpty(before) && !moveCellEmpty(after)) added.push(i);
+            if (!moveCellEmpty(before) && moveCellEmpty(after)) removed.push(i);
+        }
+        if (!changed.length) return '';
+        const mover = previous.turn;
+        const sideName = type === 'baghchal' ? (mover === GOAT ? 'Goats' : 'Tigers') :
+            type === 'checkers' ? (mover === 'r' ? 'Red' : 'Black') :
+            type === 'chess' ? (mover === 1 ? 'White' : 'Black') : String(mover || 'Player');
+        if (type === 'fourconnect' && added.length) return sideName + ' dropped a piece in column ' + ((added[0] % 7) + 1) + '.';
+        if (added.length && removed.length) {
+            const captured = changed.some(i=>!moveCellEmpty(previous.board[i])&&!moveCellEmpty(current.board[i])&&previous.board[i]!==current.board[i]) || removed.length > 1;
+            return sideName + ' moved ' + moveSquare(removed[0],type) + ' → ' + moveSquare(added[0],type) + (captured ? ' (capture).' : '.');
+        }
+        if (added.length) {
+            if (type === 'tictactoe') return added[0] === undefined ? '' : String(current.board[added[0]]) + ' chose ' + moveSquare(added[0],type) + '.';
+            if (type === 'baghchal') return sideName + ' placed a goat at ' + moveSquare(added[0],type) + '.';
+            return sideName + ' placed at ' + moveSquare(added[0],type) + '.';
+        }
+        if (removed.length) return sideName + ' captured a piece.';
+        return 'Move updated.';
+    }
+    function refreshRoomMoveLog() {
         const gameName = { baghchal:'BaghChal', tictactoe:'Tic-Tac-Toe', dotsboxes:'Dots & Boxes', fourconnect:'Four Connect', chess:'Chess', checkers:'Checkers', chipbomb:'Chip Bomb' }[onlineGameType] || 'Game';
         const game = document.getElementById('vcMatchGame');
-        const players = document.getElementById('vcMatchPlayers');
-        const side = document.getElementById('vcMatchSide');
         const turn = document.getElementById('vcMatchTurn');
-        const metricALabel = document.getElementById('vcMatchMetricALabel');
-        const metricBLabel = document.getElementById('vcMatchMetricBLabel');
-        const metricA = document.getElementById('vcMatchMetricA');
-        const metricB = document.getElementById('vcMatchMetricB');
-        const status = document.getElementById('vcMatchStatus');
-        if (!game || !players || !side || !turn || !metricALabel || !metricBLabel || !metricA || !metricB || !status) return;
+        const list = document.getElementById('vcMoveLogList');
+        if (!game || !turn || !list) return;
         game.textContent = gameName;
-        players.textContent = onlineRoomId ? (vcOpponentConnected || onlineAiOpponent ? '2 / 2' : '1 / 2') : '0 / 2';
-        const sideNames = {
-            baghchal:['Goats','Tigers'], chess:['White','Black'], checkers:['Red','Black'],
-            tictactoe:['X','O'], dotsboxes:['X','O'], fourconnect:['X','O'], chipbomb:['X','O']
-        }[onlineGameType] || ['Side 1','Side 2'];
-        side.textContent = onlineRole === GOAT ? sideNames[0] : onlineRole === TIGER ? sideNames[1] : onlineAiOpponent ? 'Computer match' : 'Not joined';
         turn.textContent = document.getElementById('turnStatus')?.textContent || 'Waiting to start';
-        const labels = {
-            baghchal:['Goats in hand','Goats captured'],
-            tictactoe:['X placed','O placed'],
-            dotsboxes:['X squares','O squares'],
-            fourconnect:['X pieces','O pieces'],
-            chess:['White pieces','Black pieces'],
-            checkers:['Red pieces','Black pieces'],
-            chipbomb:['Correct guesses','Total guesses']
-        }[onlineGameType] || ['Score','Progress'];
-        metricALabel.textContent = labels[0];
-        metricBLabel.textContent = labels[1];
-        metricA.textContent = document.getElementById('goatsHandStatus')?.textContent || '—';
-        metricB.textContent = document.getElementById('goatsDeadStatus')?.textContent || '—';
-        status.textContent = !onlineRoomId ? 'Create or join a room to start a match.' :
-            onlineAiOpponent ? 'Playing against the computer.' :
-            vcOpponentConnected ? 'Both players are in the room.' : 'Waiting for another player to join.';
+        const snapshot = captureMoveSnapshot();
+        if (moveLogGameType !== onlineGameType) {
+            moveLogGameType = onlineGameType;
+            moveLogSnapshot = snapshot;
+            moveLogEntries = [];
+        } else if (snapshot && moveLogSnapshot) {
+            const move = describeMove(moveLogSnapshot,snapshot,onlineGameType);
+            if (move) {
+                const next = document.getElementById('turnStatus')?.textContent || '';
+                const stamp = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+                moveLogEntries.unshift({text:move,stamp});
+                moveLogEntries = moveLogEntries.slice(0,12);
+            }
+            moveLogSnapshot = snapshot;
+        } else moveLogSnapshot = snapshot;
+        list.replaceChildren();
+        if (!moveLogEntries.length) {
+            list.textContent = onlineRoomId ? 'Waiting for the first move.' : 'Moves will appear here as players take their turns.';
+            return;
+        }
+        moveLogEntries.forEach((entry,index)=>{
+            const row=document.createElement('div');
+            row.className='vc-move-entry'+(index===0?' vc-move-entry-latest':'');
+            const text=document.createElement('span');
+            text.textContent=entry.text;
+            const time=document.createElement('time');
+            time.textContent=entry.stamp;
+            row.append(text,time);
+            list.appendChild(row);
+        });
     }
-    setInterval(refreshRoomGameStats, 800);
+    setInterval(refreshRoomMoveLog, 350);
 
     function setOnlineStatus(message) {
         const el = document.getElementById('onlineStatus');
@@ -6628,22 +6689,20 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 }
 </style>
 
-<style id="vc-game-stats-panel-style">
-#bagchal-blogger-container #chatMessages.vc-game-stats-panel{
+<style id="vc-game-move-log-style">
+#bagchal-blogger-container #chatMessages.vc-game-move-panel{
  display:block!important;box-sizing:border-box!important;height:auto!important;max-height:36dvh!important;min-height:220px;
  overflow-y:auto!important;margin:8px 12px!important;padding:13px!important;border:1px solid #263a5a!important;border-radius:14px!important;
  background:#0d1728!important;color:#eef4ff!important;text-align:left!important;
 }
-#bagchal-blogger-container .vc-game-stats-title{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-#bagchal-blogger-container .vc-game-stats-title span{color:#91a8d1;font-size:10px;font-weight:800;letter-spacing:.14em}
-#bagchal-blogger-container .vc-game-stats-title strong{color:#fff;font-size:17px}
-#bagchal-blogger-container .vc-game-stats-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #24334d;color:#aebfdb;font-size:12px}
-#bagchal-blogger-container .vc-game-stats-row strong{color:#fff;text-align:right}
-#bagchal-blogger-container .vc-game-stats-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-#bagchal-blogger-container .vc-game-stats-metrics>div{display:flex;flex-direction:column;gap:5px;padding:9px;border:1px solid #263a5a;border-radius:10px;background:#131f34}
-#bagchal-blogger-container .vc-game-stats-metrics span{color:#91a8d1;font-size:10px}
-#bagchal-blogger-container .vc-game-stats-metrics strong{color:#fff;font-size:16px}
-#bagchal-blogger-container .vc-game-stats-status{margin-top:9px;color:#aebfdb;font-size:11px;line-height:1.4}
+#bagchal-blogger-container .vc-move-title{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+#bagchal-blogger-container .vc-move-title span{color:#91a8d1;font-size:10px;font-weight:800;letter-spacing:.14em}
+#bagchal-blogger-container .vc-move-title strong{color:#fff;font-size:17px}
+#bagchal-blogger-container .vc-move-turn{padding:8px 0;border-top:1px solid #24334d;color:#fff;font-size:13px;font-weight:700}
+#bagchal-blogger-container .vc-move-log-list{display:flex;flex-direction:column;gap:7px}
+#bagchal-blogger-container .vc-move-entry{display:flex;justify-content:space-between;gap:8px;padding:9px;border-radius:9px;background:#14223a;color:#dce7fa;font-size:12px;line-height:1.4}
+#bagchal-blogger-container .vc-move-entry-latest{background:#1a3154;color:#fff}
+#bagchal-blogger-container .vc-move-entry time{flex:none;color:#92a7c9;font-size:10px}
 </style>
 
 <style id="vc-fullscreen-room-code-visibility">
