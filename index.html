@@ -2804,6 +2804,18 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (state.mode === 'ai-fourconnect') { fourConnectState=initialFourConnectState(); document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Four Connect — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Chips'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Chips'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-chipbomb') { chipBombState=initialChipBombState(); chipBombState.bombs={X:null,O:null}; chipBombState.placed={X:false,O:false}; chipBombState.guesses=[]; chipBombState.phase='setup'; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Chip Bomb — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Status'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Bomb Found'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Guesses'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-dotsboxes') { dotsBoxesState=initialDotsBoxesState('X'); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Dots & Boxes — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Boxes'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Boxes'; updateStatusUI(); resizeCanvas(); return; }
+        if (state.mode === 'online' && onlineGameType === 'checkers') {
+            checkersSelected = -1;
+            document.getElementById('messageOverlay').classList.remove('active');
+            document.querySelector('#bagchal-blogger-container h2').textContent = 'Checkers';
+            document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent = 'Turn';
+            document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent = 'Red Pieces';
+            document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent = 'Black Pieces';
+            updateStatusUI();
+            resizeCanvas();
+            drawBoard();
+            return;
+        }
         if (state.mode === 'ai-checkers') { checkersState=initialCheckersState(); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Checkers — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Red Pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black Pieces'; updateStatusUI(); resizeCanvas(); return; }
         if (isTicTacToeActive()) {
             if (state.mode !== 'online') { tttBoard = Array(9).fill(''); tttTurn = 'X'; tttWinner = null; }
@@ -5418,7 +5430,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }
         try {
             const requestsRef = onlineRoomRef.child('restartRequests');
-            await requestsRef.remove();
             await requestsRef.child(roleKey(onlineRole)).set({
                 requested: true,
                 accepted: true,
