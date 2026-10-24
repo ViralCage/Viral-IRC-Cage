@@ -2873,7 +2873,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             onlineRoomRef.child('liveClicks/' + roleKey(onlineRole)).set({ node: index, selected: state.selectedPosition, at: firebase.database.ServerValue.TIMESTAMP }).catch(() => {});
         }
         if (state.winner) return;
-        if (state.mode === 'online' && (!onlineRoomRef || !onlineRole || state.turn !== onlineRole)) return;
+        if (state.mode === 'online') {
+            if (!onlineRoomRef || !onlineRole || !firebaseReady) {
+                setOnlineStatus('Your game connection is not ready. Reconnect to the room before moving.');
+                return;
+            }
+            if (state.turn !== onlineRole) {
+                setOnlineStatus('Waiting for ' + (state.turn === GOAT ? 'Goats' : 'Tigers') + ' to move. You play ' + (onlineRole === GOAT ? 'Goats' : 'Tigers') + '.');
+                return;
+            }
+        }
         if (state.mode === 'ai-tiger' && state.turn === TIGER) return;
         if (state.mode === 'ai-goat' && state.turn === GOAT) return;
 
@@ -5405,8 +5414,13 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     // No live mouse/touch position is published to Firebase.
 
 
-    canvas.addEventListener('mousedown', processInteractionEvent);
-    canvas.addEventListener('touchstart', processInteractionEvent, {passive: false});
+    // Pointer Events cover mouse, touch, and pen consistently on both Blogger
+    // and the standalone GitHub-hosted page. Avoid duplicate mouse/touch handlers.
+    canvas.style.touchAction = 'none';
+    canvas.addEventListener('pointerdown', event => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        processInteractionEvent(event);
+    }, { passive: false });
 
     async function requestRestart() {
         if (state.mode !== 'online') { initGame(); return; }
