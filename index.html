@@ -6479,10 +6479,10 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     var code=currentCode();
     var visible=/^\d{4}$/.test(code);
     heroCode.textContent=visible?code:'----';
-    heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'Create a room and copy its invite link');
+    heroCode.setAttribute('aria-label',visible?'Copy room code '+code:'No room code available');
     heroCode.setAttribute('role','button');
     heroCode.setAttribute('tabindex','0');
-    heroCode.setAttribute('title',visible?'Click to copy room link':'Click to create a room and copy its link');
+    heroCode.setAttribute('title',visible?'Click to copy room link':'No room code available');
     heroCode.setAttribute('aria-disabled','false');
   }
   function showCopyState(label,ok){
@@ -6504,10 +6504,10 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
       field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
       document.body.appendChild(field);field.select();
       var ok=false;try{ok=document.execCommand('copy');}catch(e){}
-      field.remove();if(!ok){heroCode.setAttribute('data-copy-state','COPY FAILED');}
+      field.remove();showCopyState(ok?'COPIED':'COPY FAILED',ok);
     }
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(link).then(function(){}).catch(fallbackCopy);
+      navigator.clipboard.writeText(link).then(function(){showCopyState('COPIED',true);}).catch(fallbackCopy);
     }else fallbackCopy();
   }
   function createFreshRoom(){
