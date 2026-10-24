@@ -3977,8 +3977,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         try {
             await onlineRoomRef.child('game').set(getOnlineGamePayload());
         } catch (err) {
-            console.error(err);
-            setOnlineStatus('Could not sync move. Check server permissions.');
+            console.error('Online move sync failed:', err);
+            setOnlineStatus('Move could not sync (' + String(err && (err.code || err.message) || 'unknown error') + '). Check Firebase Realtime Database write permissions.');
         }
     }
 
@@ -4040,15 +4040,36 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineRoomId = roomId;
         onlinePreviousBoard = null;
         state.lastMove = null;
-        onlineRoomCode = code || null;
+        onlineRoomCode = /^\d{4}$/.test(String(code || '')) ? String(code) : null;
         const heroRoomCode = document.getElementById('vcHeroRoomCode');
-        if (heroRoomCode) heroRoomCode.textContent = /^\\d{4}$/.test(String(code || '')) ? code : '----';
+        const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+        const roomCodeText = document.getElementById('roomCodeText');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        if (heroRoomCode) heroRoomCode.textContent = onlineRoomCode || '----';
+        if (roomCodeText) roomCodeText.textContent = onlineRoomCode || '------';
+        if (roomCodeDisplay) roomCodeDisplay.style.display = onlineRoomCode ? 'flex' : 'none';
+        if (roomCodeInput) roomCodeInput.value = onlineRoomCode || '';
         vcOpponentConnected = !!aiOpponent;
         onlineRole = role;
         updateViralCageRoomInfo();
         onlineAiOpponent = !!aiOpponent;
         onlineAiMovePending = false;
         onlineRoomRef = firebase.database().ref('bagchalRooms/' + roomId);
+        // Recover the room code from the room record if this session joined through a
+        // saved/random-match room that did not pass the code into this function.
+        if (!onlineRoomCode) {
+            onlineRoomRef.child('roomCode').once('value').then(snap => {
+                const recoveredCode = String(snap.val() || '');
+                if (onlineRoomId !== roomId || !/^\d{4}$/.test(recoveredCode)) return;
+                onlineRoomCode = recoveredCode;
+                if (heroRoomCode) heroRoomCode.textContent = recoveredCode;
+                if (roomCodeText) roomCodeText.textContent = recoveredCode;
+                if (roomCodeDisplay) roomCodeDisplay.style.display = 'flex';
+                if (roomCodeInput) roomCodeInput.value = recoveredCode;
+                try { localStorage.setItem(SAVED_ROOM_KEY, JSON.stringify({ roomId, code: recoveredCode, role, uid: firebaseUser && firebaseUser.uid })); } catch (e) {}
+                updateViralCageRoomInfo();
+            }).catch(err => console.warn('Could not recover room code:', err));
+        }
         // Keep the chosen guest name as the player's in-game name as well as the chat name.
         onlineRoomRef.child('playerNames/' + roleKey(role)).set(getDisplayName()).catch(err => console.warn('Could not update player name:', err));
         onlinePlayerNamesListener = snap => {
@@ -4245,7 +4266,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 (state.turn === onlineRole ? ' · Your turn' : ' · Opponent’s turn'));
             if (onlineAiOpponent && state.turn !== onlineRole) scheduleOnlineAiMove();
         };
-        onlineRoomRef.child('game').on('value', onlineGameListener);
+        onlineRoomRef.child('game').on('value', onlineGameListener, error => {
+            console.error('Online game listener failed:', error);
+            setOnlineStatus('Online game sync failed (' + String(error && (error.code || error.message) || 'permission/network error') + '). Check Firebase Realtime Database rules and connection.');
+        });
         onlineTttListener = snap => {
             const data=snap.val(); if(!data || !Array.isArray(data.board) || data.board.length!==9 || data.board.some(v=>!['','X','O'].includes(v)) || !['X','O'].includes(data.turn)) return;
             tttBoard=data.board.slice(); tttTurn=data.turn; tttWinner=data.winner || null;
@@ -4470,7 +4494,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         // The selected game determines the available side. BaghChal keeps its
         // standard rule (goats start); Tic Tac Toe and Dots & Boxes start with X.
         const firstTurnMark = 'X';
-        await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
+        await db.ref('bagchalRooms/' + roomId).set({ roomCode: code, players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
         const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
         const inviteUrl = new URL('/' + routeSlug, window.location.origin);
@@ -4629,6 +4653,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                             miniGames: { tictactoe: initialTicTacToeState(), dotsboxes: initialDotsBoxesState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} }
                         });
                         if (randomMatchCancelled) return;
+                        if (!matchCode) throw new Error('Could not reserve a four-digit room code for the match.');
                         randomMatchQueueRef = null;
                         listenToOnlineRoom(roomId, matchCode, role, false);
                         setOnlineStatus('Real player found: ' + (candidate.name || 'Guest') + '. You play ' + (role === GOAT ? 'Goats' : 'Tigers') + '.');
