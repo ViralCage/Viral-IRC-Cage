@@ -2034,6 +2034,23 @@ body {
   z-index:30 !important;
   margin:0 !important;
 }
+
+/* Compact icon-only fullscreen control on the game board. */
+#bagchal-blogger-container .board-container > #fullscreenBtn {
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  padding:0 !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:11px !important;
+}
+#bagchal-blogger-container .board-container > #fullscreenBtn .fullscreen-icon {
+  display:block;
+  width:21px;
+  height:21px;
+  pointer-events:none;
+}
 </style>
 
 </head>
@@ -2064,7 +2081,7 @@ body {
     <div id="playerNamesStatus" style="font-size:12px;text-align:center;color:#4a5568;margin:4px 0 8px;overflow-wrap:anywhere;">Guest · Opponent</div>
 
     <div class="board-container">
-        <button id="fullscreenBtn" type="button" aria-pressed="false">Enter Full Screen</button>
+        <button id="fullscreenBtn" type="button" aria-label="Enter Full Screen" title="Enter Full Screen" aria-pressed="false"><svg class="fullscreen-icon" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <div class="canvas-aspect-ratio-box" id="canvasContainer">
             <canvas id="gameCanvas"></canvas>
             
@@ -2403,7 +2420,9 @@ body {
         const active = isBagchalFullscreen();
         document.documentElement.classList.toggle('bagchal-fullscreen-active', active);
         document.body.classList.toggle('bagchal-fullscreen-active', active);
-        fullscreenBtn.textContent = active ? 'Exit Full Screen' : 'Enter Full Screen';
+        fullscreenBtn.innerHTML = active ? '<svg class="fullscreen-icon" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M21 16h-5v5M3 16h5v5"/></svg>' : '<svg class="fullscreen-icon" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
+        fullscreenBtn.setAttribute('aria-label', active ? 'Exit Full Screen' : 'Enter Full Screen');
+        fullscreenBtn.setAttribute('title', active ? 'Exit Full Screen' : 'Enter Full Screen');
         fullscreenBtn.setAttribute('aria-pressed', String(active));
     }
     function updateFullscreenButton() { syncFullscreenPageState(); }
