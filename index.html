@@ -1961,6 +1961,44 @@ body {
   #bagchal-blogger-container #onlinePanel #roomCodeText {font-size:23px !important;letter-spacing:.16em !important;}
 }
 
+
+/* Online panel readability + remove inactive empty placeholders */
+#bagchal-blogger-container #onlinePanel,
+#bagchal-blogger-container #onlinePanel * {
+  text-rendering:optimizeLegibility;
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading { color:#ffffff !important; }
+#bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] { color:#e1eaff !important; }
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole {
+  color:#ffffff !important;
+  background:#101b36 !important;
+  border-color:#829bd8 !important;
+}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole option {
+  color:#101827 !important;
+  background:#ffffff !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay[style*="display:none"] {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay[style*="display: none"] {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay span:first-child { color:#d2def7 !important; }
+#bagchal-blogger-container #onlinePanel #copyRoomCodeStatus { color:#83f2c5 !important; }
+#bagchal-blogger-container #onlinePanel #onlineStatus:empty {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #onlineStatus {
+  color:#e1eaff !important;
+  border-color:rgba(143,169,235,.28) !important;
+  background:rgba(5,12,30,.62) !important;
+}
+#bagchal-blogger-container #onlinePanel #onlineStatus:not(:empty) {
+  min-height:0 !important;
+  padding:10px 13px !important;
+}
+
 </style>
 
 </head>
