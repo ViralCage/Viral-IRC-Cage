@@ -2589,6 +2589,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     function applyOnlineGameType(type, writeToRoom = false) {
         onlineGameType=['baghchal','tictactoe','dotsboxes','fourconnect','chess','checkers'].includes(type)?type:'baghchal';
+        if(onlineGameType==='checkers'&&!checkersState)checkersState=newCheckersState();
         updateOnlineRoleOptions();
         const picker=document.getElementById('onlineGameType');if(picker)picker.value=onlineGameType;
         const selection=document.getElementById('gameSelection');if(selection&&state.mode==='online')selection.value=onlineGameType==='baghchal'?'online':'online-'+onlineGameType;
@@ -6163,6 +6164,12 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  #bagchal-blogger-container #chatMessages { height:clamp(120px,24dvh,220px) !important; max-height:30dvh; }
  #bagchal-blogger-container #chatInput { font-size:16px; }
 }
+ #bagchal-blogger-container #roomChatPopup #vcP2PChatStatus{margin:0 12px 9px!important}
+ #bagchal-blogger-container #playerChat .room-call-actions{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 12px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+ #bagchal-blogger-container #playerChat .room-call-actions button{width:52px;height:52px;min-width:52px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:#1877f2;color:#fff;font-size:14px;box-shadow:0 3px 10px rgba(0,0,0,.14)}
+ #bagchal-blogger-container #playerChat .room-call-actions #startVoiceBtn{background:#16a34a}
+ #bagchal-blogger-container #playerChat .room-call-actions #stopVoiceBtn{width:auto;min-width:68px;height:40px;border-radius:20px;background:#dc2626;padding:0 14px}
+ #bagchal-blogger-container #playerChat .room-call-actions svg{width:23px;height:23px;fill:currentColor}
 </style>
 <script id="vc-room-chat-window-bootstrap">
 (function(){
@@ -6173,6 +6180,10 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  var popup=document.createElement('section');popup.id='roomChatPopup';popup.hidden=true;popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Room chat');
  var head=document.createElement('div');head.className='room-chat-head';head.innerHTML='<strong>Room Chat</strong><button type="button" id="roomChatClose" aria-label="Close chat">×</button>';popup.appendChild(head);
  ['guestNameDisplayRow','guestNameEditor','chatStatus','chatMessages','chatForm','vcP2PChatStatus'].forEach(function(id){var el=document.getElementById(id);if(el)popup.appendChild(el);});
+ /* Keep voice/video controls in the dedicated Calls window, not inside the chat composer. */
+ var callActions=document.createElement('div');callActions.className='room-call-actions';callActions.setAttribute('aria-label','Voice and video call controls');
+ ['startVoiceBtn','stopVoiceBtn','startVideoBtn'].forEach(function(id){var el=document.getElementById(id);if(el)callActions.appendChild(el);});
+ var callsHead=calls.querySelector('.chat-popup-header');if(callsHead)callsHead.insertAdjacentElement('afterend',callActions);else calls.insertBefore(callActions,calls.firstChild);
  root.append(toggle,popup);
  function show(open){popup.hidden=!open;toggle.setAttribute('aria-expanded',String(open));if(open){var input=popup.querySelector('#chatInput');if(input)setTimeout(function(){input.focus();},30);}}
  toggle.addEventListener('click',function(){show(popup.hidden);});
