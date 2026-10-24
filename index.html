@@ -1718,6 +1718,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                     <option value="ai-fourconnect">Four Connect — Computer</option>
                     <option value="ai-checkers">Checkers — Computer</option>
                     <option value="ai-chess">Chess — Computer</option>
+            <option value="ai-checkers">Checkers — Computer</option>
                 </optgroup>
                 <optgroup label="Play as Goats vs Tiger AI">
                     <option value="ai-tiger-hardest">AI</option>
@@ -5481,11 +5482,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         state.mode = e.target.value;
         const isOnline = state.mode === 'online';
         const gameWrap = document.getElementById('bagchal-blogger-container');
-        const localAiMode = ['ai-tictactoe','ai-dotsboxes','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode);
+        const localAiMode = ['ai-tictactoe','ai-dotsboxes','ai-fourconnect','ai-chipbomb','ai-chess','ai-checkers'].includes(state.mode);
         document.getElementById('onlinePanel').style.display = isOnline ? 'block' : 'none';
         updateInstructionsVisibility();
         document.querySelector('.status-board').style.gridTemplateColumns = 'repeat(3, 1fr)';
-        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isFourConnectActive() || isChipBombActive()) ? 'none' : '';
+        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isFourConnectActive() || isChipBombActive() || isCheckersActive()) ? 'none' : '';
         document.getElementById('onlinePreferredRole').closest('div').style.display = isOnline ? 'flex' : 'none';
         document.getElementById('playerNamesStatus').style.display = isOnline ? '' : 'none';
         const localHelp = document.getElementById('localModeHelp');
