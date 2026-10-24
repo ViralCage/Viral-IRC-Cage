@@ -1711,9 +1711,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
                     <option value="ai-fourconnect">Four Connect — Computer</option>
                     <option value="ai-checkers">Checkers — Computer</option>
-                    <option value="ai-checkers">Checkers — Computer</option>
-            <option value="ai-chess">Chess — Computer</option>
-            <option value="ai-checkers">Checkers — Computer</option>
+                    <option value="ai-chess">Chess — Computer</option>
                 </optgroup>
                 <optgroup label="Play as Goats vs Tiger AI">
                     <option value="ai-tiger-hardest">AI</option>
@@ -2004,6 +2002,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let chipBombState = initialChipBombState();
     let onlineFourConnectListener = null;
     let onlineChessListener = null;
+    let onlineCheckersListener = null;
     let onlineChipBombListener = null;
     let chessHistory = [];
     let chessSelected = -1;
@@ -2393,7 +2392,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function newCheckersState(){const board=Array(64).fill('');for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)%2)board[r*8+c]='b';for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)%2)board[r*8+c]='r';return {board,turn:'r',winner:null,selected:-1,forced:-1};}
     function checkersMoves(s,from){const p=s.board[from],r=from>>3,c=from%8,king=p===p.toUpperCase(),dirs=king?[-1,1]:(p==='r'?[-1]:[1]),out=[];for(const dr of dirs)for(const dc of [-1,1]){const rr=r+dr,cc=c+dc;if(rr<0||rr>7||cc<0||cc>7)continue;const to=rr*8+cc;if(!s.board[to])out.push({from,to,cap:-1});else if(s.board[to].toLowerCase()!==p.toLowerCase()){const ar=rr+dr,ac=cc+dc;if(ar>=0&&ar<8&&ac>=0&&ac<8&&!s.board[ar*8+ac])out.push({from,to:ar*8+ac,cap:to});}}return out;}
     function checkersAll(s,side){let a=[];for(let i=0;i<64;i++)if(s.board[i]&&s.board[i].toLowerCase()===side)a.push(...checkersMoves(s,i));const caps=a.filter(m=>m.cap>=0);return caps.length?caps:a;}
-    function checkersCommit(m){const old=checkersState,n={...old,board:old.board.slice(),selected:-1};let p=n.board[m.from];n.board[m.from]='';if(m.cap>=0)n.board[m.cap]='';if((p==='r'&&m.to<8)||(p==='b'&&m.to>=56))p=p.toUpperCase();n.board[m.to]=p;const jumps=checkersMoves(n,m.to).filter(x=>x.cap>=0);if(m.cap>=0&&jumps.length){n.turn=old.turn;n.forced=m.to;}else{n.turn=old.turn==='r'?'b':'r';n.forced=-1;}if(!checkersAll(n,n.turn).length)n.winner=old.turn;checkersState=n;drawBoard();updateStatusUI();if(state.mode==='ai-checkers'&&n.turn==='b'&&!n.winner)setTimeout(checkersAi,300);if(n.winner)showMiniGameResult(n.winner==='r'?'Red wins':'Black wins','Checkers finished');}
+    function checkersCommit(m){const old=checkersState,n={...old,board:old.board.slice(),selected:-1};let p=n.board[m.from];n.board[m.from]='';if(m.cap>=0)n.board[m.cap]='';if((p==='r'&&m.to<8)||(p==='b'&&m.to>=56))p=p.toUpperCase();n.board[m.to]=p;const jumps=checkersMoves(n,m.to).filter(x=>x.cap>=0);if(m.cap>=0&&jumps.length){n.turn=old.turn;n.forced=m.to;}else{n.turn=old.turn==='r'?'b':'r';n.forced=-1;}if(!checkersAll(n,n.turn).length)n.winner=old.turn;checkersState=n;drawBoard();updateStatusUI();if(state.mode==='online'&&onlineRoomRef&&onlineRole){onlineRoomRef.child('miniGames/checkers').set({board:n.board.slice(),turn:n.turn,winner:n.winner,forced:n.forced,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{console.error(err);setOnlineStatus('Checkers move could not sync. Check server permissions.');});}if(state.mode==='ai-checkers'&&n.turn==='b'&&!n.winner)setTimeout(checkersAi,300);if(n.winner)showMiniGameResult(n.winner==='r'?'Red wins':'Black wins','Checkers finished');}
     function checkersClick(i){const s=checkersState;if(!s||s.winner)return;const side=state.mode==='ai-checkers'?'r':(getRoleMark()==='X'?'r':'b');if(s.turn!==side)return;const moves=checkersAll(s,side);if(s.forced>=0){const m=moves.find(x=>x.from===s.forced&&x.to===i);if(m)checkersCommit(m);return;}if(s.selected>=0){const m=moves.find(x=>x.from===s.selected&&x.to===i);if(m){checkersCommit(m);return;}}if(s.board[i]&&s.board[i].toLowerCase()===side){s.selected=i;drawBoard();}}
     function checkersAi(){const s=checkersState;if(!s||s.turn!=='b'||s.winner)return;const m=checkersAll(s,'b').sort((a,b)=>(b.cap>=0?1:0)-(a.cap>=0?1:0))[0];if(m)checkersCommit(m);}
     function drawCheckersBoard(w){const cell=w/8;ctx.fillStyle='#d6d3d1';ctx.fillRect(0,0,w,w);for(let r=0;r<8;r++)for(let c=0;c<8;c++){if((r+c)%2){ctx.fillStyle='#475569';ctx.fillRect(c*cell,r*cell,cell,cell);}const p=checkersState.board[r*8+c];if(p){ctx.beginPath();ctx.arc((c+.5)*cell,(r+.5)*cell,cell*.37,0,Math.PI*2);ctx.fillStyle=p.toLowerCase()==='r'?'#dc5555':'#111827';ctx.fill();ctx.lineWidth=cell*.05;ctx.strokeStyle=p===p.toUpperCase()?'#facc15':'#e5e7eb';ctx.stroke();if(p===p.toUpperCase()){ctx.fillStyle='#facc15';ctx.font='bold '+cell*.3+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('K',(c+.5)*cell,(r+.5)*cell);}}}if(checkersState.selected>=0){ctx.strokeStyle='#38bdf8';ctx.lineWidth=3;ctx.strokeRect((checkersState.selected%8)*cell+2,(checkersState.selected>>3)*cell+2,cell-4,cell-4);}}
@@ -3992,8 +3991,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (onlineRoomRef && onlineDotsListener) onlineRoomRef.child('miniGames/dotsboxes').off('value', onlineDotsListener);
         if (onlineRoomRef && onlineFourConnectListener) onlineRoomRef.child('miniGames/fourconnect').off('value', onlineFourConnectListener);
         if (onlineRoomRef && onlineChessListener) onlineRoomRef.child('miniGames/chess').off('value', onlineChessListener);
+        if (onlineRoomRef && onlineCheckersListener) onlineRoomRef.child('miniGames/checkers').off('value', onlineCheckersListener);
         if (onlineRoomRef && onlineChipBombListener) onlineRoomRef.child('miniGames/chipbomb').off('value', onlineChipBombListener);
         onlineGameListener = null;
+        onlineCheckersListener = null;
         if (onlineRoomRef && onlineLiveClickListener) onlineRoomRef.child('liveClicks').off('value', onlineLiveClickListener);
         if (onlineRoomRef && onlineRestartListener) onlineRoomRef.child('restartRequests').off('value', onlineRestartListener);
         if (onlineRoomRef && incomingVoiceListener) onlineRoomRef.child('voiceChat/offer').off('value', incomingVoiceListener);
@@ -4297,7 +4298,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
         onlineChessListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.history)||!d.history.length||!d.history.every(p=>p&&Array.isArray(p.b)&&p.b.length===128&&[1,-1].includes(p.t)))return;const oldCount=chessHistory.length;chessHistory=d.history;chessLastMove=d.lastMove||null;chessSelected=-1;if(isChessActive()){updateStatusUI();drawBoard();const cs=chessStatus(chessHistory);if(cs.done)showMiniGameResult(cs.winner==='draw'?'Draw!':cs.winner==='X'?'White Wins!':'Black Wins!',cs.text);else if(chessPremove&&chessHistory.length>oldCount)setTimeout(tryExecuteChessPremove,0);} };
         onlineRoomRef.child('miniGames/chess').on('value', onlineChessListener);
-        onlineCheckersListener=snap=>{const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==64)return;checkersState={...d,selected:-1};if(isCheckersActive()){updateStatusUI();drawBoard();if(checkersState.winner)showMiniGameResult(checkersState.winner==='r'?'Red Wins!':'Black Wins!','Checkers game finished.');}};
+        onlineCheckersListener=snap=>{const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==64||!['r','b'].includes(d.turn))return;checkersState={board:d.board.slice(),turn:d.turn,winner:d.winner||null,selected:-1,forced:Number.isInteger(d.forced)?d.forced:-1};if(isCheckersActive()){updateStatusUI();drawBoard();if(checkersState.winner)showMiniGameResult(checkersState.winner==='r'?'Red Wins!':'Black Wins!','Checkers game finished.');}};
         onlineRoomRef.child('miniGames/checkers').on('value',onlineCheckersListener);
         onlineFourConnectListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==42||!['X','O'].includes(d.turn))return;fourConnectState={board:d.board.map(v=>v==='X'||v==='O'?v:''),turn:d.turn,winner:d.winner||null,lastMove:d.lastMove||null,updatedAt:d.updatedAt||Date.now()};if(isFourConnectActive()){updateStatusUI();drawBoard();if(fourConnectState.winner)showMiniGameResult(fourConnectState.winner==='draw'?'Draw!':fourConnectState.winner+' Wins!','Four Connect finished.');} };
         onlineRoomRef.child('miniGames/fourconnect').on('value', onlineFourConnectListener);
@@ -4308,6 +4309,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             tttRef.once('value').then(ss=>{if(!ss.exists()) return tttRef.set(initialTicTacToeState());}).catch(err=>console.warn('Could not initialize Tic Tac Toe state',err));
             dotsRef.once('value').then(ss=>{if(!ss.exists()) return dotsRef.set(initialDotsBoxesState());}).catch(err=>console.warn('Could not initialize Dots & Boxes state',err));
             fourRef.once('value').then(ss=>{if(!ss.exists()) return fourRef.set(initialFourConnectState());}).catch(err=>console.warn('Could not initialize Four Connect state',err));
+            onlineRoomRef.child('miniGames/checkers').once('value').then(ss=>{if(!ss.exists()) return onlineRoomRef.child('miniGames/checkers').set(newCheckersState());}).catch(err=>console.warn('Could not initialize Checkers state',err));
             chessRef.once('value').then(ss=>{if(!ss.exists()) return chessRef.set({history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()});}).catch(err=>console.warn('Could not initialize Chess state',err));
             bombRef.once('value').then(ss=>{if(!ss.exists()) return bombRef.set(initialChipBombState());}).catch(err=>console.warn('Could not initialize Chip Bomb state',err));
         };
@@ -4507,9 +4509,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         // The selected game determines the available side. BaghChal keeps its
         // standard rule (goats start); Tic Tac Toe and Dots & Boxes start with X.
         const firstTurnMark = 'X';
-        await db.ref('bagchalRooms/' + roomId).set({ roomCode: code, players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
+        await db.ref('bagchalRooms/' + roomId).set({ roomCode: code, players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()}, checkers: newCheckersState() } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
+        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess',checkers:'checkers'})[onlineGameType] || 'baghchal';
         const inviteUrl = new URL('/' + routeSlug, window.location.origin);
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
@@ -4663,7 +4665,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                             players,
                             playerNames: { [roleKey(role)]: myName, [roleKey(otherRole)]: candidate.name || 'Guest' },
                             game: initialOnlineGame(), activeGameType: onlineGameType,
-                            miniGames: { tictactoe: initialTicTacToeState(), dotsboxes: initialDotsBoxesState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} }
+                            miniGames: { tictactoe: initialTicTacToeState(), dotsboxes: initialDotsBoxesState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()}, checkers: newCheckersState() }
                         });
                         if (randomMatchCancelled) return;
                         if (!matchCode) throw new Error('Could not reserve a four-digit room code for the match.');
@@ -6078,7 +6080,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 14% 0%,rgba(104,78
 <!-- Viral Cage clean game routes -->
 <script id="vc-clean-game-routes">
 (function(){
-  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},dotsboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},chess:{value:'online-chess',name:'Chess'}};
+  var routes={baghchal:{value:'online',name:'BaghChal'},tictactoe:{value:'online-tictactoe',name:'Tic-Tac-Toe'},dotsandboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},dotsboxes:{value:'online-dotsboxes',name:'Dots & Boxes'},fourconnect:{value:'online-fourconnect',name:'Four Connect'},chess:{value:'online-chess',name:'Chess'},checkers:{value:'online-checkers',name:'Checkers'}};
   var slug=location.pathname.replace(/^\/+|\/+$/g,'').toLowerCase();
   var route=routes[slug];
   if(!route)return;
@@ -6314,7 +6316,7 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
   function copyCurrentRoom(){
     var code=currentCode();
     if(!/^\d{4}$/.test(code)){return;}
-    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
+    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess',checkers:'checkers'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
     var link=invite.toString();
