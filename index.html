@@ -1562,7 +1562,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     <section class="vc-portal-hero" aria-labelledby="vcPortalTitle">
       <div class="vc-hero-copy">
         <div class="vc-eyebrow"><span class="vc-live-dot"></span> YOUR ROOM CODE</div>
-        <div class="vc-hero-share-hint">Click to copy your room link · Creates a room if needed. Double-click for a new room.</div>
+        <div class="vc-hero-share-hint">Click to copy your existing room link. Create a room first if you don't have one.</div>
         <h1 id="vcPortalTitle" class="vc-hero-room-code-title"><span id="vcHeroRoomCode">----</span></h1>
         <div class="vc-hero-tagline">Play together. <span>Think different.</span></div>
       </div>
@@ -6493,7 +6493,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function copyCurrentRoom(){
     var code=currentCode();
-    if(!/^\\d{4}$/.test(code)){createFreshRoom();return;}
+    if(!/^\\d{4}$/.test(code)){showCopyState('NO ROOM',false);return;}
     var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
@@ -6524,18 +6524,9 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
       showCopyState('TRY AGAIN',false);
     }).finally(function(){heroCode._creatingRoom=false;sync();});
   }
-  heroCode.addEventListener('click',function(event){
-    if(event.detail>=2){
-      clearTimeout(heroCode._singleClickTimer);
-      heroCode._singleClickTimer=null;
-      createFreshRoom();
-      return;
-    }
+  heroCode.addEventListener('click',function(){
     clearTimeout(heroCode._singleClickTimer);
-    heroCode._singleClickTimer=setTimeout(function(){
-      heroCode._singleClickTimer=null;
-      copyCurrentRoom();
-    },280);
+    copyCurrentRoom();
   });
   heroCode.addEventListener('keydown',function(event){
     if(event.key==='Enter'||event.key===' '){
