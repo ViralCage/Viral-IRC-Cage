@@ -255,26 +255,22 @@
         #bagchal-blogger-container .game-controls button.primary-btn:hover {
             background: #2d3748;
         }
-        #bagchal-blogger-container #checkersPlayerCards { display:none; width:100%; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0 12px; }
+        #bagchal-blogger-container #chessPlayerCards { display:none; width:100%; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0 12px; }
         /* Chess labels stay side-by-side and show only the color names. */
-        #bagchal-blogger-container.chess-active #checkersPlayerCards { grid-template-columns:repeat(2,minmax(0,1fr)); }
-        #bagchal-blogger-container.chess-active .checkers-player-role { display:block !important; font-size:12px; font-weight:600; margin-top:4px; } #bagchal-blogger-container.chess-active .checkers-player-move { display:none !important; }
-        #bagchal-blogger-container.checkers-active #checkersPlayerCards, #bagchal-blogger-container.chess-active #checkersPlayerCards { display:grid; }
-        #bagchal-blogger-container.chess-active #checkersRedCard { border-top-color:#e2e8f0; }
-        #bagchal-blogger-container.chess-active #checkersBlackCard { border-top-color:#111827; }
+        #bagchal-blogger-container.chess-active #chessPlayerCards { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        #bagchal-blogger-container.chess-active .chess-player-role { display:block !important; font-size:12px; font-weight:600; margin-top:4px; } #bagchal-blogger-container.chess-active .chess-player-move { display:none !important; }
+        #bagchal-blogger-container.chess-active #chessWhiteCard { border-top-color:#e2e8f0; }
+        #bagchal-blogger-container.chess-active #chessBlackCard { border-top-color:#111827; }
         #bagchal-blogger-container #flipChessBoardBtn { display:none; border:1px solid #cbd5e1; border-radius:10px; padding:9px 14px; background:#fff; color:#0f172a; font-weight:700; cursor:pointer; box-shadow:0 2px 5px rgba(15,23,42,.08); }
         #bagchal-blogger-container.chess-active #flipChessBoardBtn { display:inline-flex; align-items:center; justify-content:center; gap:7px; }
         #bagchal-blogger-container #flipChessBoardBtn:hover { background:#f1f5f9; }
         #bagchal-blogger-container #flipChessBoardBtn:focus-visible { outline:3px solid #93c5fd; outline-offset:2px; }
-        #bagchal-blogger-container .checkers-player-card { min-width:0; padding:10px; border:1px solid #dbe2ea; border-radius:12px; background:#f8fafc; color:#1f2937; text-align:left; }
-        #bagchal-blogger-container .checkers-player-card.red-card { border-top:3px solid #dc2626; }
-        #bagchal-blogger-container .checkers-player-card.black-card { border-top:3px solid #111827; }
-        #bagchal-blogger-container .checkers-player-card.active-player { background:#eff6ff; box-shadow:0 0 0 1px #93c5fd inset; }
-        #bagchal-blogger-container .checkers-player-title { font-weight:750; font-size:.88rem; margin-bottom:4px; }
-        #bagchal-blogger-container .checkers-player-role { color:#64748b; font-size:.72rem; margin-bottom:6px; }
-        #bagchal-blogger-container .checkers-player-move { font-size:.76rem; line-height:1.35; overflow-wrap:anywhere; }
-        #bagchal-blogger-container.checkers-active #turnNotification { display:none; }
-        @media (max-width:360px) { #bagchal-blogger-container .checkers-player-card { padding:8px; } }
+        #bagchal-blogger-container .chess-player-card { min-width:0; padding:10px; border:1px solid #dbe2ea; border-radius:12px; background:#f8fafc; color:#1f2937; text-align:left; }
+        #bagchal-blogger-container .chess-player-card.active-player { background:#eff6ff; box-shadow:0 0 0 1px #93c5fd inset; }
+        #bagchal-blogger-container .chess-player-title { font-weight:750; font-size:.88rem; margin-bottom:4px; }
+        #bagchal-blogger-container .chess-player-role { color:#64748b; font-size:.72rem; margin-bottom:6px; }
+        #bagchal-blogger-container .chess-player-move { font-size:.76rem; line-height:1.35; overflow-wrap:anywhere; }
+        @media (max-width:360px) { #bagchal-blogger-container .chess-player-card { padding:8px; } }
 
         /* Dashboard parameters layout frame inside the post box scope */
         #bagchal-blogger-container .status-board {
@@ -1383,7 +1379,7 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
 #bagchal-blogger-container .compact-instructions #instructionsToggleBtn{border-color:#34435f!important;background:#111b2d!important;color:#dce5fa!important}
 #bagchal-blogger-container .instructions-content{border-color:#293651!important;background:#0d1626!important;color:#b8c5db!important}
 #bagchal-blogger-container .game-controls button,#bagchal-blogger-container .game-controls select{border-color:#33425f!important;background:#111b2d!important;color:#edf2ff!important}
-#bagchal-blogger-container .checkers-player-card{border-color:#34435f!important;background:#111b2d!important;color:#f2f5ff!important}
+#bagchal-blogger-container .chess-player-card{border-color:#34435f!important;background:#111b2d!important;color:#f2f5ff!important}
 #bagchal-blogger-container .vc-mode-current-text{color:#b4c1da!important}
 #bagchal-blogger-container .vc-mode-picker button:focus-visible,#bagchal-blogger-container button:focus-visible{outline:2px solid #a995ff!important;outline-offset:3px!important}
 
@@ -1767,16 +1763,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         </div>
     </div>
 
-    <div id="checkersPlayerCards" aria-live="polite" style="display:none">
-        <div id="checkersRedCard" class="checkers-player-card red-card">
-            <div class="checkers-player-title">Red pieces (X)</div>
-            <div id="checkersRedRole" class="checkers-player-role">Opponent</div>
-            <div id="checkersRedMove" class="checkers-player-move" hidden></div>
+    <div id="chessPlayerCards" aria-live="polite" style="display:none">
+        <div id="chessWhiteCard" class="chess-player-card red-card">
+            <div class="chess-player-title">Red pieces (X)</div>
+            <div id="chessWhiteRole" class="chess-player-role">Opponent</div>
+            <div id="chessWhiteMove" class="chess-player-move" hidden></div>
         </div>
-        <div id="checkersBlackCard" class="checkers-player-card black-card">
-            <div class="checkers-player-title">Black pieces (O)</div>
-            <div id="checkersBlackRole" class="checkers-player-role">You</div>
-            <div id="checkersBlackMove" class="checkers-player-move" hidden></div>
+        <div id="chessBlackCard" class="chess-player-card black-card">
+            <div class="chess-player-title">Black pieces (O)</div>
+            <div id="chessBlackRole" class="chess-player-role">You</div>
+            <div id="chessBlackMove" class="chess-player-move" hidden></div>
         </div>
     </div>
 
@@ -2020,8 +2016,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let onlineGameTypeListener = null;
     let onlineTttListener = null;
     let onlineDotsListener = null;
-    let onlineCheckersListener = null;
-    let checkersState = initialCheckersState();
     let fourConnectState = initialFourConnectState();
     let chipBombState = initialChipBombState();
     let onlineFourConnectListener = null;
@@ -2032,7 +2026,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     let chessBoardFlipOverride = false;
     let chessLastMove = null;
     let chessPremove = null;
-    let checkersSelected = -1;
     let firebaseReady = false;
     let firebaseUser = null;
     let matchPollHandle = null;
@@ -2414,81 +2407,12 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     function isTicTacToeActive() { return state.mode === 'tictactoe' || state.mode === 'ai-tictactoe' || (state.mode === 'online' && onlineGameType === 'tictactoe'); }
     function isDotsBoxesActive() { return state.mode === 'ai-dotsboxes' || (state.mode === 'online' && onlineGameType === 'dotsboxes'); }
-    function isCheckersActive() { return state.mode === 'ai-checkers' || (state.mode === 'online' && onlineGameType === 'checkers'); }
     function isFourConnectActive() { return state.mode === 'ai-fourconnect' || (state.mode === 'online' && onlineGameType === 'fourconnect'); }
     function isChessActive() { return state.mode === 'ai-chess' || (state.mode === 'online' && onlineGameType === 'chess'); }
     function isChipBombActive() { return state.mode === 'ai-chipbomb' || (state.mode === 'online' && onlineGameType === 'chipbomb'); }
     function initialFourConnectState() { return { board:Array(42).fill(''), turn:'X', winner:null, lastMove:null, updatedAt:Date.now() }; }
     function initialChipBombState() { return { bombs:{X:null,O:null}, placed:{X:false,O:false}, guesses:[], turn:'X', phase:'setup', winner:null, updatedAt:Date.now() }; }
-    function isLocalHardAiMode() { return ['ai-tictactoe','ai-dotsboxes','ai-checkers','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode); }
-    function initialCheckersState() {
-        const board=Array(64).fill('');
-        for(let r=0;r<3;r++)for(let col=0;col<8;col++)if((r+col)%2===1)board[r*8+col]='O';
-        for(let r=5;r<8;r++)for(let col=0;col<8;col++)if((r+col)%2===1)board[r*8+col]='X';
-        return {board,turn:'X',winner:null,lastMove:null,chainFrom:null,updatedAt:Date.now()};
-    }
-    function checkersSquareName(index) { return String.fromCharCode(65+(index%8))+(8-Math.floor(index/8)); }
-    function checkersMoveDescription(move) {
-        if(!move)return '';
-        const sideName=move.piece&&move.piece[0]==='X'?'Red (X)':'Black (O)';
-        return sideName+': '+checkersSquareName(move.from)+' → '+checkersSquareName(move.to)+(move.capture?' — capture':'')+(move.promoted?' — king promoted':'');
-    }
-    function checkersMovesFrom(board,index,capturesOnly=false) {
-        const piece=board[index]; if(!piece)return [];
-        const side=piece[0],king=piece.length>1,row=Math.floor(index/8),col=index%8;
-        const dirs=king?[-1,1]:(side==='X'?[-1]:[1]),moves=[];
-        for(const dr of dirs)for(const dc of [-1,1]){
-            const r1=row+dr,c1=col+dc;
-            if(r1<0||r1>7||c1<0||c1>7)continue;
-            const adjacent=r1*8+c1;
-            if(!board[adjacent]){if(!capturesOnly)moves.push({to:adjacent,capture:-1});continue;}
-            if(board[adjacent][0]===side)continue;
-            const r2=row+2*dr,c2=col+2*dc;
-            if(r2>=0&&r2<8&&c2>=0&&c2<8&&!board[r2*8+c2])moves.push({to:r2*8+c2,capture:adjacent});
-        }
-        return moves;
-    }
-    function checkersAllMoves(board,side,chainFrom=null) {
-        const captures=[],quiet=[];
-        const indexes=Number.isInteger(chainFrom)?[chainFrom]:Array.from({length:64},(_,i)=>i);
-        for(const i of indexes)if(board[i]&&board[i][0]===side){
-            for(const move of checkersMovesFrom(board,i,!!chainFrom)){
-                (move.capture>=0?captures:quiet).push({from:i,...move});
-            }
-        }
-        return captures.length?captures:quiet;
-    }
-    function playCheckersSquare(index) {
-        const localAi=state.mode==='ai-checkers';
-        if(!Number.isInteger(index)||index<0||index>63||!isCheckersActive()||checkersState.winner||(!localAi&&(!onlineRoomRef||!onlineRole||!firebaseReady)))return;
-        const side=localAi?'X':getRoleMark();
-        if(checkersState.turn!==side)return;
-        const legalMoves=checkersAllMoves(checkersState.board,side,checkersState.chainFrom);
-        if(checkersSelected<0){
-            if(checkersState.board[index]&&checkersState.board[index][0]===side&&legalMoves.some(m=>m.from===index)){
-                checkersSelected=index;drawBoard();
-            }
-            return;
-        }
-        if(index===checkersSelected){
-            if(!Number.isInteger(checkersState.chainFrom)){checkersSelected=-1;drawBoard();}
-            return;
-        }
-        const move=legalMoves.find(m=>m.from===checkersSelected&&m.to===index);
-        if(!move){
-            if(!Number.isInteger(checkersState.chainFrom)&&checkersState.board[index]&&checkersState.board[index][0]===side&&legalMoves.some(m=>m.from===index))checkersSelected=index;
-            drawBoard();return;
-        }
-        checkersState=applyCheckersMoveToState(checkersState,move,side);
-        checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
-        playMoveSound(checkersState.lastMove.capture?'capture':'move');drawBoard();updateStatusUI();
-        if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?(localAi?'You Win!':'X Wins!'):(localAi?'AI Wins':'O Wins!'),'Checkers finished.');
-        if(localAi){if(!checkersState.winner)scheduleHardMiniAi();return;}
-        onlineRoomRef.child('miniGames/checkers').set({...checkersState,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{
-            console.error(err);setOnlineStatus('Checkers move could not sync. Check server permissions for this game.');
-        });
-    }
-
+    function isLocalHardAiMode() { return ['ai-tictactoe','ai-dotsboxes','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode); }
     function fourConnectWinner(board) {
         for(let r=0;r<6;r++)for(let c=0;c<7;c++){const v=board[r*7+c];if(!v)continue;
             for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1]]){let ok=true;for(let k=1;k<4;k++){const rr=r+dr*k,cc=c+dc*k;if(rr<0||rr>=6||cc<0||cc>=7||board[rr*7+cc]!==v){ok=false;break;}}if(ok)return v;}
@@ -2607,10 +2531,10 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function isChessBoardFlipped(){return state.mode==='online' ? ((getRoleMark()==='O') !== chessBoardFlipOverride) : chessBoardFlipOverride;}
     function toggleChessBoardOrientation(){chessBoardFlipOverride=!chessBoardFlipOverride;const btn=document.getElementById('flipChessBoardBtn');if(btn)btn.setAttribute('aria-pressed',String(chessBoardFlipOverride));drawBoard();}
     function updateChessPlayerCards(){
-        const whiteRole=document.getElementById('checkersRedRole'),blackRole=document.getElementById('checkersBlackRole');
-        const whiteCard=document.getElementById('checkersRedCard'),blackCard=document.getElementById('checkersBlackCard');
-        const whiteTitle=whiteCard&&whiteCard.querySelector('.checkers-player-title'),blackTitle=blackCard&&blackCard.querySelector('.checkers-player-title');
-        const whiteMove=document.getElementById('checkersRedMove'),blackMove=document.getElementById('checkersBlackMove');
+        const whiteRole=document.getElementById('chessWhiteRole'),blackRole=document.getElementById('chessBlackRole');
+        const whiteCard=document.getElementById('chessWhiteCard'),blackCard=document.getElementById('chessBlackCard');
+        const whiteTitle=whiteCard&&whiteCard.querySelector('.chess-player-title'),blackTitle=blackCard&&blackCard.querySelector('.chess-player-title');
+        const whiteMove=document.getElementById('chessWhiteMove'),blackMove=document.getElementById('chessBlackMove');
         if(whiteTitle)whiteTitle.textContent='White';if(blackTitle)blackTitle.textContent='Black';
         const mine=state.mode==='ai-chess'?1:(getRoleMark()==='X'?1:-1);
         if(whiteRole)whiteRole.textContent=state.mode==='ai-chess'?'You are playing White':(mine===1?'You are playing White':'Opponent is playing White');
@@ -2619,8 +2543,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if(whiteCard)whiteCard.classList.toggle('active-player',!status.done&&current.t===1);
         if(blackCard)blackCard.classList.toggle('active-player',!status.done&&current.t===-1);
         if(whiteMove){whiteMove.textContent='';whiteMove.hidden=true;}if(blackMove){blackMove.textContent='';blackMove.hidden=true;}
-        const wrap=document.getElementById('bagchal-blogger-container');if(wrap){wrap.classList.add('chess-active');wrap.classList.remove('checkers-active');}
-        const cards=document.getElementById('checkersPlayerCards');if(cards){
+        const cards=document.getElementById('chessPlayerCards');if(cards){
             cards.style.display='grid';
             // Keep Black and White cards in one row, with concise color-only labels.
             cards.appendChild(blackCard); cards.appendChild(whiteCard);
@@ -2642,7 +2565,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             ? ['X (first player)', 'O (second player)']
             : onlineGameType === 'dotsboxes'
                 ? ['Player 1 (X)', 'Player 2 (O)']
-                : onlineGameType === 'checkers' ? ['Red pieces (X)', 'Black pieces (O)'] : (onlineGameType === 'fourconnect' ? ['Red chips (X)', 'Yellow chips (O)'] : (onlineGameType === 'chipbomb' ? ['Player 1 (X)', 'Player 2 (O)'] : ['Goats', 'Tigers']));
         select.options[0].textContent = labels[0];
         select.options[1].textContent = labels[1];
         select.value = current;
@@ -2656,20 +2578,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     function applyOnlineGameType(type, writeToRoom = false) {
-        onlineGameType = ['baghchal','tictactoe','dotsboxes','checkers','fourconnect','chess'].includes(type) ? type : 'baghchal';
+        onlineGameType = ['baghchal','tictactoe','dotsboxes','fourconnect','chess'].includes(type) ? type : 'baghchal';
         updateOnlineRoleOptions();
         const picker = document.getElementById('onlineGameType');
         if (picker) picker.value = onlineGameType;
         const selection = document.getElementById('gameSelection');
         if (selection && state.mode === 'online') selection.value = onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType;
-        const cards=document.getElementById('checkersPlayerCards'); if(cards) cards.style.display=((onlineGameType==='checkers'||onlineGameType==='chess')&&state.mode==='online')?'grid':'none'; const gameWrap=document.getElementById('bagchal-blogger-container'); if(gameWrap){gameWrap.classList.toggle('chess-active',onlineGameType==='chess'&&state.mode==='online');gameWrap.classList.toggle('checkers-active',onlineGameType==='checkers'&&state.mode==='online');}
         const heading = document.querySelector('#bagchal-blogger-container h2');
-        if (heading) heading.textContent = onlineGameType === 'tictactoe' ? 'Tic Tac Toe' : (onlineGameType === 'dotsboxes' ? 'Dots & Boxes' : (onlineGameType === 'checkers' ? 'Checkers' : (onlineGameType === 'fourconnect' ? 'Four Connect' : (onlineGameType === 'chess' ? 'Chess' : (onlineGameType === 'chipbomb' ? 'Chip Bomb' : '🐅 Bagchal 🐐')))));
         const labels = document.querySelectorAll('#bagchal-blogger-container .status-label');
         if (labels.length >= 3) {
             labels[0].textContent = 'Turn';
-            labels[1].textContent = onlineGameType === 'baghchal' ? 'In Hand' : (onlineGameType === 'tictactoe' ? 'X Wins' : (onlineGameType === 'checkers' ? 'X Pieces' : (onlineGameType === 'fourconnect' ? 'X Chips' : (onlineGameType === 'chess' ? 'White pieces' : (onlineGameType === 'chipbomb' ? 'Bombs Found' : 'X Boxes')))));
-            labels[2].textContent = onlineGameType === 'baghchal' ? 'Captured' : (onlineGameType === 'tictactoe' ? 'O Wins' : (onlineGameType === 'checkers' ? 'O Pieces' : (onlineGameType === 'fourconnect' ? 'O Chips' : (onlineGameType === 'chess' ? 'Black pieces' : (onlineGameType === 'chipbomb' ? 'Guesses' : 'O Boxes')))));
         }
         updateInstructionsVisibility();
         if (writeToRoom && onlineRoomRef && firebaseReady && onlineRole) {
@@ -2678,11 +2596,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             });
         }
         updateStatusUI();
-        if (state.mode === 'online' && onlineGameType === 'checkers') {
             // The room's game-type snapshot can arrive before the canvas has its final layout.
             // Resize and redraw after the browser has applied the Checkers layout.
             requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
-            setTimeout(() => { if (state.mode === 'online' && onlineGameType === 'checkers') { resizeCanvas(); drawBoard(); } }, 160);
         } else {
             drawBoard();
         }
@@ -2733,7 +2649,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if (!isLocalHardAiMode()) return;
             if (state.mode === 'ai-tictactoe' && !tttWinner && tttTurn === 'O') makeHardTttMove();
             else if (state.mode === 'ai-dotsboxes' && !dotsBoxesState.winner && dotsBoxesState.turn === 'O') makeHardDotsMove();
-            else if (state.mode === 'ai-checkers' && !checkersState.winner && checkersState.turn === 'O') makeHardCheckersMove();
         }, 420);
     }
     function makeHardTttMove() {
@@ -2831,77 +2746,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if(dotsBoxesState.winner)showMiniGameResult(dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner==='X'?'You Win!':'AI Wins','Dots & Boxes finished.');
         else scheduleHardMiniAi();
     }
-    function applyCheckersMoveToState(st,move,side) {
-        const board=st.board.slice(),piece=board[move.from];
-        if(!piece||piece[0]!==side||!Number.isInteger(move.to)||move.to<0||move.to>63)return st;
-        board[move.from]='';board[move.to]=piece;
-        if(move.capture>=0)board[move.capture]='';
-        let promoted=false;const row=Math.floor(move.to/8);
-        if(piece==='X'&&row===0){board[move.to]='XK';promoted=true;}
-        if(piece==='O'&&row===7){board[move.to]='OK';promoted=true;}
-        const followUps=move.capture>=0&&!promoted?checkersMovesFrom(board,move.to,true):[];
-        const chainFrom=followUps.length?move.to:null;
-        const nextTurn=chainFrom?side:(side==='X'?'O':'X');
-        const winner=chainFrom?null:(checkersAllMoves(board,nextTurn).length?null:side);
-        return {board,turn:nextTurn,winner,chainFrom,lastMove:{id:String(Date.now())+'-'+Math.random().toString(36).slice(2,8),from:move.from,to:move.to,piece,capture:move.capture>=0,promoted,by:side},updatedAt:Date.now()};
-    }
-    function evaluateCheckersState(st) {
-        let score=0;
-        for(let i=0;i<64;i++){
-            const p=st.board[i];if(!p)continue;
-            const side=p[0],king=p.length>1,row=Math.floor(i/8),col=i%8;
-            const value=king?190:100;
-            const advancement=king?0:(side==='O'?row:7-row)*5;
-            const center=(3.5-Math.abs(3.5-col))+(3.5-Math.abs(3.5-row));
-            const pieceScore=value+advancement+center*3;
-            score+=(side==='O'?pieceScore:-pieceScore);
-        }
-        const oMoves=checkersAllMoves(st.board,'O',st.turn==='O'?st.chainFrom:null).length;
-        const xMoves=checkersAllMoves(st.board,'X',st.turn==='X'?st.chainFrom:null).length;
-        return score+(oMoves-xMoves)*2;
-    }
-    function makeHardCheckersMove() {
-        if(state.mode!=='ai-checkers'||checkersState.winner||checkersState.turn!=='O')return;
-        const rootMoves=checkersAllMoves(checkersState.board,'O',checkersState.chainFrom);
-        if(!rootMoves.length){
-            checkersState={...checkersState,winner:'X',chainFrom:null};
-            updateStatusUI();drawBoard();showMiniGameResult('You Win!','The AI has no legal moves.');return;
-        }
-        const search=(st,depth,alpha,beta)=>{
-            if(st.winner==='O')return 100000+depth;
-            if(st.winner==='X')return -100000-depth;
-            if(depth<=0)return evaluateCheckersState(st);
-            const side=st.turn,moves=checkersAllMoves(st.board,side,st.chainFrom);
-            if(!moves.length)return side==='O'?-100000-depth:100000+depth;
-            moves.sort((a,b)=>(b.capture>=0?1:0)-(a.capture>=0?1:0));
-            if(side==='O'){
-                let best=-Infinity;
-                for(const m of moves){const v=search(applyCheckersMoveToState(st,m,'O'),depth-1,alpha,beta);best=Math.max(best,v);alpha=Math.max(alpha,best);if(beta<=alpha)break;}
-                return best;
-            }
-            let best=Infinity;
-            for(const m of moves){const v=search(applyCheckersMoveToState(st,m,'X'),depth-1,alpha,beta);best=Math.min(best,v);beta=Math.min(beta,best);if(beta<=alpha)break;}
-            return best;
-        };
-        let best=-Infinity,choices=[];
-        for(const m of rootMoves){
-            const value=search(applyCheckersMoveToState(checkersState,m,'O'),5,-Infinity,Infinity);
-            if(value>best){best=value;choices=[m];}else if(value===best)choices.push(m);
-        }
-        const chosen=choices[Math.floor(Math.random()*choices.length)];
-        checkersState=applyCheckersMoveToState(checkersState,chosen,'O');
-        checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
-        playMoveSound(checkersState.lastMove.capture?'capture':'move');updateStatusUI();drawBoard();
-        if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?'You Win!':'AI Wins','Checkers finished.');
-        else if(checkersState.turn==='O')scheduleHardMiniAi();
-    }
-
     function initGame() {
         if (state.mode === 'ai-chess' || (state.mode === 'online' && onlineGameType === 'chess')) { if(state.mode==='ai-chess') chessHistory=[initialChessPosition()]; chessSelected=-1; chessPremove=null; chessLastMove=null; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent=state.mode==='ai-chess'?'Chess — Play with AI':'Chess'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='White pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black pieces'; updateStatusUI(); requestAnimationFrame(() => { resizeCanvas(); drawBoard(); }); setTimeout(() => { resizeCanvas(); drawBoard(); }, 120); return; }
         if (state.mode === 'ai-fourconnect') { fourConnectState=initialFourConnectState(); document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Four Connect — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Chips'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Chips'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-chipbomb') { chipBombState=initialChipBombState(); chipBombState.bombs={X:null,O:null}; chipBombState.placed={X:false,O:false}; chipBombState.guesses=[]; chipBombState.phase='setup'; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Chip Bomb — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Status'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Bomb Found'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Guesses'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-dotsboxes') { dotsBoxesState=initialDotsBoxesState('X'); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Dots & Boxes — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Boxes'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Boxes'; updateStatusUI(); resizeCanvas(); return; }
-        if (state.mode === 'online' && onlineGameType === 'checkers') {
             checkersSelected = -1;
             document.getElementById('messageOverlay').classList.remove('active');
             document.querySelector('#bagchal-blogger-container h2').textContent = 'Checkers';
@@ -2910,10 +2759,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent = 'Black Pieces';
             updateStatusUI();
             requestAnimationFrame(() => { resizeCanvas(); drawBoard(); });
-            setTimeout(() => { if (state.mode === 'online' && onlineGameType === 'checkers') { resizeCanvas(); drawBoard(); } }, 160);
             return;
         }
-        if (state.mode === 'ai-checkers') { checkersState=initialCheckersState(); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Checkers — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Red Pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black Pieces'; updateStatusUI(); resizeCanvas(); return; }
         if (isTicTacToeActive()) {
             if (state.mode !== 'online') { tttBoard = Array(9).fill(''); tttTurn = 'X'; tttWinner = null; }
             document.getElementById('messageOverlay').classList.remove('active');
@@ -3679,32 +3526,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             }
             return;
         }
-        if (isCheckersActive()) {
-            const pad=width*0.04, cell=(width-pad*2)/8;
-            // Rotate the board for the Black player so each player sees their own pieces at the bottom.
-            const flipForBlack = state.mode === 'ai-checkers' ? false : getRoleMark() === 'O';
-            const displayIndex = (boardIndex) => flipForBlack ? 63 - boardIndex : boardIndex;
-            const last = checkersState.lastMove;
-            const showOpponentMove = last && last.by && last.by !== getRoleMark();
-            for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-                const displayIdx=r*8+c, idx=flipForBlack?63-displayIdx:displayIdx;
-                ctx.fillStyle=((r+c)%2===1)?'#475569':'#f1f5f9';
-                ctx.fillRect(pad+c*cell,pad+r*cell,cell,cell);
-                if(showOpponentMove && (idx===last.from || idx===last.to)){
-                    ctx.fillStyle=idx===last.to?'rgba(34,197,94,.48)':'rgba(250,204,21,.42)';
-                    ctx.fillRect(pad+c*cell,pad+r*cell,cell,cell);
-                }
-                if(checkersSelected===idx){ctx.fillStyle='rgba(250,204,21,.55)';ctx.fillRect(pad+c*cell,pad+r*cell,cell,cell);}
-            }
-            for(let displayIdx=0;displayIdx<64;displayIdx++){
-                const i=flipForBlack?63-displayIdx:displayIdx, piece=checkersState.board[i];if(!piece)continue;
-                const r=Math.floor(displayIdx/8),c=displayIdx%8,x=pad+(c+.5)*cell,y=pad+(r+.5)*cell;
-                ctx.beginPath();ctx.arc(x,y,cell*.36,0,Math.PI*2);ctx.fillStyle=piece[0]==='X'?'#b91c1c':'#111827';ctx.fill();ctx.strokeStyle='#f8fafc';ctx.lineWidth=Math.max(1,width*.004);ctx.stroke();
-                if(piece.length>1){ctx.fillStyle='#facc15';ctx.font=`700 ${cell*.36}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('K',x,y);}
-            }
-            return;
-        }
-
         if (isDotsBoxesActive()) {
             const pad=width*0.1, gap=(width-pad*2)/4;
             for(let r=0;r<4;r++) for(let c=0;c<4;c++) {
@@ -3957,7 +3778,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if (col >= 0 && col < 3 && row >= 0 && row < 3) handleNodeClick(row * 3 + col);
             return;
         }
-        if (isCheckersActive()) { const w=canvas.width/window.devicePixelRatio,pad=w*.04,cell=(w-pad*2)/8,lx=x*scaleX,ly=y*scaleY,col=Math.floor((lx-pad)/cell),row=Math.floor((ly-pad)/cell);if(row>=0&&row<8&&col>=0&&col<8){const displayIndex=row*8+col;playCheckersSquare(state.mode==='ai-checkers'?displayIndex:(getRoleMark()==='O'?63-displayIndex:displayIndex));}return; }
         if (isFourConnectActive()) { const w=canvas.width/window.devicePixelRatio,pad=w*.06,cw=(w-pad*2)/7,col=Math.floor((x*scaleX-pad)/cw); if(col>=0&&col<7) playFourConnectColumn(col); return; }
         if (isChipBombActive()) { const w=canvas.width/window.devicePixelRatio,pad=w*.1,cell=(w-pad*2)/5,col=Math.floor((x*scaleX-pad)/cell),row=Math.floor((y*scaleY-pad)/cell); if(row>=0&&row<5&&col>=0&&col<5) playChipBombCell(row*5+col); return; }
         if (isDotsBoxesActive()) {
@@ -3971,26 +3791,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }
     }
 
-    function updateCheckersPlayerCards() {
-        const mySide = getRoleMark();
-        const redRole = document.getElementById('checkersRedRole');
-        const blackRole = document.getElementById('checkersBlackRole');
-        const redMove = document.getElementById('checkersRedMove');
-        const blackMove = document.getElementById('checkersBlackMove');
-        const redCard = document.getElementById('checkersRedCard');
-        const blackCard = document.getElementById('checkersBlackCard');
-        if (!redRole || !blackRole || !redCard || !blackCard) return;
-        redRole.textContent = state.mode === 'ai-checkers' ? 'You · Red' : (mySide === 'X' ? 'You · Red' : 'Opponent · Red');
-        blackRole.textContent = state.mode === 'ai-checkers' ? 'AI · Black' : (mySide === 'O' ? 'You · Black' : 'Opponent · Black');
-        redCard.classList.toggle('active-player', checkersState.turn === 'X' && !checkersState.winner);
-        blackCard.classList.toggle('active-player', checkersState.turn === 'O' && !checkersState.winner);
-        // Keep player cards for side/turn identification, but never show move notifications here.
-        if (redMove) { redMove.textContent = ''; redMove.hidden = true; }
-        if (blackMove) { blackMove.textContent = ''; blackMove.hidden = true; }
-    }
-
     function updateStatusUI() {
         const turnEl = document.getElementById('turnStatus');
+        if (!isChessActive()) { const cards=document.getElementById('chessPlayerCards');if(cards)cards.style.display='none';const wrap=document.getElementById('bagchal-blogger-container');if(wrap)wrap.classList.remove('chess-active'); }
         if (isChessActive()) { const cs=chessStatus(chessHistory),cur=chessHistory[chessHistory.length-1];turnEl.innerText=cs.done?(cs.winner==='draw'?'Draw':cs.winner==='X'?'White Wins':'Black Wins'):(state.mode==='ai-chess'?(cur.t===1?'Your Turn (White)':'AI (Black)'):(cur.t===(getRoleMark()==='X'?1:-1)?'Your Turn':'Opponent’s Turn'))+(cs.done?'':' '+(cs.text.includes('Check')?'· Check':''));turnEl.className='status-value '+(cur.t===1?'turn-goat':'turn-tiger');document.getElementById('goatsHandStatus').innerText=cur.b.filter(p=>p==='.'?false:p===p.toUpperCase()).length;document.getElementById('goatsDeadStatus').innerText=cur.b.filter(p=>p!=='.'&&p===p.toLowerCase()).length;const note=document.getElementById('turnNotification');if(note)note.textContent=cs.text;updateChessPlayerCards();return;}
         if (isTicTacToeActive()) {
             turnEl.innerText = tttWinner === 'draw' ? 'Draw' : (tttWinner ? tttWinner + ' Wins' : (state.mode === 'online' ? (getRoleMark() === tttTurn ? 'Your Turn ('+tttTurn+')' : 'Opponent ('+tttTurn+')') : (state.mode==='ai-tictactoe' ? (tttTurn==='X'?'Your Turn (X)':'AI (O)') : tttTurn)));
@@ -4003,7 +3806,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }
         if (isFourConnectActive()) { turnEl.innerText=fourConnectState.winner?(fourConnectState.winner==='draw'?'Draw':fourConnectState.winner+' Wins'):(state.mode==='ai-fourconnect'?(fourConnectState.turn==='X'?'Your Turn':'AI is thinking'):(fourConnectState.turn===getRoleMark()?'Your Turn':'Opponent’s Turn'));turnEl.className='status-value '+(fourConnectState.turn==='X'?'turn-goat':'turn-tiger');document.getElementById('goatsHandStatus').innerText=fourConnectState.board.filter(v=>v==='X').length;document.getElementById('goatsDeadStatus').innerText=fourConnectState.board.filter(v=>v==='O').length;return; }
         if (isChipBombActive()) { const placed=chipBombState.placed||{};turnEl.innerText=chipBombState.winner?(chipBombState.winner+' Wins'):(chipBombState.phase==='setup'?(state.mode==='ai-chipbomb'?(!placed.X?'STEP 1: Pick one secret chip': 'Secret chip locked — AI is picking its chip') : (!placed[getRoleMark()]?'STEP 1: Pick one secret chip':(placed.X&&placed.O?'Both chips locked — start guessing':'Secret chip locked — waiting for opponent'))):(state.mode==='ai-chipbomb'?(chipBombState.turn==='X'?'STEP 2: Guess the AI’s chip':'AI is guessing your chip'):(chipBombState.turn===getRoleMark()?'STEP 2: Guess opponent’s chip':'Opponent is guessing your chip')));turnEl.className='status-value '+(chipBombState.turn==='X'?'turn-goat':'turn-tiger');document.getElementById('goatsHandStatus').innerText=(chipBombState.guesses||[]).filter(g=>g.result).length;document.getElementById('goatsDeadStatus').innerText=(chipBombState.guesses||[]).length;return; }
-        if (isCheckersActive()) { document.getElementById('checkersPlayerCards').style.display='grid'; document.getElementById('bagchal-blogger-container').classList.add('checkers-active'); document.getElementById('bagchal-blogger-container').classList.remove('chess-active'); turnEl.innerText=checkersState.winner ? checkersState.winner+' Wins' : (state.mode==='ai-checkers'?(checkersState.turn==='X'?'Your Turn (Red)':'AI (Black)'):(checkersState.turn===getRoleMark()?'Your Turn':'Opponent’s Turn')); turnEl.className='status-value '+(checkersState.turn==='X'?'turn-goat':'turn-tiger'); document.getElementById('goatsHandStatus').innerText=checkersState.board.filter(v=>v&&v[0]==='X').length; document.getElementById('goatsDeadStatus').innerText=checkersState.board.filter(v=>v&&v[0]==='O').length; updateCheckersPlayerCards(); return;} else { document.getElementById('bagchal-blogger-container').classList.remove('checkers-active','chess-active'); if(document.getElementById('checkersPlayerCards'))document.getElementById('checkersPlayerCards').style.display='none'; }
         if (isDotsBoxesActive()) {
             turnEl.innerText = dotsBoxesState.winner ? (dotsBoxesState.winner === 'draw' ? 'Draw' : dotsBoxesState.winner + ' Wins') : (state.mode === 'online' ? (getRoleMark() === dotsBoxesState.turn ? 'Your Turn ('+dotsBoxesState.turn+')' : 'Opponent ('+dotsBoxesState.turn+')') : (state.mode==='ai-dotsboxes'?(dotsBoxesState.turn==='X'?'Your Turn (X)':'AI (O)'):dotsBoxesState.turn));
             turnEl.className = 'status-value ' + (dotsBoxesState.turn === 'X' ? 'turn-goat' : 'turn-tiger');
@@ -4048,7 +3850,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const callEl = document.getElementById('vcInfoCall');
         if (codeEl) codeEl.textContent = onlineRoomCode || 'Not joined';
         if (playersEl) playersEl.textContent = onlineRoomId ? (vcOpponentConnected || onlineAiOpponent ? '2 / 2' : '1 / 2') : '0 / 2';
-        const gameNames = { baghchal:'BaghChal', tictactoe:'Tic-Tac-Toe', dotsboxes:'Dots & Boxes', fourconnect:'Four Connect', chess:'Chess', checkers:'Checkers' };
+        const gameNames = { baghchal:'BaghChal', tictactoe:'Tic-Tac-Toe', dotsboxes:'Dots & Boxes', fourconnect:'Four Connect', chess:'Chess' };
         if (gameEl) gameEl.textContent = gameNames[onlineGameType] || 'Game';
         if (callEl) { callEl.textContent = voiceActive ? 'Connected' : 'Off'; callEl.className = voiceActive ? 'vc-info-online' : ''; }
     }
@@ -4212,11 +4014,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (onlineRoomRef && onlineGameTypeListener) onlineRoomRef.child('activeGameType').off('value', onlineGameTypeListener);
         if (onlineRoomRef && onlineTttListener) onlineRoomRef.child('miniGames/tictactoe').off('value', onlineTttListener);
         if (onlineRoomRef && onlineDotsListener) onlineRoomRef.child('miniGames/dotsboxes').off('value', onlineDotsListener);
-        if (onlineRoomRef && onlineCheckersListener) onlineRoomRef.child('miniGames/checkers').off('value', onlineCheckersListener);
         if (onlineRoomRef && onlineFourConnectListener) onlineRoomRef.child('miniGames/fourconnect').off('value', onlineFourConnectListener);
         if (onlineRoomRef && onlineChessListener) onlineRoomRef.child('miniGames/chess').off('value', onlineChessListener);
         if (onlineRoomRef && onlineChipBombListener) onlineRoomRef.child('miniGames/chipbomb').off('value', onlineChipBombListener);
-        onlineGameTypeListener = null; onlineTttListener = null; onlineDotsListener = null; onlineCheckersListener = null; onlineFourConnectListener=null; onlineChipBombListener=null; onlineChessListener=null;
         onlineGameListener = null;
         if (onlineRoomRef && onlineLiveClickListener) onlineRoomRef.child('liveClicks').off('value', onlineLiveClickListener);
         if (onlineRoomRef && onlineRestartListener) onlineRoomRef.child('restartRequests').off('value', onlineRestartListener);
@@ -4480,8 +4280,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if(isDotsBoxesActive()){ updateStatusUI(); drawBoard(); if(dotsBoxesState.winner){document.getElementById('messageTitle').textContent=dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner+' Wins!';document.getElementById('messageBody').textContent='Dots & Boxes finished.';document.getElementById('messageOverlay').classList.add('active');}else document.getElementById('messageOverlay').classList.remove('active'); }
         };
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
-        onlineCheckersListener = snap => { const data=snap.val();if(!data||!Array.isArray(data.board)||data.board.length!==64||!['X','O'].includes(data.turn))return;const incomingLastMove=data.lastMove||null;const priorMoveId=checkersState.lastMove&&checkersState.lastMove.id;const incomingMoveId=incomingLastMove&&incomingLastMove.id;if(incomingMoveId&&priorMoveId&&incomingMoveId!==priorMoveId)playMoveSound(incomingLastMove.capture?'capture':'move');checkersState={board:data.board.map(v=>['','X','O','XK','OK'].includes(v)?v:''),turn:data.turn,winner:data.winner||null,lastMove:incomingLastMove,chainFrom:Number.isInteger(data.chainFrom)?data.chainFrom:null,updatedAt:data.updatedAt||Date.now()};checkersSelected=-1;if(isCheckersActive()){updateStatusUI();drawBoard();} };
-        onlineRoomRef.child('miniGames/checkers').on('value', onlineCheckersListener);
         onlineChessListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.history)||!d.history.length||!d.history.every(p=>p&&Array.isArray(p.b)&&p.b.length===128&&[1,-1].includes(p.t)))return;const oldCount=chessHistory.length;chessHistory=d.history;chessLastMove=d.lastMove||null;chessSelected=-1;if(isChessActive()){updateStatusUI();drawBoard();const cs=chessStatus(chessHistory);if(cs.done)showMiniGameResult(cs.winner==='draw'?'Draw!':cs.winner==='X'?'White Wins!':'Black Wins!',cs.text);else if(chessPremove&&chessHistory.length>oldCount)setTimeout(tryExecuteChessPremove,0);} };
         onlineRoomRef.child('miniGames/chess').on('value', onlineChessListener);
         onlineFourConnectListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==42||!['X','O'].includes(d.turn))return;fourConnectState={board:d.board.map(v=>v==='X'||v==='O'?v:''),turn:d.turn,winner:d.winner||null,lastMove:d.lastMove||null,updatedAt:d.updatedAt||Date.now()};if(isFourConnectActive()){updateStatusUI();drawBoard();if(fourConnectState.winner)showMiniGameResult(fourConnectState.winner==='draw'?'Draw!':fourConnectState.winner+' Wins!','Four Connect finished.');} };
@@ -4490,10 +4288,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineRoomRef.child('miniGames/chipbomb').on('value', onlineChipBombListener);
         onlineGameTypeListener = snap => {
             const type=snap.val() || 'baghchal'; applyOnlineGameType(type, false);
-            const tttRef=onlineRoomRef.child('miniGames/tictactoe'), dotsRef=onlineRoomRef.child('miniGames/dotsboxes'), checkersRef=onlineRoomRef.child('miniGames/checkers'), fourRef=onlineRoomRef.child('miniGames/fourconnect'), chessRef=onlineRoomRef.child('miniGames/chess'), bombRef=onlineRoomRef.child('miniGames/chipbomb');
             tttRef.once('value').then(ss=>{if(!ss.exists()) return tttRef.set(initialTicTacToeState());}).catch(err=>console.warn('Could not initialize Tic Tac Toe state',err));
             dotsRef.once('value').then(ss=>{if(!ss.exists()) return dotsRef.set(initialDotsBoxesState());}).catch(err=>console.warn('Could not initialize Dots & Boxes state',err));
-            checkersRef.once('value').then(ss=>{if(!ss.exists()) return checkersRef.set(initialCheckersState());}).catch(err=>console.warn('Could not initialize Checkers state',err));
             fourRef.once('value').then(ss=>{if(!ss.exists()) return fourRef.set(initialFourConnectState());}).catch(err=>console.warn('Could not initialize Four Connect state',err));
             chessRef.once('value').then(ss=>{if(!ss.exists()) return chessRef.set({history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()});}).catch(err=>console.warn('Could not initialize Chess state',err));
             bombRef.once('value').then(ss=>{if(!ss.exists()) return bombRef.set(initialChipBombState());}).catch(err=>console.warn('Could not initialize Chip Bomb state',err));
@@ -4535,8 +4331,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 const configSnap = await onlineRoomRef.once('value');
                 const roomConfig = configSnap.val() || {};
                 const firstMark = roomConfig.firstMoveMark === 'O' ? 'O' : 'X';
-                const fresh = onlineGameType === 'tictactoe' ? initialTicTacToeState(firstMark) : (onlineGameType === 'dotsboxes' ? initialDotsBoxesState(firstMark) : (onlineGameType === 'checkers' ? initialCheckersState() : (onlineGameType === 'fourconnect' ? initialFourConnectState() : (onlineGameType === 'chess' ? {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} : initialOnlineGame()))));
-                const freshRef = onlineGameType === 'tictactoe' ? onlineRoomRef.child('miniGames/tictactoe') : (onlineGameType === 'dotsboxes' ? onlineRoomRef.child('miniGames/dotsboxes') : (onlineGameType === 'checkers' ? onlineRoomRef.child('miniGames/checkers') : (onlineGameType === 'fourconnect' ? onlineRoomRef.child('miniGames/fourconnect') : (onlineGameType === 'chess' ? onlineRoomRef.child('miniGames/chess') : onlineRoomRef.child('game')))));
                 freshRef.set(fresh).then(() => onlineRoomRef.child('restartRequests').remove())
                     .then(() => { prompt.style.display = 'none'; setOnlineStatus('Both players agreed. Game restarted.'); })
                     .catch(err => { console.error(err); setOnlineStatus('Restart failed. Please try again.'); })
@@ -4696,9 +4490,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         // The selected game determines the available side. BaghChal keeps its
         // standard rule (goats start); Tic Tac Toe and Dots & Boxes start with X.
         const firstTurnMark = 'X';
-        await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
+        await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',checkers:'checkers',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
+        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
         const inviteUrl = new URL('/' + routeSlug, window.location.origin);
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
@@ -4845,7 +4639,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                             players,
                             playerNames: { [roleKey(role)]: myName, [roleKey(otherRole)]: candidate.name || 'Guest' },
                             game: initialOnlineGame(), activeGameType: onlineGameType,
-                            miniGames: { tictactoe: initialTicTacToeState(), dotsboxes: initialDotsBoxesState(), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} }
+                            miniGames: { tictactoe: initialTicTacToeState(), dotsboxes: initialDotsBoxesState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} }
                         });
                         if (randomMatchCancelled) return;
                         randomMatchQueueRef = null;
@@ -5615,7 +5409,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const selector = document.getElementById('gameSelection');
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
         const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
-        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncRoomGameIcons();
     syncModeCardUI();
     }
@@ -5626,7 +5420,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             if (!selector) return;
             selector.value = card.getAttribute('data-game-mode');
             selector.dispatchEvent(new Event('change', { bubbles: true }));
-            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
             syncModeCardUI();
             const arena = document.getElementById('vcArenaTitle');
             if (arena) arena.scrollIntoView({behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
@@ -5637,7 +5431,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const showAi = tab.getAttribute('data-mode-tab') === 'ai';
             const grid = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"]');
             if (grid && !grid.hidden) {
-                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
                 return;
             }
@@ -5648,8 +5442,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     document.getElementById('gameSelection').addEventListener('change', (e) => {
         const value = e.target.value;
-        if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-checkers' || value === 'online-fourconnect' || value === 'online-chess') {
-            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-checkers' ? 'checkers' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal'))));
+        if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-fourconnect' || value === 'online-chess') {
+            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal'))));
             onlineGameType = type;
             document.getElementById('gameMode').value = 'online';
             document.getElementById('gameMode').dispatchEvent(new Event('change', { bubbles: true }));
@@ -5683,7 +5477,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             syncRoomGameIcons();
         });
     });
-    (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+    (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
     updateInstructionsVisibility();
 
@@ -5691,13 +5485,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         state.mode = e.target.value;
         const isOnline = state.mode === 'online';
         const gameWrap = document.getElementById('bagchal-blogger-container');
-        if (gameWrap) { gameWrap.classList.toggle('chess-active', state.mode === 'ai-chess' || (isOnline && onlineGameType === 'chess')); gameWrap.classList.toggle('checkers-active', state.mode === 'ai-checkers' || (isOnline && onlineGameType === 'checkers')); }
-        const localAiMode = ['ai-tictactoe','ai-dotsboxes','ai-checkers','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode);
+        const localAiMode = ['ai-tictactoe','ai-dotsboxes','ai-fourconnect','ai-chipbomb','ai-chess'].includes(state.mode);
         document.getElementById('onlinePanel').style.display = isOnline ? 'block' : 'none';
-        document.getElementById('checkersPlayerCards').style.display = (state.mode === 'ai-checkers' || state.mode === 'ai-chess' || (isOnline && (onlineGameType === 'checkers' || onlineGameType === 'chess'))) ? 'grid' : 'none';
         updateInstructionsVisibility();
         document.querySelector('.status-board').style.gridTemplateColumns = 'repeat(3, 1fr)';
-        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isCheckersActive() || isFourConnectActive() || isChipBombActive()) ? 'none' : '';
+        document.getElementById('undoBtn').style.display = (isTicTacToeActive() || isDotsBoxesActive() || isFourConnectActive() || isChipBombActive()) ? 'none' : '';
         document.getElementById('onlinePreferredRole').closest('div').style.display = isOnline ? 'flex' : 'none';
         document.getElementById('playerNamesStatus').style.display = isOnline ? '' : 'none';
         const localHelp = document.getElementById('localModeHelp');
@@ -5832,8 +5624,7 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
       <p>Choose a game card, then select Online Games to play with another person or Play with AI for a solo match. For online play, create a room and share its invite link or room code. Your opponent must join the same room. Connection, microphone and camera features require a compatible browser and permissions.</p>
       <h3>BaghChal</h3><ul><li>One player controls four tigers; the other controls up to 20 goats.</li><li>Goats are placed on empty intersections before goats begin moving. Tigers can move along connected lines and capture goats by jumping over one into an empty connected point.</li><li>The tigers win after capturing five goats. The goats win by trapping all four tigers so none can make a legal move.</li></ul>
       <h3>Chess</h3><ul><li>White moves first. Each piece follows standard chess movement and capture rules; the goal is checkmate.</li><li>In online Chess, the board can orient so your own pieces are at the bottom. The last move is highlighted. Premove, where available, queues an intended move and only executes it if it is legal when your turn arrives.</li><li>Promotion, castling, check, checkmate and stalemate are handled by the game engine. Do not refresh mid-game if you want to preserve your current local state.</li></ul>
-      <h3>Checkers</h3><p>Move diagonally on playable squares, capture by jumping an opponent, and crown a piece that reaches the far side. Follow the legal moves highlighted by the game; capture requirements can vary by ruleset.</p>
-      <h3>Four Connect</h3><p>Take turns dropping a disc into a column. The first player to connect four discs horizontally, vertically or diagonally wins. If the board fills without a four-in-a-row, the game is a draw.</p>
+       <h3>Four Connect</h3><p>Take turns dropping a disc into a column. The first player to connect four discs horizontally, vertically or diagonally wins. If the board fills without a four-in-a-row, the game is a draw.</p>
       <h3>Tic-Tac-Toe</h3><p>Take turns marking an empty square. Connect three of your marks in a row, column or diagonal to win. A full board without a line is a draw.</p>
       <h3>Dots &amp; Boxes</h3><p>Take turns drawing one edge between adjacent dots. Completing the fourth edge of a box claims it and usually grants another turn. The player who claims the most boxes wins when no edges remain.</p>
       <h3>Room and connection tips</h3><ul><li>Both players should use the same room link/code and keep the page open while playing.</li><li>If a move does not sync, check your internet connection, press Reconnect, and wait for the connection status to recover before trying again.</li><li>Voice/video calls require permission from each participant. Use End Call when finished. Camera/microphone access may be unavailable in some embedded browsers.</li></ul>
@@ -6497,7 +6288,7 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
   function copyCurrentRoom(){
     var code=currentCode();
     if(!/^\d{4}$/.test(code)){return;}
-    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',checkers:'checkers',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
+    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
     var link=invite.toString();
