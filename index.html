@@ -6487,8 +6487,8 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     invite.searchParams.set('room',code);
     var link=invite.toString();
     function showCopied(ok){
-      heroCode.setAttribute('data-copy-state',ok?'LINK COPIED':'COPY FAILED');
-      heroCode.setAttribute('aria-label',ok?'Room invite link copied':'Could not copy room invite link');
+      heroCode.setAttribute('data-copy-state',ok?'COPIED':'COPY FAILED');
+      heroCode.setAttribute('aria-label',ok?'Copied':'Could not copy room invite link');
       clearTimeout(heroCode._copyFeedbackTimer);
       heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1600);
     }
