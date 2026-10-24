@@ -5419,7 +5419,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     document.getElementById('gameSelection').addEventListener('change', (e) => {
         const value = e.target.value;
         if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-fourconnect' || value === 'online-chess') {
-            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal'))));
+            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal')));
             onlineGameType = type;
             document.getElementById('gameMode').value = 'online';
             document.getElementById('gameMode').dispatchEvent(new Event('change', { bubbles: true }));
