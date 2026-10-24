@@ -1795,7 +1795,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-            <label for="onlinePreferredRole" style="font-size:13px;">2. Choose your side</label>
+            <label for="onlinePreferredRole" style="font-size:13px;">Choose your side</label>
             <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
                 <option value="goat">Goats (X)</option>
                 <option value="tiger">Tigers (O)</option>
@@ -6513,5 +6513,10 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 @media(max-width:420px){#bagchal-blogger-container .chat-popup-header{gap:5px!important;padding:7px!important}#bagchal-blogger-container .vc-chat-call-actions{gap:4px!important}#bagchal-blogger-container .vc-chat-call-actions button{min-width:36px!important;width:36px!important;padding:0!important}#bagchal-blogger-container .vc-chat-call-actions button span{display:none!important}#bagchal-blogger-container .chat-popup-header>strong{font-size:12px!important}}
 </style>
 
+<style id="vc-online-side-only">
+/* Game selection remains in the main game lounge; the multiplayer panel only asks for a side. */
+#bagchal-blogger-container #onlinePanel .vc-room-game-picker{display:none!important}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole{max-width:100%;min-width:150px}
+</style>
 </body>
 </html>
