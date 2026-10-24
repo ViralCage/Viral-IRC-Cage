@@ -1562,7 +1562,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     <section class="vc-portal-hero" aria-labelledby="vcPortalTitle">
       <div class="vc-hero-copy">
         <div class="vc-eyebrow"><span class="vc-live-dot"></span> YOUR ROOM CODE</div>
-        <div class="vc-hero-share-hint">Click the code to create a new room and copy the share link.</div>
+        <div class="vc-hero-share-hint">Click once to copy the room link · Double-click to create a new room.</div>
         <h1 id="vcPortalTitle" class="vc-hero-room-code-title"><span id="vcHeroRoomCode">----</span></h1>
         <div class="vc-hero-tagline">Play together. <span>Think different.</span></div>
       </div>
@@ -6487,33 +6487,63 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function showCopyState(label,ok){
     heroCode.setAttribute('data-copy-state',label);
-    heroCode.setAttribute('aria-label',ok?'Copied':'Could not create room or copy invite link');
+    heroCode.setAttribute('aria-label',ok?'Copied':'Could not copy invite link');
     clearTimeout(heroCode._copyFeedbackTimer);
     heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1800);
   }
-  function copyRoomCode(){
-    if(heroCode._creatingRoom)return;
-    if(typeof window.createInviteRoom!=='function'){
-      showCopyState('TRY AGAIN',false);
-      return;
+  function copyCurrentRoom(){
+    var code=currentCode();
+    if(!/^\\d{4}$/.test(code)){showCopyState('NO ROOM',false);return;}
+    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
+    var invite=new URL('/'+routeSlug,window.location.origin);
+    invite.searchParams.set('room',code);
+    var link=invite.toString();
+    function fallbackCopy(){
+      var field=document.createElement('textarea');
+      field.value=link;field.setAttribute('readonly','');
+      field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
+      document.body.appendChild(field);field.select();
+      var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+      field.remove();showCopyState(ok?'COPIED':'COPY FAILED',ok);
     }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(function(){showCopyState('COPIED',true);}).catch(fallbackCopy);
+    }else fallbackCopy();
+  }
+  function createFreshRoom(){
+    if(heroCode._creatingRoom)return;
+    if(typeof window.createInviteRoom!=='function'){showCopyState('TRY AGAIN',false);return;}
     heroCode._creatingRoom=true;
     heroCode.setAttribute('aria-disabled','true');
     heroCode.setAttribute('data-copy-state','CREATING...');
     Promise.resolve(window.createInviteRoom(true)).then(function(code){
       if(code){showCopyState('COPIED',true);}
-      else{showCopyState('COPY FAILED',false);}
+      else{showCopyState('CREATE FAILED',false);}
     }).catch(function(error){
       console.error('Room creation from hero code failed:',error);
       showCopyState('TRY AGAIN',false);
-    }).finally(function(){
-      heroCode._creatingRoom=false;
-      sync();
-    });
+    }).finally(function(){heroCode._creatingRoom=false;sync();});
   }
-  heroCode.addEventListener('click',copyRoomCode);
+  heroCode.addEventListener('click',function(event){
+    if(event.detail>=2){
+      clearTimeout(heroCode._singleClickTimer);
+      heroCode._singleClickTimer=null;
+      createFreshRoom();
+      return;
+    }
+    clearTimeout(heroCode._singleClickTimer);
+    heroCode._singleClickTimer=setTimeout(function(){
+      heroCode._singleClickTimer=null;
+      copyCurrentRoom();
+    },280);
+  });
   heroCode.addEventListener('keydown',function(event){
-    if(event.key==='Enter'||event.key===' '){event.preventDefault();copyRoomCode();}
+    if(event.key==='Enter'||event.key===' '){
+      event.preventDefault();
+      clearTimeout(heroCode._singleClickTimer);
+      heroCode._singleClickTimer=null;
+      copyCurrentRoom();
+    }
   });
   new MutationObserver(sync).observe(source,{childList:true,characterData:true,subtree:true});
   if(display)new MutationObserver(sync).observe(display,{attributes:true,attributeFilter:['style','class']});
