@@ -5519,7 +5519,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
         const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
         (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncRoomGameIcons();
     syncModeCardUI();
     }
 
