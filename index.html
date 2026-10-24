@@ -1686,6 +1686,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button type="button" class="vc-mode-card" data-game-mode="online-dotsboxes"><span class="vc-mode-icon">▦</span><span class="vc-mode-card-copy"><strong>Dots &amp; Boxes</strong><small>Claim the squares</small></span><span class="vc-mode-tag">Online</span></button>
 
             <button type="button" class="vc-mode-card" data-game-mode="online-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Connect four in a row</small></span><span class="vc-mode-tag">Online</span></button>
+            <button type="button" class="vc-mode-card" data-game-mode="online-checkers"><span class="vc-mode-icon">⚫</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Online multiplayer</small></span><span class="vc-mode-tag">Online</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="online-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Full standard chess rules</small></span><span class="vc-mode-tag">Online</span></button>
         </div>
         <div class="vc-mode-section-label vc-ai-label">PLAY WITH AI</div>
@@ -1694,6 +1695,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button type="button" class="vc-mode-card" data-game-mode="ai-dotsboxes"><span class="vc-mode-icon">▦</span><span class="vc-mode-card-copy"><strong>Dots &amp; Boxes</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
 
             <button type="button" class="vc-mode-card" data-game-mode="ai-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
+            <button type="button" class="vc-mode-card" data-game-mode="ai-checkers"><span class="vc-mode-icon">⚫</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Play against computer</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-tiger-hardest"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>Play as Goats</strong><small>Face the Tiger AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-goat-hardest"><span class="vc-mode-icon">🐐</span><span class="vc-mode-card-copy"><strong>Play as Tigers</strong><small>Face the Goat AI</small></span><span class="vc-mode-tag">Computer</span></button>
@@ -1707,12 +1709,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 <option value="online-dotsboxes">Dots &amp; Boxes — Same Room Multiplayer</option>
 
                 <option value="online-fourconnect">Four Connect — Same Room Multiplayer</option>
+                <option value="online-checkers">Checkers — Same Room Multiplayer</option>
                 <option value="online-chess">Chess — Same Room Multiplayer</option>
                 <optgroup label="Play other games with Computer">
                     <option value="ai-tictactoe">Tic Tac Toe — Computer</option>
                     <option value="ai-dotsboxes">Dots &amp; Boxes — Computer</option>
 
                     <option value="ai-fourconnect">Four Connect — Computer</option>
+                    <option value="ai-checkers">Checkers — Computer</option>
                     <option value="ai-chess">Chess — Computer</option>
                 </optgroup>
                 <optgroup label="Play as Goats vs Tiger AI">
@@ -2404,9 +2408,18 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         }));
     }
 
+    let checkersState=null;
+    function newCheckersState(){const board=Array(64).fill('');for(let r=0;r<3;r++)for(let c=0;c<8;c++)if((r+c)%2)board[r*8+c]='b';for(let r=5;r<8;r++)for(let c=0;c<8;c++)if((r+c)%2)board[r*8+c]='r';return {board,turn:'r',winner:null,selected:-1,forced:-1};}
+    function checkersMoves(s,from){const p=s.board[from],r=from>>3,c=from%8,king=p===p.toUpperCase(),dirs=king?[-1,1]:(p==='r'?[-1]:[1]),out=[];for(const dr of dirs)for(const dc of [-1,1]){const rr=r+dr,cc=c+dc;if(rr<0||rr>7||cc<0||cc>7)continue;const to=rr*8+cc;if(!s.board[to])out.push({from,to,cap:-1});else if(s.board[to].toLowerCase()!==p.toLowerCase()){const ar=rr+dr,ac=cc+dc;if(ar>=0&&ar<8&&ac>=0&&ac<8&&!s.board[ar*8+ac])out.push({from,to:ar*8+ac,cap:to});}}return out;}
+    function checkersAll(s,side){let a=[];for(let i=0;i<64;i++)if(s.board[i]&&s.board[i].toLowerCase()===side)a.push(...checkersMoves(s,i));const caps=a.filter(m=>m.cap>=0);return caps.length?caps:a;}
+    function checkersCommit(m){const old=checkersState,n={...old,board:old.board.slice(),selected:-1};let p=n.board[m.from];n.board[m.from]='';if(m.cap>=0)n.board[m.cap]='';if((p==='r'&&m.to<8)||(p==='b'&&m.to>=56))p=p.toUpperCase();n.board[m.to]=p;const jumps=checkersMoves(n,m.to).filter(x=>x.cap>=0);if(m.cap>=0&&jumps.length){n.turn=old.turn;n.forced=m.to;}else{n.turn=old.turn==='r'?'b':'r';n.forced=-1;}if(!checkersAll(n,n.turn).length)n.winner=old.turn;checkersState=n;drawBoard();updateStatusUI();if(state.mode==='ai-checkers'&&n.turn==='b'&&!n.winner)setTimeout(checkersAi,300);if(n.winner)showMiniGameResult(n.winner==='r'?'Red wins':'Black wins','Checkers finished');}
+    function checkersClick(i){const s=checkersState;if(!s||s.winner)return;const side=state.mode==='ai-checkers'?'r':(getRoleMark()==='X'?'r':'b');if(s.turn!==side)return;const moves=checkersAll(s,side);if(s.forced>=0){const m=moves.find(x=>x.from===s.forced&&x.to===i);if(m)checkersCommit(m);return;}if(s.selected>=0){const m=moves.find(x=>x.from===s.selected&&x.to===i);if(m){checkersCommit(m);return;}}if(s.board[i]&&s.board[i].toLowerCase()===side){s.selected=i;drawBoard();}}
+    function checkersAi(){const s=checkersState;if(!s||s.turn!=='b'||s.winner)return;const m=checkersAll(s,'b').sort((a,b)=>(b.cap>=0?1:0)-(a.cap>=0?1:0))[0];if(m)checkersCommit(m);}
+    function drawCheckersBoard(w){const cell=w/8;ctx.fillStyle='#d6d3d1';ctx.fillRect(0,0,w,w);for(let r=0;r<8;r++)for(let c=0;c<8;c++){if((r+c)%2){ctx.fillStyle='#475569';ctx.fillRect(c*cell,r*cell,cell,cell);}const p=checkersState.board[r*8+c];if(p){ctx.beginPath();ctx.arc((c+.5)*cell,(r+.5)*cell,cell*.37,0,Math.PI*2);ctx.fillStyle=p.toLowerCase()==='r'?'#dc5555':'#111827';ctx.fill();ctx.lineWidth=cell*.05;ctx.strokeStyle=p===p.toUpperCase()?'#facc15':'#e5e7eb';ctx.stroke();if(p===p.toUpperCase()){ctx.fillStyle='#facc15';ctx.font='bold '+cell*.3+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('K',(c+.5)*cell,(r+.5)*cell);}}}if(checkersState.selected>=0){ctx.strokeStyle='#38bdf8';ctx.lineWidth=3;ctx.strokeRect((checkersState.selected%8)*cell+2,(checkersState.selected>>3)*cell+2,cell-4,cell-4);}}
     function isTicTacToeActive() { return state.mode === 'tictactoe' || state.mode === 'ai-tictactoe' || (state.mode === 'online' && onlineGameType === 'tictactoe'); }
     function isDotsBoxesActive() { return state.mode === 'ai-dotsboxes' || (state.mode === 'online' && onlineGameType === 'dotsboxes'); }
     function isFourConnectActive() { return state.mode === 'ai-fourconnect' || (state.mode === 'online' && onlineGameType === 'fourconnect'); }
+    function isCheckersActive() { return state.mode === 'ai-checkers' || (state.mode === 'online' && onlineGameType === 'checkers'); }
     function isChessActive() { return state.mode === 'ai-chess' || (state.mode === 'online' && onlineGameType === 'chess'); }
     function isChipBombActive() { return state.mode === 'ai-chipbomb' || (state.mode === 'online' && onlineGameType === 'chipbomb'); }
     function initialFourConnectState() { return { board:Array(42).fill(''), turn:'X', winner:null, lastMove:null, updatedAt:Date.now() }; }
@@ -2734,6 +2747,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         else scheduleHardMiniAi();
     }
     function initGame() {
+        if (isCheckersActive()) { checkersState=state.mode==='ai-checkers'||!checkersState?newCheckersState():checkersState;document.getElementById('messageOverlay').classList.remove('active');document.querySelector('#bagchal-blogger-container h2').textContent='Checkers';updateStatusUI();requestAnimationFrame(()=>{resizeCanvas();drawBoard();});return; }
         if (state.mode === 'ai-chess' || (state.mode === 'online' && onlineGameType === 'chess')) { if(state.mode==='ai-chess') chessHistory=[initialChessPosition()]; chessSelected=-1; chessPremove=null; chessLastMove=null; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent=state.mode==='ai-chess'?'Chess — Play with AI':'Chess'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='White pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black pieces'; updateStatusUI(); requestAnimationFrame(() => { resizeCanvas(); drawBoard(); }); setTimeout(() => { resizeCanvas(); drawBoard(); }, 120); return; }
         if (state.mode === 'ai-fourconnect') { fourConnectState=initialFourConnectState(); document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Four Connect — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Chips'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Chips'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-chipbomb') { chipBombState=initialChipBombState(); chipBombState.bombs={X:null,O:null}; chipBombState.placed={X:false,O:false}; chipBombState.guesses=[]; chipBombState.phase='setup'; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Chip Bomb — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Status'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Bomb Found'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Guesses'; updateStatusUI(); resizeCanvas(); return; }
@@ -3454,6 +3468,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         
         ctx.clearRect(0, 0, width, height);
 
+        if (isCheckersActive()) { drawCheckersBoard(width); return; }
         if (isChessActive()) { drawChessBoard(width, height); return; }
 
         if (isTicTacToeActive()) {
@@ -3745,6 +3760,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const scaleX = (canvas.width / window.devicePixelRatio) / rect.width;
         const scaleY = (canvas.height / window.devicePixelRatio) / rect.height;
 
+        if (isCheckersActive()) { const w=canvas.width/window.devicePixelRatio,cell=w/8,col=Math.floor(x*scaleX/cell),row=Math.floor(y*scaleY/cell);if(row>=0&&row<8&&col>=0&&col<8)checkersClick(row*8+col);return; }
         if (isChessActive()) { const w=canvas.width/window.devicePixelRatio,cell=w/8,col=Math.floor((x*scaleX)/cell),row=Math.floor((y*scaleY)/cell);if(row>=0&&row<8&&col>=0&&col<8){const flipped=isChessBoardFlipped();playChessSquare((flipped?7-row:row)*16+(flipped?7-col:col));}return; }
         if (isTicTacToeActive()) {
             const logicalX = x * scaleX, logicalY = y * scaleY;
@@ -3771,6 +3787,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     function updateStatusUI() {
         const turnEl = document.getElementById('turnStatus');
         if (!isChessActive()) { const cards=document.getElementById('chessPlayerCards');if(cards)cards.style.display='none';const wrap=document.getElementById('bagchal-blogger-container');if(wrap)wrap.classList.remove('chess-active'); }
+        if (isCheckersActive()) { const mine=state.mode==='ai-checkers'?'r':(getRoleMark()==='X'?'r':'b');turnEl.innerText=checkersState.winner?(checkersState.winner==='r'?'Red Wins':'Black Wins'):(checkersState.turn===mine?'Your Turn':(state.mode==='ai-checkers'?'Computer Turn':'Opponent Turn'));turnEl.className='status-value';document.getElementById('goatsHandStatus').innerText=checkersState.board.filter(p=>p&&p.toLowerCase()==='r').length;document.getElementById('goatsDeadStatus').innerText=checkersState.board.filter(p=>p&&p.toLowerCase()==='b').length;return; }
         if (isChessActive()) { const cs=chessStatus(chessHistory),cur=chessHistory[chessHistory.length-1];turnEl.innerText=cs.done?(cs.winner==='draw'?'Draw':cs.winner==='X'?'White Wins':'Black Wins'):(state.mode==='ai-chess'?(cur.t===1?'Your Turn (White)':'AI (Black)'):(cur.t===(getRoleMark()==='X'?1:-1)?'Your Turn':'Opponent’s Turn'))+(cs.done?'':' '+(cs.text.includes('Check')?'· Check':''));turnEl.className='status-value '+(cur.t===1?'turn-goat':'turn-tiger');document.getElementById('goatsHandStatus').innerText=cur.b.filter(p=>p==='.'?false:p===p.toUpperCase()).length;document.getElementById('goatsDeadStatus').innerText=cur.b.filter(p=>p!=='.'&&p===p.toLowerCase()).length;const note=document.getElementById('turnNotification');if(note)note.textContent=cs.text;updateChessPlayerCards();return;}
         if (isTicTacToeActive()) {
             turnEl.innerText = tttWinner === 'draw' ? 'Draw' : (tttWinner ? tttWinner + ' Wins' : (state.mode === 'online' ? (getRoleMark() === tttTurn ? 'Your Turn ('+tttTurn+')' : 'Opponent ('+tttTurn+')') : (state.mode==='ai-tictactoe' ? (tttTurn==='X'?'Your Turn (X)':'AI (O)') : tttTurn)));
@@ -5388,7 +5405,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const selector = document.getElementById('gameSelection');
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
         const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
-        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncRoomGameIcons();
     syncModeCardUI();
     }
