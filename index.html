@@ -4421,14 +4421,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const requests = snap.val() || {};
             const myKey = roleKey(onlineRole);
             const opponentKey = roleKey(oppositeRole(onlineRole));
-            const opponentRequested = !!(requests[opponentKey] && requests[opponentKey].requested);
+            const anyPlayerRequested = !!(requests.goat && requests.goat.requested) || !!(requests.tiger && requests.tiger.requested);
             const IAccepted = !!(requests[myKey] && requests[myKey].accepted);
             const prompt = document.getElementById('restartPrompt');
-            if (opponentRequested && !IAccepted) {
+            if (anyPlayerRequested && !IAccepted) {
                 prompt.style.display = 'flex';
                 prompt.style.pointerEvents = 'auto';
-                document.getElementById('restartPromptText').textContent = 'Your opponent wants to restart Checkers/game. Both players must accept before it resets.';
-            } else if (!opponentRequested || IAccepted) {
+                document.getElementById('restartPromptText').textContent = 'Both players must press Accept to restart. The game will reset only after both approvals.';
+            } else {
                 prompt.style.display = 'none';
                 prompt.style.pointerEvents = 'none';
             }
@@ -4601,7 +4601,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const firstTurnMark = 'X';
         await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
+        const routeSlug = ({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',checkers:'checkers',fourconnect:'fourconnect',chess:'chess'})[onlineGameType] || 'baghchal';
         const inviteUrl = new URL('/' + routeSlug, window.location.origin);
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
@@ -5432,11 +5432,14 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const requestsRef = onlineRoomRef.child('restartRequests');
             await requestsRef.child(roleKey(onlineRole)).set({
                 requested: true,
-                accepted: true,
+                accepted: false,
                 at: firebase.database.ServerValue.TIMESTAMP
             });
-            document.getElementById('restartPrompt').style.display = 'none';
-            setOnlineStatus('Restart request sent. Waiting for your opponent to accept.');
+            const prompt = document.getElementById('restartPrompt');
+            document.getElementById('restartPromptText').textContent = 'Both players must press Accept to restart. The game will reset only after both approvals.';
+            prompt.style.display = 'flex';
+            prompt.style.pointerEvents = 'auto';
+            setOnlineStatus('Restart requested. Press Accept to approve; your opponent must also accept.');
         } catch (err) {
             console.error('Restart request failed:', err);
             setOnlineStatus('Could not request restart. Check server permissions.');
