@@ -6493,7 +6493,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
   }
   function copyCurrentRoom(){
     var code=currentCode();
-    if(!/^\\d{4}$/.test(code)){return;}
+    if(!/^\d{4}$/.test(code)){return;}
     var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
