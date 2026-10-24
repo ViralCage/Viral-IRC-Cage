@@ -6500,15 +6500,33 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     var link=invite.toString();
     function fallbackCopy(){
       var field=document.createElement('textarea');
-      field.value=link;field.setAttribute('readonly','');
-      field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
-      document.body.appendChild(field);field.select();
-      var ok=false;try{ok=document.execCommand('copy');}catch(e){}
-      field.remove();showCopyState(ok?'COPIED':'COPY FAILED',ok);
+      field.value=link;
+      field.setAttribute('readonly','');
+      field.style.position='fixed';
+      field.style.top='0';
+      field.style.left='0';
+      field.style.width='2px';
+      field.style.height='2px';
+      field.style.padding='0';
+      field.style.border='0';
+      field.style.opacity='0.01';
+      field.style.fontSize='16px';
+      document.body.appendChild(field);
+      field.focus();
+      field.select();
+      field.setSelectionRange(0,field.value.length);
+      var ok=false;
+      try{ok=document.execCommand('copy');}catch(e){}
+      field.remove();
+      showCopyState(ok?'COPIED':'COPY FAILED',ok);
     }
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(link).then(function(){showCopyState('COPIED',true);}).catch(fallbackCopy);
-    }else fallbackCopy();
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(link).then(function(){
+        showCopyState('COPIED',true);
+      }).catch(fallbackCopy);
+    }else{
+      fallbackCopy();
+    }
   }
   function createFreshRoom(){
     if(heroCode._creatingRoom)return;
@@ -6524,7 +6542,9 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
       showCopyState('TRY AGAIN',false);
     }).finally(function(){heroCode._creatingRoom=false;sync();});
   }
-  heroCode.addEventListener('click',function(){
+  heroCode.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
     clearTimeout(heroCode._singleClickTimer);
     copyCurrentRoom();
   });
