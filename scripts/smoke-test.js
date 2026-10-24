@@ -27,4 +27,22 @@ for (const mode of ['ai-tiger-hardest', 'ai-goat-hardest', 'ai-tictactoe', 'ai-d
   assert.ok(html.includes(`value="${mode}"`), `AI fallback mode ${mode} must exist in the selector`);
 }
 assert.ok(html.includes('Perfect-play Tic-Tac-Toe'), 'Tic-Tac-Toe AI must retain perfect-play minimax');
-console.log(`PASS: ${inlineScripts.length} inline scripts parse; SEO, clean routes, 10-second matchmaking and AI fallbacks verified.`);
+
+// Online multiplayer regression checks: every game must have a Firebase state listener,
+// and the room listener's lazy initialization references must be declared in its scope.
+for (const [name, path] of [
+  ['tttRef', 'tictactoe'],
+  ['dotsRef', 'dotsboxes'],
+  ['fourRef', 'fourconnect'],
+  ['chessRef', 'chess'],
+  ['bombRef', 'chipbomb']
+]) {
+  assert.ok(html.includes(`const ${name} = onlineRoomRef.child('miniGames/${path}')`), `Expected declared Firebase reference for ${path}`);
+}
+for (const game of ['tictactoe', 'dotsboxes', 'fourconnect', 'chess', 'checkers']) {
+  assert.ok(html.includes(`child('miniGames/${game}').on('value'`) || html.includes(`child('miniGames/${game}').on(`), `Expected live Firebase listener for ${game}`);
+}
+assert.ok(html.includes("checkers: 'ai-checkers'"), 'Checkers Random Match must have a valid AI fallback');
+assert.ok(html.includes("function checkersClick(i){if(state.mode==='online'&&(!onlineRoomRef||!onlineRole||!firebaseReady||onlineAiOpponent))"), 'Checkers must reject moves without a valid online room');
+
+console.log(`PASS: ${inlineScripts.length} inline scripts parse; SEO, clean routes, matchmaking, AI fallbacks and online game sync paths verified.`);
