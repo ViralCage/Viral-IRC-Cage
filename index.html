@@ -1324,6 +1324,10 @@ body{margin:0!important;background:radial-gradient(ellipse at 75% -10%,rgba(91,6
 #bagchal-blogger-container .vc-hero-copy{position:relative;z-index:2;max-width:610px}
 #bagchal-blogger-container .vc-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:15px;color:#b7a8ff;font-size:9px;font-weight:900;letter-spacing:.19em}
 #bagchal-blogger-container .vc-live-dot{width:7px;height:7px;border-radius:50%;background:#55e6b1;box-shadow:0 0 13px #55e6b1}
+#bagchal-blogger-container .vc-hero-share-hint{margin:-8px 0 12px;color:#aab7d0;font-size:10px;font-weight:600;letter-spacing:.015em;line-height:1.4}
+#bagchal-blogger-container #vcHeroRoomCode{cursor:pointer;user-select:none}
+#bagchal-blogger-container #vcHeroRoomCode:focus-visible{outline:2px solid #a995ff;outline-offset:7px;border-radius:5px}
+#bagchal-blogger-container #vcHeroRoomCode[data-copy-state]::after{content:attr(data-copy-state);display:inline-block;margin-left:10px;vertical-align:middle;color:#55e6b1;font-size:11px;font-weight:800;letter-spacing:.08em}
 #bagchal-blogger-container .vc-portal-hero h1{margin:0!important;color:#f7f8ff!important;font-size:clamp(32px,5.2vw,57px)!important;line-height:.99!important;letter-spacing:-.055em!important;font-weight:950!important}
 #bagchal-blogger-container .vc-portal-hero h1 span{color:#a995ff}
 #bagchal-blogger-container .vc-portal-hero p{max-width:510px;margin:16px 0 18px!important;color:#a8b5ce!important;font-size:clamp(12px,1.4vw,15px)!important;line-height:1.7!important}
@@ -1558,6 +1562,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     <section class="vc-portal-hero" aria-labelledby="vcPortalTitle">
       <div class="vc-hero-copy">
         <div class="vc-eyebrow"><span class="vc-live-dot"></span> YOUR ROOM CODE</div>
+        <div class="vc-hero-share-hint">Click the code to create a new room and copy the share link.</div>
         <h1 id="vcPortalTitle" class="vc-hero-room-code-title"><span id="vcHeroRoomCode">----</span></h1>
         <div class="vc-hero-tagline">Play together. <span>Think different.</span></div>
       </div>
@@ -4435,11 +4440,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     // Text chat removed to reduce Firebase database reads and writes.
 
-    async function createInviteRoom() {
+    async function createInviteRoom(forceNewRoom = false) {
         const createButton = document.getElementById('createRoomBtn');
         const status = document.getElementById('copyRoomCodeStatus');
         const inviteCodeInUrl = new URLSearchParams(window.location.search).get('room');
-        if (inviteCodeInUrl) {
+        if (inviteCodeInUrl && !forceNewRoom) {
             setOnlineStatus('This page was opened with invite room ' + inviteCodeInUrl + '. Join that room first; creating a different room is disabled on invite links.');
             return;
         }
@@ -4492,7 +4497,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             setOnlineStatus('Room created and share link copied. You play ' + (preferredRole === GOAT ? 'Goats' : 'Tigers') + '. Your friend will take the other side.');
         } catch (copyError) {
             if (status) status.textContent = 'Room created. Open your profile to copy the share link.';
-            setOnlineStatus('Room created. Open your profile to copy the invite link.');
+            setOnlineStatus('Room created, but the invite link could not be copied. Please try again.');
+            return null;
         } finally {
             if (createButton) createButton.disabled = false;
         }
@@ -6479,30 +6485,31 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
     heroCode.setAttribute('title',visible?'Click to copy room code':'Create or join a room first');
     heroCode.setAttribute('aria-disabled',visible?'false':'true');
   }
+  function showCopyState(label,ok){
+    heroCode.setAttribute('data-copy-state',label);
+    heroCode.setAttribute('aria-label',ok?'Copied':'Could not create room or copy invite link');
+    clearTimeout(heroCode._copyFeedbackTimer);
+    heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1800);
+  }
   function copyRoomCode(){
-    var code=currentCode();
-    if(!/^\\d{4}$/.test(code))return;
-    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
-    var invite=new URL('/'+routeSlug,window.location.origin);
-    invite.searchParams.set('room',code);
-    var link=invite.toString();
-    function showCopied(ok){
-      heroCode.setAttribute('data-copy-state',ok?'COPIED':'COPY FAILED');
-      heroCode.setAttribute('aria-label',ok?'Copied':'Could not copy room invite link');
-      clearTimeout(heroCode._copyFeedbackTimer);
-      heroCode._copyFeedbackTimer=setTimeout(function(){heroCode.removeAttribute('data-copy-state');sync();},1600);
+    if(heroCode._creatingRoom)return;
+    if(typeof window.createInviteRoom!=='function'){
+      showCopyState('TRY AGAIN',false);
+      return;
     }
-    function fallbackCopy(){
-      var field=document.createElement('textarea');
-      field.value=link;field.setAttribute('readonly','');
-      field.style.position='fixed';field.style.opacity='0';field.style.pointerEvents='none';
-      document.body.appendChild(field);field.select();
-      var ok=false;try{ok=document.execCommand('copy');}catch(e){}
-      field.remove();showCopied(ok);
-    }
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(link).then(function(){showCopied(true);}).catch(fallbackCopy);
-    }else fallbackCopy();
+    heroCode._creatingRoom=true;
+    heroCode.setAttribute('aria-disabled','true');
+    heroCode.setAttribute('data-copy-state','CREATING...');
+    Promise.resolve(window.createInviteRoom(true)).then(function(code){
+      if(code){showCopyState('COPIED',true);}
+      else{showCopyState('COPY FAILED',false);}
+    }).catch(function(error){
+      console.error('Room creation from hero code failed:',error);
+      showCopyState('TRY AGAIN',false);
+    }).finally(function(){
+      heroCode._creatingRoom=false;
+      sync();
+    });
   }
   heroCode.addEventListener('click',copyRoomCode);
   heroCode.addEventListener('keydown',function(event){
