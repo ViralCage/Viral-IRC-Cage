@@ -40,6 +40,7 @@ for (const [name, path] of [
   assert.ok(html.includes(`const ${name} = onlineRoomRef.child('miniGames/${path}')`), `Expected declared Firebase reference for ${path}`);
 }
 assert.ok(html.includes("child('game').on('value'"), 'Expected live Firebase listener for BaghChal');
+assert.ok(html.includes("canvas.addEventListener('pointerdown'"), 'Game board must handle mouse, touch and pen through Pointer Events');
 assert.ok(html.includes("['baghchal','tictactoe','dotsboxes','fourconnect','chess','checkers'].includes(type)"), 'All six supported online games must be selectable');
 for (const game of ['tictactoe', 'dotsboxes', 'fourconnect', 'chess', 'checkers']) {
   assert.ok(html.includes(`child('miniGames/${game}').on('value'`) || html.includes(`child('miniGames/${game}').on(`), `Expected live Firebase listener for ${game}`);
