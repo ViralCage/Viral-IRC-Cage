@@ -6115,7 +6115,7 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
 (function () {
 'use strict';
 var root=document.getElementById('bagchal-blogger-container'); if(!root)return;
-var popup=root.querySelector('#roomChatPopup'),toggle=root.querySelector('#roomChatToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
+var popup=root.querySelector('#playerChat'),toggle=root.querySelector('#chatPopupToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
 if(!popup||!toggle||!form||!input||!messages)return;
 var status=document.createElement('div');status.id='vcP2PChatStatus';status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.insertAdjacentElement('afterend',status);
 var peer=null,connection=null,activeKey='',ownPeerId='',opponentPeerId='',opponentListener=null,retryTimer=null,loadingPromise=null,lastSentAt=0,receivedAt=[],destroyed=false,roleName='',peerRecordRef=null;
