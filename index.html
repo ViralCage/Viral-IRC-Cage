@@ -1687,7 +1687,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
             <button type="button" class="vc-mode-card" data-game-mode="online-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Connect four in a row</small></span><span class="vc-mode-tag">Online</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="online-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Full standard chess rules</small></span><span class="vc-mode-tag">Online</span></button>
-            <button type="button" class="vc-mode-card" ><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Classic online board game</small></span><span class="vc-mode-tag">Online</span></button>
         </div>
         <div class="vc-mode-section-label vc-ai-label">PLAY WITH AI</div>
         <div class="vc-mode-grid" data-mode-group="ai" hidden>
@@ -1696,7 +1695,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
             <button type="button" class="vc-mode-card" data-game-mode="ai-fourconnect"><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Four Connect</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-chess"><span class="vc-mode-icon">♟</span><span class="vc-mode-card-copy"><strong>Chess</strong><small>Strongest AI</small></span><span class="vc-mode-tag">Computer</span></button>
-            <button type="button" class="vc-mode-card" ><span class="vc-mode-icon">🔴</span><span class="vc-mode-card-copy"><strong>Checkers</strong><small>Play against AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-tiger-hardest"><span class="vc-mode-icon">🐅</span><span class="vc-mode-card-copy"><strong>Play as Goats</strong><small>Face the Tiger AI</small></span><span class="vc-mode-tag">Computer</span></button>
             <button type="button" class="vc-mode-card" data-game-mode="ai-goat-hardest"><span class="vc-mode-icon">🐐</span><span class="vc-mode-card-copy"><strong>Play as Tigers</strong><small>Face the Goat AI</small></span><span class="vc-mode-tag">Computer</span></button>
         </div>
@@ -2577,13 +2575,16 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         updateOnlineRoleOptions();
         const picker=document.getElementById('onlineGameType');if(picker)picker.value=onlineGameType;
         const selection=document.getElementById('gameSelection');if(selection&&state.mode==='online')selection.value=onlineGameType==='baghchal'?'online':'online-'+onlineGameType;
-        const cards=document.getElementById('chessPlayerCards');
-        if(cards)cards.style.display=onlineGameType==='chess'&&state.mode==='online'?'grid':'none';
+        const cards=document.getElementById('chessPlayerCards');if(cards)cards.style.display=onlineGameType==='chess'&&state.mode==='online'?'grid':'none';
         const wrap=document.getElementById('bagchal-blogger-container');if(wrap)wrap.classList.toggle('chess-active',onlineGameType==='chess'&&state.mode==='online');
         const heading=document.querySelector('#bagchal-blogger-container h2');
         if(heading)heading.textContent=onlineGameType==='tictactoe'?'Tic Tac Toe':onlineGameType==='dotsboxes'?'Dots & Boxes':onlineGameType==='fourconnect'?'Four Connect':onlineGameType==='chess'?'Chess':onlineGameType==='chipbomb'?'Chip Bomb':'🐅 Bagchal 🐐';
         const labels=document.querySelectorAll('#bagchal-blogger-container .status-label');
-        if(labels.length>=3){labels[0].textContent='Turn';labels[1].textContent=onlineGameType==='baghchal'?'In Hand':onlineGameType==='tictactoe'?'X Wins':onlineGameType==='fourconnect'?'X Chips':onlineGameType==='chess'?'White pieces':onlineGameType==='chipbomb'?'Bombs Found':onlineGameType==='dotsboxes'?'X Boxes':'X Boxes';labels[2].textContent=onlineGameType==='baghchal'?'Captured':onlineGameType==='tictactoe'?'O Wins':onlineGameType==='fourconnect'?'O Chips':onlineGameType==='chess'?'Black pieces':onlineGameType==='chipbomb'?'Guesses':'O Boxes';}
+        if(labels.length>=3){
+            labels[0].textContent='Turn';
+            labels[1].textContent=onlineGameType==='baghchal'?'In Hand':onlineGameType==='tictactoe'?'X Wins':onlineGameType==='fourconnect'?'X Chips':onlineGameType==='chess'?'White pieces':onlineGameType==='chipbomb'?'Bombs Found':'X Boxes';
+            labels[2].textContent=onlineGameType==='baghchal'?'Captured':onlineGameType==='tictactoe'?'O Wins':onlineGameType==='fourconnect'?'O Chips':onlineGameType==='chess'?'Black pieces':onlineGameType==='chipbomb'?'Guesses':'O Boxes';
+        }
         updateInstructionsVisibility();
         if(writeToRoom&&onlineRoomRef&&firebaseReady&&onlineRole)onlineRoomRef.child('activeGameType').set(onlineGameType).catch(err=>{console.error(err);setOnlineStatus('Could not switch games. Check server permissions for the active game.');});
         updateStatusUI();requestAnimationFrame(()=>{resizeCanvas();drawBoard();});
