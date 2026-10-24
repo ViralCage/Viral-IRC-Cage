@@ -1952,6 +1952,30 @@ body {
 
 
 
+    <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
+        <div class="vc-panel-heading">PLAY ONLINE <span>LIVE MULTIPLAYER</span></div>
+        <div class="vc-room-game-picker">
+            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+            <label for="onlinePreferredRole" style="font-size:13px;">Play As:</label>
+            <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
+                <option value="goat">Goats (X)</option>
+                <option value="tiger">Tigers (O)</option>
+            </select>
+<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
+
+        </div>
+        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
+            <span style="font-size:13px; color:#4a5568;">Room code:</span>
+            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
+            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
+            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
+        </div>
+        <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;"></div>
+        
+    </div>
+
     <div id="incomingCallPopup" role="dialog" aria-modal="false" aria-labelledby="incomingCallName" hidden>
         <div class="incoming-call-person">
             <div class="incoming-call-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg></div>
@@ -1971,29 +1995,7 @@ body {
             <button id="saveGuestNameBtn" type="button">Save Name</button>
             <button id="cancelGuestNameBtn" type="button">Cancel</button>
         </div>
-        <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
-            <div class="vc-panel-heading">PLAY ONLINE <span>LIVE MULTIPLAYER</span></div>
-            <div class="vc-room-game-picker">
-                <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-                <label for="onlinePreferredRole" style="font-size:13px;">Play As:</label>
-                <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
-                    <option value="goat">Goats (X)</option>
-                    <option value="tiger">Tigers (O)</option>
-                </select>
-<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
 
-            </div>
-            <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
-                <span style="font-size:13px; color:#4a5568;">Room code:</span>
-                <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
-                <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
-                <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
-            </div>
-            <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;"></div>
-            
-        </div>
 
         <div id="chatMessages" role="log" aria-live="polite" style="height:150px; overflow-y:auto; padding:8px; border:1px solid #e2e8f0; border-radius:7px; background:#fff; font-size:13px; overflow-wrap:anywhere;">
             <div style="color:#718096;">Join or create an online room to chat with your opponent.</div>
