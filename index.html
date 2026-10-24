@@ -1155,7 +1155,7 @@
     .talk-room-actions button span{font-size:16px;line-height:1}
     .vc-join-room-modal[hidden]{display:none!important}.vc-join-room-modal{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,24,45,.55);backdrop-filter:blur(5px)}
     .vc-join-room-card{position:relative;width:min(340px,100%);box-sizing:border-box;padding:24px 20px 20px;border:1px solid #dbe6f7;border-radius:20px;background:#fff;box-shadow:0 24px 80px rgba(10,30,70,.3);text-align:center;color:#172b4d}
-    .vc-join-room-card h3{margin:0 0 7px;font-size:22px;letter-spacing:-.4px}.vc-join-room-card p{margin:0 0 18px;color:#64748b;font-size:13px}
+    #bagchal-blogger-container .vc-join-room-card h3{margin:0 0 7px;font-size:22px;letter-spacing:-.4px;color:#000}.vc-join-room-card p{margin:0 0 18px;color:#64748b;font-size:13px}
     .vc-join-room-close{position:absolute;right:10px;top:9px;border:0;background:#eef3fb;border-radius:50%;width:30px;height:30px;font-size:21px;cursor:pointer;color:#334155}
     #joinRoomModalCode{box-sizing:border-box;width:100%;height:52px;margin-bottom:12px;border:1px solid #cbd8ed;border-radius:12px;background:#f8faff;text-align:center;font-size:24px;font-weight:850;letter-spacing:.3em;color:#173a75;outline-color:#60a5fa}
     .vc-join-room-submit{width:100%;height:45px;border:0;border-radius:12px;background:linear-gradient(135deg,#2563eb,#173ea8);color:white;font-weight:850;font-size:14px;cursor:pointer}
@@ -1805,9 +1805,9 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         </div>
         <div class="incoming-call-actions"><button id="declineVoiceCallBtn" type="button">Decline</button><button id="acceptVoiceCallBtn" type="button">Answer</button></div>
     </div>
-    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Chat</span></button>
+    <button id="chatPopupToggle" type="button" aria-expanded="true" aria-controls="playerChat" aria-label="Close Chat" title="Chat"><svg class="talk-mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"></path></svg> <span>Moves</span></button>
     <div id="playerChat">
-        <div class="chat-popup-header"><strong>Room Chat</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
+        <div class="chat-popup-header"><strong>Move History</strong><div class="vc-chat-call-actions"><button id="startVoiceBtn" type="button" title="Start voice call" aria-label="Start voice call"><svg class="voice-call-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.56 3.57.56a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.19 2.45.56 3.57a1 1 0 0 1-.25 1.02z"/></svg><span>Voice</span></button><button id="startVideoBtn" type="button" title="Start video call" aria-label="Start video call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h7A2.5 2.5 0 0 1 16 6.5v1.1l4.1-2.35A1.25 1.25 0 0 1 22 6.34v11.32a1.25 1.25 0 0 1-1.9 1.09L16 16.4v1.1a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 4 17.5z"/></svg><span>Video</span></button><button id="stopVoiceBtn" type="button" title="End call" aria-label="End call" disabled>End</button></div><div class="chat-header-actions"><button id="chatPopupMinimize" type="button" aria-label="Minimize Chat panel" title="Minimize">-</button><button id="chatPopupClose" type="button" aria-label="Close chat panel" title="Close">×</button></div></div>
         <div id="guestNameDisplayRow" style="display:flex; align-items:center; gap:6px; margin:8px 12px 0;">
             <span style="font-size:12px;color:#687386;">Nickname</span>
             <button id="editGuestNameBtn" type="button" title="Click to change your nickname" aria-label="Change nickname" style="border:0;background:transparent;color:#1877f2;font-weight:700;padding:4px 0;text-align:left;overflow-wrap:anywhere;">Guest</button>
@@ -1817,10 +1817,11 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="saveGuestNameBtn" type="button">Save Name</button>
             <button id="cancelGuestNameBtn" type="button">Cancel</button>
         </div>
-        <div id="chatMessages" role="log" aria-live="polite" style="height:150px; overflow-y:auto; padding:8px; border:1px solid #e2e8f0; border-radius:7px; background:#fff; font-size:13px; overflow-wrap:anywhere;">
-            <div style="color:#718096;">Join an online room to start peer-to-peer chat.</div>
-        </div>
-        <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
+        <div id="chatMessages" class="vc-game-move-panel" role="log" aria-live="polite">
+            <div class="vc-move-title"><span>RECENT MOVES</span><strong id="vcMatchGame">BaghChal</strong></div>
+            <div id="vcMatchTurn" class="vc-move-turn">Join or create a room to begin.</div>
+            <div id="vcMoveLogList" class="vc-move-log-list">Moves will appear here as players take their turns.</div>
+        </div>        <form id="chatForm" style="display:flex; gap:6px; margin-top:8px; align-items:center;">
             <input id="chatInput" maxlength="500" autocomplete="off" placeholder="Type a message…" aria-label="Chat message" style="flex:1; min-width:0; padding:9px; border:1px solid #a0aec0; border-radius:6px;">
             <button id="sendChatBtn" type="submit" aria-label="Send message" title="Send message"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 20.5 21 12 3 3.5l.1 6.6L15 12 3.1 13.9 3 20.5Z" fill="currentColor"/></svg></button>
         </form>
@@ -1837,7 +1838,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             <button id="joinRoomBtn" type="button" title="Join with a room code"><span aria-hidden="true">↗</span> Join Room</button>
             <button id="quickMatchBtn" type="button" title="Find a random opponent"><span aria-hidden="true">⇄</span> Quick Match</button>
         </div>
-        <div id="chatStatus">Peer-to-peer chat is enabled. Join a two-player online room to connect.</div>
+        <div id="chatStatus">Recent moves appear here as players take their turns.</div>
         <div class="chat-room-divider" aria-hidden="true"></div>
 
     </div>
@@ -3839,6 +3840,118 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (callEl) { callEl.textContent = voiceActive ? 'Connected' : 'Off'; callEl.className = voiceActive ? 'vc-info-online' : ''; }
     }
 
+    let moveLogGameType = '';
+    let moveLogSnapshot = null;
+    let moveLogEntries = [];
+
+    function captureMoveSnapshot() {
+        if (onlineGameType === 'baghchal') return { board:state.board.slice(), turn:state.turn, captured:state.goatsCaptured };
+        if (onlineGameType === 'tictactoe') return { board:tttBoard.slice(), turn:tttTurn };
+        if (onlineGameType === 'dotsboxes') return { edges:dotsBoxesState.edges.slice(), boxes:dotsBoxesState.boxes.slice(), scores:{...dotsBoxesState.scores}, turn:dotsBoxesState.turn };
+        if (onlineGameType === 'fourconnect') return { board:fourConnectState.board.slice(), turn:fourConnectState.turn };
+        if (onlineGameType === 'checkers') return { board:checkersState.board.slice(), turn:checkersState.turn };
+        if (onlineGameType === 'chess') {
+            const position = chessHistory[chessHistory.length - 1];
+            return position ? { board:position.b.slice(), turn:position.t, count:chessHistory.length } : null;
+        }
+        if (onlineGameType === 'chipbomb') return { guesses:(chipBombState.guesses || []).map(g=>({...g})), turn:chipBombState.turn, phase:chipBombState.phase };
+        return null;
+    }
+    function moveCellEmpty(value) { return value == null || value === '' || value === '.' || value === 0 || value === false; }
+    function moveSquare(index, type) {
+        if (type === 'baghchal') return String.fromCharCode(65 + index % 5) + (Math.floor(index / 5) + 1);
+        if (type === 'chess') return String.fromCharCode(97 + index % 16) + (8 - Math.floor(index / 16));
+        if (type === 'checkers') return String.fromCharCode(65 + index % 8) + (8 - Math.floor(index / 8));
+        const cols = type === 'tictactoe' ? 3 : 7;
+        return 'row ' + (Math.floor(index / cols) + 1) + ', column ' + (index % cols + 1);
+    }
+    function describeMove(previous, current, type) {
+        if (type === 'dotsboxes') {
+            const edge = current.edges.findIndex((v,i)=>v && !previous.edges[i]);
+            if (edge < 0) return '';
+            const scorer = previous.turn || 'X';
+            return scorer + ' drew line ' + (edge + 1) + '.';
+        }
+        if (type === 'chipbomb') {
+            if ((current.guesses || []).length > (previous.guesses || []).length) return 'A guess was made.';
+            if (previous.phase === 'setup' && current.phase !== 'setup') return 'Both secret chips are set. Guessing begins.';
+            return '';
+        }
+        if (!Array.isArray(previous.board) || !Array.isArray(current.board)) return '';
+        const changed = [];
+        const added = [];
+        const removed = [];
+        const replaced = [];
+        for (let i=0;i<Math.min(previous.board.length,current.board.length);i++) {
+            const before=previous.board[i],after=current.board[i];
+            if (before===after) continue;
+            changed.push(i);
+            if (moveCellEmpty(before) && !moveCellEmpty(after)) added.push(i);
+            if (!moveCellEmpty(before) && moveCellEmpty(after)) removed.push(i);
+            if (!moveCellEmpty(before) && !moveCellEmpty(after)) replaced.push(i);
+        }
+        if (!changed.length) return '';
+        const mover = previous.turn;
+        const sideName = type === 'baghchal' ? (mover === GOAT ? 'Goats' : 'Tigers') :
+            type === 'checkers' ? (mover === 'r' ? 'Red' : 'Black') :
+            type === 'chess' ? (mover === 1 ? 'White' : 'Black') : String(mover || 'Player');
+        if (type === 'fourconnect' && added.length) return sideName + ' dropped a piece in column ' + ((added[0] % 7) + 1) + '.';
+        const destinations = added.concat(replaced);
+        if (destinations.length && removed.length) {
+            const destination = destinations[0];
+            const movingPiece = current.board[destination];
+            const source = removed.find(i=>previous.board[i]===movingPiece) ?? removed[0];
+            const captured = removed.length > 1 || replaced.length > 0;
+            return sideName + ' moved ' + moveSquare(source,type) + ' → ' + moveSquare(destination,type) + (captured ? ' (capture).' : '.');
+        }
+        if (added.length) {
+            if (type === 'tictactoe') return String(current.board[added[0]]) + ' chose ' + moveSquare(added[0],type) + '.';
+            if (type === 'baghchal') return sideName + ' placed a goat at ' + moveSquare(added[0],type) + '.';
+            return sideName + ' placed at ' + moveSquare(added[0],type) + '.';
+        }
+        if (removed.length) return sideName + ' captured a piece.';
+        return 'Move updated.';
+    }
+    function refreshRoomMoveLog() {
+        const gameName = { baghchal:'BaghChal', tictactoe:'Tic-Tac-Toe', dotsboxes:'Dots & Boxes', fourconnect:'Four Connect', chess:'Chess', checkers:'Checkers', chipbomb:'Chip Bomb' }[onlineGameType] || 'Game';
+        const game = document.getElementById('vcMatchGame');
+        const turn = document.getElementById('vcMatchTurn');
+        const list = document.getElementById('vcMoveLogList');
+        if (!game || !turn || !list) return;
+        game.textContent = gameName;
+        turn.textContent = document.getElementById('turnStatus')?.textContent || 'Waiting to start';
+        const snapshot = captureMoveSnapshot();
+        if (moveLogGameType !== onlineGameType) {
+            moveLogGameType = onlineGameType;
+            moveLogSnapshot = snapshot;
+            moveLogEntries = [];
+        } else if (snapshot && moveLogSnapshot) {
+            const move = describeMove(moveLogSnapshot,snapshot,onlineGameType);
+            if (move) {
+                const stamp = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+                moveLogEntries.unshift({text:move,stamp});
+                moveLogEntries = moveLogEntries.slice(0,12);
+            }
+            moveLogSnapshot = snapshot;
+        } else moveLogSnapshot = snapshot;
+        list.replaceChildren();
+        if (!moveLogEntries.length) {
+            list.textContent = onlineRoomId ? 'Waiting for the first move.' : 'Moves will appear here as players take their turns.';
+            return;
+        }
+        moveLogEntries.forEach((entry,index)=>{
+            const row=document.createElement('div');
+            row.className='vc-move-entry'+(index===0?' vc-move-entry-latest':'');
+            const text=document.createElement('span');
+            text.textContent=entry.text;
+            const time=document.createElement('time');
+            time.textContent=entry.stamp;
+            row.append(text,time);
+            list.appendChild(row);
+        });
+    }
+    setInterval(refreshRoomMoveLog, 350);
+
     function setOnlineStatus(message) {
         const el = document.getElementById('onlineStatus');
         if (el) el.textContent = message;
@@ -5519,7 +5632,6 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
         const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
         (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncRoomGameIcons();
     syncModeCardUI();
     }
 
@@ -6240,16 +6352,19 @@ lite-youtube,.youtube-player,.youtube-embed,.youtube-container,.video-embed-yout
  #bagchal-blogger-container #chatMessages { height:clamp(120px,24dvh,220px) !important; max-height:30dvh; }
  #bagchal-blogger-container #chatInput { font-size:16px; }
 }
+#bagchal-blogger-container #chatForm,
+#bagchal-blogger-container #vcP2PChatStatus { display:none !important; }
 </style>
 <script id="vc-p2p-room-chat-script">
 (function () {
 'use strict';
+return; // Text chat is disabled while online game play is being stabilized.
 var root=document.getElementById('bagchal-blogger-container'); if(!root)return;
 var popup=root.querySelector('#playerChat'),toggle=root.querySelector('#chatPopupToggle'),form=root.querySelector('#chatForm'),input=root.querySelector('#chatInput'),messages=root.querySelector('#chatMessages');
 if(!popup||!toggle||!form||!input||!messages)return;
 var status=document.createElement('div');status.id='vcP2PChatStatus';status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.insertAdjacentElement('afterend',status);
 var peer=null,connection=null,activeKey='',ownPeerId='',opponentPeerId='',opponentListener=null,retryTimer=null,loadingPromise=null,lastSentAt=0,receivedAt=[],destroyed=false,roleName='',peerRecordRef=null;
-function setStatus(v){status.textContent=v;}
+function setStatus(v){if(v==='Waiting for the other player to connect…'&&typeof vcOpponentConnected!=='undefined'&&vcOpponentConnected)v='Opponent is already in the game room. Direct chat is connecting…';status.textContent=v;}
 function updateLabels(){var h=popup.querySelector('.chat-popup-header strong');if(h)h.textContent='Room Chat';toggle.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/></svg><span>Chat</span>';toggle.setAttribute('aria-label',popup.hidden?'Open room chat':'Close room chat');toggle.setAttribute('title','Room Chat');}
 function clearMessages(){messages.replaceChildren();}
 function addMessage(name,value,mine,timestamp){var row=document.createElement('div');row.className='vc-p2p-message'+(mine?' vc-mine':'');var head=document.createElement('div');head.className='vc-p2p-message-head';head.textContent=(mine?'You':String(name||'Guest').slice(0,24))+' · '+new Date(Number(timestamp)||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});var body=document.createElement('div');body.className='vc-p2p-message-body';body.textContent=String(value||'').slice(0,500);row.append(head,body);messages.appendChild(row);while(messages.children.length>60)messages.removeChild(messages.firstChild);messages.scrollTop=messages.scrollHeight;}
@@ -6579,6 +6694,22 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 }
 </style>
 
+<style id="vc-game-move-log-style">
+#bagchal-blogger-container #chatMessages.vc-game-move-panel{
+ display:block!important;box-sizing:border-box!important;height:auto!important;max-height:36dvh!important;min-height:220px;
+ overflow-y:auto!important;margin:8px 12px!important;padding:13px!important;border:1px solid #263a5a!important;border-radius:14px!important;
+ background:#0d1728!important;color:#eef4ff!important;text-align:left!important;
+}
+#bagchal-blogger-container .vc-move-title{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+#bagchal-blogger-container .vc-move-title span{color:#91a8d1;font-size:10px;font-weight:800;letter-spacing:.14em}
+#bagchal-blogger-container .vc-move-title strong{color:#fff;font-size:17px}
+#bagchal-blogger-container .vc-move-turn{padding:8px 0;border-top:1px solid #24334d;color:#fff;font-size:13px;font-weight:700}
+#bagchal-blogger-container .vc-move-log-list{display:flex;flex-direction:column;gap:7px}
+#bagchal-blogger-container .vc-move-entry{display:flex;justify-content:space-between;gap:8px;padding:9px;border-radius:9px;background:#14223a;color:#dce7fa;font-size:12px;line-height:1.4}
+#bagchal-blogger-container .vc-move-entry-latest{background:#1a3154;color:#fff}
+#bagchal-blogger-container .vc-move-entry time{flex:none;color:#92a7c9;font-size:10px}
+</style>
+
 <style id="vc-fullscreen-room-code-visibility">
 /* Keep the active room code visible in fullscreen on large screens without restoring the full hero. */
 #bagchal-blogger-container:fullscreen > .vc-portal-hero,
@@ -6606,5 +6737,177 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
 #bagchal-blogger-container.fullscreen-fallback > .vc-portal-hero .vc-hero-room-code-title span{padding:4px 9px 5px!important;border-radius:7px!important}
 </style>
 
+<style id="vc-settings-redesign-2026">
+:root{
+  --vc-settings-ink:#10172a;--vc-settings-muted:#56627a;--vc-settings-line:#dce3f1;
+  --vc-settings-surface:#fff;--vc-settings-soft:#f4f6fc;--vc-settings-accent:#6155e8;
+  --vc-settings-focus:rgba(97,85,232,.24);
+}
+.vc-account-modal,.vc-profile-modal,#bagchal-blogger-container #vcLegalModal,
+.vc-join-room-modal{
+  background:rgba(4,9,22,.78)!important;backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+.vc-account-card,#bagchal-blogger-container .vc-profile-sheet,
+#bagchal-blogger-container .vc-legal-sheet,.vc-join-room-card{
+  background:var(--vc-settings-surface)!important;color:var(--vc-settings-ink)!important;
+  border:1px solid rgba(199,207,226,.92)!important;border-radius:22px!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.38)!important;
+}
+.vc-account-card{width:min(100%,500px)!important}
+.vc-account-card h2,#bagchal-blogger-container .vc-profile-head h2,
+#bagchal-blogger-container .vc-legal-head h2,.vc-join-room-card h3{
+  color:#10172a!important;
+}
+.vc-account-subtitle,.vc-account-card .vc-account-brand small,
+#bagchal-blogger-container .vc-profile-head p,
+#bagchal-blogger-container .vc-profile-body p,
+#bagchal-blogger-container .vc-legal-head p,.vc-join-room-card p{
+  color:var(--vc-settings-muted)!important;
+}
+.vc-account-kicker,#bagchal-blogger-container .vc-profile-caption,
+#bagchal-blogger-container .vc-room-card-title,
+#bagchal-blogger-container .vc-legal-tabs button[aria-selected="true"]{
+  color:#5146cf!important;
+}
+.vc-account-close,#bagchal-blogger-container .vc-profile-head>button,
+#bagchal-blogger-container #vcLegalClose,.vc-join-room-close{
+  display:grid!important;place-items:center!important;width:38px!important;height:38px!important;
+  border:1px solid var(--vc-settings-line)!important;border-radius:12px!important;
+  background:var(--vc-settings-soft)!important;color:#1b2540!important;
+}
+#vcAccountForm label{color:#28334d!important;font-size:12px!important}
+#vcAccountForm input,.vc-join-room-card #joinRoomModalCode{
+  min-height:46px!important;border:1px solid #cbd4e6!important;border-radius:12px!important;
+  background:#f8f9fd!important;color:#111827!important;
+}
+#vcAccountForm input:focus,#joinRoomModalCode:focus,
+#bagchal-blogger-container #onlinePreferredRole:focus,
+#bagchal-blogger-container #gameSelection:focus{
+  outline:3px solid var(--vc-settings-focus)!important;border-color:var(--vc-settings-accent)!important;
+}
+#vcAccountForm input::placeholder{color:#7b879d!important}
+.vc-account-tabs{background:#f0f2fa!important;border-color:#dfe4f0!important}
+.vc-account-tabs button{color:#526078!important}
+.vc-account-tabs button.active{color:#fff!important}
+.vc-account-footnote{border-color:var(--vc-settings-line)!important;color:#637089!important}
+.vc-account-status{color:#087456!important}
+.vc-account-status.error{color:#b42318!important}
+#bagchal-blogger-container .vc-profile-head,
+#bagchal-blogger-container .vc-legal-head{border-color:var(--vc-settings-line)!important}
+#bagchal-blogger-container #vcProfileNickname{color:#111827!important}
+#bagchal-blogger-container .vc-profile-body{color:var(--vc-settings-ink)!important}
+#bagchal-blogger-container .vc-profile-room-card{
+  background:linear-gradient(145deg,#f7f8fd,#eef1fa)!important;border-color:#d8deed!important;
+}
+#bagchal-blogger-container #vcProfileRoomCode{color:#5146cf!important}
+#bagchal-blogger-container #vcProfileRoomHint,
+#bagchal-blogger-container #vcProfileRoomStatus{color:#56627a!important}
+#bagchal-blogger-container #vcProfileJoinRoomBtn,
+#bagchal-blogger-container #vcProfileBackToGameBtn,
+#bagchal-blogger-container .vc-profile-secondary{
+  background:#f0f2fa!important;border:1px solid #cdd5e6!important;color:#1b2540!important;
+}
+#bagchal-blogger-container #vcProfileCreateRoomBtn,
+#bagchal-blogger-container #vcProfileShareRoomBtn,
+#bagchal-blogger-container .vc-profile-primary,
+#bagchal-blogger-container #vcProfileBackToGameBtn{
+  min-height:44px!important;border-radius:12px!important;font-weight:850!important;
+}
+#bagchal-blogger-container #vcProfileCreateRoomBtn{
+  background:linear-gradient(110deg,#0c9b70,#087c65)!important;color:#fff!important;
+}
+#bagchal-blogger-container #vcChangeNicknameBtn{
+  min-height:44px!important;border:1px solid #cbc7ff!important;border-radius:12px!important;
+  background:#efedff!important;color:#38318f!important;font-weight:850!important;
+}
+#bagchal-blogger-container .vc-profile-primary,
+#bagchal-blogger-container #vcProfileBackToGameBtn{
+  background:linear-gradient(110deg,#7864f5,#456de8)!important;border:0!important;color:#fff!important;
+}
+#bagchal-blogger-container .vc-legal-sheet{max-height:min(90dvh,920px)!important}
+#bagchal-blogger-container .vc-legal-tabs{padding:5px;border:1px solid #e0e5f1;border-radius:14px;background:#f5f6fb}
+#bagchal-blogger-container .vc-legal-tabs button{
+  border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:#4d5971!important;
+}
+#bagchal-blogger-container .vc-legal-tabs button[aria-selected="true"]{
+  border-color:#d5d8f7!important;background:#fff!important;color:#4538c5!important;box-shadow:0 2px 8px rgba(26,35,70,.08);
+}
+#bagchal-blogger-container .vc-legal-content,
+#bagchal-blogger-container .vc-legal-content h3{color:#28334a!important}
+#bagchal-blogger-container .vc-legal-note{background:#f3f1ff!important;border-color:#d8d2ff!important;color:#4538a8!important}
+.vc-join-room-card{width:min(100%,390px)!important;padding:30px 26px 24px!important}
+.vc-join-room-card h3{font-size:24px!important}
+.vc-join-room-submit,.vc-account-submit{
+  min-height:48px!important;border-radius:12px!important;
+  background:linear-gradient(110deg,#7864f5,#456de8)!important;
+  box-shadow:0 8px 20px rgba(82,83,210,.2)!important;
+}
+#joinRoomModalError{font-weight:700}
+#bagchal-blogger-container #restartPrompt{
+  position:fixed!important;inset:0!important;z-index:2147483002!important;
+  background:rgba(4,9,22,.76)!important;backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+#bagchal-blogger-container #restartPrompt>div{
+  width:min(100%,400px)!important;padding:26px!important;text-align:left!important;
+  border:1px solid #dce3f1!important;border-radius:22px!important;
+  background:#fff!important;color:#10172a!important;box-shadow:0 28px 90px rgba(0,0,0,.38)!important;
+}
+#bagchal-blogger-container #restartPromptTitle{font-size:21px!important;font-weight:900!important;color:#10172a!important}
+#bagchal-blogger-container #restartPromptText{font-size:14px!important;color:#56627a!important}
+#bagchal-blogger-container #acceptRestartBtn,
+#bagchal-blogger-container #declineRestartBtn{
+  min-height:44px!important;padding:10px 16px!important;border-radius:12px!important;font-weight:850!important;
+}
+#bagchal-blogger-container #acceptRestartBtn{background:linear-gradient(110deg,#7864f5,#456de8)!important}
+#bagchal-blogger-container #declineRestartBtn{border:1px solid #cbd4e6!important;background:#f4f6fc!important;color:#25304a!important}
+#bagchal-blogger-container #onlinePanel{
+  border:1px solid #273652!important;border-radius:16px!important;background:#111b2d!important;
+}
+#bagchal-blogger-container #onlinePreferredRole,
+#bagchal-blogger-container #gameSelection,
+#bagchal-blogger-container .game-mode-below-board select{
+  min-height:44px!important;padding:9px 12px!important;border:1px solid #394866!important;
+  border-radius:11px!important;background:#0b1424!important;color:#f4f6ff!important;font-weight:750!important;
+}
+#bagchal-blogger-container #onlinePanel label,
+#bagchal-blogger-container .game-mode-below-board label{color:#c5d1e7!important;font-weight:800!important}
+#bagchal-blogger-container .vc-mode-card{min-height:76px!important;border-radius:15px!important}
+#bagchal-blogger-container .vc-mode-card:focus-visible,
+#bagchal-blogger-container .vc-profile-modal button:focus-visible,
+#bagchal-blogger-container #vcLegalModal button:focus-visible,
+#bagchal-blogger-container #onlinePanel button:focus-visible,
+.vc-account-card button:focus-visible,.vc-account-card input:focus-visible,
+.vc-join-room-card button:focus-visible,.vc-join-room-card input:focus-visible{
+  outline:3px solid rgba(81,70,207,.35)!important;outline-offset:2px!important;
+}
+@media(max-width:600px){
+ .vc-account-modal,.vc-profile-modal,#bagchal-blogger-container #vcLegalModal,.vc-join-room-modal{padding:10px!important}
+ .vc-account-card,#bagchal-blogger-container .vc-profile-sheet,
+ #bagchal-blogger-container .vc-legal-sheet,.vc-join-room-card{max-height:94dvh!important;overflow:auto!important;border-radius:18px!important}
+ .vc-join-room-card{padding:26px 18px 20px!important}
+ #bagchal-blogger-container .vc-legal-tabs button{min-height:42px}
+ #bagchal-blogger-container #restartPrompt>div{padding:22px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .vc-account-card,.vc-profile-sheet,.vc-legal-sheet,.vc-join-room-card,
+ #bagchal-blogger-container .vc-mode-card{transition:none!important}
+}
+#bagchal-blogger-container #vcLegalClose{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:76px!important;height:38px!important;padding:8px 13px!important;
+}
+#bagchal-blogger-container #vcLegalContent,
+#bagchal-blogger-container #vcLegalContent p,
+#bagchal-blogger-container #vcLegalContent li,
+#bagchal-blogger-container #vcLegalContent span{
+  color:#2b3448!important;
+}
+#bagchal-blogger-container #vcLegalContent a{color:#4338ca!important}
+#bagchal-blogger-container .vc-profile-actions #vcChangeNicknameBtn{
+  border:1px solid #cbc7ff!important;background:#efedff!important;color:#38318f!important;
+}
+</style>
 </body>
 </html>
