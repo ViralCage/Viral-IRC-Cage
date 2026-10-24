@@ -1897,39 +1897,6 @@ body {
         <button id="flipChessBoardBtn" type="button" onclick="toggleChessBoardOrientation()" aria-pressed="false"><span aria-hidden="true">⇅</span> Flip Board</button>
     </div>
 
-    <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
-        <div class="vc-panel-heading">PLAY ONLINE <span>LIVE MULTIPLAYER</span></div>
-        <div class="vc-room-game-picker">
-            <div class="vc-room-picker-label">Game in this room</div>
-            <div class="vc-room-game-icons" role="group" aria-label="Choose game for this room">
-                <button type="button" class="vc-room-game-icon active" data-room-game="baghchal" data-tooltip="BaghChal" title="BaghChal" aria-label="BaghChal" aria-pressed="true"><span aria-hidden="true">🐅</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="tictactoe" data-tooltip="Tic-Tac-Toe" title="Tic-Tac-Toe" aria-label="Tic-Tac-Toe" aria-pressed="false"><span aria-hidden="true">✕<small>○</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫<small>🔴</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
-                <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
-            </div>
-            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-            <label for="onlinePreferredRole" style="font-size:13px;">Play As:</label>
-            <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
-                <option value="goat">Goats (X)</option>
-                <option value="tiger">Tigers (O)</option>
-            </select>
-<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
-
-        </div>
-        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
-            <span style="font-size:13px; color:#4a5568;">Room code:</span>
-            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
-            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
-            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
-        </div>
-        <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;">Ready when you are — create a room, join with a code, or find an opponent.</div>
-        <div style="font-size:12px; line-height:1.5; color:#4a5568; margin-top:6px;">Challenge a friend or find a player online. Create a private room or join with a 4-digit code. Voice and video calls are available when you are connected.</div>
-    </div>
-
     <section class="vc-mode-picker" aria-label="Choose a game mode">
         <div class="vc-mode-tabs" role="group" aria-label="Game type">
             <button type="button" class="vc-mode-tab active" data-mode-tab="online" aria-pressed="true">Online Games</button>
@@ -1980,6 +1947,41 @@ body {
             </select>
         </div>
     </section>
+
+    <div id="onlinePanel" style="display:block; margin:12px 0; padding:12px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
+        <div class="vc-panel-heading">PLAY ONLINE <span>LIVE MULTIPLAYER</span></div>
+        <div class="vc-room-game-picker">
+            <div class="vc-room-picker-label">Game in this room</div>
+            <div class="vc-room-game-icons" role="group" aria-label="Choose game for this room">
+                <button type="button" class="vc-room-game-icon active" data-room-game="baghchal" data-tooltip="BaghChal" title="BaghChal" aria-label="BaghChal" aria-pressed="true"><span aria-hidden="true">🐅</span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="tictactoe" data-tooltip="Tic-Tac-Toe" title="Tic-Tac-Toe" aria-label="Tic-Tac-Toe" aria-pressed="false"><span aria-hidden="true">✕<small>○</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫<small>🔴</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
+            </div>
+            <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+            <label for="onlinePreferredRole" style="font-size:13px;">Play As:</label>
+            <select id="onlinePreferredRole" aria-label="Choose your side for the selected game" style="padding:9px; border:1px solid #a0aec0; border-radius:6px;">
+                <option value="goat">Goats (X)</option>
+                <option value="tiger">Tigers (O)</option>
+            </select>
+<input id="roomCodeInput" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" aria-label="Room code" style="display:none !important;">
+
+        </div>
+        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
+            <span style="font-size:13px; color:#4a5568;">Room code:</span>
+            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
+            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
+            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
+        </div>
+        <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;">Ready when you are — create a room, join with a code, or find an opponent.</div>
+        <div style="font-size:12px; line-height:1.5; color:#4a5568; margin-top:6px;">Challenge a friend or find a player online. Create a private room or join with a 4-digit code. Voice and video calls are available when you are connected.</div>
+    </div>
+
+
 
     <div id="incomingCallPopup" role="dialog" aria-modal="false" aria-labelledby="incomingCallName" hidden>
         <div class="incoming-call-person">
