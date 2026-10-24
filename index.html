@@ -4347,13 +4347,41 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
             const bothAccepted = !!(requests.goat && requests.goat.accepted) && !!(requests.tiger && requests.tiger.accepted);
             if (bothAccepted && onlineRole === GOAT && !onlineRestartHandling) {
                 onlineRestartHandling = true;
-                const configSnap = await onlineRoomRef.once('value');
-                const roomConfig = configSnap.val() || {};
-                const firstMark = roomConfig.firstMoveMark === 'O' ? 'O' : 'X';
-                freshRef.set(fresh).then(() => onlineRoomRef.child('restartRequests').remove())
-                    .then(() => { prompt.style.display = 'none'; setOnlineStatus('Both players agreed. Game restarted.'); })
-                    .catch(err => { console.error(err); setOnlineStatus('Restart failed. Please try again.'); })
-                    .finally(() => { onlineRestartHandling = false; });
+                try {
+                    const configSnap = await onlineRoomRef.once('value');
+                    const roomConfig = configSnap.val() || {};
+                    const firstMark = roomConfig.firstMoveMark === 'O' ? 'O' : 'X';
+                    let resetRef = onlineRoomRef.child('game');
+                    let freshState = initialOnlineGame();
+                    if (onlineGameType === 'tictactoe') {
+                        resetRef = onlineRoomRef.child('miniGames/tictactoe');
+                        freshState = initialTicTacToeState(firstMark);
+                    } else if (onlineGameType === 'dotsboxes') {
+                        resetRef = onlineRoomRef.child('miniGames/dotsboxes');
+                        freshState = initialDotsBoxesState(firstMark);
+                    } else if (onlineGameType === 'fourconnect') {
+                        resetRef = onlineRoomRef.child('miniGames/fourconnect');
+                        freshState = initialFourConnectState();
+                    } else if (onlineGameType === 'chess') {
+                        resetRef = onlineRoomRef.child('miniGames/chess');
+                        freshState = {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()};
+                    } else if (onlineGameType === 'checkers') {
+                        resetRef = onlineRoomRef.child('miniGames/checkers');
+                        freshState = newCheckersState();
+                    } else if (onlineGameType === 'chipbomb') {
+                        resetRef = onlineRoomRef.child('miniGames/chipbomb');
+                        freshState = initialChipBombState();
+                    }
+                    await resetRef.set(freshState);
+                    await onlineRoomRef.child('restartRequests').remove();
+                    prompt.style.display = 'none';
+                    setOnlineStatus('Both players agreed. Game restarted.');
+                } catch (err) {
+                    console.error(err);
+                    setOnlineStatus('Restart failed. Please try again.');
+                } finally {
+                    onlineRestartHandling = false;
+                }
             } else if (bothAccepted) {
                 setOnlineStatus('Both players agreed. Restarting game…');
             }
