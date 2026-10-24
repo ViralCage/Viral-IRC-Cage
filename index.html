@@ -3918,7 +3918,25 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         try {
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
-            firebaseUser = auth.currentUser || await signInAnonymouslyWithRetry(auth);
+            // Persist the anonymous player identity across page refreshes.
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            // Wait until Firebase has restored its saved identity before signing in again.
+            if (!auth.currentUser) {
+                await new Promise((resolve, reject) => {
+                    let unsubscribe = null;
+                    unsubscribe = auth.onAuthStateChanged(user => {
+                        if (unsubscribe) unsubscribe();
+                        firebaseUser = user || null;
+                        resolve();
+                    }, error => {
+                        if (unsubscribe) unsubscribe();
+                        reject(error);
+                    });
+                });
+            } else {
+                firebaseUser = auth.currentUser;
+            }
+            firebaseUser = firebaseUser || auth.currentUser || await signInAnonymouslyWithRetry(auth);
             firebaseReady = !!firebaseUser;
             if (!firebaseReady) throw new Error('server sign-in did not return a user.');
             return true;
