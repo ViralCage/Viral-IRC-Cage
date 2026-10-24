@@ -1789,6 +1789,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
                 <button type="button" class="vc-room-game-icon" data-room-game="dotsboxes" data-tooltip="Dots &amp; Boxes" title="Dots &amp; Boxes" aria-label="Dots and Boxes" aria-pressed="false"><span aria-hidden="true">⠿</span></button>
 
                 <button type="button" class="vc-room-game-icon" data-room-game="fourconnect" data-tooltip="Four Connect" title="Four Connect" aria-label="Four Connect" aria-pressed="false"><span aria-hidden="true">🔴<small>🟡</small></span></button>
+                <button type="button" class="vc-room-game-icon" data-room-game="checkers" data-tooltip="Checkers" title="Checkers" aria-label="Checkers" aria-pressed="false"><span aria-hidden="true">⚫</span></button>
                 <button type="button" class="vc-room-game-icon" data-room-game="chess" data-tooltip="Chess" title="Chess" aria-label="Chess" aria-pressed="false"><span aria-hidden="true">♞</span></button>
             </div>
             <select id="onlineGameType" aria-label="Choose multiplayer game" class="vc-room-game-select" tabindex="-1" aria-hidden="true"></select>
@@ -2571,7 +2572,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
     }
 
     function applyOnlineGameType(type, writeToRoom = false) {
-        onlineGameType=['baghchal','tictactoe','dotsboxes','fourconnect','chess'].includes(type)?type:'baghchal';
+        onlineGameType=['baghchal','tictactoe','dotsboxes','fourconnect','chess','checkers'].includes(type)?type:'baghchal';
         updateOnlineRoleOptions();
         const picker=document.getElementById('onlineGameType');if(picker)picker.value=onlineGameType;
         const selection=document.getElementById('gameSelection');if(selection&&state.mode==='online')selection.value=onlineGameType==='baghchal'?'online':'online-'+onlineGameType;
@@ -4258,6 +4259,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
         onlineChessListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.history)||!d.history.length||!d.history.every(p=>p&&Array.isArray(p.b)&&p.b.length===128&&[1,-1].includes(p.t)))return;const oldCount=chessHistory.length;chessHistory=d.history;chessLastMove=d.lastMove||null;chessSelected=-1;if(isChessActive()){updateStatusUI();drawBoard();const cs=chessStatus(chessHistory);if(cs.done)showMiniGameResult(cs.winner==='draw'?'Draw!':cs.winner==='X'?'White Wins!':'Black Wins!',cs.text);else if(chessPremove&&chessHistory.length>oldCount)setTimeout(tryExecuteChessPremove,0);} };
         onlineRoomRef.child('miniGames/chess').on('value', onlineChessListener);
+        onlineCheckersListener=snap=>{const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==64)return;checkersState={...d,selected:-1};if(isCheckersActive()){updateStatusUI();drawBoard();if(checkersState.winner)showMiniGameResult(checkersState.winner==='r'?'Red Wins!':'Black Wins!','Checkers game finished.');}};
+        onlineRoomRef.child('miniGames/checkers').on('value',onlineCheckersListener);
         onlineFourConnectListener = snap => { const d=snap.val();if(!d||!Array.isArray(d.board)||d.board.length!==42||!['X','O'].includes(d.turn))return;fourConnectState={board:d.board.map(v=>v==='X'||v==='O'?v:''),turn:d.turn,winner:d.winner||null,lastMove:d.lastMove||null,updatedAt:d.updatedAt||Date.now()};if(isFourConnectActive()){updateStatusUI();drawBoard();if(fourConnectState.winner)showMiniGameResult(fourConnectState.winner==='draw'?'Draw!':fourConnectState.winner+' Wins!','Four Connect finished.');} };
         onlineRoomRef.child('miniGames/fourconnect').on('value', onlineFourConnectListener);
         onlineChipBombListener = snap => { const d=snap.val();if(!d||!d.bombs||!d.placed||!Array.isArray(d.guesses)||!['X','O'].includes(d.turn))return;chipBombState={bombs:{X:d.bombs.X??null,O:d.bombs.O??null},placed:{X:!!d.placed.X,O:!!d.placed.O},guesses:d.guesses.map(g=>({index:Number(g.index),by:g.by,result:!!g.result})),turn:d.turn,phase:d.phase==='guess'?'guess':'setup',winner:d.winner||null,updatedAt:d.updatedAt||Date.now()};if(isChipBombActive()){updateStatusUI();drawBoard();if(chipBombState.winner)showMiniGameResult(chipBombState.winner===getRoleMark()?'You found the bomb — you win!':chipBombState.winner+' Wins!','Chip Bomb finished.');} };
@@ -5385,7 +5388,7 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
         const selector = document.getElementById('gameSelection');
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
         const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
-        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['fourconnect','Four Connect'],['chess','Chess'],['checkers','Checkers']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncRoomGameIcons();
     syncModeCardUI();
     }
@@ -5418,8 +5421,8 @@ html{background:#080d18!important}body{margin:0!important;background:radial-grad
 
     document.getElementById('gameSelection').addEventListener('change', (e) => {
         const value = e.target.value;
-        if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-fourconnect' || value === 'online-chess') {
-            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal')));
+        if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-fourconnect' || value === 'online-chess' || value === 'online-checkers') {
+            const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : (value === 'online-checkers' ? 'checkers' : 'baghchal'))));
             onlineGameType = type;
             document.getElementById('gameMode').value = 'online';
             document.getElementById('gameMode').dispatchEvent(new Event('change', { bubbles: true }));
