@@ -6400,7 +6400,7 @@ window.addEventListener('beforeunload',function(){destroyed=true;clearInterval(s
   function copyCurrentRoom(){
     var code=currentCode();
     if(!/^\d{4}$/.test(code)){return;}
-    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
+    var routeSlug=({baghchal:'baghchal',tictactoe:'tictactoe',dotsboxes:'dotsandboxes',checkers:'checkers',fourconnect:'fourconnect',chess:'chess'})[window.onlineGameType]||'baghchal';
     var invite=new URL('/'+routeSlug,window.location.origin);
     invite.searchParams.set('room',code);
     var link=invite.toString();
