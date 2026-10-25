@@ -226,7 +226,7 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 }
 
 /* 4D-inspired spectator camera depth: layered perspective, not literal 4D */
-.spectator-board-wrap{perspective:1500px;perspective-origin:50% 42%}
+.spectator-board-wrap{perspective:var(--view-perspective,1200px);perspective-origin:50% 42%}
 .spectator-board-face>.baghchal-real-board,
 .spectator-board-face>.spectator-grid,
 .spectator-board-face>.dots-board{
@@ -243,3 +243,10 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @media(prefers-reduced-motion:reduce){
  .spectator-board-face>.baghchal-real-board{transition:none}
 }
+
+/* Separate 3D, 4D-inspired and 8D-inspired spectator tilt presets */
+.spectator-toolbar [data-spectator-action^="tilt-"][aria-pressed="true"]{
+ border-color:#9b7cff;background:linear-gradient(135deg,#5136a8,#29204d);
+ color:#fff;box-shadow:0 0 0 1px #a88aff66,0 5px 18px #6546c455;
+}
+.spectator-toolbar [data-spectator-action^="tilt-"]{transition:background .2s ease,border-color .2s ease,box-shadow .2s ease}
