@@ -573,3 +573,48 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
  .chess-board-frame{padding:8px}
  .chess-piece{transform:translateY(-5%) translateZ(10px)}
 }
+
+
+/* Chess spectator: match the live game's clearly visible slate/ivory square colors. */
+.spectator-board-face .chess-board{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  grid-template-rows:repeat(8,minmax(0,1fr));
+  aspect-ratio:1;
+  background:#64748b;
+}
+.spectator-board-face .chess-tile{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  aspect-ratio:1;
+  min-width:0;
+  min-height:0;
+  background-image:none;
+  border:0;
+}
+.spectator-board-face .chess-tile.chess-light{
+  background:#e2e8f0;
+  color:#172033;
+}
+.spectator-board-face .chess-tile.chess-dark{
+  background:#64748b;
+  color:#fff;
+}
+.spectator-board-face .chess-tile.last-move:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(250,204,21,.34);
+  box-shadow:inset 0 0 0 2px #facc15;
+  pointer-events:none;
+}
+.spectator-board-face .chess-tile small{
+  position:absolute;
+  z-index:2;
+  font-size:clamp(7px,.9vw,10px);
+  line-height:1;
+  color:#263244;
+  text-shadow:none;
+}
+.spectator-board-face .chess-tile.chess-dark small{color:#fff}
