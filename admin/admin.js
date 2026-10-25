@@ -346,7 +346,7 @@ function buildAdminResetPayload(type){
   chess:{history:[(()=>{const b=Array(128).fill('.');const rows=['rnbqkbnr','pppppppp','........','........','........','........','PPPPPPPP','RNBQKBNR'];rows.forEach((row,r)=>Array.from(row).forEach((p,c)=>{b[r*16+c]=p;}));return {b,t:1,c:15,ep:-1,half:0,full:1};})()],lastMove:null,updatedAt:now}
  };
  if(!Object.prototype.hasOwnProperty.call(miniGames,type))throw new Error('Reset is not supported for this game type: '+type);
- return {'miniGames/'+type:miniGames[type]};
+ return {['miniGames/'+type]:miniGames[type]};
 }
 async function sendAdminGameCommand(type){
  const roomId=activeSpectatorRoomId;
