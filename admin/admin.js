@@ -34,7 +34,13 @@ function renderSpectatorGame(room){
   const edges=Array.isArray(data.edges)?data.edges:[],boxes=Array.isArray(data.boxes)?data.boxes:[];
   board='<div class="dots-board">'+Array.from({length:4},(_,r)=>'<div class="dots-row">'+Array.from({length:4},(_,c)=>{const k=r*4+c;return '<div class="dot-cell"><i></i><span>'+(boxes[k]?esc(boxes[k]):'')+'</span></div>'+(c<3?'<b class="'+(edges[r*3+c]?'edge-on':'')+'"></b>':'');}).join('')+'</div>'+(r<3?'<div class="dots-hrow">'+Array.from({length:4},(_,c)=>'<b class="'+(edges[12+r*4+c]?'edge-on':'')+'"></b>').join('')+'</div>':'')).join('')+'</div>';meta='Dots & Boxes · Turn: '+esc(data.turn||'—')+' · X '+(data.scores?.X||0)+' – O '+(data.scores?.O||0);
  }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
- $('spectator-meta').textContent=meta+(data.winner?' · Winner: '+data.winner:'');
+ const names=room.playerNames||{},presence=room.presence||{};
+ const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
+ const playerLabels=roles.map(role=>{
+  const live=presence[role]||{},name=live.name||names[role]||role;
+  return esc(name)+(live.connected?' (connected)':'');
+ });
+ $('spectator-meta').textContent=meta+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+(data.winner?' · Winner: '+data.winner:'');
  $('spectator-data').innerHTML=board;
 }
 function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
