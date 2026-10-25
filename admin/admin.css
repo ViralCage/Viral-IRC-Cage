@@ -32,3 +32,6 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 
 /* Super Admin room deletion */
 .room-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}.inactive-tag{border-color:#485064;color:#aab2c5;background:#202638}.delete-room-button{border:1px solid #754052;background:#321b29;color:#ff9bad;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer}.delete-room-button:hover{background:#492235}.delete-room-button:disabled{opacity:.6;cursor:wait}@media(max-width:520px){.room-actions{width:100%;justify-content:space-between}}
+
+/* Read-only live spectator panel */
+.spectator-meta{font-size:11px;color:#b9c4dc;margin:8px 0}.spectator-data{margin:0;padding:14px;max-height:520px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#080c16;border:1px solid #30384e;border-radius:10px;color:#c8d5ed;font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.watch-room-button{border:1px solid #465b86;background:#17243b;color:#b7d0ff;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer}.watch-room-button:hover{background:#223655}.room-actions{flex-wrap:wrap}
