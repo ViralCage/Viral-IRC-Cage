@@ -65,6 +65,12 @@
       <div class="panel-head"><div><p class="eyebrow">LIVE MONITORING</p><h2>Active game rooms</h2></div><span class="pill" id="room-refresh-status">WAITING</span></div>
       <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
     </section>
+    <section class="panel spectator-panel">
+      <div class="panel-head"><div><p class="eyebrow">SPECTATOR VIEW</p><h2>Live room watch</h2></div><span class="pill" id="spectator-status">NOT WATCHING</span></div>
+      <p class="fine-print">Select Watch on a room above to stream its current Firebase record here. This view is read-only. It can show board or move data only if the game already stores that data in the room record.</p>
+      <div class="spectator-meta" id="spectator-meta">No room selected.</div>
+      <pre id="spectator-data" class="spectator-data">Choose a room and click Watch.</pre>
+    </section>
     <section class="panel">
       <div class="panel-head"><div><p class="eyebrow">MATCHMAKING</p><h2>Random match queue</h2></div><span class="pill">READ ONLY</span></div>
       <div id="queue-list" class="data-list"><div class="empty"><b>Loading queue</b></div></div>
