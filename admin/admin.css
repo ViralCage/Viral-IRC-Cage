@@ -272,3 +272,19 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @media(prefers-reduced-motion:reduce){.commentary-line,.spectator-fireworks.celebrate i{animation:none}}
 
 .commentator-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.commentator-controls label{font-size:.78rem;color:var(--muted,#aeb4c5);font-weight:700}.commentator-controls select{min-height:40px;padding:8px 12px;border:1px solid var(--line,#394052);border-radius:9px;background:#171a25;color:#fff;font:inherit}@media(max-width:600px){.commentator-controls{width:100%}.commentator-controls select{flex:1;min-width:130px}}
+
+/* Premium tournament broadcast layer */
+.spectator-panel{background:radial-gradient(ellipse at 50% 0%,#252044 0%,#111522 45%,#0c101a 100%);border-color:#54477a;box-shadow:0 18px 55px #0007,inset 0 1px #ffffff0d}
+.spectator-quality{color:#c7b8ff;font-size:10px}
+.spectator-board-wrap{background:radial-gradient(ellipse at 50% 25%,#303957 0%,#111827 55%,#080b13 100%);border-color:#536184;box-shadow:inset 0 0 45px #0008,0 12px 35px #0006}
+.spectator-player-card{border-color:#7764a9;background:linear-gradient(145deg,#2b2850,#111827);box-shadow:inset 0 1px #ffffff24,0 10px 26px #0009}
+.spectator-player-bottom{border-color:#477ea5;background:linear-gradient(145deg,#183d59,#111827)}
+.commentator-panel{border-color:#7660ad;background:linear-gradient(145deg,#211b38,#0c111d);box-shadow:inset 0 1px #ffffff12,0 10px 30px #0005}
+.commentator-head strong{font-size:1.12rem;letter-spacing:.02em}
+#commentator-audio{background:linear-gradient(135deg,#7450d5,#3b62b8);border-color:#a48aff;color:white;box-shadow:0 5px 18px #6447bb55}
+.commentator-feed{max-height:260px}
+.commentary-line{background:linear-gradient(90deg,#7960b51c,#ffffff08);border-left-color:#aa8cff}
+.commentary-line.win{border-left-color:#ffd36e;background:linear-gradient(90deg,#b77a283d,#ffffff08);box-shadow:inset 0 0 25px #ffcb5c12}
+.spectator-toolbar .button{border-color:#4b5270}
+.spectator-toolbar .button:hover{border-color:#9b84ed;background:#292442}
+@media(prefers-reduced-motion:reduce){.spectator-panel,.spectator-board-wrap{scroll-behavior:auto}}
