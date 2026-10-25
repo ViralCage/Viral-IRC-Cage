@@ -49,6 +49,16 @@
       <div class="panel-head"><div><p class="eyebrow">SPECTATOR VIEW</p><h2>Live room watch</h2></div><span class="pill" id="spectator-status">NOT WATCHING</span></div>
       <p class="fine-print">Select Watch on a room above to stream its current Firebase record here. This view is read-only. It can show board or move data only if the game already stores that data in the room record.</p>
       <div class="spectator-meta" id="spectator-meta">No room selected.</div>
+      <div class="spectator-toolbar" role="group" aria-label="Spectator camera controls">
+        <button class="button button-muted" type="button" data-spectator-action="rotate-left" aria-label="Rotate board left">↶ Rotate</button>
+        <button class="button button-muted" type="button" data-spectator-action="rotate-right" aria-label="Rotate board right">Rotate ↷</button>
+        <button class="button button-muted" type="button" data-spectator-action="tilt" aria-label="Change 3D tilt">3D tilt</button>
+        <button class="button button-muted" type="button" data-spectator-action="zoom-out" aria-label="Zoom out">−</button>
+        <button class="button button-muted" type="button" data-spectator-action="zoom-in" aria-label="Zoom in">+</button>
+        <button class="button button-muted" type="button" data-spectator-action="reset" aria-label="Reset spectator view">Reset view</button>
+        <button class="button" type="button" data-spectator-action="fullscreen" aria-label="Enter spectator full screen">⛶ Full screen</button>
+      </div>
+      <p class="spectator-quality">TOURNAMENT DISPLAY · HD / 8K-INSPIRED PRESENTATION · READ ONLY</p>
       <div id="spectator-data" class="spectator-board-wrap">Choose a room and click Watch.</div>
     </section>
 
