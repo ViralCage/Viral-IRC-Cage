@@ -45,7 +45,13 @@ function startTournamentAmbience(){
  crowd.connect(filter);filter.connect(crowdGain);crowdGain.connect(master);crowd.start();
  const low=ctx.createOscillator(),lowGain=ctx.createGain();low.type='sine';low.frequency.value=55;lowGain.gain.value=.12;low.connect(lowGain);lowGain.connect(master);low.start();
  const pulse=ctx.createOscillator(),pulseGain=ctx.createGain();pulse.type='triangle';pulse.frequency.value=110;pulseGain.gain.value=.018;pulse.connect(pulseGain);pulseGain.connect(master);pulse.start();
- tournamentAmbience={master,crowd,low,pulse};
+ tournamentAmbience={master,crowd,filter,crowdGain,low,pulse};
+}
+function setTournamentGameAmbience(type){
+ const ctx=getTournamentAudio(),amb=tournamentAmbience;if(!ctx||!amb)return;
+ const profiles={chess:[340,.07],checkers:[390,.09],dotsboxes:[520,.12],fourconnect:[620,.18],baghchal:[470,.14],ludo:[680,.19],carrom:[420,.08],pool:[360,.08],tictactoe:[500,.1]};
+ const p=profiles[type]||[460,.11],now=ctx.currentTime;
+ amb.filter.frequency.setTargetAtTime(p[0],now,.7);amb.crowdGain.gain.setTargetAtTime(p[1],now,.7);
 }
 function stopTournamentAmbience(){
  if(!tournamentAmbience||!tournamentAudioContext)return;
@@ -120,6 +126,7 @@ function observeCommentary(room){
  commentatorPrevious=cur;
  if(!prev||prev.type!==cur.type){
   const en='Welcome to VC Play live tournament coverage. '+n1+' takes on '+n2+' in '+cur.type+'. The match is underway!';
+  if(commentatorAudioEnabled){startTournamentAmbience();setTournamentGameAmbience(cur.type);}
   commentatorSay(en,'intro',{en});return;
  }
  if(cur.winner&&cur.winner!==prev.winner){
@@ -173,7 +180,7 @@ function observeCommentary(room){
 }
 function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
- if(commentatorAudioEnabled){startTournamentAmbience();}else{stopTournamentAmbience();}
+ if(commentatorAudioEnabled){startTournamentAmbience();if(commentatorPrevious)setTournamentGameAmbience(commentatorPrevious.type);}else{stopTournamentAmbience();}
  const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute live audio':'Enable live audio';
  const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · STADIUM AMBIENCE · MOVE FX · VICTORY FIREWORKS ON':'SOUND OFF · Click Enable live audio to start';
  if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Welcome to VC Play tournament live coverage. The match is about to begin.');u.lang='en-CA';speechSynthesis.speak(u);} }
