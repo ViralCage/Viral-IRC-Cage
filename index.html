@@ -2376,6 +2376,7 @@ body {
     let tttWinner = null;
     let onlineGameType = 'baghchal';
     let dotsBoxesState = { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
+    let baghAiMoveTimer = null;
     let onlineGameTypeListener = null;
     let onlineTttListener = null;
     let onlineDotsListener = null;
@@ -3009,7 +3010,7 @@ body {
     }
     function applyDotsEdge(stateObj, edgeIndex, mark) {
         if(edgeIndex<0||edgeIndex>=40||stateObj.edges[edgeIndex]) return false;
-        stateObj.edges[edgeIndex]=true; let scored=0;
+        stateObj.edges[edgeIndex]=mark; let scored=0;
         const completed=(r,c)=>{const top=r*4+c,bottom=(r+1)*4+c,left=20+r*5+c,right=left+1;return stateObj.edges[top]&&stateObj.edges[bottom]&&stateObj.edges[left]&&stateObj.edges[right];};
         for(let r=0;r<4;r++)for(let c=0;c<4;c++){const bi=r*4+c;if(!stateObj.boxes[bi]&&completed(r,c)){stateObj.boxes[bi]=mark;scored++;stateObj.scores[mark]++;}}
         if(!scored)stateObj.turn=mark==='X'?'O':'X';
@@ -3095,7 +3096,7 @@ body {
 
         if ((state.mode === 'ai-tiger' && state.turn === TIGER) || 
             (state.mode === 'ai-goat' && state.turn === GOAT)) {
-            setTimeout(handleAILogic, 400);
+            scheduleBaghChalAiMove(400);
         }
         if (state.mode === 'online' && onlineRoomRef && onlineRole && !onlineApplyingSnapshot) {
             publishOnlineState();
@@ -3145,7 +3146,7 @@ body {
             publishOnlineState();
         }
 
-        if (state.mode !== 'online') setTimeout(handleAILogic, 300);
+        if (state.mode !== 'online') scheduleBaghChalAiMove(300);
         else if (onlineAiOpponent && state.turn !== onlineRole) scheduleOnlineAiMove();
     }
 
@@ -3398,6 +3399,20 @@ body {
             state.board[choice.dest] = piece;
         }
         return true;
+    }
+
+    function scheduleBaghChalAiMove(delay = 400) {
+        if (baghAiMoveTimer) clearTimeout(baghAiMoveTimer);
+        if (!['ai-tiger','ai-goat'].includes(state.mode) || state.winner) return;
+        const aiTurn = state.mode === 'ai-tiger' ? TIGER : GOAT;
+        if (state.turn !== aiTurn) return;
+        baghAiMoveTimer = setTimeout(() => {
+            baghAiMoveTimer = null;
+            if (['ai-tiger','ai-goat'].includes(state.mode) && !state.winner && state.turn === (state.mode === 'ai-tiger' ? TIGER : GOAT)) {
+                state.difficulty = 'hardest';
+                handleAILogic();
+            }
+        }, delay);
     }
 
     function handleAILogic() {
@@ -3829,7 +3844,7 @@ body {
                 if(owner){ctx.fillStyle=owner==='X'?'rgba(37,99,235,0.20)':'rgba(220,38,38,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=owner==='X'?'#2563eb':'#dc2626';ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
             }
             ctx.lineCap='round';
-            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]?'#334155':'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
+            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]==='X'?'#2563eb':dotsBoxesState.edges[i]==='O'?'#dc2626':(dotsBoxesState.edges[i]?'#334155':'#64748b');ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(5,width*0.022):Math.max(2.5,width*0.012);ctx.stroke();}
             for(let r=0;r<5;r++) for(let c=0;c<5;c++){ctx.beginPath();ctx.arc(pad+c*gap,pad+r*gap,Math.max(3,width*0.018),0,Math.PI*2);ctx.fillStyle='#111827';ctx.fill();}
             return;
         }
@@ -4508,7 +4523,7 @@ body {
         onlineRoomRef.child('miniGames/tictactoe').on('value', onlineTttListener);
         onlineDotsListener = snap => {
             const data=snap.val(); if(!data || !Array.isArray(data.edges) || data.edges.length!==40 || !Array.isArray(data.boxes) || data.boxes.length!==16 || !['X','O'].includes(data.turn)) return;
-            dotsBoxesState={edges:data.edges.map(Boolean),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null};
+            dotsBoxesState={edges:data.edges.map(v=>v==='X'||v==='O'?v:Boolean(v)),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null};
             if(isDotsBoxesActive()){ updateStatusUI(); drawBoard(); if(dotsBoxesState.winner){document.getElementById('messageTitle').textContent=dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner+' Wins!';document.getElementById('messageBody').textContent='Dots & Boxes finished.';document.getElementById('messageOverlay').classList.add('active');}else document.getElementById('messageOverlay').classList.remove('active'); }
         };
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
