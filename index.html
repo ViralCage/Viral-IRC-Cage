@@ -5523,7 +5523,18 @@ body {
         card.addEventListener('click', () => {
             const selector = document.getElementById('gameSelection');
             if (!selector) return;
-            selector.value = card.getAttribute('data-game-mode');
+            const selectedMode = card.getAttribute('data-game-mode');
+            selector.value = selectedMode;
+            // Always initialize BaghChal AI cards at the strongest level and
+            // synchronize both selectors before the game-mode change is handled.
+            if (selectedMode === 'ai-tiger-hardest' || selectedMode === 'ai-goat-hardest') {
+                const aiSide = selectedMode === 'ai-tiger-hardest' ? 'ai-tiger' : 'ai-goat';
+                const levelPicker = document.getElementById('aiLevel');
+                const modePicker = document.getElementById('gameMode');
+                if (levelPicker) levelPicker.value = 'hardest';
+                if (modePicker) modePicker.value = aiSide;
+                state.difficulty = 'hardest';
+            }
             selector.dispatchEvent(new Event('change', { bubbles: true }));
             (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
     syncModeCardUI();
