@@ -36,12 +36,19 @@ function renderSpectatorGame(room){
  }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
  const names=room.playerNames||{},presence=room.presence||{};
  const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
+ const playerCards=roles.slice(0,2).map((role,index)=>{
+  const live=presence[role]||{},name=live.name||names[role]||role;
+  const label=String(role).replace(/[_-]/g,' ');
+  return '<div class="spectator-player-card '+(index===0?'spectator-player-top':'spectator-player-bottom')+'"><span class="spectator-player-side">'+(index===0?'PLAYER SIDE 1':'PLAYER SIDE 2')+'</span><strong>'+esc(name)+'</strong><small>'+esc(label)+' · '+(live.connected?'CONNECTED':'OFFLINE')+'</small></div>';
+ });
  const playerLabels=roles.map(role=>{
   const live=presence[role]||{},name=live.name||names[role]||role;
   return esc(name)+(live.connected?' (connected)':'');
  });
+ const topCard=playerCards[0]||'<div class="spectator-player-card spectator-player-top"><span class="spectator-player-side">PLAYER SIDE 1</span><strong>Waiting for player</strong><small>Not connected</small></div>';
+ const bottomCard=playerCards[1]||'<div class="spectator-player-card spectator-player-bottom"><span class="spectator-player-side">PLAYER SIDE 2</span><strong>Waiting for player</strong><small>Not connected</small></div>';
  $('spectator-meta').textContent=meta+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+(data.winner?' · Winner: '+data.winner:'');
- $('spectator-data').innerHTML=board;
+ $('spectator-data').innerHTML='<div class="spectator-player-rail">'+topCard+'</div><div class="spectator-board-face">'+board+'</div><div class="spectator-player-rail">'+bottomCard+'</div>';
 }
 function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
 function presenceFor(room){
