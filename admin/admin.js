@@ -294,7 +294,33 @@ async function saveRoomEditor(){
  }catch(e){$('room-editor-status').textContent='SAVE ERROR';alert('Could not save room data: '+e.message+' Check that Super Admin has write permission on bagchalRooms.');}
  finally{btn.disabled=false;btn.textContent='Save room changes';}
 }
-function watchRoom(roomId){if(!roomId)return;activeSpectatorRoomId=String(roomId);activeSpectatorRoomData=null;try{const url=new URL(window.location.href);url.searchParams.set('watch',roomId);window.history.replaceState({},'',url.toString());}catch(e){}commentatorPrevious=null;commentatorLastText='';if($('commentator-feed'))$('commentator-feed').innerHTML='<div class="commentary-line intro">Connecting to live match commentary…</div>';if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';const code=roomCodesById[activeSpectatorRoomId]||'';$('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(code||'LOOKING UP…')+'</strong>'+(code?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">Live updates · Room ID: '+esc(roomId)+'</div>';$('spectator-data').textContent='Loading live room…';$('room-editor-id').value=String(roomId);$('room-editor-status').textContent='ROOM SELECTED · '+roomId;spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();activeSpectatorRoomData=value;$('spectator-status').textContent='LIVE';if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);observeCommentary(value);renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
+function updateFreezeMatchControl(room){
+ const btn=$('freeze-match-button'),help=$('freeze-match-help');
+ if(!btn)return;
+ const selected=!!activeSpectatorRoomId&&!!room;
+ btn.disabled=!selected||!adminUid||!db;
+ const frozen=!!(room&&room.adminControl&&room.adminControl.frozen===true);
+ btn.textContent=frozen?'Unfreeze':'Freeze';
+ btn.classList.toggle('button-danger',!frozen);
+ if(help)help.textContent=selected?(frozen?'This room is frozen; player writes should be blocked by Firebase rules.':'Selected room: '+activeSpectatorRoomId):'Select Watch on a room to pause it';
+}
+async function toggleFreezeMatch(){
+ const roomId=activeSpectatorRoomId;
+ if(!roomId||!adminUid||!db){alert('Sign in as Super Admin and select a room using Watch first.');return;}
+ const current=activeSpectatorRoomData||{};
+ const frozen=!!(current.adminControl&&current.adminControl.frozen===true);
+ const next=!frozen;
+ if(!confirm((next?'FREEZE':'UNFREEZE')+' match '+roomId+'?'))return;
+ const btn=$('freeze-match-button');if(btn){btn.disabled=true;btn.textContent=next?'Freezing…':'Unfreezing…';}
+ try{
+  await db.ref('bagchalRooms/'+roomId+'/adminControl').update({frozen:next,updatedAt:Date.now(),updatedBy:adminUid});
+  await audit(next?'match_frozen':'match_unfrozen',{roomId});
+  if($('room-editor-status'))$('room-editor-status').textContent=next?'MATCH FROZEN':'MATCH UNFROZEN';
+ }catch(e){
+  alert('Could not change match freeze state: '+e.message+' Check the bagchalRooms write rules.');
+ }finally{updateFreezeMatchControl(activeSpectatorRoomData||{});}
+}
+function watchRoom(roomId){if(!roomId)return;activeSpectatorRoomId=String(roomId);activeSpectatorRoomData=null;try{const url=new URL(window.location.href);url.searchParams.set('watch',roomId);window.history.replaceState({},'',url.toString());}catch(e){}commentatorPrevious=null;commentatorLastText='';if($('commentator-feed'))$('commentator-feed').innerHTML='<div class="commentary-line intro">Connecting to live match commentary…</div>';if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';const code=roomCodesById[activeSpectatorRoomId]||'';$('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(code||'LOOKING UP…')+'</strong>'+(code?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">Live updates · Room ID: '+esc(roomId)+'</div>';$('spectator-data').textContent='Loading live room…';$('room-editor-id').value=String(roomId);$('room-editor-status').textContent='ROOM SELECTED · '+roomId;spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();activeSpectatorRoomData=value;updateFreezeMatchControl(value);$('spectator-status').textContent='LIVE';if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);observeCommentary(value);renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
 function presenceFor(room){
  const p=room&&room.presence||{},out=[];
  Object.keys(p).forEach(role=>{const x=p[role];if(x&&x.connected){out.push({uid:x.uid||'',name:x.name||room.playerNames&&room.playerNames[role]||role,role,lastSeen:x.lastSeen||null});}});
@@ -436,6 +462,7 @@ googleButton.addEventListener('click',()=>{if(!auth){msg('Firebase login is unav
 form.addEventListener('submit',e=>{e.preventDefault();if(!auth){msg('Firebase login is unavailable.','error');return;}button.disabled=true;button.textContent='Signing in…';msg('Checking administrator permission…');auth.signInWithEmailAndPassword(email.value.trim(),password.value).then(verify).catch(e=>msg(e.message||'Sign-in failed.','error')).finally(()=>{button.disabled=false;button.textContent='Sign in with email';password.value='';});});
 $('spectator-meta').addEventListener('click',e=>{const copy=e.target.closest('.copy-room-code-button');if(!copy)return;const code=copy.getAttribute('data-copy-room')||'';if(!code)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(()=>{copy.textContent='Copied';setTimeout(()=>{if(copy.isConnected)copy.textContent='Copy code';},1400);}).catch(()=>window.prompt('Copy room code:',code));}else{window.prompt('Copy room code:',code);}});
 $('room-list').addEventListener('click',e=>{const copy=e.target.closest('.copy-room-code-button');if(copy){const code=copy.getAttribute('data-copy-room')||'';if(code&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(()=>{copy.textContent='Copied';setTimeout(()=>{if(copy.isConnected)copy.textContent='Copy code';},1400);}).catch(()=>{window.prompt('Copy room code:',code);});}else if(code){window.prompt('Copy room code:',code);}return;}const watch=e.target.closest('.watch-room-button');if(watch){const id=watch.getAttribute('data-watch-room');if(id)watchRoom(id);return;}const btn=e.target.closest('.end-room-button');if(!btn)return;const roomId=btn.getAttribute('data-room-id');if(!roomId||!adminUid||!db)return;if(!window.confirm('END GAME? Room '+roomId+' will be permanently removed from Firebase. This cannot be undone.'))return;btn.disabled=true;btn.textContent='Ending…';db.ref('bagchalRooms/'+roomId).remove().then(()=>{audit('game_ended',{roomId});$('room-refresh-status').textContent='GAME ENDED · ROOM REMOVED';}).catch(err=>{btn.disabled=false;btn.textContent='End game';$('room-refresh-status').textContent='END GAME ERROR';window.alert('Could not end game: '+err.message);});});
+$('freeze-match-button')?.addEventListener('click',toggleFreezeMatch);
 $('room-editor-load')?.addEventListener('click',loadRoomEditor);
 $('room-editor-save')?.addEventListener('click',saveRoomEditor);
 $('room-editor-copy')?.addEventListener('click',()=>{const value=$('room-editor-json').value;if(!value)return;if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(()=>{$('room-editor-status').textContent='BACKUP COPIED';}).catch(()=>window.prompt('Copy room JSON:',value));else window.prompt('Copy room JSON:',value);});
