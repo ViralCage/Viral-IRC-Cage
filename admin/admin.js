@@ -1,0 +1,1 @@
+// Super Admin preview only. No Firebase connection or live admin actions are enabled.
