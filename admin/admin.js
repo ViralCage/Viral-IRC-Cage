@@ -74,23 +74,86 @@ function playFireworkSound(){
   setTimeout(()=>ctx.close().catch(()=>{}),1300);
  }catch(_){}
 }
-function observeCommentary(room){
- const cur=commentatorState(room),prev=commentatorPrevious;commentatorPrevious=cur;
- const ps=commentatorPlayers(room),n1=ps[0]?.name||'Player 1',n2=ps[1]?.name||'Player 2';
- if(!prev||prev.type!==cur.type){const en='Welcome to the live '+cur.type+' match. '+n1+' faces '+n2+'. Let the game begin!';const np='प्रत्यक्ष '+cur.type+' खेलमा स्वागत छ। '+n1+' र '+n2+' बीचको खेल सुरु हुँदैछ!';commentatorSay(bilingual(en,np),'intro',{en,np});return;}
- if(cur.winner&&cur.winner!==prev.winner){const winner=commentatorName(room,cur.winner),en='What a finish! '+winner+' wins the match! Congratulations!',np='कस्तो शानदार खेल! '+winner+' ले खेल जित्नुभयो! धेरै धेरै बधाई!';commentatorSay(bilingual(en,np),'win',{en,np});fireworkBurst();return;}
- if(cur.board.join('|')!==prev.board.join('|')){
-  let en='The position has changed. '+n1+' and '+n2+' are fighting for an advantage.',np='खेलको अवस्था बदलिएको छ। '+n1+' र '+n2+' फाइदा लिन संघर्ष गर्दै हुनुहुन्छ।';
-  if(cur.type==='baghchal'&&cur.captured>prev.captured){en='A tiger capture! '+cur.captured+' goats have been captured. The pressure is rising.';np='बाघले बाख्रा समात्यो! अहिलेसम्म '+cur.captured+' वटा बाख्रा समातिएका छन्। दबाब बढ्दैछ।';}
-  else if(cur.type==='chess'){en='A chess move has been played. '+(cur.turn===1?'White':'Black')+' to move next. Watch for a tactical opportunity.';np='चेसमा चाल चलियो। अब '+(cur.turn===1?'सेतो':'कालो')+' पक्षको पालो हो। अर्को रणनीतिक अवसरमा ध्यान दिनुहोस्।';}
-  else if(cur.type==='checkers'){en='A checkers move changes the position. Both players are fighting for control.';np='चेकर्समा चालसँगै खेलको अवस्था फेरिएको छ। दुवै खेलाडी नियन्त्रणका लागि प्रतिस्पर्धा गर्दै हुनुहुन्छ।';}
-  else if(cur.type==='fourconnect'){en='A counter drops into the grid. Every connection matters now.';np='ग्रिडमा एउटा गोटी थपियो। अब हरेक जोडाइ महत्त्वपूर्ण छ।';}
-  else if(cur.type==='tictactoe'){en='A mark is placed. One line could decide this game.';np='एउटा चिन्ह राखियो। अब एउटा लाइनले खेलको निर्णय गर्न सक्छ।';}
-  playTournamentMoveSound();commentatorSay(bilingual(en,np),'move',{en,np});
+function commentaryStable(value){
+ if(Array.isArray(value))return value.map(commentaryStable);
+ if(value&&typeof value==='object'){
+  const out={};
+  Object.keys(value).sort().forEach(key=>{
+   if(/^(updatedAt|updated_at|timestamp|lastSeen|last_seen|connected|online|presence|heartbeat|createdAt|created_at)$/i.test(key))return;
+   const v=value[key];if(typeof v!=='function'&&v!==undefined)out[key]=commentaryStable(v);
+  });
+  return out;
  }
- if(cur.boxes>prev.boxes){const en='A box has been claimed! The score is moving.',np='एउटा बाकस आफ्नो बनाइयो! स्कोर परिवर्तन हुँदैछ।';commentatorSay(bilingual(en,np),'move',{en,np});}
- const sx=Number(cur.scores.X||0),sy=Number(cur.scores.O||0),px=Number(prev.scores.X||0),py=Number(prev.scores.O||0);
- if(sx>px||sy>py){const en='Points on the board! The latest score is '+sx+' to '+sy+'.',np='स्कोर बढेको छ! अहिलेको स्कोर '+sx+' र '+sy+' छ।';commentatorSay(bilingual(en,np),'move',{en,np});}
+ return value;
+}
+function commentaryMover(room,turn,moveNumber){
+ const ps=commentatorPlayers(room);
+ const token=String(turn==null?'':turn).toLowerCase();
+ const aliases=token==='1'?['tiger','tigers','player1','player_1','p1','white','x']:token==='2'?['goat','goats','player2','player_2','p2','black','o']:[token];
+ const found=ps.find(p=>aliases.includes(String(p.role||'').toLowerCase())||String(p.name||'').toLowerCase()===token);
+ if(found)return found.name;
+ if(ps.length>=2)return ps[(Math.max(1,Number(moveNumber)||1)-1)%2].name;
+ return ps[0]?.name||'A player';
+}
+function observeCommentary(room){
+ const cur=commentatorState(room),prev=commentatorPrevious;
+ const ps=commentatorPlayers(room),n1=ps[0]?.name||'Player 1',n2=ps[1]?.name||'Player 2';
+ const data=cur.data||{};
+ const signature=JSON.stringify(commentaryStable(data));
+ cur.signature=signature;
+ commentatorPrevious=cur;
+ if(!prev||prev.type!==cur.type){
+  const en='Welcome to VC Play live tournament coverage. '+n1+' takes on '+n2+' in '+cur.type+'. The match is underway!';
+  commentatorSay(en,'intro',{en});return;
+ }
+ if(cur.winner&&cur.winner!==prev.winner){
+  const winner=commentatorName(room,cur.winner);
+  const en='What a finish! '+winner+' wins the '+cur.type+' match! A fantastic performance. Congratulations!';
+  commentatorSay(en,'win',{en});fireworkBurst();return;
+ }
+ if(signature===prev.signature)return;
+ const moveNumber=Math.max(1,cur.moveCount||prev.moveCount+1);
+ const mover=commentaryMover(room,prev.turn,moveNumber);
+ const nextTurn=cur.turn==null?'':String(cur.turn);
+ const turnText=nextTurn?'. The next turn is '+nextTurn+'.':'';
+ let en=mover+' makes the next move in '+cur.type+'. Every decision matters at this stage'+turnText;
+ if(cur.type==='baghchal'){
+  if(cur.captured>prev.captured)en='Tiger capture! '+mover+' captures a goat. '+cur.captured+' goats have now been captured. The pressure is building!';
+  else if(cur.board.length!==prev.board.length||cur.board.join('|')!==prev.board.join('|'))en=mover+' moves on the BaghChal board. The tigers and goats are battling for position. What happens next?';
+  else en=mover+' adjusts the BaghChal position. The strategy is developing with every turn.';
+ }else if(cur.type==='chess'){
+  const pos=Array.isArray(data.history)?data.history[data.history.length-1]||{}:{};
+  const side=prev.turn===1?'White':prev.turn===2?'Black':String(prev.turn||'player');
+  en=mover+' plays '+side+' in chess. Move '+(pos.full||moveNumber)+'. Watch the board carefully; one tactical idea can change everything!';
+  if(data.check||pos.check)en='Check! '+mover+' puts the king under pressure. The defending side must respond!';
+ }else if(cur.type==='checkers'){
+  en=mover+' makes a checkers move. The fight for the middle of the board is getting tighter!';
+  if(Number(data.captured||data.captures||0)>Number(prev.data.captured||prev.data.captures||0))en='A capture in checkers! '+mover+' takes an opponent piece. The match momentum could be shifting!';
+ }else if(cur.type==='fourconnect'){
+  en=mover+' drops a counter into Four Connect. The winning connection is taking shape. Keep watching those lines!';
+ }else if(cur.type==='tictactoe'){
+  const mark=String(prev.turn||'');
+  en=mover+' places '+(mark?mark+' ':'a mark ')+'in Tic-Tac-Toe. A row, column or diagonal could decide the match!';
+ }else if(cur.type==='dotsboxes'){
+  const gained=Math.max(0,cur.boxes-prev.boxes),scores=cur.scores||{};
+  en=gained?mover+' claims '+gained+' '+(gained===1?'box':'boxes')+' in Dots and Boxes! The score is now '+Number(scores.X||0)+' to '+Number(scores.O||0)+'.':' '+mover+' draws a line in Dots and Boxes. The next line could complete a box!';
+ }else if(cur.type==='ludo'){
+  en=mover+' makes a move in Ludo. The race around the board is on; every roll can change the standings!';
+  if(data.dice!=null)en=mover+' rolls '+data.dice+' in Ludo and makes a move. The race is heating up!';
+ }else if(cur.type==='carrom'){
+  en=mover+' takes a shot in Carrom. The striker is in play and the score could change with this turn!';
+ }else if(cur.type==='pool'||cur.type==='8ball'||cur.type==='nineball'){
+  en=mover+' takes a shot in '+cur.type+'. Watch the cue ball and the next pocket attempt!';
+ }else{
+  en=mover+' makes a move in '+cur.type+'. The live match is changing with every action. Stay tuned!';
+ }
+ const score=cur.scores||{};
+ if(cur.type!=='dotsboxes'&&JSON.stringify(score)!==JSON.stringify(prev.scores||{})){
+  const entries=Object.entries(score).filter(([,v])=>Number.isFinite(Number(v)));
+  if(entries.length)en+=' Current score: '+entries.map(([k,v])=>k+' '+v).join(', ')+'.';
+ }
+ playTournamentMoveSound();
+ commentatorSay(en,'move',{en});
 }
 function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
