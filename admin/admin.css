@@ -370,3 +370,12 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-board-face>.dots-arena,.spectator-board-face>.chess-stage,.spectator-board-face>.baghchal-real-board{max-width:100%}
 @media(max-width:760px){.spectator-tv-layout{grid-template-columns:minmax(0,1fr);gap:12px}.spectator-board-face{grid-row:1}.spectator-tv-seat{display:grid;grid-template-columns:minmax(90px,.65fr) minmax(0,1fr);align-items:center}.spectator-camera-frame{aspect-ratio:16/9}.spectator-seat-info{text-align:left}.spectator-seat-info small{justify-content:flex-start}}
 @media(min-width:761px) and (max-width:980px){.spectator-tv-layout{grid-template-columns:minmax(115px,.65fr) minmax(260px,1.6fr) minmax(115px,.65fr);gap:9px}.spectator-tv-seat{padding:7px}.spectator-camera-label{font-size:8px}}
+
+
+/* Explicit room-code display and copy controls in the admin panel */
+.spectator-room-code{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px;padding:10px 12px;border:1px solid #526b95;border-radius:11px;background:linear-gradient(120deg,#1b2942,#101827);color:#eaf1ff}
+.spectator-room-code>span{font-size:10px;font-weight:850;letter-spacing:.14em;color:#9fb3d4}
+.spectator-room-code>strong{font-size:19px;letter-spacing:.12em;font-variant-numeric:tabular-nums;color:#fff}
+.spectator-room-details{font-size:12px;color:#aab8cf;line-height:1.5}
+.copy-room-code-button{border:1px solid #637da8;border-radius:8px;padding:7px 10px;background:#263b5d;color:#fff;font-size:11px;font-weight:750;cursor:pointer}
+.copy-room-code-button:hover{background:#35527e}
