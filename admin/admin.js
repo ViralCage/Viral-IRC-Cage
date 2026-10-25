@@ -10,7 +10,34 @@ function deny(){document.body.classList.remove('admin-authenticated');stopMonito
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminRoot=null;adminUid=null;}
-function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room data…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';$('spectator-data').textContent=JSON.stringify(value,null,2);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
+function renderSpectatorGame(room){
+ const type=room.activeGameType||'baghchal', mini=room.miniGames||{}, data=type==='baghchal'?(room.game||{}):(mini[type]||{});
+ const arr=Array.isArray(data.board)?data.board:[];
+ const turn=data.turn===1?'Goats':data.turn===2?'Tigers':(data.turn||'—');
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let board='',meta='Turn: '+turn;
+ const grid=(items,cls)=>'<div class="spectator-grid '+cls+'">'+items.join('')+'</div>';
+ if(type==='chess'){
+  const hist=Array.isArray(data.history)?data.history:[], pos=hist[hist.length-1]||{}, b=Array.isArray(pos.b)?pos.b:[];
+  const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+  board=grid(Array.from({length:64},(_,i)=>{const r=Math.floor(i/8),c=i%8,p=b[r*16+c]||'.';return '<div class="spectator-square '+((r+c)%2?'dark':'light')+'">'+(glyph[p]||'')+'</div>';}),'chess-grid');
+  meta='Chess · '+(pos.t===1?'White to move':'Black to move')+' · Move '+(pos.full||1);
+ }else if(type==='tictactoe'){
+  const a=Array.isArray(data.board)?data.board:[];board=grid(Array.from({length:9},(_,i)=>'<div class="spectator-square ttt-square '+(a[i]==='X'?'mark-x':a[i]==='O'?'mark-o':'')+'">'+esc(a[i])+'</div>'),'ttt-grid');meta='Tic-Tac-Toe · Turn: '+esc(data.turn||'—');
+ }else if(type==='checkers'){
+  board=grid(Array.from({length:64},(_,i)=>{const p=arr[i]||'';return '<div class="spectator-square '+((Math.floor(i/8)+i%8)%2?'dark':'light')+'">'+(p?'<span class="checker-piece '+(p[0]==='X'?'red-piece':'black-piece')+'">'+(p.length>1?'♛':'●')+'</span>':'')+'</div>';}),'checkers-grid');meta='Checkers · Turn: '+esc(data.turn||'—');
+ }else if(type==='fourconnect'){
+  board=grid(Array.from({length:42},(_,i)=>{const p=arr[i]||'';return '<div class="connect-hole">'+(p?'<span class="connect-piece '+(p==='X'?'red-piece':'yellow-piece')+'"></span>':'')+'</div>';}),'connect-grid');meta='Four Connect · Turn: '+esc(data.turn||'—');
+ }else if(type==='baghchal'){
+  board=grid(Array.from({length:25},(_,i)=>{const p=arr[i];return '<div class="bagh-node">'+(p===1?'<span class="tiger-piece">🐅</span>':p===2?'<span class="goat-piece">🐐</span>':'')+'</div>';}),'baghchal-grid');meta='BaghChal · '+(data.goatsToPlace??'—')+' goats to place · '+(data.goatsCaptured??0)+' captured · Turn: '+(data.turn===1?'Tigers':'Goats');
+ }else if(type==='dotsboxes'){
+  const edges=Array.isArray(data.edges)?data.edges:[],boxes=Array.isArray(data.boxes)?data.boxes:[];
+  board='<div class="dots-board">'+Array.from({length:4},(_,r)=>'<div class="dots-row">'+Array.from({length:4},(_,c)=>{const k=r*4+c;return '<div class="dot-cell"><i></i><span>'+(boxes[k]?esc(boxes[k]):'')+'</span></div>'+(c<3?'<b class="'+(edges[r*3+c]?'edge-on':'')+'"></b>':'');}).join('')+'</div>'+(r<3?'<div class="dots-hrow">'+Array.from({length:4},(_,c)=>'<b class="'+(edges[12+r*4+c]?'edge-on':'')+'"></b>').join('')+'</div>':'')).join('')+'</div>';meta='Dots & Boxes · Turn: '+esc(data.turn||'—')+' · X '+(data.scores?.X||0)+' – O '+(data.scores?.O||0);
+ }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
+ $('spectator-meta').textContent=meta+(data.winner?' · Winner: '+data.winner:'');
+ $('spectator-data').innerHTML=board;
+}
+function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
 function adminStatus(t,isError){const el=$('admin-note-status');if(el){el.textContent=t;el.className='login-message'+(isError?' error':' success');}}
 function logAdminAction(action,details){if(!adminRoot)return Promise.resolve();return adminRoot.child('activity').push({action,details:String(details||''),at:firebase.database.ServerValue.TIMESTAMP}).catch(e=>adminStatus('Saved, but activity log failed: '+e.message,true));}
 function renderAdminNotes(data){const el=$('admin-notes-list');if(!el)return;const items=Object.entries(data||{}).map(([id,n])=>({id,...(n||{})})).sort((a,b)=>(b.at||0)-(a.at||0));if(!items.length){el.innerHTML='<div class="empty"><b>No private notes yet</b><p>Notes are visible only to this Super Admin account.</p></div>';return;}el.innerHTML=items.slice(0,30).map(n=>'<article class="data-row"><div class="data-main"><b>'+esc(n.title||'Untitled note')+'</b><span>'+esc(n.body||'')+'</span><small>'+esc(n.at?new Date(n.at).toLocaleString():'Date unavailable')+'</small></div></article>').join('');}
