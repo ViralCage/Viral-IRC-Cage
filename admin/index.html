@@ -68,6 +68,16 @@
     </section>
 
     <section class="panel">
+        <div class="panel-head"><div><p class="eyebrow">MATCH OVERRIDES</p><h2>Game control</h2></div><span class="pill">ALL GAMES</span></div>
+        <div class="action-list">
+          <div class="action"><span class="action-icon">Ⅱ</span><div><b>Freeze match</b><small id="freeze-match-help">Select Watch on a room to pause it</small></div><button id="freeze-match-button" disabled type="button">Freeze</button></div>
+          <div class="action"><span class="action-icon">↻</span><div><b>Reset match</b><small>Requires game-client reset support; not enabled yet</small></div><button disabled>Unavailable</button></div>
+          <div class="action"><span class="action-icon">♛</span><div><b>Override result</b><small>Set a verified match outcome</small></div><button disabled>Unavailable</button></div>
+          <div class="action"><span class="action-icon">■</span><div><b>End match</b><small>Close a selected active game</small></div><button class="danger-outline" disabled>Unavailable</button></div>
+        </div>
+    </section>
+
+    <section class="panel">
       <div class="panel-head"><div><p class="eyebrow">LIVE MONITORING</p><h2>Active game rooms</h2></div><span class="pill" id="room-refresh-status">WAITING</span></div>
       <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
     </section>
@@ -99,16 +109,7 @@
 
 
 
-    <section class="two-col">
-      <article class="panel">
-        <div class="panel-head"><div><p class="eyebrow">MATCH OVERRIDES</p><h2>Game control</h2></div><span class="pill">ALL GAMES</span></div>
-        <div class="action-list">
-          <div class="action"><span class="action-icon">Ⅱ</span><div><b>Freeze match</b><small id="freeze-match-help">Select Watch on a room to pause it</small></div><button id="freeze-match-button" disabled type="button">Freeze</button></div>
-          <div class="action"><span class="action-icon">↻</span><div><b>Reset match</b><small>Requires game-client reset support; not enabled yet</small></div><button disabled>Unavailable</button></div>
-          <div class="action"><span class="action-icon">♛</span><div><b>Override result</b><small>Set a verified match outcome</small></div><button disabled>Unavailable</button></div>
-          <div class="action"><span class="action-icon">■</span><div><b>End match</b><small>Close a selected active game</small></div><button class="danger-outline" disabled>Unavailable</button></div>
-        </div>
-      </article>
+    <section class="panel">
       <article class="panel">
         <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">GLOBAL ENFORCEMENT</span></div>
         <label class="field-label" for="ban-target">Player UID</label><input id="ban-target" autocomplete="off" placeholder="Paste exact Firebase player UID">
