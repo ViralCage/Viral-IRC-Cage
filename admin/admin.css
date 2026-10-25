@@ -11,3 +11,5 @@ body:not(.admin-authenticated) .shell>:not(.topbar):not(#login-panel){display:no
 #admin-login-button{cursor:pointer}
 #admin-login-button:disabled{opacity:.6;cursor:wait}
 body.admin-authenticated #login-panel{display:none}
+
+.login-divider{display:flex;align-items:center;gap:12px;color:#778198;font-size:10px;letter-spacing:.14em;margin:17px 0 2px}.login-divider:before,.login-divider:after{content:'';height:1px;background:#30384e;flex:1}.google-button{display:flex;align-items:center;justify-content:center;gap:11px;background:#f7f8fa;color:#202124;border:1px solid #d8dce3;cursor:pointer}.google-button:hover{background:#e9edf3}.google-button:disabled{opacity:.6;cursor:wait}.google-g{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#fff;color:#4285f4;font:bold 16px Arial,sans-serif;box-shadow:0 0 0 1px #dadce0}
