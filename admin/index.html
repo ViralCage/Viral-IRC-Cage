@@ -52,6 +52,11 @@
       <div id="spectator-data" class="spectator-board-wrap">Choose a room and click Watch.</div>
     </section>
 
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">LIVE MONITORING</p><h2>Active game rooms</h2></div><span class="pill" id="room-refresh-status">WAITING</span></div>
+      <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
+    </section>
+
     <section class="stats" aria-label="Live statistics">
       <article class="stat"><span>ONLINE PLAYERS</span><b id="online-count">—</b><small>Connected room participants</small></article>
       <article class="stat"><span>ACTIVE ROOMS</span><b id="room-count">—</b><small>Rooms with connected participants</small></article>
@@ -68,10 +73,7 @@
     </section>
 
 
-    <section class="panel">
-      <div class="panel-head"><div><p class="eyebrow">LIVE MONITORING</p><h2>Active game rooms</h2></div><span class="pill" id="room-refresh-status">WAITING</span></div>
-      <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
-    </section>
+
     <section class="two-col">
       <article class="panel">
         <div class="panel-head"><div><p class="eyebrow">MATCH OVERRIDES</p><h2>Game control</h2></div><span class="pill">ALL GAMES</span></div>
