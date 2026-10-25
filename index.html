@@ -1662,6 +1662,25 @@ body {
 
 
     /* VIRAL CAGE PLAY — refined dark identity and premium brand lockup */
+    #bagchal-blogger-container .game-topbar { position:relative !important; }
+    #bagchal-blogger-container #headerRoomCodeBox {
+      position:absolute; right:150px; top:50%; transform:translateY(-50%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+      min-width:104px; padding:6px 10px; border:1px solid rgba(129,140,248,.42);
+      border-radius:10px; background:linear-gradient(145deg,rgba(30,41,70,.96),rgba(17,24,39,.96));
+      color:#eaf0ff; cursor:pointer; font:inherit; line-height:1.1;
+      box-shadow:0 5px 16px rgba(0,0,0,.2);
+    }
+    #bagchal-blogger-container #headerRoomCodeBox[hidden] { display:none !important; }
+    #bagchal-blogger-container #headerRoomCodeBox span { font-size:8px; letter-spacing:.16em; color:#a5b4fc; font-weight:800; }
+    #bagchal-blogger-container #headerRoomCodeBox strong { font-size:17px; letter-spacing:.18em; color:#fff; }
+    #bagchal-blogger-container #headerRoomCodeBox small { font-size:8px; color:#9ca9c4; }
+    @media(max-width:480px) {
+      #bagchal-blogger-container #headerRoomCodeBox { right:112px; min-width:82px; padding:5px 6px; }
+      #bagchal-blogger-container #headerRoomCodeBox strong { font-size:14px; }
+      #bagchal-blogger-container #headerRoomCodeBox span { font-size:7px; }
+      #bagchal-blogger-container #headerRoomCodeBox small { font-size:7px; }
+    }
     #bagchal-blogger-container .game-topbar {
       align-items:center !important; justify-content:flex-start !important;
       min-height:58px !important; margin:0 0 15px !important;
@@ -2079,6 +2098,9 @@ body {
         <a class="vc-brand-lockup" href="/" aria-label="VC Play home">
             <img class="vc-header-logo" src="/assets/vc-play-header-logo-exact.svg?v=4" alt="Crowned VC monogram with PLAY wordmark" width="360" height="88">
         </a>
+        <button id="headerRoomCodeBox" type="button" aria-label="Copy room invite link" title="Copy room invite link" hidden>
+            <span>ROOM CODE</span><strong id="headerRoomCodeText">----</strong><small id="headerRoomCodeCopyStatus">Tap to copy</small>
+        </button>
 
     </div>
 
@@ -4998,6 +5020,27 @@ body {
     });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && !chatPopup.hidden) setChatPopupOpen(false); });
     document.getElementById('createRoomBtn').addEventListener('click', createInviteRoom);
+    // Mirror the active room code in a separate compact header box; keep the original panel untouched.
+    (function setupHeaderRoomCodeMirror() {
+        const source = document.getElementById('roomCodeDisplay');
+        const box = document.getElementById('headerRoomCodeBox');
+        const target = document.getElementById('headerRoomCodeText');
+        const hint = document.getElementById('headerRoomCodeCopyStatus');
+        if (!source || !box || !target) return;
+        const sync = () => {
+            const visible = getComputedStyle(source).display !== 'none' && /^\\d{4}$/.test((document.getElementById('roomCodeText')?.textContent || '').trim());
+            box.hidden = !visible;
+            target.textContent = visible ? document.getElementById('roomCodeText').textContent.trim() : '----';
+            if (hint && !visible) hint.textContent = 'Tap to copy';
+        };
+        new MutationObserver(sync).observe(source, {attributes:true, childList:true, subtree:true, characterData:true});
+        sync();
+        box.addEventListener('click', () => {
+            document.getElementById('copyRoomCodeBtn')?.click();
+            if (hint) { hint.textContent = 'Copied'; setTimeout(() => { if (hint.isConnected) hint.textContent = 'Tap to copy'; }, 1800); }
+        });
+    })();
+
     document.getElementById('copyRoomCodeBtn').addEventListener('click', async () => {
         const code = (onlineRoomCode || document.getElementById('roomCodeText').textContent || '').trim();
         const status = document.getElementById('copyRoomCodeStatus');
