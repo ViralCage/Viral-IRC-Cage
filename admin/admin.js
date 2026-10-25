@@ -331,6 +331,23 @@ function updateAdminCommandControls(room){
  if(resetHelp)resetHelp.textContent=selected?'Send a reset request to connected game clients':'Select Watch on a room first';
  if(overrideHelp)overrideHelp.textContent=selected?'Send the selected result to connected game clients':'Select Watch on a room first';
 }
+function buildAdminResetPayload(type){
+ const now=Date.now();
+ if(type==='baghchal'){
+  const board=Array(25).fill(0);[0,4,20,24].forEach(i=>board[i]=1);
+  return {game:{board,goatsToPlace:20,goatsCaptured:0,turn:2,winner:null,roundId:now,updatedAt:now}};
+ }
+ const miniGames={
+  tictactoe:{board:Array(9).fill(''),turn:'X',winner:null,lastMove:null,updatedAt:now},
+  dotsboxes:{edges:Array(40).fill(false),edgeOwners:Array(40).fill(''),boxes:Array(16).fill(''),turn:'X',scores:{X:0,O:0},winner:null,lastMove:null,updatedAt:now},
+  checkers:{board:Array.from({length:64},(_,i)=>{const r=Math.floor(i/8),c=i%8;return (r+c)%2===1?(r<3?'O':r>4?'X':''):'';}),turn:'X',winner:null,lastMove:null,chainFrom:null,updatedAt:now},
+  fourconnect:{board:Array(42).fill(''),turn:'X',winner:null,lastMove:null,updatedAt:now},
+  chipbomb:{bombs:{X:null,O:null},placed:{X:false,O:false},guesses:[],turn:'X',phase:'setup',winner:null,updatedAt:now},
+  chess:{history:[(()=>{const b=Array(128).fill('.');const rows=['rnbqkbnr','pppppppp','........','........','........','........','PPPPPPPP','RNBQKBNR'];rows.forEach((row,r)=>Array.from(row).forEach((p,c)=>{b[r*16+c]=p;}));return {b,t:1,c:15,ep:-1,half:0,full:1};})()],lastMove:null,updatedAt:now}
+ };
+ if(!Object.prototype.hasOwnProperty.call(miniGames,type))throw new Error('Reset is not supported for this game type: '+type);
+ return {'miniGames/'+type:miniGames[type]};
+}
 async function sendAdminGameCommand(type){
  const roomId=activeSpectatorRoomId;
  if(!roomId||!adminUid||!db){alert('Sign in as Super Admin and select a room using Watch first.');return;}
@@ -347,10 +364,24 @@ async function sendAdminGameCommand(type){
  const command={id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10),type,issuedAt:Date.now(),issuedBy:adminUid};
  if(result)command.result=result;
  try{
-  await db.ref('bagchalRooms/'+roomId+'/adminControl/command').set(command);
-  await audit(type==='reset_match'?'match_reset_requested':'match_result_override_requested',{roomId,result:result||null,commandId:command.id});
-  if($('room-editor-status'))$('room-editor-status').textContent=type==='reset_match'?'RESET REQUEST SENT':'RESULT OVERRIDE SENT';
-  if(btn)btn.textContent=type==='reset_match'?'Request sent':'Sent';
+  if(type==='reset_match'){
+   const roomRef=db.ref('bagchalRooms/'+roomId);
+   const roomSnap=await roomRef.once('value');
+   if(!roomSnap.exists())throw new Error('Selected room no longer exists.');
+   const room=roomSnap.val()||{},gameType=String(room.activeGameType||'baghchal');
+   const resetPayload=buildAdminResetPayload(gameType);
+   resetPayload['adminControl/command']=null;
+   resetPayload['adminControl/lastReset']={id:command.id,issuedAt:command.issuedAt,issuedBy:adminUid,gameType};
+   await roomRef.update(resetPayload);
+   await audit('match_reset_completed',{roomId,gameType,commandId:command.id});
+   if($('room-editor-status'))$('room-editor-status').textContent='MATCH RESET · '+gameType.toUpperCase();
+   if(btn)btn.textContent='Match reset';
+  }else{
+   await db.ref('bagchalRooms/'+roomId+'/adminControl/command').set(command);
+   await audit('match_result_override_requested',{roomId,result,commandId:command.id});
+   if($('room-editor-status'))$('room-editor-status').textContent='RESULT OVERRIDE SENT';
+   if(btn)btn.textContent='Sent';
+  }
  }catch(e){
   alert('Could not send the '+label.toLowerCase()+' command: '+e.message+' Check Super Admin write permission.');
   if(btn)btn.textContent=type==='reset_match'?'Reset match':'Apply result';
