@@ -2799,6 +2799,7 @@
                 if (state.board[index] === EMPTY) {
                     saveHistory();
                     state.board[index] = GOAT;
+                    state.lastMove = { from: null, to: index, by: GOAT };
                     playMoveSound('place');
                     state.goatsToPlace--;
                     checkGameStatus();
@@ -2811,8 +2812,10 @@
                 } else if (state.selectedPosition !== -1 && state.board[index] === EMPTY) {
                     if (isValidConnection(state.selectedPosition, index)) {
                         saveHistory();
-                        state.board[state.selectedPosition] = EMPTY;
+                        const from = state.selectedPosition;
+                        state.board[from] = EMPTY;
                         state.board[index] = GOAT;
+                        state.lastMove = { from, to: index, by: GOAT };
                         playMoveSound('move');
                         checkGameStatus();
                         if (!state.winner) switchTurn();
@@ -2831,8 +2834,10 @@
 
                 if (state.board[state.selectedPosition] === TIGER && validMoves.includes(index)) {
                     saveHistory();
-                    state.board[state.selectedPosition] = EMPTY;
+                    const from = state.selectedPosition;
+                    state.board[from] = EMPTY;
                     state.board[index] = TIGER;
+                    state.lastMove = { from, to: index, by: TIGER };
                     playMoveSound('move');
                     checkGameStatus();
                     if (!state.winner) switchTurn();
@@ -2841,9 +2846,11 @@
                     if (state.board[state.selectedPosition] === TIGER && capture &&
                         state.board[capture.target] === GOAT && state.board[index] === EMPTY) {
                         saveHistory();
-                        state.board[state.selectedPosition] = EMPTY;
+                        const from = state.selectedPosition;
+                        state.board[from] = EMPTY;
                         state.board[capture.target] = EMPTY;
                         state.board[index] = TIGER;
+                        state.lastMove = { from, to: index, captured: capture.target, by: TIGER };
                         playMoveSound('capture');
                         state.goatsCaptured++;
                         playGoatDeathSound();
@@ -2971,6 +2978,7 @@
             else if (score === best) candidates.push(action);
         }
         const choice = candidates[Math.floor(Math.random() * candidates.length)];
+        state.lastMove = { from: choice.type === 'place' ? null : choice.from, to: choice.dest, captured: choice.type === 'capture' ? choice.target : null, by: perspective };
         if (choice.type === 'place') {
             state.board[choice.dest] = GOAT;
             state.goatsToPlace--;
@@ -3462,7 +3470,7 @@
         ctx.stroke();
 
         // Show the most recent online move as an arrow on both players' boards.
-        if (state.mode === 'online' && state.lastMove && state.lastMove.to != null) {
+        if ((state.mode === 'online' || state.mode === 'ai-tiger' || state.mode === 'ai-goat') && state.lastMove && state.lastMove.to != null) {
             const nodePoint = (index) => {
                 if (index == null || index < 0 || index >= 25) return null;
                 const pos = getRowCol(index);
