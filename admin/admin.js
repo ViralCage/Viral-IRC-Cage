@@ -311,14 +311,16 @@ function renderPlayers(){
   const uid=$('ban-target').value.trim(),reason=$('ban-reason').value,duration=Number($('ban-duration').value);
   if(!/^[A-Za-z0-9_-]{10,128}$/.test(uid)){alert('Enter a valid Firebase UID.');return;}
   if(!reason){alert('Select a reason.');return;}if(!adminUid||!db){alert('Sign in as Super Admin first.');return;}
-  if(!confirm('Record a '+durationLabel(duration)+' ban for '+uid+'?'))return;
-  const p=players.find(x=>x.uid===uid),now=Date.now(),record={uid,nickname:p&&p.name||'',reason,durationMs:duration,durationLabel:durationLabel(duration),createdAt:now,expiresAt:duration?now+duration:0,revokedAt:0,createdBy:adminUid,enforcement:'ADMIN_RECORD_ONLY'};
-  const btn=$('ban-submit');btn.disabled=true;btn.textContent='Saving…';
-  db.ref(moderationPath()+'/bans/'+uid).set(record).then(()=>audit('ban_created',{uid,reason,durationMs:duration})).then(()=>{$('ban-target').value='';$('ban-reason').value='';$('ban-record-status').textContent='RECORD SAVED';}).catch(e=>alert('Save failed: '+e.message)).finally(()=>{btn.disabled=false;btn.textContent='Record ban';});
+  if(!confirm('Enforce a '+durationLabel(duration)+' ban for '+uid+'? This blocks that UID from room and matchmaking database access.'))return;
+  const p=players.find(x=>x.uid===uid),now=Date.now(),record={uid,nickname:p&&p.name||'',reason,durationMs:duration,durationLabel:durationLabel(duration),createdAt:now,expiresAt:duration?now+duration:0,revokedAt:0,createdBy:adminUid,enforcement:'GLOBAL_DATABASE_RULES'};
+  const btn=$('ban-submit');btn.disabled=true;btn.textContent='Applying ban…';
+  const updates={};updates['globalBans/'+uid]={active:true,reason,createdAt:now,expiresAt:record.expiresAt,createdBy:adminUid};updates[moderationPath()+'/bans/'+uid]=record;
+  db.ref().update(updates).then(()=>audit('ban_enforced',{uid,reason,durationMs:duration})).then(()=>{$('ban-target').value='';$('ban-reason').value='';$('ban-record-status').textContent='BAN ENFORCED · DATABASE RULES';}).catch(e=>alert('Ban failed. Confirm the new globalBans rules are published: '+e.message)).finally(()=>{btn.disabled=false;btn.textContent='Record ban';});
  }
  function revokeBan(uid){
-  if(!confirm('Revoke the ban record for '+uid+'?'))return;const ref=db.ref(moderationPath()+'/bans/'+uid);
-  ref.once('value').then(s=>{if(!s.exists())throw new Error('Record not found.');return ref.update({revokedAt:Date.now(),revokedBy:adminUid}).then(()=>audit('ban_revoked',{uid}));}).catch(e=>alert('Unban failed: '+e.message));
+  if(!confirm('Revoke the enforced ban for '+uid+'?'))return;
+  const now=Date.now(),updates={};updates['globalBans/'+uid+'/active']=false;updates['globalBans/'+uid+'/revokedAt']=now;updates[moderationPath()+'/bans/'+uid+'/revokedAt']=now;updates[moderationPath()+'/bans/'+uid+'/revokedBy']=adminUid;
+  db.ref().update(updates).then(()=>audit('ban_revoked',{uid})).catch(e=>alert('Unban failed: '+e.message));
  }
  function requestKick(roomId,role,uid){
   if(!confirm('Kick this player from room '+roomId+'? Their current room presence and matchmaking entries will be removed. They may reconnect until game-client enforcement is added.'))return;
