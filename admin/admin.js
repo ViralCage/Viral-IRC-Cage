@@ -419,7 +419,63 @@ async function toggleFreezeMatch(){
   alert('Could not change match freeze state: '+e.message+' Check the bagchalRooms write rules.');
  }finally{updateFreezeMatchControl(activeSpectatorRoomData||{});}
 }
-function watchRoom(roomId){if(!roomId)return;if(db&&typeof db.goOnline==='function')db.goOnline();activeSpectatorRoomId=String(roomId);activeSpectatorRoomData=null;updateEndMatchControl();try{const url=new URL(window.location.href);url.searchParams.set('watch',roomId);window.history.replaceState({},'',url.toString());}catch(e){}commentatorPrevious=null;commentatorLastText='';if($('commentator-feed'))$('commentator-feed').innerHTML='<div class="commentary-line intro">Connecting to live match commentary…</div>';if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';const code=roomCodesById[activeSpectatorRoomId]||'';$('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(code||'LOOKING UP…')+'</strong>'+(code?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">Live updates · Room ID: '+esc(roomId)+'</div>';$('spectator-data').textContent='Loading live room…';$('room-editor-id').value=String(roomId);$('room-editor-status').textContent='ROOM SELECTED · '+roomId;spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();activeSpectatorRoomData=value;updateFreezeMatchControl(value);updateAdminCommandControls(value);const liveAt=Date.now(),gameType=value.activeGameType||'baghchal',liveData=gameType==='baghchal'?(value.game||{}):((value.miniGames||{})[gameType]||{}),sourceAt=Number(liveData.updatedAt||0),age=sourceAt?Math.max(0,liveAt-sourceAt):0;$('spectator-status').textContent=age>10000?'LIVE · SOURCE STALE '+Math.floor(age/1000)+'s':'LIVE · REAL-TIME';if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);observeCommentary(value);renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
+function watchRoom(roomId){
+ if(!roomId)return;
+ if(db&&typeof db.goOnline==='function')db.goOnline();
+ activeSpectatorRoomId=String(roomId);
+ activeSpectatorRoomData=null;
+ updateEndMatchControl();
+ try{const url=new URL(window.location.href);url.searchParams.set('watch',roomId);window.history.replaceState({},'',url.toString());}catch(e){}
+ commentatorPrevious=null;
+ commentatorLastText='';
+ if($('commentator-feed'))$('commentator-feed').innerHTML='<div class="commentary-line intro">Connecting to live match commentary…</div>';
+ if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);
+ spectatorRef=db.ref('bagchalRooms/'+roomId);
+ $('spectator-status').textContent='CONNECTING';
+ const code=roomCodesById[activeSpectatorRoomId]||'';
+ $('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(code||'LOOKING UP…')+'</strong>'+(code?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">Live updates · Room ID: '+esc(roomId)+'</div>';
+ $('spectator-data').textContent='Loading live room…';
+ $('room-editor-id').value=String(roomId);
+ $('room-editor-status').textContent='ROOM SELECTED · '+roomId;
+
+ // Compare the game's Firebase write timestamp with the time this admin
+ // browser receives the snapshot. This isolates delivery delay from rendering.
+ let lastGameSourceAt=0,lastDeliveryMs=null,lastRenderMs=0;
+ spectatorHandler=snap=>{
+  const receivedAt=Date.now();
+  if(!snap.exists()){
+   $('spectator-status').textContent='ROOM ENDED';
+   $('spectator-data').textContent='This room record no longer exists.';
+   return;
+  }
+  const value=snap.val();
+  activeSpectatorRoomData=value;
+  updateFreezeMatchControl(value);
+  updateAdminCommandControls(value);
+  const gameType=value.activeGameType||'baghchal';
+  const liveData=gameType==='baghchal'?(value.game||{}):((value.miniGames||{})[gameType]||{});
+  const sourceAt=Number(liveData.updatedAt||0);
+  if(sourceAt&&sourceAt!==lastGameSourceAt){
+   if(lastGameSourceAt)lastDeliveryMs=Math.max(0,receivedAt-sourceAt);
+   lastGameSourceAt=sourceAt;
+  }
+  if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);
+  observeCommentary(value);
+  const renderStart=window.performance&&performance.now?performance.now():Date.now();
+  renderSpectatorGame(value);
+  const renderEnd=window.performance&&performance.now?performance.now():Date.now();
+  lastRenderMs=Math.max(0,renderEnd-renderStart);
+  let status='LIVE';
+  if(lastDeliveryMs!==null)status+=' · LAST UPDATE ARRIVED '+Math.round(lastDeliveryMs)+'ms AFTER WRITE';
+  else status+=' · MEASURING FIRST UPDATE';
+  status+=' · RENDER '+lastRenderMs.toFixed(1)+'ms';
+  $('spectator-status').textContent=status;
+ };
+ spectatorRef.on('value',spectatorHandler,err=>{
+  $('spectator-status').textContent='ERROR';
+  $('spectator-data').textContent='Could not watch this room: '+err.message;
+ });
+}
 function presenceFor(room){
  const p=room&&room.presence||{},out=[];
  Object.keys(p).forEach(role=>{const x=p[role];if(x&&x.connected){out.push({uid:x.uid||'',name:x.name||room.playerNames&&room.playerNames[role]||role,role,lastSeen:x.lastSeen||null});}});
