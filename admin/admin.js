@@ -325,7 +325,7 @@ function startMonitoring(){
  },err=>{ $('room-refresh-status').textContent='ERROR';$('connection-title').textContent='Database read blocked';$('connection-detail').textContent=err.message+' Check Realtime Database rules for authorized admins.';});
  unsubs.push(()=>roomsRef.off('value',unsubRooms));
  const roomCodesRef=db.ref('bagchalRoomCodes');
- const unsubRoomCodes=roomCodesRef.on('value',snap=>{roomCodesById={};const codes=snap.val()||{};Object.entries(codes).forEach(([code,roomId])=>{if(/^\\d{4}$/.test(code)&&typeof roomId==='string')roomCodesById[roomId]=code;});renderRooms();if(activeSpectatorRoomData)renderSpectatorGame(activeSpectatorRoomData);},err=>{$('room-refresh-status').textContent='ROOM CODES UNAVAILABLE';$('connection-detail').textContent='Could not read four-digit room-code mappings: '+err.message;});
+ const unsubRoomCodes=roomCodesRef.on('value',snap=>{roomCodesById={};const codes=snap.val()||{};Object.entries(codes).forEach(([code,roomId])=>{if(/^\d{4}$/.test(code)&&typeof roomId==='string')roomCodesById[roomId]=code;});renderRooms();if(activeSpectatorRoomData)renderSpectatorGame(activeSpectatorRoomData);},err=>{$('room-refresh-status').textContent='ROOM CODES UNAVAILABLE';$('connection-detail').textContent='Could not read four-digit room-code mappings: '+err.message;});
  unsubs.push(()=>roomCodesRef.off('value',unsubRoomCodes));
  const queueRef=db.ref('bagchalRandomMatchQueue').limitToLast(100);
  const unsubQueue=queueRef.on('value',snap=>renderQueue(snap.val()),err=>{$('queue-list').innerHTML='<div class="empty"><b>Queue unavailable</b><p>'+esc(err.message)+'</p></div>';});
