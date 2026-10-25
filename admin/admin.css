@@ -724,3 +724,82 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-board-face .bagh-node:before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#4a2a16;box-shadow:0 1px 0 #f4d9a8;opacity:.9;z-index:0}
 .spectator-board-face .bagh-node.move-from:before,.spectator-board-face .bagh-node.move-to:before{opacity:0}
 .spectator-board-face .bagh-node .tiger-piece,.spectator-board-face .bagh-node .goat-piece{position:relative;z-index:2}
+
+
+/* BaghChal Admin Spectate board — premium tournament walnut and brass finish.
+   Scoped strictly to the BaghChal spectator board; no game logic or other boards. */
+.spectator-board-face>.baghchal-real-board{
+  width:min(100%,680px);
+  aspect-ratio:1;
+  padding:7%;
+  border:clamp(10px,1.8vw,18px) solid #3b2417;
+  border-radius:15px;
+  background:
+    linear-gradient(135deg,#f7dfb0 0%,#d4a66a 16%,#a66e3d 52%,#704322 100%);
+  box-shadow:
+    inset 0 0 0 2px #ffe9bd,
+    inset 0 0 0 6px #80502b,
+    inset 0 0 0 9px #e0b879,
+    inset 0 0 34px #30190f99,
+    0 4px 0 #26170f,
+    0 9px 0 #120b07,
+    0 22px 34px #000d;
+}
+.spectator-board-face .baghchal-real-board:before{
+  inset:3.2%;
+  border:2px solid #f8e1b5;
+  box-shadow:inset 0 0 0 2px #6b4225,0 0 0 1px #3b2418;
+}
+.spectator-board-face .baghchal-real-board:after{
+  border-radius:2px;
+  background:linear-gradient(135deg,#fff3 0%,transparent 24%,transparent 72%,#1c0e084d 100%);
+}
+.spectator-board-face .baghchal-lines{
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  z-index:1;
+}
+.spectator-board-face .baghchal-lines g{
+  stroke:#422716;
+  stroke-width:7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:1;
+  filter:drop-shadow(0 2px 0 #f8dfb4) drop-shadow(0 4px 3px #321b10);
+}
+.spectator-board-face .baghchal-points{inset:7%;z-index:2}
+.spectator-board-face .baghchal-points .bagh-node{
+  border:1px solid #6c4426;
+  background:radial-gradient(circle at 30% 22%,#fff2d2 0%,#d9b47c 28%,#9a683e 72%,#4c2d19 100%);
+  box-shadow:inset 0 2px 3px #fff9,inset 0 -4px 7px #422714aa,0 3px 0 #4a2b18,0 6px 9px #1e100b99;
+}
+.spectator-board-face .baghchal-points .bagh-node:before{
+  width:9px;height:9px;
+  background:#432716;
+  box-shadow:0 1px 0 #ffe4b2,0 0 0 2px #6e482b;
+}
+.spectator-board-face .baghchal-points .tiger-piece,
+.spectator-board-face .baghchal-points .goat-piece{
+  border:2px solid #f3d49b;
+  box-shadow:inset 0 2px 4px #fff9,inset 0 -6px 9px #241309bb,0 4px 0 #3a2113,0 9px 10px #160c08cc;
+}
+.spectator-board-face .baghchal-last-move{
+  stroke:#ffe36a;
+  stroke-width:15;
+  stroke-dasharray:20 10;
+  filter:drop-shadow(0 0 4px #ffce35) drop-shadow(0 2px 2px #261306);
+}
+.spectator-board-face .baghchal-move-origin{
+  fill:#45a5ff;stroke:#e7f3ff;stroke-width:6;
+  filter:drop-shadow(0 0 8px #39a0ff);
+}
+.spectator-board-face .baghchal-move-target{
+  fill:#ffd43b;fill-opacity:.28;stroke:#fff1a6;stroke-width:7;
+  filter:drop-shadow(0 0 10px #ffcf32);
+}
+@media(max-width:600px){
+  .spectator-board-face>.baghchal-real-board{border-width:9px;border-radius:11px;padding:7%}
+  .spectator-board-face .baghchal-lines g{stroke-width:6}
+}
