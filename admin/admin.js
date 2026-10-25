@@ -63,8 +63,11 @@ function renderRooms(){
  el.innerHTML=rooms.filter(r=>r.active).map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="watch-room-button" type="button" data-watch-room="'+esc(r.id)+'">Watch</button><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
 }
 function renderPlayers(){
- const q=($('player-search').value||'').trim().toLowerCase(),shown=players.filter(p=>!q||(p.name+' '+p.uid+' '+p.room+' '+p.role).toLowerCase().includes(q));
- const el=$('player-results');if(!shown.length){el.innerHTML='<div class="empty"><b>No matching connected players</b><p>Search covers connected participants in rooms only.</p></div>';return;}
+ const q=($('player-search').value||'').trim().toLowerCase();
+ const el=$('player-results');
+ if(!q){el.innerHTML='';return;}
+ const shown=players.filter(p=>(p.name||'').toLowerCase().includes(q));
+ if(!shown.length){el.innerHTML='<div class="empty"><b>No matching connected players</b><p>Only player names are searched.</p></div>';return;}
  el.innerHTML=shown.map(p=>'<article class="data-row"><div class="data-main"><b>'+esc(p.name)+'</b><span>'+esc(p.role)+' · Room '+esc(p.room)+'</span><small>UID: '+esc(p.uid||'Not provided')+'</small></div><span class="row-tag">CONNECTED</span></article>').join('');
 }
 function renderQueue(data){
