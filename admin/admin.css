@@ -29,3 +29,6 @@ body.admin-authenticated #login-panel{display:none}
 
 /* Private Super Admin workspace */
 textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9px;color:var(--text);padding:12px 13px;font:inherit;resize:vertical;min-height:100px}textarea::placeholder{color:#667087}#admin-notes-list,#activity-list{margin-top:14px}
+
+/* Super Admin room deletion */
+.room-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}.inactive-tag{border-color:#485064;color:#aab2c5;background:#202638}.delete-room-button{border:1px solid #754052;background:#321b29;color:#ff9bad;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer}.delete-room-button:hover{background:#492235}.delete-room-button:disabled{opacity:.6;cursor:wait}@media(max-width:520px){.room-actions{width:100%;justify-content:space-between}}
