@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#090b14">
   <title>VC Play — Super Admin</title>
   <link rel="stylesheet" href="./admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 <body>
   <main class="shell">
@@ -14,8 +16,22 @@
         <span class="brand-mark">VC</span>
         <span><strong>VIRAL CAGE PLAY</strong><small>ADMIN CONTROL CENTER</small></span>
       </a>
-      <span class="status"><i></i> PREVIEW MODE</span>
+      <span class="status" id="auth-status"><i></i> SIGNED OUT</span>
     </header>
+
+    <section class="panel login-panel" id="login-panel" aria-labelledby="login-title">
+      <p class="eyebrow">RESTRICTED ACCESS</p>
+      <h1 id="login-title">Super Admin Login</h1>
+      <p class="muted">Sign in with your authorized Firebase administrator account.</p>
+      <form id="admin-login-form" autocomplete="on">
+        <label class="field-label" for="admin-email">Email address</label>
+        <input id="admin-email" type="email" autocomplete="username" placeholder="Admin email" required>
+        <label class="field-label" for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="current-password" placeholder="Password" required>
+        <button class="button full" id="admin-login-button" type="submit">Sign in securely</button>
+      </form>
+      <p class="login-message" id="login-message" role="status" aria-live="polite">Only accounts with the server-assigned superAdmin permission can enter.</p>
+    </section>
 
     <section class="intro">
       <div>
