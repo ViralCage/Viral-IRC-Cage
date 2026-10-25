@@ -86,18 +86,32 @@ function commentaryStable(value){
  }
  return value;
 }
-function commentaryMover(room,turn,moveNumber){
- const ps=commentatorPlayers(room);
- const token=String(turn==null?'':turn).toLowerCase();
- const aliases=token==='1'?['tiger','tigers','player1','player_1','p1','white','x']:token==='2'?['goat','goats','player2','player_2','p2','black','o']:[token];
- const found=ps.find(p=>aliases.includes(String(p.role||'').toLowerCase())||String(p.name||'').toLowerCase()===token);
- if(found)return found.name;
- if(ps.length>=2)return ps[(Math.max(1,Number(moveNumber)||1)-1)%2].name;
- return ps[0]?.name||'A player';
+function commentatorPlayerForSide(room,side){
+ const names=room.playerNames||{},presence=room.presence||{};
+ const key=String(side==null?'':side).toLowerCase();
+ const role=({goat:'goat',goats:'goat',2:'goat',x:'goat',white:'goat',player1:'goat',player_1:'goat',p1:'goat',tiger:'tiger',tigers:'tiger',1:'tiger',o:'tiger',black:'tiger',player2:'tiger',player_2:'tiger',p2:'tiger'})[key]||key;
+ const live=presence[role]||{};
+ return String(live.name||names[role]||'').trim();
+}
+function commentatorMover(room,turn,moveNumber,type,previousData,currentData){
+ let side=turn;
+ if(type==='chess'){
+  const history=Array.isArray(previousData&&previousData.history)?previousData.history:[];
+  const position=history[history.length-1]||{};
+  side=Number(position.t)===1?'white':Number(position.t)===-1?'black':side;
+ }
+ if(side==null||side===''){
+  const lm=(currentData&&currentData.lastMove)||(previousData&&previousData.lastMove)||{};
+  side=lm.by||lm.player||'';
+ }
+ const exact=commentatorPlayerForSide(room,side);
+ if(exact)return exact;
+ const names=room.playerNames||{},presence=room.presence||{};
+ return String(presence.goat?.name||names.goat||presence.tiger?.name||names.tiger||'A player');
 }
 function observeCommentary(room){
  const cur=commentatorState(room),prev=commentatorPrevious;
- const ps=commentatorPlayers(room),n1=ps[0]?.name||'Player 1',n2=ps[1]?.name||'Player 2';
+ const ps=commentatorPlayers(room),n1=commentatorPlayerForSide(room,'goat')||ps[0]?.name||'Player 1',n2=commentatorPlayerForSide(room,'tiger')||ps.find(p=>p.role==='tiger')?.name||ps[1]?.name||'Player 2';
  const data=cur.data||{};
  const signature=JSON.stringify(commentaryStable(data));
  cur.signature=signature;
@@ -136,7 +150,7 @@ function observeCommentary(room){
   en=mover+' places '+(mark?mark+' ':'a mark ')+'in Tic-Tac-Toe. A row, column or diagonal could decide the match!';
  }else if(cur.type==='dotsboxes'){
   const gained=Math.max(0,cur.boxes-prev.boxes),scores=cur.scores||{};
-  en=gained?mover+' claims '+gained+' '+(gained===1?'box':'boxes')+' in Dots and Boxes! The score is now '+Number(scores.X||0)+' to '+Number(scores.O||0)+'.':' '+mover+' draws a line in Dots and Boxes. The next line could complete a box!';
+  en=gained?mover+' claims '+gained+' '+(gained===1?'box':'boxes')+' in Dots and Boxes! The score is now '+Number(scores.X||0)+' to '+Number(scores.O||0)+'.':mover+' draws a line in Dots and Boxes. The next line could complete a box!';
  }else if(cur.type==='ludo'){
   en=mover+' makes a move in Ludo. The race around the board is on; every roll can change the standings!';
   if(data.dice!=null)en=mover+' rolls '+data.dice+' in Ludo and makes a move. The race is heating up!';
