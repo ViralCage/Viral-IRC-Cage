@@ -270,3 +270,5 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @keyframes fireworkSpark{0%{opacity:0;transform:translate(0,0) scale(.2)}12%{opacity:1}100%{opacity:0;transform:translate(calc((var(--x) - 50%) * .2),-90px) scale(2.2)}}
 @media(max-width:600px){.commentator-head{align-items:flex-start}.commentator-head button{width:100%}}
 @media(prefers-reduced-motion:reduce){.commentary-line,.spectator-fireworks.celebrate i{animation:none}}
+
+.commentator-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.commentator-controls label{font-size:.78rem;color:var(--muted,#aeb4c5);font-weight:700}.commentator-controls select{min-height:40px;padding:8px 12px;border:1px solid var(--line,#394052);border-radius:9px;background:#171a25;color:#fff;font:inherit}@media(max-width:600px){.commentator-controls{width:100%}.commentator-controls select{flex:1;min-width:130px}}
