@@ -3043,18 +3043,73 @@ body {
         const nextTurn=chainFrom?side:(side==='X'?'O':'X'); const winner=chainFrom?null:(checkersAllMoves(board,nextTurn).length?null:side);
         return {board,turn:nextTurn,winner,chainFrom,lastMove:{id:String(Date.now())+'-'+Math.random().toString(36).slice(2,8),from:move.from,to:move.to,piece,capture:move.capture>=0,promoted,by:side},updatedAt:Date.now()};
     }
-    function makeHardCheckersMove() {
-        let moves=checkersAllMoves(checkersState.board,'O',checkersState.chainFrom); if(!moves.length){checkersState.winner='X';checkersState.chainFrom=null;updateStatusUI();drawBoard();showMiniGameResult('You Win!','The AI has no legal moves.');return;}
-        let best=-Infinity, choices=[];
-        for(const m of moves){const next=applyCheckersMoveToState(checkersState,m,'O');let score=(m.capture>=0?100:0)+(next.lastMove.promoted?35:0);
-            const replies=checkersAllMoves(next.board,'X',next.chainFrom); score-=replies.filter(r=>r.capture>=0).length*24;
-            score+=next.board.filter(v=>v==='OK').length*8;
-            if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
+    function evaluateCheckersForAI(st) {
+        if (st.winner === 'O') return 100000;
+        if (st.winner === 'X') return -100000;
+        let score = 0, redCount = 0, blackCount = 0;
+        for (let i = 0; i < 64; i++) {
+            const piece = st.board[i];
+            if (!piece) continue;
+            const row = Math.floor(i / 8), col = i % 8;
+            const king = piece.length > 1;
+            const value = king ? 185 : 100;
+            const centre = 3.5 - Math.abs(3.5 - col);
+            if (piece[0] === 'O') {
+                blackCount++;
+                score += value + (king ? 0 : row * 5) + centre * 2;
+            } else {
+                redCount++;
+                score -= value + (king ? 0 : (7 - row) * 5) + centre * 2;
+            }
         }
-        checkersState=applyCheckersMoveToState(checkersState,choices[Math.floor(Math.random()*choices.length)],'O'); checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
-        playMoveSound(checkersState.lastMove.capture?'capture':'move'); updateStatusUI();drawBoard();
-        if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?'You Win!':'AI Wins','Checkers finished.');
-        else if(checkersState.turn==='O'&&Number.isInteger(checkersState.chainFrom))scheduleHardMiniAi();
+        const blackMoves = checkersAllMoves(st.board, 'O', st.turn === 'O' ? st.chainFrom : null).length;
+        const redMoves = checkersAllMoves(st.board, 'X', st.turn === 'X' ? st.chainFrom : null).length;
+        score += (blackMoves - redMoves) * 3;
+        if (!blackCount || (!blackMoves && st.turn === 'O')) return -100000;
+        if (!redCount || (!redMoves && st.turn === 'X')) return 100000;
+        return score;
+    }
+    function searchCheckersAI(st, depth, alpha, beta) {
+        const moves = checkersAllMoves(st.board, st.turn, st.chainFrom);
+        if (!moves.length) return st.turn === 'O' ? -100000 - depth : 100000 + depth;
+        if (depth <= 0 || st.winner) return evaluateCheckersForAI(st);
+        moves.sort((a,b) => (b.capture >= 0 ? 1000 : 0) - (a.capture >= 0 ? 1000 : 0));
+        const maximizing = st.turn === 'O';
+        let best = maximizing ? -Infinity : Infinity;
+        for (const move of moves) {
+            const next = applyCheckersMoveToState(st, move, st.turn);
+            const value = searchCheckersAI(next, depth - 1, alpha, beta);
+            if (maximizing) {
+                best = Math.max(best, value);
+                alpha = Math.max(alpha, best);
+            } else {
+                best = Math.min(best, value);
+                beta = Math.min(beta, best);
+            }
+            if (beta <= alpha) break;
+        }
+        return best;
+    }
+    function makeHardCheckersMove() {
+        const moves = checkersAllMoves(checkersState.board, 'O', checkersState.chainFrom);
+        if (!moves.length) {
+            checkersState.winner = 'X'; checkersState.chainFrom = null;
+            updateStatusUI(); drawBoard(); showMiniGameResult('You Win!', 'The AI has no legal moves.'); return;
+        }
+        let best = -Infinity, choices = [];
+        for (const move of moves) {
+            const next = applyCheckersMoveToState(checkersState, move, 'O');
+            const score = searchCheckersAI(next, 5, -Infinity, Infinity);
+            if (score > best) { best = score; choices = [move]; }
+            else if (score === best) choices.push(move);
+        }
+        const choice = choices[Math.floor(Math.random() * choices.length)];
+        checkersState = applyCheckersMoveToState(checkersState, choice, 'O');
+        checkersSelected = Number.isInteger(checkersState.chainFrom) ? checkersState.chainFrom : -1;
+        playMoveSound(checkersState.lastMove.capture ? 'capture' : 'move');
+        updateStatusUI(); drawBoard();
+        if (checkersState.winner) showMiniGameResult(checkersState.winner === 'X' ? 'You Win!' : 'AI Wins', 'Checkers finished.');
+        else if (checkersState.turn === 'O' && Number.isInteger(checkersState.chainFrom)) scheduleHardMiniAi();
     }
 
     function initGame() {
@@ -3376,10 +3431,10 @@ body {
         const position = {board: state.board.slice(), goatsToPlace: state.goatsToPlace, goatsCaptured: state.goatsCaptured};
         const perspective = state.turn;
         let best = -Infinity, candidates = [];
-        // Depth 3 searches the chosen move, opponent reply, and next response.
+        // Depth 4 searches the chosen move and three further plies for stronger local play.
         for (const action of actions) {
             const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
-            const score = hardestSearch(next, perspective === GOAT ? TIGER : GOAT, 2, perspective, -Infinity, Infinity);
+            const score = hardestSearch(next, perspective === GOAT ? TIGER : GOAT, 3, perspective, -Infinity, Infinity);
             if (score > best) { best = score; candidates = [action]; }
             else if (score === best) candidates.push(action);
         }
