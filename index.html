@@ -1961,7 +1961,7 @@
     let tttTurn = 'X';
     let tttWinner = null;
     let onlineGameType = 'baghchal';
-    let dotsBoxesState = { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
+    let dotsBoxesState = { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
     let onlineGameTypeListener = null;
     let onlineTttListener = null;
     let onlineDotsListener = null;
@@ -2477,7 +2477,7 @@
     function playChessSquare(index){if(!isChessActive())return;const localAi=state.mode==='ai-chess';if(localAi&&chessHistory[chessHistory.length-1].t!==1)return;if(!localAi&&(!onlineRoomRef||!onlineRole||!firebaseReady))return;const current=chessHistory[chessHistory.length-1],myColor=localAi?1:(getRoleMark()==='X'?1:-1),piece=current.b[index];if(chessStatus(chessHistory).done)return;if(!localAi&&current.t!==myColor){if(chessPremove&&chessPremove.from===index){chessPremove=null;chessSelected=-1;drawBoard();return;}if(chessSelected<0){if(chessSide(piece)===myColor){chessSelected=index;drawBoard();}return;}if(chessSide(piece)===myColor){chessSelected=index;drawBoard();return;}chessPremove={from:chessSelected,to:index};chessSelected=-1;drawBoard();return;}if(current.t!==myColor)return;if(chessSelected<0){if(chessSide(piece)===myColor){chessSelected=index;drawBoard();}return;}if(chessSelected===index){chessSelected=-1;drawBoard();return;}let choices=chessLegal(current).filter(m=>m[0]===chessSelected&&m[1]===index);if(!choices.length){if(chessSide(piece)===myColor)chessSelected=index;else chessSelected=-1;drawBoard();return;}if(choices.length>1){let promo='q';try{promo=(window.prompt('Promote pawn to queen, rook, bishop, or knight? Enter q, r, b, or n.','q')||'q').toLowerCase();}catch(e){}if(!['q','r','b','n'].includes(promo))promo='q';choices=choices.filter(m=>m[2]===promo);}chessPremove=null;chessPlayMove(choices[0]);}
 
     function initialTicTacToeState(firstTurn = 'X') { return { board: Array(9).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', winner: null, updatedAt: Date.now() }; }
-    function initialDotsBoxesState(firstTurn = 'X') { return { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', scores: { X: 0, O: 0 }, winner: null, updatedAt: Date.now() }; }
+    function initialDotsBoxesState(firstTurn = 'X') { return { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', scores: { X: 0, O: 0 }, winner: null, updatedAt: Date.now() }; }
     function updateOnlineRoleOptions() {
         const select = document.getElementById('onlinePreferredRole');
         if (!select) return;
@@ -2593,7 +2593,7 @@
     }
     function applyDotsEdge(stateObj, edgeIndex, mark) {
         if(edgeIndex<0||edgeIndex>=40||stateObj.edges[edgeIndex]) return false;
-        stateObj.edges[edgeIndex]=true; let scored=0;
+        stateObj.edges[edgeIndex]=true; if(!Array.isArray(stateObj.edgeOwners))stateObj.edgeOwners=Array(40).fill(''); stateObj.edgeOwners[edgeIndex]=mark; let scored=0;
         const completed=(r,c)=>{const top=r*4+c,bottom=(r+1)*4+c,left=20+r*5+c,right=left+1;return stateObj.edges[top]&&stateObj.edges[bottom]&&stateObj.edges[left]&&stateObj.edges[right];};
         for(let r=0;r<4;r++)for(let c=0;c<4;c++){const bi=r*4+c;if(!stateObj.boxes[bi]&&completed(r,c)){stateObj.boxes[bi]=mark;scored++;stateObj.scores[mark]++;}}
         if(!scored)stateObj.turn=mark==='X'?'O':'X';
@@ -3408,12 +3408,13 @@
 
         if (isDotsBoxesActive()) {
             const pad=width*0.1, gap=(width-pad*2)/4;
+            const playerColor = mark => mark==='X' ? '#dc2626' : '#2563eb';
             for(let r=0;r<4;r++) for(let c=0;c<4;c++) {
                 const owner=dotsBoxesState.boxes[r*4+c];
-                if(owner){ctx.fillStyle=owner==='X'?'rgba(37,99,235,0.20)':'rgba(220,38,38,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=owner==='X'?'#2563eb':'#dc2626';ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
+                if(owner){const color=playerColor(owner);ctx.fillStyle=owner==='X'?'rgba(220,38,38,0.20)':'rgba(37,99,235,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=color;ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
             }
             ctx.lineCap='round';
-            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]?'#334155':'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
+            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);const owner=Array.isArray(dotsBoxesState.edgeOwners)?dotsBoxesState.edgeOwners[i]:'';ctx.strokeStyle=dotsBoxesState.edges[i]?(owner?playerColor(owner):'#64748b'):'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
             for(let r=0;r<5;r++) for(let c=0;c<5;c++){ctx.beginPath();ctx.arc(pad+c*gap,pad+r*gap,Math.max(3,width*0.018),0,Math.PI*2);ctx.fillStyle='#111827';ctx.fill();}
             return;
         }
@@ -4092,7 +4093,7 @@
         onlineRoomRef.child('miniGames/tictactoe').on('value', onlineTttListener);
         onlineDotsListener = snap => {
             const data=snap.val(); if(!data || !Array.isArray(data.edges) || data.edges.length!==40 || !Array.isArray(data.boxes) || data.boxes.length!==16 || !['X','O'].includes(data.turn)) return;
-            dotsBoxesState={edges:data.edges.map(Boolean),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null};
+            dotsBoxesState={edges:data.edges.map(Boolean),edgeOwners:Array.isArray(data.edgeOwners)&&data.edgeOwners.length===40?data.edgeOwners.map(v=>v==='X'||v==='O'?v:''):Array(40).fill(''),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null};
             if(isDotsBoxesActive()){ updateStatusUI(); drawBoard(); if(dotsBoxesState.winner){document.getElementById('messageTitle').textContent=dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner+' Wins!';document.getElementById('messageBody').textContent='Dots & Boxes finished.';document.getElementById('messageOverlay').classList.add('active');}else document.getElementById('messageOverlay').classList.remove('active'); }
         };
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
