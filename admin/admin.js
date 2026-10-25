@@ -197,10 +197,10 @@ function renderSpectatorGame(room){
   const hist=Array.isArray(data.history)?data.history:[],pos=hist[hist.length-1]||{},b=Array.isArray(pos.b)?pos.b:[];
   const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
   const last=data.lastMove||pos.lastMove||{},from=String(last.from||last.source||''),to=String(last.to||last.target||'');
-  const files='abcdefgh',rankLabels=Array.from({length:8},(_,r)=>8-r);
+  const files='abcdefgh',rankLabels=Array.from({length:8},(_,r)=>8-r),displayFiles=[4,3,2,1,0,7,6,5];
   const tiles=Array.from({length:64},(_,i)=>{
-   const r=Math.floor(i/8),c=i%8,p=b[r*16+c]||'.',square=files[c]+(8-r),white=p!=='.'&&p===p.toUpperCase();
-   const coord=(c===0?'<small class="chess-rank">'+rankLabels[r]+'</small>':'')+(r===7?'<small class="chess-file">'+files[c]+'</small>':'');
+   const r=Math.floor(i/8),viewC=i%8,c=displayFiles[viewC],p=b[r*16+c]||'.',square=files[c]+(8-r),white=p!=='.'&&p===p.toUpperCase();
+   const coord=(viewC===0?'<small class="chess-rank">'+rankLabels[r]+'</small>':'')+(r===7?'<small class="chess-file">'+files[c]+'</small>':'');
    const piece=p!=='.'?'<span class="chess-piece '+(white?'piece-white':'piece-black')+'" aria-label="'+(white?'White ':'Black ')+({K:'king',Q:'queen',R:'rook',B:'bishop',N:'knight',P:'pawn',k:'king',q:'queen',r:'rook',b:'bishop',n:'knight',p:'pawn'}[p]||'piece')+'">'+glyph[p]+'</span>':'';
    return '<div class="chess-tile '+((r+c)%2?'chess-dark':'chess-light')+((square===from||square===to)?' last-move':'')+'">'+coord+piece+'</div>';
   });
