@@ -1220,6 +1220,288 @@
     }
     @media (prefers-reduced-motion:reduce) { #bagchal-blogger-container #playerChat, #bagchal-blogger-container #chatPopupToggle, #bagchal-blogger-container #chatForm button { animation:none !important; transition:none !important; } }
 
+
+
+/* VC PLAY premium visual skin — CSS only. Game markup and engine remain untouched. */
+#bagchal-blogger-container {
+  --vc-bg:#0b1020;
+  --vc-panel:#121a2d;
+  --vc-panel-2:#172238;
+  --vc-line:rgba(148,163,184,.20);
+  --vc-text:#edf2ff;
+  --vc-muted:#9aa9c3;
+  --vc-purple:#8b5cf6;
+  --vc-blue:#38bdf8;
+  max-width:760px !important;
+  margin:18px auto !important;
+  padding:clamp(12px,2.5vw,22px) !important;
+  color:var(--vc-text) !important;
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(124,58,237,.18),transparent 42%),
+    radial-gradient(ellipse at 100% 22%,rgba(14,165,233,.12),transparent 38%),
+    linear-gradient(160deg,#10182b 0%,#090e1b 72%,#0d1425 100%) !important;
+  border:1px solid rgba(139,92,246,.24) !important;
+  border-radius:22px !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  overflow:hidden;
+}
+#bagchal-blogger-container,
+#bagchal-blogger-container * { box-sizing:border-box; }
+#bagchal-blogger-container .game-topbar {
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  min-height:74px !important;
+  margin:0 0 16px !important;
+  padding:8px 150px 8px 4px !important;
+  border-bottom:1px solid var(--vc-line);
+}
+#bagchal-blogger-container .game-topbar h2 {
+  width: min(360px,100%) !important;
+  height:64px !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  font-size:0 !important;
+  line-height:0 !important;
+  color:transparent !important;
+  background-image:url('/assets/vc-play-header-logo-exact.svg?v=4');
+  background-repeat:no-repeat;
+  background-position:left center;
+  background-size:contain;
+}
+#bagchal-blogger-container #fullscreenBtn {
+  top:17px !important;
+  right:4px !important;
+  padding:9px 12px !important;
+  border:1px solid rgba(148,163,184,.28) !important;
+  border-radius:11px !important;
+  color:#eaf0ff !important;
+  background:linear-gradient(135deg,#202c45,#151e32) !important;
+  box-shadow:0 5px 16px rgba(0,0,0,.22) !important;
+  font-size:12px !important;
+  font-weight:750 !important;
+}
+#bagchal-blogger-container .status-board {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:9px !important;
+  margin:0 0 10px !important;
+}
+#bagchal-blogger-container .status-card {
+  min-width:0 !important;
+  padding:12px 10px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:14px !important;
+  background:linear-gradient(145deg,rgba(30,43,68,.96),rgba(17,26,44,.96)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 22px rgba(0,0,0,.14) !important;
+  text-align:center !important;
+}
+#bagchal-blogger-container .status-label {
+  display:block !important;
+  margin-bottom:5px !important;
+  color:var(--vc-muted) !important;
+  font-size:10px !important;
+  font-weight:800 !important;
+  letter-spacing:.13em !important;
+  text-transform:uppercase !important;
+}
+#bagchal-blogger-container .status-value,
+#bagchal-blogger-container #goatsHandStatus,
+#bagchal-blogger-container #goatsDeadStatus {
+  display:inline-block !important;
+  color:#f3f6ff !important;
+  -webkit-text-fill-color:#f3f6ff !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  font-size:clamp(17px,3vw,22px) !important;
+  font-weight:900 !important;
+  text-shadow:0 0 18px rgba(56,189,248,.14) !important;
+}
+#bagchal-blogger-container #turnStatus.turn-goat { color:#67e8a5 !important; -webkit-text-fill-color:#67e8a5 !important; }
+#bagchal-blogger-container #turnStatus.turn-tiger { color:#fbbf65 !important; -webkit-text-fill-color:#fbbf65 !important; }
+#bagchal-blogger-container #turnNotification {
+  margin:9px 0 !important;
+  padding:10px 13px !important;
+  border:1px solid rgba(139,92,246,.28) !important;
+  border-radius:12px !important;
+  color:#dce5ff !important;
+  background:rgba(91,65,160,.15) !important;
+  font-weight:750 !important;
+  text-align:center !important;
+}
+#bagchal-blogger-container #playerNamesStatus {
+  color:#aebbd2 !important;
+}
+#bagchal-blogger-container .board-container {
+  position:relative !important;
+  padding:9px !important;
+  border:1px solid rgba(148,163,184,.2) !important;
+  border-radius:19px !important;
+  background:linear-gradient(145deg,#17243a,#0d1526) !important;
+  box-shadow:0 16px 38px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#bagchal-blogger-container #canvasContainer {
+  overflow:hidden !important;
+  border-radius:12px !important;
+}
+#bagchal-blogger-container .game-controls {
+  gap:10px !important;
+  margin:13px 0 16px !important;
+}
+#bagchal-blogger-container button {
+  transition:transform .16s ease,border-color .16s ease,filter .16s ease,box-shadow .16s ease !important;
+}
+#bagchal-blogger-container button:hover:not(:disabled) {
+  filter:brightness(1.1);
+}
+#bagchal-blogger-container .primary-btn,
+#bagchal-blogger-container .game-controls button,
+#bagchal-blogger-container #onlinePanel button {
+  border-radius:11px !important;
+  font-weight:750 !important;
+}
+#bagchal-blogger-container .primary-btn {
+  border:1px solid rgba(139,92,246,.55) !important;
+  color:#fff !important;
+  background:linear-gradient(115deg,#7c3aed,#2563eb) !important;
+  box-shadow:0 7px 18px rgba(91,55,190,.25) !important;
+}
+#bagchal-blogger-container .game-controls button:not(.primary-btn) {
+  border:1px solid var(--vc-line) !important;
+  color:#e6edff !important;
+  background:#1a2740 !important;
+}
+#bagchal-blogger-container #onlinePanel {
+  margin:16px 0 !important;
+  padding:16px !important;
+  border:1px solid rgba(56,189,248,.22) !important;
+  border-radius:17px !important;
+  color:var(--vc-text) !important;
+  background:linear-gradient(145deg,rgba(19,31,52,.98),rgba(13,22,39,.98)) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.18) !important;
+}
+#bagchal-blogger-container #onlinePanel > div:first-child {
+  margin-bottom:12px !important;
+  color:#f1f5ff !important;
+  font-size:15px !important;
+  font-weight:850 !important;
+  letter-spacing:.02em;
+}
+#bagchal-blogger-container #onlinePanel label,
+#bagchal-blogger-container #onlinePanel .vc-room-picker-label,
+#bagchal-blogger-container #onlinePanel #onlineStatus,
+#bagchal-blogger-container #onlinePanel > div[style*="font-size:12px"] {
+  color:#aebbd2 !important;
+}
+#bagchal-blogger-container #onlinePanel select,
+#bagchal-blogger-container #onlinePanel input {
+  border:1px solid rgba(148,163,184,.3) !important;
+  border-radius:10px !important;
+  color:#edf2ff !important;
+  background:#101a2d !important;
+}
+#bagchal-blogger-container #roomCodeDisplay {
+  border:1px solid rgba(56,189,248,.25) !important;
+  border-radius:12px !important;
+  background:#101a2d !important;
+}
+#bagchal-blogger-container #roomCodeDisplay span,
+#bagchal-blogger-container #roomCodeText {
+  color:#eaf2ff !important;
+}
+#bagchal-blogger-container .vc-room-game-icons,
+#bagchal-blogger-container .vc-mode-tabs,
+#bagchal-blogger-container .vc-mode-grid {
+  gap:9px !important;
+}
+#bagchal-blogger-container .vc-room-game-icon,
+#bagchal-blogger-container .vc-mode-tab,
+#bagchal-blogger-container .vc-mode-card {
+  border:1px solid var(--vc-line) !important;
+  border-radius:13px !important;
+  color:#e5edff !important;
+  background:linear-gradient(145deg,#1b2942,#121d31) !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.14) !important;
+}
+#bagchal-blogger-container .vc-room-game-icon.active,
+#bagchal-blogger-container .vc-mode-tab.active,
+#bagchal-blogger-container .vc-mode-card.active {
+  border-color:rgba(139,92,246,.85) !important;
+  background:linear-gradient(135deg,rgba(109,65,205,.42),rgba(24,91,145,.35)) !important;
+  box-shadow:0 0 0 1px rgba(139,92,246,.18),0 8px 22px rgba(64,43,142,.2) !important;
+}
+#bagchal-blogger-container .vc-mode-picker {
+  margin:16px 0 !important;
+  padding:16px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:17px !important;
+  background:linear-gradient(145deg,rgba(19,30,50,.98),rgba(12,20,36,.98)) !important;
+}
+#bagchal-blogger-container .vc-mode-section-label {
+  color:#aebbd2 !important;
+  font-size:10px !important;
+  font-weight:850 !important;
+  letter-spacing:.16em !important;
+}
+#bagchal-blogger-container .vc-mode-card-copy strong { color:#f1f5ff !important; }
+#bagchal-blogger-container .vc-mode-card-copy small,
+#bagchal-blogger-container .vc-mode-current { color:#aebbd2 !important; }
+#bagchal-blogger-container .vc-mode-tag {
+  border:1px solid rgba(56,189,248,.22) !important;
+  border-radius:999px !important;
+  color:#8bdcff !important;
+  background:rgba(14,165,233,.1) !important;
+}
+#bagchal-blogger-container #checkersPlayerCards .checkers-player-card {
+  border:1px solid var(--vc-line) !important;
+  border-radius:13px !important;
+  color:#eaf0ff !important;
+  background:#17243a !important;
+}
+#bagchal-blogger-container #messageOverlay {
+  border-radius:14px !important;
+  background:rgba(7,12,24,.9) !important;
+  backdrop-filter:blur(9px);
+}
+#bagchal-blogger-container #messageTitle { color:#fff !important; }
+#bagchal-blogger-container #messageBody { color:#c7d2e8 !important; }
+#bagchal-blogger-container #chatPopupToggle {
+  border:1px solid rgba(139,92,246,.55) !important;
+  border-radius:15px !important;
+  color:#fff !important;
+  background:linear-gradient(125deg,#7c3aed,#2563eb) !important;
+  box-shadow:0 10px 28px rgba(64,43,142,.35) !important;
+}
+#bagchal-blogger-container #playerChat {
+  border:1px solid rgba(139,92,246,.3) !important;
+  border-radius:17px !important;
+  color:#eaf0ff !important;
+  background:#111b2e !important;
+  box-shadow:0 20px 55px rgba(0,0,0,.45) !important;
+}
+#bagchal-blogger-container #playerChat .chat-popup-header {
+  color:#fff !important;
+  background:#1b2942 !important;
+}
+#bagchal-blogger-container #playerChat button {
+  border-radius:9px !important;
+}
+@media (max-width:600px) {
+  #bagchal-blogger-container { margin:8px auto !important; padding:10px !important; border-radius:17px !important; }
+  #bagchal-blogger-container .game-topbar { min-height:60px !important; padding-right:112px !important; }
+  #bagchal-blogger-container .game-topbar h2 { height:50px !important; }
+  #bagchal-blogger-container #fullscreenBtn { top:13px !important; right:0 !important; padding:8px 9px !important; font-size:11px !important; }
+  #bagchal-blogger-container .status-board { gap:6px !important; }
+  #bagchal-blogger-container .status-card { padding:9px 5px !important; border-radius:11px !important; }
+  #bagchal-blogger-container #onlinePanel,
+  #bagchal-blogger-container .vc-mode-picker { padding:12px !important; border-radius:14px !important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #bagchal-blogger-container button { transition:none !important; }
+}
+
 </style>
 
 </head>
