@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viral Cage — Pro Theme</title>
+  <style>
+    :root {
+      --bg-1: #07111f;
+      --bg-2: #0d1b2a;
+      --bg-3: #17263d;
+      --panel: rgba(15, 23, 42, 0.74);
+      --panel-strong: rgba(11, 18, 31, 0.92);
+      --panel-soft: rgba(148, 163, 184, 0.1);
+      --line: rgba(148, 163, 184, 0.22);
+      --text: #e8f3ff;
+      --muted: #a5b7d0;
+      --primary: #60a5fa;
+      --primary-2: #8b5cf6;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #fb7185;
+      --board-1: #d8b38a;
+      --board-2: #8b5e3c;
+      --shadow: 0 22px 60px rgba(2, 6, 23, 0.6);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 28%),
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.25), transparent 30%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 30%, var(--bg-3));
+      color: var(--text);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 32px 18px;
+    }
+
+    #bagchal-blogger-container {
+      position: relative;
+      width: min(540px, 100%);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(15,23,42,0.82), rgba(15,23,42,0.66));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    #bagchal-blogger-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(139,92,246,0.12), transparent 60%);
+      pointer-events: none;
+    }
+
+    .game-topbar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-right: 100px;
+    }
+
+    .title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      letter-spacing: -0.06em;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9dd1ff;
+      opacity: 0.85;
+    }
+
+    .premium-btn,
+    .game-controls button,
+    .game-controls select,
+    #fullscreenBtn,
+    #instructionsToggleBtn,
+    #resetBtn {
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.78));
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.28);
+    }
+
+    #fullscreenBtn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 9px 12px;
+      font-size: 12px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border: none;
+    }
+
+    .status-board {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(139,92,246,0.08));
+    }
+
+    .status-card {
+      padding: 12px 10px;
+      border: 1px solid rgba(148,163,184,0.14);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.58);
+      text-align: center;
+    }
+
+    .status-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .status-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .status-value.turn-goat { color: #7dd3fc; }
+    .status-value.turn-tiger { color: #fda4af; }
+
+    .turn-notification {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.22);
+      background: rgba(15,23,42,0.75);
+      color: var(--text);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .turn-notification.your-turn {
+      background: linear-gradient(135deg, rgba(16,185,129,0.14), rgba(52,211,153,0.06));
+      border-color: rgba(52,211,153,0.4);
+      color: #b8f7d8;
+    }
+
+    .turn-notification.opponent-turn {
+      background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,113,133,0.06));
+      border-color: rgba(251,191,36,0.38);
+      color: #f9e7a1;
+    }
+
+    .board-container {
+      position: relative;
+      z-index: 1;
+      padding: 18px 14px 12px;
+      border: 1px solid rgba(148,163,184,0.18);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(15,23,42,0.64));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .canvas-aspect-ratio-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.07), transparent 60%),
+        linear-gradient(135deg, #d7b48e 0%, #d1a474 50%, #a66d43 100%);
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 0 22px rgba(0,0,0,0.12);
+    }
+
+    .canvas-aspect-ratio-box::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 14px;
+      background:
+        repeating-linear-gradient(
+          to right,
+          rgba(255,255,255,0.08),
+          rgba(255,255,255,0.08) 1px,
+          transparent 1px,
+          transparent 12.5%
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.03),
+          rgba(0,0,0,0.03) 1px,
+          transparent 1px,
+          transparent 12.5%
+        );
+      pointer-events: none;
+    }
+
+    canvas {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      background: transparent;
+    }
+
+    .game-controls {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .game-controls button,
+    .game-controls select {
+      flex: 1 1 140px;
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .game-controls button.primary-btn {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border: none;
+      box-shadow: 0 12px 20px rgba(37,99,235,0.38);
+    }
+
+    .compact-instructions {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .compact-instructions #instructionsToggleBtn {
+      padding: 7px 10px;
+      color: var(--text);
+      background: rgba(148,163,184,0.08);
+      border-color: rgba(148,163,184,0.22);
+      cursor: pointer;
+    }
+
+    .instructions-content {
+      position: relative;
+      z-index: 1;
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.56);
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    .instructions-content.open { display: block; }
+
+    .game-mode-below-board {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      padding: 12px 14px;
+      border: 1px solid rgba(96,165,250,0.35);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(59,130,246,0.04));
+    }
+
+    .game-mode-below-board label {
+      display: inline-block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9dd1ff;
+    }
+
+    .game-mode-below-board select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(96,165,250,0.45);
+      background: rgba(10, 15, 25, 0.78);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    #onlinePanel {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid rgba(96,165,250,0.32);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(30,41,59,0.82));
+    }
+
+    #onlinePanel > div:first-child {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-weight: 800;
+      color: #dfeeff;
+    }
+
+    #onlinePanel > div:nth-child(3) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #onlinePanel button,
+    #onlinePanel select,
+    #onlinePanel input {
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.2);
+      background: rgba(15,23,42,0.75);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    #onlinePanel #roomCodeInput {
+      flex: 1 1 140px;
+      padding: 10px 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    #onlinePanel #joinRoomBtn,
+    #onlinePanel #createRoomBtn,
+    #onlinePanel #quickMatchBtn,
+    #onlinePanel #copyRoomCodeBtn {
+      flex: 1 1 110px;
+      cursor: pointer;
+    }
+
+    #onlinePanel #joinRoomBtn { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    #onlinePanel #createRoomBtn { background: linear-gradient(135deg, #10b981, #059669); }
+    #onlinePanel #quickMatchBtn { background: linear-gradient(135deg, #f97316, #ec4899); }
+    #onlinePanel #copyRoomCodeBtn { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+
+    @media (max-width: 500px) {
+      #bagchal-blogger-container {
+        padding: 14px;
+      }
+
+      .game-topbar {
+        padding-right: 82px;
+      }
+
+      #fullscreenBtn {
+        top: 12px;
+        right: 12px;
+      }
+
+      .status-board {
+        grid-template-columns: 1fr;
+      }
+
+      .game-controls {
+        flex-direction: column;
+      }
+
+      .game-controls button,
+      .game-controls select {
+        flex-basis: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="bagchal-blogger-container">
+    <div class="game-topbar">
+      <div class="title-wrap">
+        <span class="eyebrow">Strategy Arena</span>
+        <h2>Bagchal</h2>
+      </div>
+      <button id="fullscreenBtn">Fullscreen</button>
+    </div>
+
+    <div class="status-board">
+      <div class="status-card">
+        <span class="status-label">Turn</span>
+        <span class="status-value turn-goat">Goat</span>
+      </div>
+      <div class="status-card">
+        <span class="status-label">Moves</span>
+        <span class="status-value">18</span>
+      </div>
+      <div class="status-card">
+        <span class="status-label">Mode</span>
+        <span class="status-value">Pro</span>
+      </div>
+    </div>
+
+    <div class="turn-notification your-turn">Your turn — place a goat</div>
+
+    <div class="board-container">
+      <div class="canvas-aspect-ratio-box">
+        <canvas></canvas>
+      </div>
+    </div>
+
+    <div class="game-controls">
+      <button class="primary-btn">New Game</button>
+      <button>Undo</button>
+      <button>Reset Board</button>
+      <select>
+        <option>Classic</option>
+        <option>Timed Match</option>
+        <option>Pro League</option>
+      </select>
+    </div>
+
+    <div class="compact-instructions">
+      <span>Fast tactical mode</span>
+      <button id="instructionsToggleBtn">Rules</button>
+    </div>
+
+    <div class="instructions-content" id="instructionsPanel">
+      Place goats on empty intersections, then move them to trap the tiger. Control the center and keep your pieces flexible.
+    </div>
+
+    <div class="game-mode-below-board">
+      <label for="gameSelection">Game Mode</label>
+      <select id="gameSelection">
+        <option>Local Match</option>
+        <option>Online Arena</option>
+        <option>Bot Challenge</option>
+      </select>
+    </div>
+
+    <div id="onlinePanel">
+      <div>
+        <span>Online</span>
+        <span>Room Ready</span>
+      </div>
+      <div>
+        <input id="roomCodeInput" type="text" value="VC-2048" aria-label="Room code" />
+      </div>
+      <div>
+        <button id="joinRoomBtn">Join</button>
+        <button id="createRoomBtn">Create</button>
+        <button id="quickMatchBtn">Quick Match</button>
+        <button id="copyRoomCodeBtn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('instructionsToggleBtn');
+    const panel = document.getElementById('instructionsPanel');
+
+    toggle.addEventListener('click', () => {
+      panel.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
