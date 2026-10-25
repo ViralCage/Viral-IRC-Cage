@@ -294,7 +294,7 @@ function applySpectatorCamera(){
  spectatorStage.style.setProperty('--view-tilt',spectatorTilt+'deg');
  spectatorStage.style.setProperty('--view-zoom',spectatorZoom);
  spectatorStage.style.setProperty('--view-perspective',spectatorTilt>=45?'2400px':spectatorTilt>=30?'1700px':'1200px');
- document.querySelectorAll('[data-spectator-action^="tilt-"]').forEach(btn=>btn.setAttribute('aria-pressed',String((btn.dataset.spectatorAction==='tilt-3d'&&spectatorTilt===17)||(btn.dataset.spectatorAction==='tilt-4d'&&spectatorTilt===32)||(btn.dataset.spectatorAction==='tilt-8d'&&spectatorTilt===48))));
+ document.querySelectorAll('[data-spectator-action="tilt-3d"]').forEach(btn=>btn.setAttribute('aria-pressed',String(spectatorTilt===17)));
 }
 $('spectator-panel')?.addEventListener('click',e=>{
  if(e.target.closest('#commentator-audio')){setCommentatorAudio();return;}
