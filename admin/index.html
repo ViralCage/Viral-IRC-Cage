@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b14">
+  <title>VC Play — Super Admin</title>
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="https://viralcage.com/" aria-label="Viral Cage Play home">
+        <span class="brand-mark">VC</span>
+        <span><strong>VIRAL CAGE PLAY</strong><small>ADMIN CONTROL CENTER</small></span>
+      </a>
+      <span class="status"><i></i> PREVIEW MODE</span>
+    </header>
+
+    <section class="intro">
+      <div>
+        <p class="eyebrow">PRIVATE MANAGEMENT</p>
+        <h1>Super Admin</h1>
+        <p class="muted">Manage players, rooms and match incidents from one place.</p>
+      </div>
+      <div class="secure-note"><span>▣</span><div><b>Backend not connected</b><small>Controls are previews only. No live actions can run.</small></div></div>
+    </section>
+
+    <section class="stats" aria-label="Live statistics">
+      <article class="stat"><span>ONLINE PLAYERS</span><b>—</b><small>Awaiting secure connection</small></article>
+      <article class="stat"><span>ACTIVE ROOMS</span><b>—</b><small>Awaiting secure connection</small></article>
+      <article class="stat"><span>ACTIVE BANS</span><b>—</b><small>Awaiting secure connection</small></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">PLAYER MODERATION</p><h2>Find a player</h2></div><span class="pill">PLAYER TOOLS</span></div>
+      <div class="search-row">
+        <input id="player-search" type="search" placeholder="Nickname or player ID" aria-label="Search player" disabled>
+        <button class="button button-muted" disabled>Search</button>
+      </div>
+      <div class="empty"><span class="empty-icon">⌕</span><b>Player directory not connected</b><p>Live player records will appear here after secure backend setup.</p></div>
+    </section>
+
+    <section class="two-col">
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">MATCH OVERRIDES</p><h2>Game control</h2></div><span class="pill">ALL GAMES</span></div>
+        <div class="action-list">
+          <div class="action"><span class="action-icon">Ⅱ</span><div><b>Freeze match</b><small>Temporarily pause both players</small></div><button disabled>Unavailable</button></div>
+          <div class="action"><span class="action-icon">↻</span><div><b>Reset match</b><small>Restart a selected room</small></div><button disabled>Unavailable</button></div>
+          <div class="action"><span class="action-icon">♛</span><div><b>Override result</b><small>Set a verified match outcome</small></div><button disabled>Unavailable</button></div>
+          <div class="action"><span class="action-icon">■</span><div><b>End match</b><small>Close a selected active game</small></div><button class="danger-outline" disabled>Unavailable</button></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">MODERATION</span></div>
+        <label class="field-label" for="ban-target">Nickname, player ID or IP</label>
+        <input id="ban-target" placeholder="Enter exact player identifier" disabled>
+        <label class="field-label" for="ban-reason">Reason</label>
+        <select id="ban-reason" disabled><option>Select a reason</option><option>Harassment</option><option>Cheating</option><option>Disrupting games</option><option>Other violation</option></select>
+        <label class="field-label" for="ban-duration">Duration</label>
+        <select id="ban-duration" disabled><option>24 hours</option><option>1 hour</option><option>7 days</option><option>Permanent</option></select>
+        <button class="button button-danger full" disabled>Ban player — unavailable</button>
+        <p class="fine-print">Bans must be enforced by trusted server-side checks, not browser-only code.</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">ACCOUNTABILITY</p><h2>Admin activity log</h2></div><span class="pill">AUDIT TRAIL</span></div>
+      <div class="empty compact"><b>No activity available</b><p>Every future moderation or match override will be recorded with administrator, target, reason and timestamp.</p></div>
+    </section>
+
+    <footer><span>VIRAL CAGE PLAY</span><span>Separate admin preview · Main game files untouched</span></footer>
+  </main>
+  <script src="./admin.js"></script>
+</body>
+</html>
