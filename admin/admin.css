@@ -224,3 +224,22 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @media(max-width:520px){
  .baghchal-points .tiger-piece,.baghchal-points .goat-piece{width:96%;height:96%}
 }
+
+/* 4D-inspired spectator camera depth: layered perspective, not literal 4D */
+.spectator-board-wrap{perspective:1500px;perspective-origin:50% 42%}
+.spectator-board-face>.baghchal-real-board,
+.spectator-board-face>.spectator-grid,
+.spectator-board-face>.dots-board{
+ backface-visibility:visible;
+ transform-style:preserve-3d;
+}
+.spectator-board-face>.baghchal-real-board{
+ transform:rotateX(var(--view-tilt,17deg)) rotateZ(var(--view-rotation,0deg)) scale(var(--view-zoom,.94));
+ transform-origin:50% 50%;
+ transition:transform .55s cubic-bezier(.2,.75,.25,1),filter .4s ease;
+ filter:drop-shadow(0 28px 18px #000d);
+}
+.spectator-panel:fullscreen .spectator-board-wrap{perspective:2200px}
+@media(prefers-reduced-motion:reduce){
+ .spectator-board-face>.baghchal-real-board{transition:none}
+}
