@@ -1964,8 +1964,9 @@
     let tttBoard = Array(9).fill('');
     let tttTurn = 'X';
     let tttWinner = null;
+    let tttLastMove = null;
     let onlineGameType = 'baghchal';
-    let dotsBoxesState = { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
+    let dotsBoxesState = { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null, lastMove: null };
     let onlineGameTypeListener = null;
     let onlineTttListener = null;
     let onlineDotsListener = null;
@@ -2480,8 +2481,8 @@
     function tryExecuteChessPremove(){if(!chessPremove||state.mode!=='online'||!onlineRoomRef||!onlineRole)return;const s=chessHistory[chessHistory.length-1],myColor=getRoleMark()==='X'?1:-1;if(s.t!==myColor||chessStatus(chessHistory).done)return;const pending=chessPremove;chessPremove=null;const move=chessLegal(s).find(m=>m[0]===pending.from&&m[1]===pending.to&&(m[2]===''||m[2]==='q'));if(move)chessPlayMove(move);else{chessSelected=-1;drawBoard();}}
     function playChessSquare(index){if(!isChessActive())return;const localAi=state.mode==='ai-chess';if(localAi&&chessHistory[chessHistory.length-1].t!==1)return;if(!localAi&&(!onlineRoomRef||!onlineRole||!firebaseReady))return;const current=chessHistory[chessHistory.length-1],myColor=localAi?1:(getRoleMark()==='X'?1:-1),piece=current.b[index];if(chessStatus(chessHistory).done)return;if(!localAi&&current.t!==myColor){if(chessPremove&&chessPremove.from===index){chessPremove=null;chessSelected=-1;drawBoard();return;}if(chessSelected<0){if(chessSide(piece)===myColor){chessSelected=index;drawBoard();}return;}if(chessSide(piece)===myColor){chessSelected=index;drawBoard();return;}chessPremove={from:chessSelected,to:index};chessSelected=-1;drawBoard();return;}if(current.t!==myColor)return;if(chessSelected<0){if(chessSide(piece)===myColor){chessSelected=index;drawBoard();}return;}if(chessSelected===index){chessSelected=-1;drawBoard();return;}let choices=chessLegal(current).filter(m=>m[0]===chessSelected&&m[1]===index);if(!choices.length){if(chessSide(piece)===myColor)chessSelected=index;else chessSelected=-1;drawBoard();return;}if(choices.length>1){let promo='q';try{promo=(window.prompt('Promote pawn to queen, rook, bishop, or knight? Enter q, r, b, or n.','q')||'q').toLowerCase();}catch(e){}if(!['q','r','b','n'].includes(promo))promo='q';choices=choices.filter(m=>m[2]===promo);}chessPremove=null;chessPlayMove(choices[0]);}
 
-    function initialTicTacToeState(firstTurn = 'X') { return { board: Array(9).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', winner: null, updatedAt: Date.now() }; }
-    function initialDotsBoxesState(firstTurn = 'X') { return { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', scores: { X: 0, O: 0 }, winner: null, updatedAt: Date.now() }; }
+    function initialTicTacToeState(firstTurn = 'X') { return { board: Array(9).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', winner: null, lastMove: null, updatedAt: Date.now() }; }
+    function initialDotsBoxesState(firstTurn = 'X') { return { edges: Array(40).fill(false), edgeOwners: Array(40).fill(''), boxes: Array(16).fill(''), turn: firstTurn === 'O' ? 'O' : 'X', scores: { X: 0, O: 0 }, winner: null, lastMove: null, updatedAt: Date.now() }; }
     function updateOnlineRoleOptions() {
         const select = document.getElementById('onlinePreferredRole');
         if (!select) return;
@@ -2556,6 +2557,7 @@
         const mark=localAi?'X':getRoleMark();
         if (dotsBoxesState.winner || dotsBoxesState.turn !== mark || dotsBoxesState.edges[edgeIndex]) return;
         if(!applyDotsEdge(dotsBoxesState,edgeIndex,mark))return;
+        dotsBoxesState.lastMove={edge:edgeIndex,by:mark};
         playMoveSound('move'); updateStatusUI(); drawBoard();
         if(dotsBoxesState.winner) showMiniGameResult(dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner==='X'?(localAi?'You Win!':'X Wins!'):(localAi?'AI Wins':'O Wins!'),'Dots & Boxes finished.');
         if(localAi){if(!dotsBoxesState.winner)scheduleHardMiniAi();return;}
@@ -2590,7 +2592,7 @@
         let best=-Infinity, choices=[];
         for(let i=0;i<9;i++) if(!tttBoard[i]) { tttBoard[i]='O'; const val=scoreBoard(tttBoard,'X',0); tttBoard[i]=''; if(val>best){best=val;choices=[i]}else if(val===best)choices.push(i); }
         if(!choices.length)return;
-        tttBoard[choices[Math.floor(Math.random()*choices.length)]]='O';
+        const aiIndex=choices[Math.floor(Math.random()*choices.length)]; tttBoard[aiIndex]='O'; tttLastMove={index:aiIndex,by:'O'};
         tttWinner=checkTttWinner(tttBoard); if(!tttWinner)tttTurn='X';
         playMoveSound('place'); updateStatusUI(); drawBoard();
         if(tttWinner) showMiniGameResult(tttWinner==='draw'?'Draw!':tttWinner==='X'?'You Win!':'AI Wins','Tic Tac Toe finished.');
@@ -2614,7 +2616,7 @@
             const val=scored*100-danger*15+(Math.random()*0.01);
             if(val>best){best=val;choices=[edge]}else if(val===best)choices.push(edge);
         }
-        const edge=choices[Math.floor(Math.random()*choices.length)]; applyDotsEdge(dotsBoxesState,edge,'O'); playMoveSound('move'); updateStatusUI();drawBoard();
+        const edge=choices[Math.floor(Math.random()*choices.length)]; applyDotsEdge(dotsBoxesState,edge,'O'); dotsBoxesState.lastMove={edge,by:'O'}; playMoveSound('move'); updateStatusUI();drawBoard();
         if(dotsBoxesState.winner)showMiniGameResult(dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner==='X'?'You Win!':'AI Wins','Dots & Boxes finished.');
         else scheduleHardMiniAi();
     }
@@ -2648,7 +2650,7 @@
         if (state.mode === 'ai-dotsboxes') { dotsBoxesState=initialDotsBoxesState('X'); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Dots & Boxes — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Your Boxes'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='AI Boxes'; updateStatusUI(); resizeCanvas(); return; }
         if (state.mode === 'ai-checkers') { checkersState=initialCheckersState(); checkersSelected=-1; document.getElementById('messageOverlay').classList.remove('active'); document.querySelector('#bagchal-blogger-container h2').textContent='Checkers — Computer'; document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent='Turn'; document.querySelectorAll('#bagchal-blogger-container .status-label')[1].textContent='Red Pieces'; document.querySelectorAll('#bagchal-blogger-container .status-label')[2].textContent='Black Pieces'; updateStatusUI(); resizeCanvas(); return; }
         if (isTicTacToeActive()) {
-            if (state.mode !== 'online') { tttBoard = Array(9).fill(''); tttTurn = 'X'; tttWinner = null; }
+            if (state.mode !== 'online') { tttBoard = Array(9).fill(''); tttTurn = 'X'; tttWinner = null; tttLastMove = null; }
             document.getElementById('messageOverlay').classList.remove('active');
             document.querySelector('#bagchal-blogger-container h2').textContent = state.mode === 'ai-tictactoe' ? 'Tic Tac Toe — Computer' : 'Tic Tac Toe';
             document.querySelectorAll('#bagchal-blogger-container .status-label')[0].textContent = 'Turn';
@@ -2764,6 +2766,7 @@
             if (state.mode === 'ai-tictactoe' && tttTurn !== 'X') return;
             if (state.mode === 'online' && (!onlineRoomRef || !onlineRole || getRoleMark() !== tttTurn || onlineAiOpponent)) return;
             tttBoard[index] = tttTurn;
+            tttLastMove = { index, by: tttTurn };
             const result = checkTttWinner(tttBoard);
             tttWinner = result;
             if (!result) tttTurn = tttTurn === 'X' ? 'O' : 'X';
@@ -2777,7 +2780,7 @@
             if (tttWinner) showMiniGameResult(tttWinner==='draw'?'Draw!':tttWinner==='X'?(state.mode==='ai-tictactoe'?'You Win!':'X Wins!'):(state.mode==='ai-tictactoe'?'AI Wins':'O Wins!'),'Tic Tac Toe finished.');
             if (state.mode === 'ai-tictactoe' && !tttWinner) scheduleHardMiniAi();
             if (state.mode === 'online' && onlineRoomRef && !onlineApplyingSnapshot) {
-                onlineRoomRef.child('miniGames/tictactoe').set({board:tttBoard.slice(),turn:tttTurn,winner:tttWinner,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{console.error(err);setOnlineStatus('Tic Tac Toe move could not sync. Check server permissions for this game.');});
+                onlineRoomRef.child('miniGames/tictactoe').set({board:tttBoard.slice(),turn:tttTurn,winner:tttWinner,lastMove:tttLastMove,updatedAt:firebase.database.ServerValue.TIMESTAMP}).catch(err=>{console.error(err);setOnlineStatus('Tic Tac Toe move could not sync. Check server permissions for this game.');});
             }
             return;
         }
@@ -3346,6 +3349,7 @@
                 ctx.beginPath(); ctx.moveTo(pad + i * cell, pad); ctx.lineTo(pad + i * cell, width - pad); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(pad, pad + i * cell); ctx.lineTo(width - pad, pad + i * cell); ctx.stroke();
             }
+            if(state.mode==='online' && tttLastMove && tttLastMove.by!==getRoleMark() && tttLastMove.index>=0 && tttLastMove.index<9){const rr=Math.floor(tttLastMove.index/3),cc=tttLastMove.index%3;ctx.fillStyle='rgba(250,204,21,.20)';ctx.fillRect(pad+cc*cell+3,pad+rr*cell+3,cell-6,cell-6);ctx.strokeStyle='#facc15';ctx.lineWidth=Math.max(2,width*.009);ctx.strokeRect(pad+cc*cell+3,pad+rr*cell+3,cell-6,cell-6);}
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.font = `700 ${cell * 0.62}px system-ui, sans-serif`;
             for (let i = 0; i < 9; i++) {
@@ -3363,8 +3367,9 @@
             ctx.fillStyle='#1d4ed8'; ctx.fillRect(pad,pad,cw*7,ch*6);
             for(let r=0;r<6;r++)for(let c=0;c<7;c++){
                 const x=pad+(c+.5)*cw,y=pad+(r+.5)*ch;ctx.beginPath();ctx.arc(x,y,Math.min(cw,ch)*.39,0,Math.PI*2);
-                const v=fourConnectState.board[r*7+c];ctx.fillStyle=v==='X'?'#dc2626':v==='O'?'#facc15':'#f8fafc';ctx.fill();
+                const idx=r*7+c,v=fourConnectState.board[idx],last=fourConnectState.lastMove,showLast=state.mode==='online'&&last&&last.by!==getRoleMark()&&last.index===idx;ctx.fillStyle=v==='X'?'#dc2626':v==='O'?'#facc15':'#f8fafc';ctx.fill();
                 if(v){ctx.strokeStyle=v==='X'?'#991b1b':'#ca8a04';ctx.lineWidth=2;ctx.stroke();}
+                if(showLast){ctx.beginPath();ctx.arc(x,y,Math.min(cw,ch)*.47,0,Math.PI*2);ctx.strokeStyle='#22c55e';ctx.lineWidth=Math.max(3,width*.012);ctx.stroke();}
             } return;
         }
         if (isChipBombActive()) {
@@ -3418,7 +3423,7 @@
                 if(owner){const color=playerColor(owner);ctx.fillStyle=owner==='X'?'rgba(220,38,38,0.20)':'rgba(37,99,235,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=color;ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
             }
             ctx.lineCap='round';
-            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);const owner=Array.isArray(dotsBoxesState.edgeOwners)?dotsBoxesState.edgeOwners[i]:'';ctx.strokeStyle=dotsBoxesState.edges[i]?(owner?playerColor(owner):'#64748b'):'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
+            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width),owner=Array.isArray(dotsBoxesState.edgeOwners)?dotsBoxesState.edgeOwners[i]:'';const showLast=state.mode==='online'&&dotsBoxesState.lastMove&&dotsBoxesState.lastMove.by!==getRoleMark()&&dotsBoxesState.lastMove.edge===i;ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=showLast?'#22c55e':(dotsBoxesState.edges[i]?(owner?playerColor(owner):'#64748b'):'#cbd5e1');ctx.lineWidth=showLast?Math.max(7,width*0.03):(dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006));ctx.stroke();}
             for(let r=0;r<5;r++) for(let c=0;c<5;c++){ctx.beginPath();ctx.arc(pad+c*gap,pad+r*gap,Math.max(3,width*0.018),0,Math.PI*2);ctx.fillStyle='#111827';ctx.fill();}
             return;
         }
@@ -4091,13 +4096,13 @@
         onlineRoomRef.child('game').on('value', onlineGameListener);
         onlineTttListener = snap => {
             const data=snap.val(); if(!data || !Array.isArray(data.board) || data.board.length!==9 || data.board.some(v=>!['','X','O'].includes(v)) || !['X','O'].includes(data.turn)) return;
-            tttBoard=data.board.slice(); tttTurn=data.turn; tttWinner=data.winner || null;
+            tttBoard=data.board.slice(); tttTurn=data.turn; tttWinner=data.winner || null; tttLastMove=data.lastMove&&Number.isInteger(data.lastMove.index)?{index:data.lastMove.index,by:data.lastMove.by}:null;
             if(isTicTacToeActive()){ updateStatusUI(); drawBoard(); if(tttWinner){document.getElementById('messageTitle').textContent=tttWinner==='draw'?'Draw!':tttWinner+' Wins!';document.getElementById('messageBody').textContent=tttWinner==='draw'?'The board is full.':'Three in a row.';document.getElementById('messageOverlay').classList.add('active');}else document.getElementById('messageOverlay').classList.remove('active'); }
         };
         onlineRoomRef.child('miniGames/tictactoe').on('value', onlineTttListener);
         onlineDotsListener = snap => {
             const data=snap.val(); if(!data || !Array.isArray(data.edges) || data.edges.length!==40 || !Array.isArray(data.boxes) || data.boxes.length!==16 || !['X','O'].includes(data.turn)) return;
-            dotsBoxesState={edges:data.edges.map(Boolean),edgeOwners:Array.isArray(data.edgeOwners)&&data.edgeOwners.length===40?data.edgeOwners.map(v=>v==='X'||v==='O'?v:''):Array(40).fill(''),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null};
+            dotsBoxesState={edges:data.edges.map(Boolean),edgeOwners:Array.isArray(data.edgeOwners)&&data.edgeOwners.length===40?data.edgeOwners.map(v=>v==='X'||v==='O'?v:''):Array(40).fill(''),boxes:data.boxes.map(v=>v==='X'||v==='O'?v:''),turn:data.turn,scores:{X:Number(data.scores&&data.scores.X)||0,O:Number(data.scores&&data.scores.O)||0},winner:data.winner||null,lastMove:data.lastMove&&Number.isInteger(data.lastMove.edge)?{edge:data.lastMove.edge,by:data.lastMove.by}:null};
             if(isDotsBoxesActive()){ updateStatusUI(); drawBoard(); if(dotsBoxesState.winner){document.getElementById('messageTitle').textContent=dotsBoxesState.winner==='draw'?'Draw!':dotsBoxesState.winner+' Wins!';document.getElementById('messageBody').textContent='Dots & Boxes finished.';document.getElementById('messageOverlay').classList.add('active');}else document.getElementById('messageOverlay').classList.remove('active'); }
         };
         onlineRoomRef.child('miniGames/dotsboxes').on('value', onlineDotsListener);
