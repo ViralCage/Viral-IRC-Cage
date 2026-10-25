@@ -316,16 +316,19 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-panel:fullscreen .spectator-board-face>.chess-stage{width:min(78vh,78vw);max-width:850px}
 @media(max-width:600px){.chess-stage{padding:8px 2px}.chess-board-frame{padding:7px;border-radius:12px}.chess-piece{font-size:clamp(22px,7.8vw,42px)}.spectator-panel:fullscreen .spectator-board-face>.chess-stage{width:min(90vw,70vh)}}
 
-/* Accurate 4x4 Dots & Boxes geometry: 7x7 node/edge/box matrix */
+/* Accurate 4x4 Dots & Boxes geometry: 9x9 node/edge/box matrix */
 .dots-arena{width:min(100%,600px);display:grid;gap:18px;margin:0 auto;padding:14px 8px 22px}
 .dots-board-shell{width:100%;aspect-ratio:1;padding:clamp(12px,3vw,25px);border:1px solid #6682b8;border-radius:18px;background:linear-gradient(145deg,#263a62,#111b31 58%,#080f1d);box-shadow:inset 0 2px 0 #ffffff2b,inset 0 -12px 24px #0008,0 8px 0 #080d18,0 22px 32px #000b;transform-style:preserve-3d}
-.dots-board-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(7,minmax(0,1fr));align-items:stretch;justify-items:stretch;transform-style:preserve-3d}
+.dots-board-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));align-items:stretch;justify-items:stretch;transform-style:preserve-3d}
 .dots-node{align-self:center;justify-self:center;width:clamp(9px,2.2vw,16px);height:clamp(9px,2.2vw,16px);border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#b8d8ff 42%,#4d6f9f 78%);border:1px solid #e1efff;box-shadow:0 2px 0 #36527c,0 5px 8px #000b;z-index:3}
 .dots-edge{position:relative;display:grid;place-items:center;min-width:0;min-height:0}
 .dots-edge span{display:block;border-radius:8px;background:linear-gradient(180deg,#3d4e6c,#1b2940);box-shadow:inset 0 1px 0 #ffffff26,0 3px 0 #070d18,0 5px 7px #0009;transition:background .2s,box-shadow .2s}
 .dots-edge-h span{width:100%;height:clamp(6px,1.2vw,10px)}
 .dots-edge-v span{width:clamp(6px,1.2vw,10px);height:100%}
 .dots-edge.edge-on span{background:linear-gradient(180deg,#b9ddff,#4c96ed 55%,#2860aa);box-shadow:inset 0 1px 0 #ffffffb0,0 3px 0 #153b70,0 6px 9px #000a;filter:drop-shadow(0 0 5px #5daaff88)}
+.dots-edge.edge-x.edge-on span{background:linear-gradient(180deg,#ffb0bd,#e04460 55%,#8f203b);box-shadow:inset 0 1px 0 #ffffffb0,0 3px 0 #741a30,0 6px 9px #000a;filter:drop-shadow(0 0 5px #ef536b88)}
+.dots-edge.edge-o.edge-on span{background:linear-gradient(180deg,#b9ddff,#4c96ed 55%,#2860aa);box-shadow:inset 0 1px 0 #ffffffb0,0 3px 0 #153b70,0 6px 9px #000a;filter:drop-shadow(0 0 5px #5daaff88)}
+.dots-edge.edge-last span{filter:brightness(1.35) drop-shadow(0 0 7px #fff)}
 .dots-box{display:grid;place-items:center;min-width:0;min-height:0;border-radius:5px;background:#0b1425aa;box-shadow:inset 0 0 10px #0008;overflow:hidden}
 .dots-box.box-claimed{border:1px solid #ffffff28}
 .dots-box.box-x{background:linear-gradient(145deg,#e15a72aa,#76263eaa);box-shadow:inset 0 2px 8px #ffd4dc55,0 0 12px #df4d6d33}
