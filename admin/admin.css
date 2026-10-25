@@ -712,3 +712,15 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-board-face .black-piece{background:radial-gradient(circle at 32% 23%,#8993a5 0%,#343b4b 42%,#090d16 100%)}
 .spectator-board-face .yellow-piece{background:radial-gradient(circle at 32% 23%,#fff5a6 0%,#facc15 45%,#986300 100%)}
 @media(max-width:600px){.spectator-board-face>.baghchal-real-board{border-width:8px}.spectator-board-face .chess-tile .chess-piece{font-size:clamp(19px,6.8vw,40px)}}
+
+
+/* Tournament spectator: make every BaghChal grid line and square boundary unmistakable */
+.spectator-board-face>.baghchal-real-board{box-sizing:border-box;outline:2px solid #f0d3a0;outline-offset:3px}
+.spectator-board-face .baghchal-lines{inset:0;width:100%;height:100%;z-index:1;overflow:visible}
+.spectator-board-face .baghchal-lines g{stroke:#422512;stroke-width:7;stroke-linecap:square;stroke-linejoin:miter;opacity:1;filter:drop-shadow(0 2px 0 #f7dfb6)}
+.spectator-board-face .baghchal-points{inset:7%;z-index:2}
+.spectator-board-face .baghchal-last-move{stroke-width:14;stroke-dasharray:20 10}
+.spectator-board-face .bagh-node{position:relative}
+.spectator-board-face .bagh-node:before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#4a2a16;box-shadow:0 1px 0 #f4d9a8;opacity:.9;z-index:0}
+.spectator-board-face .bagh-node.move-from:before,.spectator-board-face .bagh-node.move-to:before{opacity:0}
+.spectator-board-face .bagh-node .tiger-piece,.spectator-board-face .bagh-node .goat-piece{position:relative;z-index:2}
