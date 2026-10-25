@@ -342,3 +342,31 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-panel:fullscreen .spectator-board-face>.dots-arena{width:min(78vh,78vw);max-width:850px}
 @media(max-width:600px){.dots-arena{gap:12px;padding:8px 2px 14px}.dots-board-shell{padding:10px;border-radius:12px}.dots-score{min-width:105px;padding:8px 10px}.spectator-panel:fullscreen .spectator-board-face>.dots-arena{width:min(90vw,70vh)}}
 @media(prefers-reduced-motion:reduce){.spectator-board-face>.chess-stage,.spectator-board-face>.dots-arena{transition:none}}
+
+
+/* TV-style spectator stage: Player 1 left, live board center, Player 2 right */
+.spectator-board-wrap{display:block;max-height:none;white-space:normal;overflow:auto;padding:clamp(12px,2vw,24px)}
+.spectator-tv-layout{width:100%;min-width:0;display:grid;grid-template-columns:minmax(145px,.72fr) minmax(300px,1.7fr) minmax(145px,.72fr);align-items:center;gap:clamp(10px,1.5vw,22px)}
+.spectator-tv-seat{min-width:0;display:flex;flex-direction:column;gap:10px;padding:10px;border:1px solid #465477;border-radius:16px;background:linear-gradient(155deg,#1b263d,#0b111e 78%);box-shadow:inset 0 1px #ffffff16,0 12px 24px #0008}
+.spectator-tv-seat.seat-one{border-color:#8e4659;box-shadow:inset 0 1px #ffffff16,0 0 22px #c43e5a18,0 12px 24px #0008}
+.spectator-tv-seat.seat-two{border-color:#3d6e9e;box-shadow:inset 0 1px #ffffff16,0 0 22px #3c8edc18,0 12px 24px #0008}
+.spectator-camera-frame{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0;aspect-ratio:4/5;overflow:hidden;border:1px solid #384967;border-radius:11px;background:radial-gradient(ellipse at 50% 35%,#273956 0,#111b2d 46%,#080d17 100%)}
+.spectator-camera-frame:before,.spectator-camera-frame:after{content:"";position:absolute;inset:10px;border:1px solid #ffffff0c;border-radius:7px;pointer-events:none}
+.spectator-camera-frame:after{inset:auto 12% 12%;height:1px;background:linear-gradient(90deg,transparent,#8ba9d455,transparent)}
+.spectator-camera-glow{position:absolute;width:70%;aspect-ratio:1;border-radius:50%;background:#6f8fc51c;filter:blur(24px)}
+.spectator-camera-icon{position:relative;width:clamp(34px,4vw,52px);color:#9bb9e9;opacity:.82}
+.spectator-camera-icon svg{width:100%;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.spectator-camera-label,.spectator-camera-status{position:relative;text-align:center;font-size:9px;font-weight:850;letter-spacing:.14em;color:#c7d8f4}
+.spectator-camera-status{font-size:8px;color:#8596b2;letter-spacing:.1em}
+.seat-one .spectator-camera-icon{color:#ff9aab}.seat-one .spectator-camera-frame{border-color:#704052}
+.seat-two .spectator-camera-icon{color:#8cc6ff}.seat-two .spectator-camera-frame{border-color:#3c5e82}
+.spectator-seat-info{display:grid;gap:5px;min-width:0;text-align:center}
+.spectator-seat-info .spectator-player-side{font-size:9px}
+.spectator-seat-info strong{font-size:clamp(12px,1.2vw,16px);color:#f5f7ff;overflow-wrap:anywhere}
+.spectator-seat-info small{display:flex;align-items:center;justify-content:center;gap:6px;color:#9eabc2;font-size:8px;letter-spacing:.09em}
+.spectator-seat-info small i{width:6px;height:6px;border-radius:50%;background:#68748b}
+.spectator-seat-info small i.is-connected{background:#42d69a;box-shadow:0 0 8px #42d69a99}
+.spectator-board-face{min-width:0;width:100%;display:grid;place-items:center}
+.spectator-board-face>.dots-arena,.spectator-board-face>.chess-stage,.spectator-board-face>.baghchal-real-board{max-width:100%}
+@media(max-width:760px){.spectator-tv-layout{grid-template-columns:minmax(0,1fr);gap:12px}.spectator-board-face{grid-row:1}.spectator-tv-seat{display:grid;grid-template-columns:minmax(90px,.65fr) minmax(0,1fr);align-items:center}.spectator-camera-frame{aspect-ratio:16/9}.spectator-seat-info{text-align:left}.spectator-seat-info small{justify-content:flex-start}}
+@media(min-width:761px) and (max-width:980px){.spectator-tv-layout{grid-template-columns:minmax(115px,.65fr) minmax(260px,1.6fr) minmax(115px,.65fr);gap:9px}.spectator-tv-seat{padding:7px}.spectator-camera-label{font-size:8px}}
