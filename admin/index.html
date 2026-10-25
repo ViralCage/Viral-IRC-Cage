@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./admin.css">
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <main class="shell">
@@ -41,24 +42,33 @@
         <h1>Super Admin</h1>
         <p class="muted">Manage players, rooms and match incidents from one place.</p>
       </div>
-      <div class="secure-note"><span>▣</span><div><b>Backend not connected</b><small>Controls are previews only. No live actions can run.</small></div></div>
+      <div class="secure-note"><span>▣</span><div><b id="connection-title">Connecting to Firebase</b><small id="connection-detail">Live room monitoring only · no game files changed</small></div></div>
     </section>
 
     <section class="stats" aria-label="Live statistics">
-      <article class="stat"><span>ONLINE PLAYERS</span><b>—</b><small>Awaiting secure connection</small></article>
-      <article class="stat"><span>ACTIVE ROOMS</span><b>—</b><small>Awaiting secure connection</small></article>
-      <article class="stat"><span>ACTIVE BANS</span><b>—</b><small>Awaiting secure connection</small></article>
+      <article class="stat"><span>ONLINE PLAYERS</span><b id="online-count">—</b><small>Connected room participants</small></article>
+      <article class="stat"><span>ACTIVE ROOMS</span><b id="room-count">—</b><small>Rooms with connected participants</small></article>
+      <article class="stat"><span>ACTIVE BANS</span><b id="ban-count">Not available</b><small>Ban records are not configured</small></article>
     </section>
 
     <section class="panel">
       <div class="panel-head"><div><p class="eyebrow">PLAYER MODERATION</p><h2>Find a player</h2></div><span class="pill">PLAYER TOOLS</span></div>
       <div class="search-row">
-        <input id="player-search" type="search" placeholder="Nickname or player ID" aria-label="Search player" disabled>
-        <button class="button button-muted" disabled>Search</button>
+        <input id="player-search" type="search" placeholder="Nickname or player ID" aria-label="Search player">
+        <button class="button button-muted" id="player-search-button" type="button">Search</button>
       </div>
-      <div class="empty"><span class="empty-icon">⌕</span><b>Player directory not connected</b><p>Live player records will appear here after secure backend setup.</p></div>
+      <div id="player-results" class="data-list"><div class="empty"><span class="empty-icon">⌕</span><b>Waiting for live room data</b><p>Only players currently visible in room presence can be listed.</p></div></div>
     </section>
 
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">LIVE MONITORING</p><h2>Active game rooms</h2></div><span class="pill" id="room-refresh-status">WAITING</span></div>
+      <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">MATCHMAKING</p><h2>Random match queue</h2></div><span class="pill">READ ONLY</span></div>
+      <div id="queue-list" class="data-list"><div class="empty"><b>Loading queue</b></div></div>
+    </section>
     <section class="two-col">
       <article class="panel">
         <div class="panel-head"><div><p class="eyebrow">MATCH OVERRIDES</p><h2>Game control</h2></div><span class="pill">ALL GAMES</span></div>
@@ -78,13 +88,13 @@
         <label class="field-label" for="ban-duration">Duration</label>
         <select id="ban-duration" disabled><option>24 hours</option><option>1 hour</option><option>7 days</option><option>Permanent</option></select>
         <button class="button button-danger full" disabled>Ban player — unavailable</button>
-        <p class="fine-print">Bans must be enforced by trusted server-side checks, not browser-only code.</p>
+        <p class="fine-print">Moderation actions are disabled on Spark. A trusted server must enforce bans; browser-only controls are not secure.</p>
       </article>
     </section>
 
     <section class="panel">
       <div class="panel-head"><div><p class="eyebrow">ACCOUNTABILITY</p><h2>Admin activity log</h2></div><span class="pill">AUDIT TRAIL</span></div>
-      <div class="empty compact"><b>No activity available</b><p>Every future moderation or match override will be recorded with administrator, target, reason and timestamp.</p></div>
+      <div id="activity-list" class="empty compact"><b>Read-only dashboard</b><p>No admin actions are enabled. Live monitoring does not write to your game database.</p></div>
     </section>
 
     <footer><span>VIRAL CAGE PLAY</span><span>Separate admin preview · Main game files untouched</span></footer>
