@@ -3424,7 +3424,31 @@ body {
         const level = state.difficulty;
 
         if (level === 'hardest') {
-            makeHardestMove();
+            let moved = false;
+            try {
+                moved = makeHardestMove();
+            } catch (error) {
+                console.error('BaghChal AI search failed; using a legal fallback move:', error);
+            }
+            // Never leave the game frozen if the search engine encounters a browser
+            // or position edge case. Apply one legal action as a safe fallback.
+            if (!moved) {
+                const actions = hardestGetActions(state.board, state.turn, state.goatsToPlace);
+                if (actions.length) {
+                    const action = actions[Math.floor(Math.random() * actions.length)];
+                    const next = hardestApply(state.board, action, state.goatsToPlace, state.goatsCaptured);
+                    state.board = next.board;
+                    state.goatsToPlace = next.goatsToPlace;
+                    state.goatsCaptured = next.goatsCaptured;
+                    moved = true;
+                }
+            }
+            if (!moved) {
+                checkGameStatus();
+                updateStatusUI();
+                drawBoard();
+                return;
+            }
             checkGameStatus();
             if (!state.winner) {
                 state.turn = (state.turn === GOAT) ? TIGER : GOAT;
@@ -4091,7 +4115,30 @@ body {
                 ctx.fill();
                 ctx.restore();
             } else if (state.board[i] === GOAT) {
-                ctx.fillText('🐐', cx, cy);
+                // Draw goats with canvas shapes so they remain visible on browsers
+                // that do not have a color-emoji font available.
+                const radius = gridSpacing * 0.27;
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = Math.max(2, gridSpacing * 0.035);
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                // Small ears and horns make the white token distinct from an empty node.
+                ctx.beginPath();
+                ctx.moveTo(cx - radius * 0.48, cy - radius * 0.48);
+                ctx.lineTo(cx - radius * 0.72, cy - radius * 1.05);
+                ctx.lineTo(cx - radius * 0.12, cy - radius * 0.62);
+                ctx.moveTo(cx + radius * 0.48, cy - radius * 0.48);
+                ctx.lineTo(cx + radius * 0.72, cy - radius * 1.05);
+                ctx.lineTo(cx + radius * 0.12, cy - radius * 0.62);
+                ctx.stroke();
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(cx - radius * 0.3, cy - radius * 0.08, radius * 0.075, 0, Math.PI * 2);
+                ctx.arc(cx + radius * 0.3, cy - radius * 0.08, radius * 0.075, 0, Math.PI * 2);
+                ctx.fill();
             }
             ctx.restore();
         }
