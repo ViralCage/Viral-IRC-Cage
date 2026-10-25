@@ -11,10 +11,10 @@ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
 
-let commentatorPrevious=null,commentatorAudioEnabled=false,commentatorLastText='',commentatorLanguage='both';
+let commentatorPrevious=null,commentatorAudioEnabled=false,commentatorLastText='',commentatorLanguage='en',tournamentAudioContext=null,tournamentAmbience=null;
 function commentatorPlayers(room){const names=room.playerNames||{},presence=room.presence||{};return Object.keys({...names,...presence}).map(role=>({role,name:(presence[role]&&presence[role].name)||names[role]||role}));}
 function commentatorName(room,token){const value=String(token||'').trim(),players=commentatorPlayers(room);const found=players.find(p=>p.role.toLowerCase()===value.toLowerCase()||p.name.toLowerCase()===value.toLowerCase());return found?found.name:value||'the players';}
-function bilingual(en,np){return commentatorLanguage==='en'?en:commentatorLanguage==='np'?np:en+' नेपालीमा: '+np;}
+function bilingual(en,np){return en;}
 function commentatorState(room){
  const type=room.activeGameType||'baghchal', data=type==='baghchal'?(room.game||{}):((room.miniGames||{})[type]||{});
  const board=Array.isArray(data.board)?data.board:(type==='chess'&&Array.isArray(data.history)?(data.history[data.history.length-1]||{}).b:[]);
@@ -25,8 +25,41 @@ function commentatorSay(message,kind='move',speechText={en:message,np:message}){
  const feed=$('commentator-feed');if(!feed||!message||message===commentatorLastText)return;commentatorLastText=message;
  const row=document.createElement('div');row.className='commentary-line '+kind;row.textContent=message;feed.prepend(row);while(feed.children.length>6)feed.lastElementChild.remove();
  const st=$('commentator-status');if(st)st.textContent=kind==='win'?'VICTORY COMMENTARY':'LIVE COMMENTARY';
- if(commentatorAudioEnabled&&'speechSynthesis'in window){try{speechSynthesis.cancel();const parts=commentatorLanguage==='both'?[{text:speechText.en,lang:'en-CA'},{text:speechText.np,lang:'ne-NP'}]:[{text:commentatorLanguage==='np'?speechText.np:speechText.en,lang:commentatorLanguage==='np'?'ne-NP':'en-CA'}];parts.forEach(part=>{const u=new SpeechSynthesisUtterance(part.text);u.lang=part.lang;u.rate=.94;u.pitch=kind==='win'?1.08:1;u.volume=.9;speechSynthesis.speak(u);});}catch(_){}}
+ if(commentatorAudioEnabled&&'speechSynthesis'in window){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(speechText.en||message);u.lang='en-CA';u.rate=kind==='win'?.98:1.02;u.pitch=kind==='win'?1.12:1.02;u.volume=.95;speechSynthesis.speak(u);}catch(_){}}
 }
+
+function getTournamentAudio(){
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+ if(!tournamentAudioContext)tournamentAudioContext=new AC();
+ if(tournamentAudioContext.state==='suspended')tournamentAudioContext.resume().catch(()=>{});
+ return tournamentAudioContext;
+}
+function startTournamentAmbience(){
+ const ctx=getTournamentAudio();if(!ctx||tournamentAmbience)return;
+ const master=ctx.createGain();master.gain.value=.075;master.connect(ctx.destination);
+ const noise=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),data=noise.getChannelData(0);
+ for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.22;
+ const crowd=ctx.createBufferSource();crowd.buffer=noise;crowd.loop=true;
+ const filter=ctx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=520;filter.Q.value=.55;
+ const crowdGain=ctx.createGain();crowdGain.gain.value=.22;
+ crowd.connect(filter);filter.connect(crowdGain);crowdGain.connect(master);crowd.start();
+ const low=ctx.createOscillator(),lowGain=ctx.createGain();low.type='sine';low.frequency.value=55;lowGain.gain.value=.12;low.connect(lowGain);lowGain.connect(master);low.start();
+ const pulse=ctx.createOscillator(),pulseGain=ctx.createGain();pulse.type='triangle';pulse.frequency.value=110;pulseGain.gain.value=.018;pulse.connect(pulseGain);pulseGain.connect(master);pulse.start();
+ tournamentAmbience={master,crowd,low,pulse};
+}
+function stopTournamentAmbience(){
+ if(!tournamentAmbience||!tournamentAudioContext)return;
+ const ctx=tournamentAudioContext,amb=tournamentAmbience;tournamentAmbience=null;
+ try{amb.master.gain.setTargetAtTime(0,ctx.currentTime,.18);setTimeout(()=>{try{amb.crowd.stop();amb.low.stop();amb.pulse.stop();amb.master.disconnect();}catch(_){}},900);}catch(_){}
+}
+function playTournamentMoveSound(){
+ const ctx=getTournamentAudio();if(!ctx||!commentatorAudioEnabled)return;
+ const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type='sine';osc.frequency.setValueAtTime(620,now);osc.frequency.exponentialRampToValueAtTime(390,now+.095);
+ gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.12,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
+ osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+.14);
+}
+
 function playFireworkSound(){
  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
  try{
@@ -53,7 +86,7 @@ function observeCommentary(room){
   else if(cur.type==='checkers'){en='A checkers move changes the position. Both players are fighting for control.';np='चेकर्समा चालसँगै खेलको अवस्था फेरिएको छ। दुवै खेलाडी नियन्त्रणका लागि प्रतिस्पर्धा गर्दै हुनुहुन्छ।';}
   else if(cur.type==='fourconnect'){en='A counter drops into the grid. Every connection matters now.';np='ग्रिडमा एउटा गोटी थपियो। अब हरेक जोडाइ महत्त्वपूर्ण छ।';}
   else if(cur.type==='tictactoe'){en='A mark is placed. One line could decide this game.';np='एउटा चिन्ह राखियो। अब एउटा लाइनले खेलको निर्णय गर्न सक्छ।';}
-  commentatorSay(bilingual(en,np),'move',{en,np});
+  playTournamentMoveSound();commentatorSay(bilingual(en,np),'move',{en,np});
  }
  if(cur.boxes>prev.boxes){const en='A box has been claimed! The score is moving.',np='एउटा बाकस आफ्नो बनाइयो! स्कोर परिवर्तन हुँदैछ।';commentatorSay(bilingual(en,np),'move',{en,np});}
  const sx=Number(cur.scores.X||0),sy=Number(cur.scores.O||0),px=Number(prev.scores.X||0),py=Number(prev.scores.O||0);
@@ -61,9 +94,10 @@ function observeCommentary(room){
 }
 function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
- const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute commentator & effects':'Enable commentator & effects';
- const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'VOICE + FIREWORK SOUND ON':'SOUND OFF';
- if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Tournament commentator is ready.');speechSynthesis.speak(u);} }
+ if(commentatorAudioEnabled){startTournamentAmbience();}else{stopTournamentAmbience();}
+ const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute live audio':'Enable live audio';
+ const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · STADIUM AMBIENCE · MOVE FX · VICTORY FIREWORKS ON':'SOUND OFF · Click Enable live audio to start';
+ if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Welcome to VC Play tournament live coverage. The match is about to begin.');u.lang='en-CA';speechSynthesis.speak(u);} }
  else if(window.speechSynthesis)speechSynthesis.cancel();
 }
 function renderSpectatorGame(room){
@@ -207,6 +241,6 @@ $('spectator-panel')?.addEventListener('click',e=>{
  applySpectatorCamera();
 });
 applySpectatorCamera();
-$('commentator-language')?.addEventListener('change',e=>{commentatorLanguage=e.target.value;commentatorLastText='';const st=$('commentator-audio-state');if(st)st.textContent='COMMENTARY LANGUAGE · '+(commentatorLanguage==='both'?'ENGLISH + नेपाली':commentatorLanguage==='np'?'नेपाली':'ENGLISH')+(commentatorAudioEnabled?' · AUDIO ON':' · SOUND OFF');});
+$('commentator-language')?.addEventListener('change',e=>{commentatorLanguage=e.target.value;commentatorLastText='';const st=$('commentator-audio-state');if(st)st.textContent='COMMENTARY LANGUAGE · ENGLISH'+(commentatorAudioEnabled?' · AUDIO ON':' · SOUND OFF');});
 window.addEventListener('beforeunload',stopMonitoring);
 })();
