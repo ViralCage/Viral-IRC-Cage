@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Bagchal (Tigers and Goats)</title>
+    <title>VIRAL CAGE PLAY — Strategy Games Online</title>
     <style>
         /* Scoped wrapper isolated specifically for Blogger.com post bodies */
         #bagchal-blogger-container {
@@ -214,7 +214,6 @@
             background: #2d3748;
         }
         #bagchal-blogger-container #checkersPlayerCards { display:none; width:100%; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:10px 0 12px; }
-        @media (max-width:767px) { #vcAutoHealth { display:none !important; } }
         /* Chess labels stay side-by-side and show only the color names. */
         #bagchal-blogger-container.chess-active #checkersPlayerCards { grid-template-columns:repeat(2,minmax(0,1fr)); }
         #bagchal-blogger-container.chess-active .checkers-player-role { display:block !important; font-size:12px; font-weight:600; margin-top:4px; } #bagchal-blogger-container.chess-active .checkers-player-move { display:none !important; }
@@ -1220,14 +1219,863 @@
     }
     @media (prefers-reduced-motion:reduce) { #bagchal-blogger-container #playerChat, #bagchal-blogger-container #chatPopupToggle, #bagchal-blogger-container #chatForm button { animation:none !important; transition:none !important; } }
 
-</style>
 
+
+/* =========================================================
+   VIRAL CAGE PLAY — premium visual system
+   Presentation-only layer. Existing game markup, IDs, event
+   handlers, matchmaking, server and call logic remain intact.
+   ========================================================= */
+:root {
+  color-scheme: dark;
+  --vc-bg: #080b14;
+  --vc-panel: #111827;
+  --vc-panel-2: #151e30;
+  --vc-line: rgba(148,163,184,.17);
+  --vc-text: #f4f7ff;
+  --vc-muted: #9aa8bf;
+  --vc-purple: #8b5cf6;
+  --vc-blue: #38bdf8;
+  --vc-radius: 20px;
+}
+html { background: var(--vc-bg); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(91,65,180,.22), transparent 36rem),
+    radial-gradient(ellipse at 92% 12%, rgba(14,165,233,.13), transparent 34rem),
+    linear-gradient(180deg,#0b1020 0%,#080b14 62%,#090d17 100%);
+  color: var(--vc-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+#bagchal-blogger-container,
+#bagchal-blogger-container * { box-sizing: border-box; }
+#bagchal-blogger-container {
+  width: min(100% - 32px, 1160px) !important;
+  max-width: 1160px !important;
+  min-width: 0 !important;
+  margin: 34px auto !important;
+  padding: clamp(16px,3vw,32px) !important;
+  overflow: hidden;
+  color: var(--vc-text) !important;
+  background: linear-gradient(145deg,rgba(19,28,47,.96),rgba(12,18,32,.98)) !important;
+  border: 1px solid rgba(148,163,184,.19) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 28px 90px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#bagchal-blogger-container .game-topbar {
+  min-height: 58px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  margin: 0 0 24px;
+  padding: 0 170px 0 2px;
+}
+#bagchal-blogger-container h2 {
+  color: #f8faff !important;
+  font-size: clamp(1.45rem,3vw,2.1rem) !important;
+  font-weight: 850 !important;
+  letter-spacing: -.045em;
+}
+#bagchal-blogger-container #fullscreenBtn {
+  top: 0; right: 0;
+  padding: 11px 16px;
+  border: 1px solid rgba(148,163,184,.25);
+  border-radius: 12px;
+  background: rgba(30,41,59,.9);
+  color: #e7edfa;
+  font-size: .82rem;
+  font-weight: 700;
+  transition: .2s ease;
+}
+#bagchal-blogger-container #fullscreenBtn:hover {
+  border-color: rgba(139,92,246,.8);
+  background: #27334d;
+  transform: translateY(-1px);
+}
+#bagchal-blogger-container .status-board {
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 13px;
+  border: 1px solid var(--vc-line);
+  border-radius: 17px;
+  background: rgba(7,12,24,.58);
+}
+#bagchal-blogger-container .status-card {
+  min-height: 58px;
+  padding: 6px 10px;
+}
+#bagchal-blogger-container .status-label {
+  color: #8493ad;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+#bagchal-blogger-container .status-value {
+  color: #f1f5ff;
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+#bagchal-blogger-container .status-value.turn-goat { color: #67c7ff; }
+#bagchal-blogger-container .status-value.turn-tiger { color: #ff8b9b; }
+#bagchal-blogger-container .turn-notification {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid rgba(56,189,248,.22);
+  border-radius: 13px;
+  background: rgba(14,116,144,.12);
+  color: #c9efff;
+  font-size: .88rem;
+}
+#bagchal-blogger-container .turn-notification.your-turn {
+  border-color: rgba(52,211,153,.35);
+  background: rgba(16,185,129,.1);
+  color: #a7f3d0;
+}
+#bagchal-blogger-container .turn-notification.opponent-turn {
+  border-color: rgba(251,191,36,.3);
+  background: rgba(245,158,11,.09);
+  color: #fde68a;
+}
+#bagchal-blogger-container .board-container {
+  padding: clamp(10px,2vw,20px);
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(139,92,246,.10),transparent 65%),
+    linear-gradient(145deg,#0c1424,#101a2b);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 18px 45px rgba(0,0,0,.2);
+}
+#bagchal-blogger-container .canvas-aspect-ratio-box {
+  width: min(100%,760px);
+  min-height: 220px;
+  border: 1px solid rgba(148,163,184,.26);
+  border-radius: 16px;
+  background: #101827;
+  box-shadow: 0 12px 35px rgba(0,0,0,.28);
+  overflow: hidden;
+}
+#bagchal-blogger-container canvas { border-radius: 15px; }
+#bagchal-blogger-container .game-controls {
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+#bagchal-blogger-container .game-controls select,
+#bagchal-blogger-container .game-controls button,
+#bagchal-blogger-container button:not(.vc-room-game-icon):not(.vc-mode-card):not(.vc-mode-tab) {
+  font-family: inherit;
+}
+#bagchal-blogger-container .game-controls button,
+#bagchal-blogger-container .game-controls select,
+#bagchal-blogger-container #flipChessBoardBtn {
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 1px solid rgba(148,163,184,.24);
+  border-radius: 12px;
+  background: #1b2940;
+  color: #edf3ff;
+  font-size: .86rem;
+  font-weight: 750;
+  transition: transform .18s ease,background .18s ease,border-color .18s ease;
+}
+#bagchal-blogger-container .game-controls button:hover,
+#bagchal-blogger-container #flipChessBoardBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,.55);
+  background: #263956;
+}
+#bagchal-blogger-container .game-controls button.primary-btn,
+#bagchal-blogger-container .game-controls button#resetBtn,
+#bagchal-blogger-container #overlayCloseBtn {
+  border: 0;
+  background: linear-gradient(115deg,#7652e8,#477eea);
+  color: white;
+  box-shadow: 0 7px 20px rgba(91,92,220,.25);
+}
+#bagchal-blogger-container .game-controls button.primary-btn:hover,
+#bagchal-blogger-container #overlayCloseBtn:hover {
+  background: linear-gradient(115deg,#8869f2,#5794f5);
+}
+#bagchal-blogger-container #onlinePanel {
+  margin: 22px 0 !important;
+  padding: clamp(16px,2.5vw,24px) !important;
+  border: 1px solid rgba(139,92,246,.24) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(145deg,rgba(34,29,65,.62),rgba(15,25,43,.9)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+  color: #e8edff;
+}
+#bagchal-blogger-container #onlinePanel > div:first-child {
+  margin-bottom: 15px !important;
+  color: #f4f2ff;
+  font-size: 1.08rem;
+  font-weight: 850 !important;
+  letter-spacing: -.02em;
+}
+#bagchal-blogger-container .vc-room-picker-label {
+  margin-bottom: 10px;
+  color: #9eacc5;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+#bagchal-blogger-container .vc-room-game-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 18px;
+}
+#bagchal-blogger-container .vc-room-game-icon {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 14px;
+  background: rgba(15,23,42,.85);
+  color: #dce7ff;
+  transition: .18s ease;
+}
+#bagchal-blogger-container .vc-room-game-icon:hover,
+#bagchal-blogger-container .vc-room-game-icon.active {
+  border-color: #8b5cf6;
+  background: rgba(124,91,232,.2);
+  box-shadow: 0 0 0 3px rgba(139,92,246,.12);
+  transform: translateY(-2px);
+}
+#bagchal-blogger-container #onlinePanel label {
+  color: #b8c4d9;
+  font-weight: 650;
+}
+#bagchal-blogger-container #onlinePanel select,
+#bagchal-blogger-container #onlinePanel input:not([type="hidden"]) {
+  min-height: 42px;
+  border: 1px solid rgba(148,163,184,.28) !important;
+  border-radius: 11px !important;
+  background: #0c1424 !important;
+  color: #f1f5ff !important;
+}
+#bagchal-blogger-container #roomCodeDisplay {
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(56,189,248,.25) !important;
+  border-radius: 16px !important;
+  background: rgba(8,18,34,.85) !important;
+}
+#bagchal-blogger-container #roomCodeDisplay span:first-child { color: #a8b8d2 !important; }
+#bagchal-blogger-container #roomCodeText {
+  color: #f7f8ff !important;
+  font-size: 1.65rem !important;
+  letter-spacing: .22em !important;
+}
+#bagchal-blogger-container #copyRoomCodeBtn {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(56,189,248,.3);
+  border-radius: 11px;
+  background: rgba(14,165,233,.12);
+  color: #7dd3fc;
+}
+#bagchal-blogger-container #copyRoomCodeBtn svg { width: 19px; height: 19px; }
+#bagchal-blogger-container #onlineStatus {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 11px;
+  background: rgba(7,12,24,.48);
+  color: #b8c8df !important;
+  line-height: 1.5;
+}
+#bagchal-blogger-container #onlinePanel > div:last-child {
+  color: #8796af !important;
+  line-height: 1.65 !important;
+}
+#bagchal-blogger-container .vc-mode-picker {
+  margin: 26px 0 4px;
+  padding: clamp(16px,2.5vw,24px);
+  border: 1px solid var(--vc-line);
+  border-radius: 22px;
+  background: rgba(7,12,24,.42);
+}
+#bagchal-blogger-container .vc-mode-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 14px;
+  background: rgba(2,6,16,.42);
+}
+#bagchal-blogger-container .vc-mode-tab {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #9eacc4;
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .18s ease;
+}
+#bagchal-blogger-container .vc-mode-tab.active {
+  border-color: rgba(139,92,246,.36);
+  background: linear-gradient(110deg,rgba(124,88,232,.25),rgba(56,189,248,.12));
+  color: #f5f2ff;
+  box-shadow: 0 4px 15px rgba(0,0,0,.18);
+}
+#bagchal-blogger-container .vc-mode-section-label {
+  margin: 20px 0 12px;
+  color: #8494af;
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .15em;
+}
+#bagchal-blogger-container .vc-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+#bagchal-blogger-container .vc-mode-card {
+  display: flex;
+  min-width: 0;
+  min-height: 82px;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid rgba(148,163,184,.17);
+  border-radius: 15px;
+  background: linear-gradient(145deg,rgba(24,36,57,.85),rgba(14,23,39,.92));
+  color: #edf3ff;
+  text-align: left;
+  cursor: pointer;
+  transition: .2s ease;
+}
+#bagchal-blogger-container .vc-mode-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56,189,248,.42);
+  background: #1b2b45;
+}
+#bagchal-blogger-container .vc-mode-card.active {
+  border-color: rgba(139,92,246,.8);
+  background: linear-gradient(145deg,rgba(103,75,190,.25),rgba(24,42,68,.95));
+  box-shadow: 0 0 0 2px rgba(139,92,246,.12),0 10px 25px rgba(0,0,0,.16);
+}
+#bagchal-blogger-container .vc-mode-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border: 1px solid rgba(148,163,184,.15);
+  border-radius: 12px;
+  background: rgba(5,11,22,.55);
+  font-size: 1.25rem;
+}
+#bagchal-blogger-container .vc-mode-card-copy { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+#bagchal-blogger-container .vc-mode-card-copy strong { color: #f3f6ff; font-size: .88rem; font-weight: 800; }
+#bagchal-blogger-container .vc-mode-card-copy small { color: #91a1bb; font-size: .72rem; line-height: 1.35; }
+#bagchal-blogger-container .vc-mode-tag {
+  margin-left: auto;
+  padding: 4px 7px;
+  border: 1px solid rgba(56,189,248,.18);
+  border-radius: 7px;
+  background: rgba(14,165,233,.08);
+  color: #7dd3fc;
+  font-size: .61rem;
+  font-weight: 800;
+}
+#bagchal-blogger-container .checkers-player-card {
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 14px;
+  background: #131f33;
+  color: #e9efff;
+}
+#bagchal-blogger-container .checkers-player-card.active-player {
+  border-color: rgba(56,189,248,.55);
+  background: #142b40;
+  box-shadow: 0 0 0 1px rgba(56,189,248,.12) inset;
+}
+#bagchal-blogger-container .checkers-player-role,
+#bagchal-blogger-container .checkers-player-move { color: #9eacc4; }
+#bagchal-blogger-container .message-overlay {
+  background: rgba(5,10,22,.94);
+  color: #f7f8ff;
+  backdrop-filter: blur(12px);
+}
+#bagchal-blogger-container .message-body { color: #aebbd1; }
+#bagchal-blogger-container .compact-instructions,
+#bagchal-blogger-container .instructions-content { color: #aab8ce; }
+#bagchal-blogger-container .instructions-content {
+  border-color: var(--vc-line);
+  border-radius: 12px;
+  background: rgba(8,14,26,.7);
+}
+#bagchal-blogger-container :focus-visible {
+  outline: 2px solid #7dd3fc;
+  outline-offset: 3px;
+}
+#bagchal-blogger-container button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+#bagchal-blogger-container:fullscreen,
+#bagchal-blogger-container.fullscreen-fallback {
+  background: #080b14 !important;
+  color: var(--vc-text) !important;
+}
+#bagchal-blogger-container:fullscreen .board-container,
+#bagchal-blogger-container.fullscreen-fallback .board-container { background: #0c1424; }
+@media (max-width: 760px) {
+  #bagchal-blogger-container { width: min(100% - 16px,1160px) !important; margin: 12px auto !important; border-radius: 21px !important; }
+  #bagchal-blogger-container .vc-mode-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #bagchal-blogger-container .vc-mode-card { min-height: 76px; padding: 10px; gap: 9px; }
+  #bagchal-blogger-container .vc-mode-tag { display: none; }
+}
+@media (max-width: 480px) {
+  #bagchal-blogger-container { width: 100% !important; margin: 0 auto !important; padding: 13px !important; border-radius: 0 !important; border-left: 0 !important; border-right: 0 !important; }
+  #bagchal-blogger-container .game-topbar { margin-bottom: 16px; padding-right: 126px; min-height: 46px; }
+  #bagchal-blogger-container h2 { font-size: 1.3rem !important; }
+  #bagchal-blogger-container #fullscreenBtn { padding: 9px 10px; font-size: .72rem; }
+  #bagchal-blogger-container .status-board { gap: 4px; padding: 8px 5px; }
+  #bagchal-blogger-container .status-card { padding: 5px 2px; min-height: 51px; }
+  #bagchal-blogger-container .status-value { font-size: .88rem; }
+  #bagchal-blogger-container .board-container { padding: 7px; border-radius: 17px; }
+  #bagchal-blogger-container .vc-mode-picker { padding: 13px; }
+  #bagchal-blogger-container .vc-mode-grid { gap: 8px; }
+  #bagchal-blogger-container .vc-mode-card { min-height: 72px; }
+  #bagchal-blogger-container .vc-mode-icon { width: 34px; height: 34px; flex-basis: 34px; font-size: 1.05rem; }
+  #bagchal-blogger-container .vc-mode-card-copy strong { font-size: .78rem; }
+  #bagchal-blogger-container .vc-mode-card-copy small { font-size: .66rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bagchal-blogger-container *, #bagchal-blogger-container *::before, #bagchal-blogger-container *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+
+    /* VIRAL CAGE PLAY — refined dark identity and premium brand lockup */
+    #bagchal-blogger-container .game-topbar {
+      align-items:center !important; justify-content:flex-start !important;
+      min-height:58px !important; margin:0 0 15px !important;
+      padding:5px 150px 8px 2px !important; border-bottom:1px solid rgba(148,163,184,.13);
+    }
+    #bagchal-blogger-container .vc-brand-lockup {
+      display:flex; align-items:center; flex:0 1 auto; width:min(245px,calc(100vw - 180px));
+      min-width:0; text-decoration:none; line-height:0;
+    }
+    #bagchal-blogger-container .vc-header-logo {
+      display:block; width:100%; max-width:100%; height:auto; max-height:58px;
+      object-fit:contain; object-position:left center;
+    }
+    @media (max-width:520px) {
+      #bagchal-blogger-container .vc-brand-lockup { width:min(210px,calc(100vw - 180px)); }
+      #bagchal-blogger-container .vc-header-logo { max-height:56px; }
+    }
+    #bagchal-blogger-container #fullscreenBtn {
+      border:1px solid rgba(148,163,184,.24) !important; border-radius:10px !important;
+      color:#dce4f5 !important; background:rgba(20,28,45,.92) !important;
+      box-shadow:inset 0 1px rgba(255,255,255,.04);
+    }
+    #bagchal-blogger-container #fullscreenBtn:hover { border-color:rgba(167,139,250,.55) !important; background:#1b2540 !important; }
+    #bagchal-blogger-container .vc-panel-heading {
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      margin-bottom:9px !important; color:#f0edff !important;
+      font-size:12px !important; font-weight:850; letter-spacing:.11em;
+    }
+    #bagchal-blogger-container #onlinePanel .vc-panel-heading { color:#ffffff !important; }
+    #bagchal-blogger-container .vc-panel-heading span {
+      padding:4px 7px; border:1px solid rgba(139,92,246,.23); border-radius:6px;
+      color:#b8a7ff; background:rgba(139,92,246,.09);
+      font-size:8px; letter-spacing:.12em;
+    }
+    #bagchal-blogger-container .vc-mode-section-label { color:#a99aff !important; letter-spacing:.13em !important; }
+    #bagchal-blogger-container .vc-mode-section-label span { color:#78869f; }
+    @media(max-width:420px) {
+      #bagchal-blogger-container .game-topbar { padding-right:112px !important; min-height:54px !important; }
+      #bagchal-blogger-container .vc-brand-lockup { gap:8px; }
+      #bagchal-blogger-container .vc-brand-mark { flex-basis:37px; width:37px; height:37px; border-radius:12px; }
+      #bagchal-blogger-container .vc-brand-mark svg { width:27px; height:27px; }
+      #bagchal-blogger-container .vc-brand-copy strong { font-size:15px; letter-spacing:.08em; }
+      #bagchal-blogger-container .vc-brand-copy small { font-size:7px; letter-spacing:.13em; }
+    }
+
+
+    /* Menu and identity refinement — visual-only; all existing controls retain their data attributes and handlers. */
+    #bagchal-blogger-container .vc-brand-mark {
+      position:relative; overflow:hidden; width:48px !important; height:48px !important; flex-basis:48px !important;
+      border-radius:15px !important; border-color:rgba(167,139,250,.52) !important;
+      background:linear-gradient(145deg,#211b3d 0%,#111a31 58%,#0d1527 100%) !important;
+      color:#c4b5fd !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 0 0 4px rgba(139,92,246,.055),0 10px 26px rgba(0,0,0,.32) !important;
+    }
+    #bagchal-blogger-container .vc-brand-mark::after {
+      content:""; position:absolute; inset:-55% 30% auto -40%; height:90%;
+      background:linear-gradient(110deg,transparent,rgba(255,255,255,.12),transparent); transform:rotate(24deg);
+      pointer-events:none;
+    }
+    #bagchal-blogger-container .vc-brand-mark svg { width:35px !important; height:35px !important; }
+    #bagchal-blogger-container .vc-brand-copy strong { letter-spacing:.13em !important; font-size:clamp(17px,3.4vw,22px) !important; }
+    #bagchal-blogger-container .vc-brand-copy strong em { color:#c4b5fd !important; }
+    #bagchal-blogger-container .vc-brand-copy small { color:#8794ad !important; letter-spacing:.22em !important; }
+
+    #bagchal-blogger-container .vc-mode-picker {
+      position:relative; overflow:hidden; margin-top:19px !important; padding:clamp(15px,2.4vw,22px) !important;
+      border:1px solid rgba(148,163,184,.17) !important; border-radius:20px !important;
+      background:linear-gradient(155deg,rgba(18,25,43,.97),rgba(9,15,28,.98)) !important;
+      box-shadow:0 18px 48px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035) !important;
+    }
+    #bagchal-blogger-container .vc-mode-picker::before {
+      content:""; position:absolute; top:0; left:8%; right:8%; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(167,139,250,.55),rgba(56,189,248,.3),transparent);
+      pointer-events:none;
+    }
+    #bagchal-blogger-container .vc-mode-tabs {
+      display:grid !important; grid-template-columns:1fr 1fr !important; gap:7px !important;
+      margin:0 0 20px !important; padding:5px !important;
+      border:1px solid rgba(148,163,184,.13) !important; border-radius:13px !important;
+      background:rgba(3,8,19,.72) !important;
+    }
+    #bagchal-blogger-container .vc-mode-tab {
+      position:relative; min-height:44px !important; padding:10px 12px !important;
+      border:1px solid transparent !important; border-radius:9px !important;
+      color:#8997b0 !important; background:transparent !important;
+      font-size:12px !important; font-weight:800 !important; letter-spacing:.025em;
+    }
+    #bagchal-blogger-container .vc-mode-tab.active {
+      border-color:rgba(167,139,250,.34) !important;
+      color:#f5f2ff !important;
+      background:linear-gradient(115deg,rgba(124,88,232,.26),rgba(56,189,248,.12)) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 5px 15px rgba(0,0,0,.22) !important;
+    }
+    #bagchal-blogger-container .vc-mode-section-label {
+      display:flex; align-items:center; gap:7px; margin:0 0 11px 2px !important;
+      color:#b5a5ff !important; font-size:10px !important; letter-spacing:.16em !important;
+    }
+    #bagchal-blogger-container .vc-mode-section-label::before {
+      content:""; width:6px; height:6px; border-radius:50%; background:#9b83ff;
+      box-shadow:0 0 0 3px rgba(139,92,246,.13);
+    }
+    #bagchal-blogger-container .vc-mode-grid {
+      grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:9px !important;
+    }
+    #bagchal-blogger-container .vc-mode-card {
+      position:relative; min-height:76px !important; padding:11px 10px !important; gap:9px !important;
+      border:1px solid rgba(148,163,184,.15) !important; border-radius:13px !important;
+      background:linear-gradient(145deg,rgba(27,39,62,.72),rgba(14,23,40,.92)) !important;
+      color:#edf2ff !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+    }
+    #bagchal-blogger-container .vc-mode-card:hover {
+      transform:translateY(-2px); border-color:rgba(125,211,252,.42) !important;
+      background:linear-gradient(145deg,rgba(36,48,76,.96),rgba(17,29,50,.98)) !important;
+      box-shadow:0 9px 20px rgba(0,0,0,.2) !important;
+    }
+    #bagchal-blogger-container .vc-mode-card.active {
+      border-color:rgba(167,139,250,.72) !important;
+      background:linear-gradient(145deg,rgba(89,65,151,.32),rgba(19,34,57,.98)) !important;
+      box-shadow:inset 0 0 0 1px rgba(167,139,250,.16),0 0 0 2px rgba(139,92,246,.08),0 9px 22px rgba(0,0,0,.2) !important;
+    }
+    #bagchal-blogger-container .vc-mode-icon {
+      width:36px !important; height:36px !important; flex-basis:36px !important;
+      border:1px solid rgba(148,163,184,.15) !important; border-radius:11px !important;
+      background:rgba(4,10,22,.62) !important; color:#d8ccff !important; font-size:18px !important;
+    }
+    #bagchal-blogger-container .vc-mode-card.active .vc-mode-icon {
+      border-color:rgba(167,139,250,.3) !important; background:rgba(139,92,246,.16) !important;
+    }
+    #bagchal-blogger-container .vc-mode-card-copy strong { color:#f2f5ff !important; font-size:12px !important; font-weight:800 !important; }
+    #bagchal-blogger-container .vc-mode-card-copy small { color:#8e9cb5 !important; font-size:10px !important; }
+    #bagchal-blogger-container .vc-mode-tag {
+      border:1px solid rgba(148,163,184,.12); border-radius:6px !important;
+      background:rgba(148,163,184,.08) !important; color:#a9b6ca !important;
+      font-size:8px !important; letter-spacing:.04em;
+    }
+    #bagchal-blogger-container .vc-mode-card.active .vc-mode-tag {
+      border-color:rgba(167,139,250,.2); background:rgba(139,92,246,.14) !important; color:#c8baff !important;
+    }
+    #bagchal-blogger-container .vc-mode-current {
+      margin-top:13px !important; padding:10px 12px !important;
+      border:1px solid rgba(148,163,184,.13) !important; border-radius:10px !important;
+      background:rgba(3,8,19,.46) !important; color:#aab7cd !important;
+    }
+    #bagchal-blogger-container .vc-live-dot { background:#a78bfa !important; box-shadow:0 0 0 3px rgba(139,92,246,.13) !important; }
+    #bagchal-blogger-container .vc-mode-card:focus-visible,
+    #bagchal-blogger-container .vc-mode-tab:focus-visible { outline:2px solid #a78bfa !important; outline-offset:3px; }
+    @media(max-width:767px) {
+      #bagchal-blogger-container .vc-mode-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
+      #bagchal-blogger-container .vc-mode-card { min-height:68px !important; }
+    }
+    @media(max-width:420px) {
+      #bagchal-blogger-container .vc-brand-mark { width:40px !important; height:40px !important; flex-basis:40px !important; }
+      #bagchal-blogger-container .vc-brand-mark svg { width:30px !important; height:30px !important; }
+      #bagchal-blogger-container .vc-brand-copy strong { font-size:15px !important; }
+      #bagchal-blogger-container .vc-brand-copy small { letter-spacing:.14em !important; }
+      #bagchal-blogger-container .vc-mode-picker { padding:12px !important; border-radius:16px !important; }
+      #bagchal-blogger-container .vc-mode-card { min-height:62px !important; padding:8px !important; gap:7px !important; }
+      #bagchal-blogger-container .vc-mode-icon { width:31px !important; height:31px !important; flex-basis:31px !important; }
+      #bagchal-blogger-container .vc-mode-card-copy strong { font-size:10.5px !important; }
+      #bagchal-blogger-container .vc-mode-card-copy small { font-size:9px !important; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      #bagchal-blogger-container .vc-mode-card,#bagchal-blogger-container .vc-mode-tab { transition:none !important; }
+    }
+
+
+
+/* Restore the Online Games option and multiplayer panel. */
+#bagchal-blogger-container #onlinePanel { display:block !important; }
+#bagchal-blogger-container [data-mode-tab="online"] { display:inline-flex !important; }
+#bagchal-blogger-container [data-mode-group="online"] { display:grid !important; }
+#bagchal-blogger-container .vc-mode-section-label:not(.vc-ai-label) { display:block !important; }
+#bagchal-blogger-container .vc-mode-source { display:flex !important; }
+
+
+/* Premium bottom Online Multiplayer panel refresh */
+#bagchal-blogger-container #onlinePanel {
+  position:relative !important;
+  isolation:isolate;
+  overflow:hidden;
+  display:block !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin:18px 0 24px !important;
+  padding:24px 26px 22px !important;
+  border:1px solid rgba(112,139,255,.34) !important;
+  border-radius:22px !important;
+  background:
+    radial-gradient(ellipse at 92% 0%,rgba(46,132,255,.20),transparent 42%),
+    radial-gradient(ellipse at 0% 100%,rgba(137,57,255,.13),transparent 40%),
+    linear-gradient(145deg,#111a35 0%,#0a1228 55%,#10102d 100%) !important;
+  box-shadow:0 18px 48px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.055) !important;
+  color:#eef3ff !important;
+}
+#bagchal-blogger-container #onlinePanel:before {
+  content:"";
+  position:absolute;z-index:-1;inset:0;
+  background:linear-gradient(110deg,transparent 0%,rgba(87,132,255,.055) 48%,transparent 100%);
+  pointer-events:none;
+}
+#bagchal-blogger-container #onlinePanel:after {
+  content:"";
+  position:absolute;top:0;left:26px;right:26px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(103,169,255,.85),rgba(164,100,255,.65),transparent);
+  pointer-events:none;
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading {
+  display:flex !important;align-items:center;gap:12px;flex-wrap:wrap;
+  margin:0 0 17px !important;padding:0 0 15px !important;
+  border-bottom:1px solid rgba(139,163,255,.16);
+  color:#f5f7ff !important;
+  font:900 clamp(18px,2.2vw,23px)/1.15 Inter,system-ui,sans-serif !important;
+  letter-spacing:.045em !important;
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading:before {
+  content:"⇄";
+  display:grid;place-items:center;flex:0 0 42px;height:42px;
+  border:1px solid rgba(112,151,255,.48);border-radius:13px;
+  background:linear-gradient(145deg,rgba(82,110,255,.28),rgba(135,63,255,.22));
+  color:#a9c7ff;font-size:23px;
+  box-shadow:0 0 22px rgba(74,105,255,.16),inset 0 1px rgba(255,255,255,.12);
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading span {
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 10px;border:1px solid rgba(62,220,170,.24);
+  border-radius:999px;background:rgba(24,169,128,.10);
+  color:#78e8c0 !important;font:800 10px/1 Inter,system-ui,sans-serif !important;
+  letter-spacing:.13em !important;
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading span:before {
+  content:"";width:7px;height:7px;border-radius:50%;
+  background:#4be0a8;box-shadow:0 0 10px rgba(75,224,168,.75);
+}
+#bagchal-blogger-container #onlinePanel .vc-room-game-picker {display:none !important;}
+#bagchal-blogger-container #onlinePanel > div[style*="display:flex"] {
+  display:flex !important;flex-direction:row !important;align-items:center !important;
+  gap:12px !important;flex-wrap:wrap !important;margin:0 0 13px !important;
+}
+#bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] {
+  color:#b8c7e8 !important;font:700 12px/1.2 Inter,system-ui,sans-serif !important;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole {
+  min-width:190px;padding:11px 38px 11px 13px !important;
+  border:1px solid rgba(121,151,231,.34) !important;border-radius:11px !important;
+  background-color:#111d3c !important;color:#edf3ff !important;
+  font:650 13px Inter,system-ui,sans-serif !important;
+  outline:none;box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole:focus {
+  border-color:#7e9cff !important;box-shadow:0 0 0 3px rgba(93,126,255,.18) !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay {
+  display:flex !important;align-items:center !important;gap:12px !important;flex-wrap:wrap !important;
+  margin:13px 0 12px !important;padding:15px 16px !important;
+  border:1px solid rgba(110,145,255,.28) !important;border-radius:15px !important;
+  background:linear-gradient(110deg,rgba(30,49,94,.72),rgba(27,27,72,.62)) !important;
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay span:first-child {
+  color:#aabce2 !important;font:700 11px Inter,system-ui,sans-serif !important;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeText {
+  color:#fff !important;font:900 clamp(23px,3vw,30px)/1.1 ui-monospace,SFMono-Regular,Menlo,monospace !important;
+  letter-spacing:.22em !important;text-shadow:0 0 18px rgba(110,154,255,.35);
+}
+#bagchal-blogger-container #onlinePanel #copyRoomCodeBtn {
+  display:grid;place-items:center;width:38px;height:38px;padding:8px !important;
+  border:1px solid rgba(120,160,255,.42) !important;border-radius:11px !important;
+  background:rgba(69,104,205,.22) !important;color:#dce8ff !important;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+#bagchal-blogger-container #onlinePanel #copyRoomCodeBtn:hover {
+  background:rgba(82,128,255,.34) !important;border-color:#8daeff !important;transform:translateY(-1px);
+}
+#bagchal-blogger-container #onlinePanel #copyRoomCodeBtn svg {width:18px;height:18px;}
+#bagchal-blogger-container #onlinePanel #copyRoomCodeStatus {
+  color:#78e8c0 !important;font:700 12px Inter,system-ui,sans-serif !important;
+}
+#bagchal-blogger-container #onlinePanel #onlineStatus {
+  min-height:18px;padding:11px 13px;margin-top:8px !important;
+  border:1px solid rgba(116,145,211,.16);border-radius:10px;
+  background:rgba(5,12,30,.48);color:#aebfe1 !important;
+  font:550 12px/1.5 Inter,system-ui,sans-serif !important;
+}
+@media(max-width:600px) {
+  #bagchal-blogger-container #onlinePanel {margin:14px 0 18px !important;padding:18px 15px 16px !important;border-radius:17px !important;}
+  #bagchal-blogger-container #onlinePanel:after {left:15px;right:15px;}
+  #bagchal-blogger-container #onlinePanel > .vc-panel-heading {gap:9px;margin-bottom:13px !important;padding-bottom:12px !important;}
+  #bagchal-blogger-container #onlinePanel > .vc-panel-heading:before {flex-basis:36px;height:36px;border-radius:11px;}
+  #bagchal-blogger-container #onlinePanel > div[style*="display:flex"] {gap:9px !important;}
+  #bagchal-blogger-container #onlinePanel #onlinePreferredRole {flex:1;min-width:0;width:auto;}
+  #bagchal-blogger-container #onlinePanel #roomCodeDisplay {gap:9px !important;padding:12px !important;}
+  #bagchal-blogger-container #onlinePanel #roomCodeText {font-size:23px !important;letter-spacing:.16em !important;}
+}
+
+
+/* Online panel readability + remove inactive empty placeholders */
+#bagchal-blogger-container #onlinePanel,
+#bagchal-blogger-container #onlinePanel * {
+  text-rendering:optimizeLegibility;
+}
+#bagchal-blogger-container #onlinePanel > .vc-panel-heading { color:#ffffff !important; }
+#bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] { color:#000000 !important; }
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole {
+  color:#ffffff !important;
+  background:#101b36 !important;
+  border-color:#829bd8 !important;
+}
+#bagchal-blogger-container #onlinePanel #onlinePreferredRole option {
+  color:#101827 !important;
+  background:#ffffff !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay[style*="display:none"] {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay[style*="display: none"] {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #roomCodeDisplay span:first-child { color:#d2def7 !important; }
+#bagchal-blogger-container #onlinePanel #copyRoomCodeStatus { color:#83f2c5 !important; }
+#bagchal-blogger-container #onlinePanel #onlineStatus:empty {
+  display:none !important;
+}
+#bagchal-blogger-container #onlinePanel #onlineStatus {
+  color:#e1eaff !important;
+  border-color:rgba(143,169,235,.28) !important;
+  background:rgba(5,12,30,.62) !important;
+}
+#bagchal-blogger-container #onlinePanel #onlineStatus:not(:empty) {
+  min-height:0 !important;
+  padding:10px 13px !important;
+}
+
+
+    /* Remove only the unused blank game-picker slot above the Play As row. */
+    #bagchal-blogger-container #onlinePanel > .vc-room-game-picker {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+
+    /* Make the "Play As:" label white for clear contrast. */
+    #bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] {
+        color: #ffffff !important;
+    }
+
+
+/* Force only the PLAY ONLINE heading text to render white. */
+#bagchal-blogger-container #onlinePanel > div.vc-panel-heading { color:#fff !important; -webkit-text-fill-color:#fff !important; }
+#bagchal-blogger-container #onlinePanel > div.vc-panel-heading:not(span) { text-shadow:0 0 1px rgba(255,255,255,.25); }
+
+/* Keep the fullscreen control at the upper-right corner of the game board. */
+#bagchal-blogger-container .board-container { position:relative !important; }
+#bagchal-blogger-container .board-container > #fullscreenBtn {
+  position:absolute !important;
+  top:8px !important;
+  right:8px !important;
+  left:auto !important;
+  z-index:30 !important;
+  margin:0 !important;
+}
+
+/* Compact icon-only fullscreen control on the game board. */
+#bagchal-blogger-container .board-container > #fullscreenBtn {
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  padding:0 !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:11px !important;
+}
+#bagchal-blogger-container .board-container > #fullscreenBtn .fullscreen-icon {
+  display:block;
+  width:21px;
+  height:21px;
+  pointer-events:none;
+}
+
+/* BaghChal counters: keep the goat counts readable on their light status cards. */
+#bagchal-blogger-container #goatsHandStatus,
+#bagchal-blogger-container #goatsDeadStatus {
+  color: #172033 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 1.12rem !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+#bagchal-blogger-container #goatsHandStatus,
+#bagchal-blogger-container #goatsDeadStatus {
+  -webkit-text-fill-color: #172033 !important;
+}
+#bagchal-blogger-container #goatsHandStatus,
+#bagchal-blogger-container #goatsDeadStatus {
+  display: inline-block !important;
+}
+
+    </style>
+
+    <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg?v=3" sizes="any">
+    <link rel="shortcut icon" href="/assets/vc-play-crown-favicon.svg?v=2" type="image/svg+xml">
 </head>
 <body>
 <div id="bagchal-blogger-container">
     <div class="game-topbar">
-        <h2>🐅 Bagchal 🐐</h2>
-        <button id="fullscreenBtn" type="button" aria-pressed="false">Enter Full Screen</button>
+        <a class="vc-brand-lockup" href="/" aria-label="VC Play home">
+            <img class="vc-header-logo" src="/assets/vc-play-header-logo-exact.svg?v=4" alt="Crowned VC monogram with PLAY wordmark" width="360" height="88">
+        </a>
     </div>
 
     <div class="status-board">
@@ -1248,15 +2096,16 @@
     <div id="playerNamesStatus" style="font-size:12px;text-align:center;color:#4a5568;margin:4px 0 8px;overflow-wrap:anywhere;">Guest · Opponent</div>
 
     <div class="board-container">
+        <button id="fullscreenBtn" type="button" aria-label="Enter Full Screen" title="Enter Full Screen" aria-pressed="false"><svg class="fullscreen-icon" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <div class="canvas-aspect-ratio-box" id="canvasContainer">
             <canvas id="gameCanvas"></canvas>
-            
             <div id="messageOverlay" class="message-overlay">
                 <div id="messageTitle" class="message-title">Goats Win!</div>
                 <div id="messageBody" class="message-body">All tigers have been successfully trapped.</div>
                 <button id="overlayCloseBtn" class="primary-btn">Play Again</button>
             </div>
         </div>
+    </div>
     </div>
 
     <div id="checkersPlayerCards" aria-live="polite" style="display:none">
