@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 303 80" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 303 70" role="img" aria-labelledby="title desc">
   <title id="title">VC PLAY</title>
-  <desc id="desc">Purple and blue crowned VC mark with VC PLAY lettering and the Play Connect Enjoy tagline.</desc>
+  <desc id="desc">Purple and blue crowned VC mark with VC PLAY lettering.</desc>
   <defs>
     <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d946ef"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#6366f1"/>
@@ -23,8 +23,7 @@
   </g>
   <defs><filter id="glow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="2.4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
   <g font-family="Orbitron, Rajdhani, Arial, sans-serif" font-weight="900">
-    <text x="91" y="39" font-size="32" letter-spacing="1.1" fill="url(#vcText)">VC</text>
-    <text x="145" y="39" font-size="32" letter-spacing="1.1" fill="url(#playText)">PLAY</text>
+    <text x="91" y="51" font-size="32" letter-spacing="1.1" fill="url(#vcText)">VC</text>
+    <text x="145" y="51" font-size="32" letter-spacing="1.1" fill="url(#playText)">PLAY</text>
   </g>
-  <text x="93" y="59" font-family="Rajdhani, Arial, sans-serif" font-size="11.5" font-weight="700" letter-spacing="3.1" fill="#ffffff">PLAY <tspan fill="#3b82f6">·</tspan> CONNECT <tspan fill="#3b82f6">·</tspan> ENJOY</text>
 </svg>
