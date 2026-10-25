@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 88" role="img" aria-labelledby="title desc">
   <title id="title">VC PLAY</title>
-  <desc id="desc">A premium gradient VC monogram with a crown on the upper-right tip of the V, paired with the VC PLAY wordmark and PLAY CONNECT ENJOY tagline.</desc>
+  <desc id="desc">A premium gradient VC monogram with a centered crown above the letters, paired with the VC PLAY wordmark and PLAY CONNECT ENJOY tagline.</desc>
   <defs>
     <linearGradient id="cage" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#e879f9"/><stop offset=".48" stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/>
@@ -25,10 +25,10 @@
   <path d="M61 34 C56 28 47 28 42 34 C36 41 37 53 43 59 C48 65 57 64 62 59"
         fill="none" stroke="url(#cyan)" stroke-width="7.5" stroke-linecap="round"/>
 
-  <!-- Crown sits at the V's upper-right terminal -->
-  <path d="M54 8 59 15 65 9 70 16 76 8 73 23 57 23Z"
+  <!-- Crown centered above the VC monogram -->
+  <path d="M28 8 33 15 39 9 44 16 50 8 47 23 31 23Z"
         fill="url(#cage)" stroke="#f0abfc" stroke-width=".9" stroke-linejoin="round" filter="url(#softGlow)"/>
-  <circle cx="65" cy="12" r="1.4" fill="#fff" opacity=".9"/>
+  <circle cx="39" cy="12" r="1.4" fill="#fff" opacity=".9"/>
 
   <!-- Wordmark -->
   <text x="91" y="49" font-family="Michroma, Orbitron, Arial, sans-serif"
