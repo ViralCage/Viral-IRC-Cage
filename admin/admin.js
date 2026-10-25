@@ -106,5 +106,30 @@ form.addEventListener('submit',e=>{e.preventDefault();if(!auth){msg('Firebase lo
 $('room-list').addEventListener('click',e=>{const watch=e.target.closest('.watch-room-button');if(watch){const id=watch.getAttribute('data-watch-room');if(id)watchRoom(id);return;}const btn=e.target.closest('.delete-room-button');if(!btn)return;const roomId=btn.getAttribute('data-room-id');if(!roomId||!adminUid||!db)return;if(!window.confirm('Permanently delete room "'+roomId+'"? This cannot be undone.'))return;btn.disabled=true;btn.textContent='Deleting…';db.ref('bagchalRooms/'+roomId).remove().then(()=>{$('room-refresh-status').textContent='ROOM DELETED';}).catch(err=>{btn.disabled=false;btn.textContent='Delete room';$('room-refresh-status').textContent='DELETE ERROR';window.alert('Could not delete room: '+err.message);});});
 $('player-search-button').addEventListener('click',renderPlayers);
 $('player-search').addEventListener('input',renderPlayers);
+let spectatorRotation=0,spectatorTilt=17,spectatorZoom=.94;
+const spectatorStage=$('spectator-data');
+function applySpectatorCamera(){
+ spectatorStage.style.setProperty('--view-rotation',spectatorRotation+'deg');
+ spectatorStage.style.setProperty('--view-tilt',spectatorTilt+'deg');
+ spectatorStage.style.setProperty('--view-zoom',spectatorZoom);
+}
+$('spectator-panel')?.addEventListener('click',e=>{
+ const control=e.target.closest('[data-spectator-action]');
+ if(!control)return;
+ const action=control.getAttribute('data-spectator-action');
+ if(action==='rotate-left')spectatorRotation=(spectatorRotation-45+360)%360;
+ else if(action==='rotate-right')spectatorRotation=(spectatorRotation+45)%360;
+ else if(action==='tilt')spectatorTilt=spectatorTilt===17?28:17;
+ else if(action==='zoom-in')spectatorZoom=Math.min(1.2,+(spectatorZoom+.08).toFixed(2));
+ else if(action==='zoom-out')spectatorZoom=Math.max(.72,+(spectatorZoom-.08).toFixed(2));
+ else if(action==='reset'){spectatorRotation=0;spectatorTilt=17;spectatorZoom=.94;}
+ else if(action==='fullscreen'){
+  const panel=$('spectator-panel');
+  if(document.fullscreenElement){document.exitFullscreen?.().catch(()=>{});}
+  else if(panel.requestFullscreen){panel.requestFullscreen().catch(()=>{});}
+ }
+ applySpectatorCamera();
+});
+applySpectatorCamera();
 window.addEventListener('beforeunload',stopMonitoring);
 })();
