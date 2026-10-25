@@ -23,7 +23,7 @@ function presenceFor(room){
 }
 function renderRooms(){
  const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No rooms found</b><p>No room records were returned from bagchalRooms.</p></div>';return;}
- el.innerHTML=rooms.map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
+ el.innerHTML=rooms.map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="watch-room-button" type="button" data-watch-room="'+esc(r.id)+'">Watch</button><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
 }
 function renderPlayers(){
  const q=($('player-search').value||'').trim().toLowerCase(),shown=players.filter(p=>!q||(p.name+' '+p.uid+' '+p.room+' '+p.role).toLowerCase().includes(q));
