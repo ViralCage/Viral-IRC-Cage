@@ -52,11 +52,12 @@ function stopTournamentAmbience(){
  const ctx=tournamentAudioContext,amb=tournamentAmbience;tournamentAmbience=null;
  try{amb.master.gain.setTargetAtTime(0,ctx.currentTime,.18);setTimeout(()=>{try{amb.crowd.stop();amb.low.stop();amb.pulse.stop();amb.master.disconnect();}catch(_){}},900);}catch(_){}
 }
-function playTournamentMoveSound(){
+function playTournamentMoveSound(type='generic',event='move'){
  const ctx=getTournamentAudio();if(!ctx||!commentatorAudioEnabled)return;
- const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
- osc.type='sine';osc.frequency.setValueAtTime(620,now);osc.frequency.exponentialRampToValueAtTime(390,now+.095);
- gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.12,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
+ const profiles={chess:390,checkers:440,dotsboxes:690,fourconnect:190,baghchal:300,ludo:520,carrom:240,pool:210,tictactoe:560};
+ const now=ctx.currentTime,f=profiles[type]||480,osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type=event==='capture'?'sawtooth':'sine';osc.frequency.setValueAtTime(event==='capture'?f*.55:f,now);osc.frequency.exponentialRampToValueAtTime(event==='capture'?85:f*.68,now+.095);
+ gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(event==='capture'?.15:.1,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
  osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+.14);
 }
 
@@ -74,6 +75,7 @@ function playFireworkSound(){
   setTimeout(()=>ctx.close().catch(()=>{}),1300);
  }catch(_){}
 }
+function fireworkBurst(){playFireworkSound();const panel=$('spectator-panel');if(panel){panel.classList.add('spectator-victory-burst');setTimeout(()=>panel.classList.remove('spectator-victory-burst'),1400);}}
 function commentaryStable(value){
  if(Array.isArray(value))return value.map(commentaryStable);
  if(value&&typeof value==='object'){
@@ -166,7 +168,7 @@ function observeCommentary(room){
   const entries=Object.entries(score).filter(([,v])=>Number.isFinite(Number(v)));
   if(entries.length)en+=' Current score: '+entries.map(([k,v])=>k+' '+v).join(', ')+'.';
  }
- playTournamentMoveSound();
+ playTournamentMoveSound(cur.type,cur.captured>prev.captured?'capture':cur.boxes>prev.boxes?'score':'move');
  commentatorSay(en,'move',{en});
 }
 function setCommentatorAudio(){
