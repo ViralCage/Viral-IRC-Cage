@@ -93,8 +93,22 @@
     </section>
 
     <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">SUPER ADMIN WORKSPACE</p><h2>Private admin notes</h2></div><span class="pill">ADMIN ONLY</span></div>
+      <p class="fine-print">These records are private to your signed-in Super Admin account. They do not modify players, rooms or game behavior.</p>
+      <form id="admin-note-form">
+        <label class="field-label" for="admin-note-title">Note title</label>
+        <input id="admin-note-title" maxlength="100" placeholder="e.g. Player report follow-up" required>
+        <label class="field-label" for="admin-note-body">Admin note</label>
+        <textarea id="admin-note-body" rows="4" maxlength="2000" placeholder="Write a private note..." required></textarea>
+        <button class="button full" id="save-admin-note" type="submit">Save private note</button>
+      </form>
+      <div id="admin-note-status" class="login-message" role="status" aria-live="polite"></div>
+      <div id="admin-notes-list" class="data-list"><div class="empty"><b>Loading private notes</b></div></div>
+    </section>
+
+    <section class="panel">
       <div class="panel-head"><div><p class="eyebrow">ACCOUNTABILITY</p><h2>Admin activity log</h2></div><span class="pill">AUDIT TRAIL</span></div>
-      <div id="activity-list" class="empty compact"><b>Read-only dashboard</b><p>No admin actions are enabled. Live monitoring does not write to your game database.</p></div>
+      <div id="activity-list" class="data-list"><div class="empty compact"><b>Loading admin activity</b></div></div>
     </section>
 
     <footer><span>VIRAL CAGE PLAY</span><span>Separate admin preview · Main game files untouched</span></footer>
