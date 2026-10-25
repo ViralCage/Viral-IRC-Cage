@@ -485,3 +485,91 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @media(prefers-reduced-motion:reduce){
  .spectator-board-face>.baghchal-real-board,.spectator-board-face>.chess-stage{transition:none}
 }
+
+
+/* Photorealistic tournament finish — Admin Spectate only */
+.spectator-board-face>.baghchal-real-board{
+  width:min(100%,680px);
+  aspect-ratio:1;
+  border:clamp(10px,1.7vw,17px) solid #3c2416;
+  border-radius:12px;
+  background:
+    repeating-linear-gradient(7deg,transparent 0 7px,#fff1 8px,#26150918 10px,transparent 15px),
+    repeating-linear-gradient(93deg,#ffffff09 0 1px,transparent 2px 9px),
+    radial-gradient(ellipse at 24% 12%,#f7dfad 0,#d5ae76 36%,#ad7947 72%,#704426 100%);
+  box-shadow:inset 0 2px 2px #fff9,inset 0 0 0 2px #f4d7a0,inset 0 0 0 6px #704326,
+    inset 0 0 35px #3b2114aa,0 3px 0 #24150d,0 8px 0 #120c08,0 24px 36px #000e;
+}
+.baghchal-lines g{
+  stroke:#442919;
+  stroke-width:7;
+  stroke-linecap:round;
+  filter:drop-shadow(0 2px 0 #f8e1b8) drop-shadow(0 4px 3px #321b10);
+}
+.baghchal-points .bagh-node{
+  background:radial-gradient(circle at 34% 24%,#fff4d7 0,#d8b47e 24%,#9c6a3d 68%,#56351f 100%);
+  border:1px solid #684326;
+  box-shadow:inset 0 2px 3px #fff9,inset 0 -4px 7px #42271499,0 3px 0 #4c2d19,0 6px 8px #26150e99;
+}
+.baghchal-points .tiger-piece,.baghchal-points .goat-piece{
+  width:88%;height:88%;display:grid;place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle at 32% 20%,#fff8e9 0,#c99b61 35%,#684225 78%,#2d1a10 100%);
+  border:2px solid #e7c991;
+  box-shadow:inset 0 2px 3px #fff9,inset 0 -5px 8px #26150e99,0 4px 0 #3c2416,0 8px 9px #170e0bcc;
+}
+.baghchal-points .animal-sculpture{
+  width:100%;height:100%;overflow:visible;
+  filter:drop-shadow(0 2px 1px #000b) drop-shadow(0 5px 4px #24150dcc);
+}
+.chess-stage{width:min(100%,700px)}
+.chess-board-frame{
+  padding:clamp(12px,2vw,20px);
+  border:2px solid #d7b77f;
+  border-radius:17px;
+  background:
+    repeating-linear-gradient(8deg,transparent 0 8px,#fff1 9px,#20100618 11px,transparent 17px),
+    linear-gradient(145deg,#e7c68f 0%,#93633b 16%,#402719 48%,#1b110c 80%,#a77845 100%);
+  box-shadow:inset 0 2px 4px #fff9,inset 0 -10px 18px #120a06,
+    0 3px 0 #5a3822,0 8px 0 #26170f,0 26px 38px #000e;
+}
+.chess-board{
+  overflow:hidden;
+  border:4px solid #2b1a10;
+  border-radius:4px;
+  background:#2b1a10;
+  box-shadow:inset 0 0 0 2px #f0d5a177,0 4px 0 #1a100a,0 9px 15px #000c;
+}
+.chess-tile{position:relative;overflow:hidden}
+.chess-light{
+  background:
+    repeating-linear-gradient(6deg,transparent 0 6px,#ffffff10 7px,transparent 10px),
+    linear-gradient(145deg,#fff2d7 0%,#dfc18d 48%,#b18b58 100%);
+}
+.chess-dark{
+  background:
+    repeating-linear-gradient(6deg,transparent 0 6px,#ffffff0b 7px,transparent 10px),
+    linear-gradient(145deg,#b18455 0%,#79502f 52%,#452918 100%);
+}
+.chess-piece{
+  display:inline-block;
+  line-height:1;
+  font-family:"DejaVu Sans","Segoe UI Symbol",serif;
+  transform:translateY(-9%) translateZ(15px);
+  -webkit-text-stroke:.6px currentColor;
+}
+.piece-white{
+  color:#fff8e8;
+  text-shadow:0 1px 0 #fff,0 3px 0 #d9c49e,0 5px 0 #8c7654,0 8px 3px #3b2815,0 12px 10px #170e08;
+  filter:drop-shadow(0 2px 2px #fff9) drop-shadow(0 7px 4px #000b);
+}
+.piece-black{
+  color:#252a31;
+  text-shadow:0 1px 0 #aeb5bd,0 3px 0 #111820,0 6px 0 #070a0e,0 10px 8px #000e;
+  filter:drop-shadow(0 6px 4px #000d);
+}
+@media(max-width:600px){
+ .spectator-board-face>.baghchal-real-board{border-width:8px}
+ .chess-board-frame{padding:8px}
+ .chess-piece{transform:translateY(-5%) translateZ(10px)}
+}
