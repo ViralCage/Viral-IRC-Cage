@@ -8,10 +8,11 @@ function msg(t,c){message.textContent=t;message.className='login-message'+(c?' '
 function state(t){status.innerHTML='<i></i> '+t;}
 function deny(){document.body.classList.remove('admin-authenticated');stopMonitoring();}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];}
 function presenceFor(room){
  const p=room&&room.presence||{},out=[];
- Object.keys(p).forEach(role=>{const x=p[role];if(x&&x.connected){out.push({uid:x.uid||'',name:x.name||room.playerNames&&room.playerNames[role]||role,role});}});
+ Object.keys(p).forEach(role=>{const x=p[role];if(x&&x.connected){out.push({uid:x.uid||'',name:x.name||room.playerNames&&room.playerNames[role]||role,role,lastSeen:x.lastSeen||null});}});
  return out;
 }
 function renderRooms(){
