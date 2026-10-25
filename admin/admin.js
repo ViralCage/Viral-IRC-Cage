@@ -305,8 +305,6 @@ $('spectator-panel')?.addEventListener('click',e=>{
  if(action==='rotate-left')spectatorRotation=(spectatorRotation-45+360)%360;
  else if(action==='rotate-right')spectatorRotation=(spectatorRotation+45)%360;
  else if(action==='tilt-3d')spectatorTilt=17;
- else if(action==='tilt-4d')spectatorTilt=32;
- else if(action==='tilt-8d')spectatorTilt=48;
  else if(action==='zoom-in')spectatorZoom=Math.min(1.2,+(spectatorZoom+.08).toFixed(2));
  else if(action==='zoom-out')spectatorZoom=Math.max(.72,+(spectatorZoom-.08).toFixed(2));
  else if(action==='reset'){spectatorRotation=0;spectatorTilt=17;spectatorZoom=.94;}
