@@ -194,10 +194,18 @@ function renderSpectatorGame(room){
  let board='',meta='Turn: '+turn;
  const grid=(items,cls)=>'<div class="spectator-grid '+cls+'">'+items.join('')+'</div>';
  if(type==='chess'){
-  const hist=Array.isArray(data.history)?data.history:[], pos=hist[hist.length-1]||{}, b=Array.isArray(pos.b)?pos.b:[];
+  const hist=Array.isArray(data.history)?data.history:[],pos=hist[hist.length-1]||{},b=Array.isArray(pos.b)?pos.b:[];
   const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
-  board=grid(Array.from({length:64},(_,i)=>{const r=Math.floor(i/8),c=i%8,p=b[r*16+c]||'.';return '<div class="spectator-square '+((r+c)%2?'dark':'light')+'">'+(glyph[p]||'')+'</div>';}),'chess-grid');
-  meta='Chess · '+(pos.t===1?'White to move':'Black to move')+' · Move '+(pos.full||1);
+  const last=data.lastMove||pos.lastMove||{},from=String(last.from||last.source||''),to=String(last.to||last.target||'');
+  const files='abcdefgh',rankLabels=Array.from({length:8},(_,r)=>8-r);
+  const tiles=Array.from({length:64},(_,i)=>{
+   const r=Math.floor(i/8),c=i%8,p=b[r*16+c]||'.',square=files[c]+(8-r),white=p!=='.'&&p===p.toUpperCase();
+   const coord=(c===0?'<small class="chess-rank">'+rankLabels[r]+'</small>':'')+(r===7?'<small class="chess-file">'+files[c]+'</small>':'');
+   const piece=p!=='.'?'<span class="chess-piece '+(white?'piece-white':'piece-black')+'" aria-label="'+(white?'White ':'Black ')+({K:'king',Q:'queen',R:'rook',B:'bishop',N:'knight',P:'pawn',k:'king',q:'queen',r:'rook',b:'bishop',n:'knight',p:'pawn'}[p]||'piece')+'">'+glyph[p]+'</span>':'';
+   return '<div class="chess-tile '+((r+c)%2?'chess-dark':'chess-light')+((square===from||square===to)?' last-move':'')+'">'+coord+piece+'</div>';
+  });
+  board='<div class="chess-stage"><div class="chess-board-frame"><div class="chess-board">'+tiles.join('')+'</div></div><div class="chess-legend"><span><i class="legend-white"></i> White</span><span><i class="legend-black"></i> Black</span></div></div>';
+  meta='Chess · '+(pos.t===1?'White to move':'Black to move')+' · Move '+(pos.full||1)+(pos.check?' · CHECK':'');
  }else if(type==='tictactoe'){
   const a=Array.isArray(data.board)?data.board:[];board=grid(Array.from({length:9},(_,i)=>'<div class="spectator-square ttt-square '+(a[i]==='X'?'mark-x':a[i]==='O'?'mark-o':'')+'">'+esc(a[i])+'</div>'),'ttt-grid');meta='Tic-Tac-Toe · Turn: '+esc(data.turn||'—');
  }else if(type==='checkers'){
@@ -212,8 +220,30 @@ function renderSpectatorGame(room){
   meta='BaghChal · '+(data.goatsToPlace??'—')+' goats to place · '+(data.goatsCaptured??0)+' captured · Turn: '+(data.turn===1?'Tigers':'Goats');
  }else if(type==='dotsboxes'){
   const edges=Array.isArray(data.edges)?data.edges:[],boxes=Array.isArray(data.boxes)?data.boxes:[];
-  board='<div class="dots-board">'+Array.from({length:4},(_,r)=>'<div class="dots-row">'+Array.from({length:4},(_,c)=>{const k=r*4+c;return '<div class="dot-cell"><i></i><span>'+(boxes[k]?esc(boxes[k]):'')+'</span></div>'+(c<3?'<b class="'+(edges[r*3+c]?'edge-on':'')+'"></b>':'');}).join('')+'</div>'+(r<3?'<div class="dots-hrow">'+Array.from({length:4},(_,c)=>'<b class="'+(edges[12+r*4+c]?'edge-on':'')+'"></b>').join('')+'</div>':'')).join('')+'</div>';meta='Dots & Boxes · Turn: '+esc(data.turn||'—')+' · X '+(data.scores?.X||0)+' – O '+(data.scores?.O||0);
- }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
+  const players=room.playerNames||{},presence=room.presence||{};
+  const ownerName=owner=>{
+   const key=String(owner||'').toLowerCase(),role=({x:'player1',o:'player2',1:'player1',2:'player2'})[key]||key;
+   const live=presence[role]||{};
+   return live.name||players[role]||players[key]||owner;
+  };
+  const cells=[];
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+   if(r%2===0&&c%2===0)cells.push('<div class="dots-node"></div>');
+   else if(r%2===0){const k=(r/2)*3+Math.floor(c/2),on=!!edges[k];cells.push('<div class="dots-edge dots-edge-h '+(on?'edge-on':'')+'"><span></span></div>');}
+   else if(c%2===0){const k=12+Math.floor(r/2)*4+c/2,on=!!edges[k];cells.push('<div class="dots-edge dots-edge-v '+(on?'edge-on':'')+'"><span></span></div>');}
+   else{
+    const k=Math.floor(r/2)*3+Math.floor(c/2),owner=boxes[k]||'',label=owner?ownerName(owner):'';
+    const side=String(owner).toLowerCase(),cls=side==='x'||side==='player1'||side==='1'?'box-x':side==='o'||side==='player2'||side==='2'?'box-o':'';
+    cells.push('<div class="dots-box '+cls+(owner?' box-claimed':'')+'">'+(owner?'<span>'+esc(label)+'</span>':'')+'</div>');
+   }
+  }
+  const score=data.scores||{},scoreRows=Object.entries(score).map(([side,value])=>{
+   const label=ownerName(side)||side,cls=String(side).toLowerCase()==='x'?'score-x':'score-o';
+   return '<div class="dots-score '+cls+'"><b>'+esc(label)+'</b><strong>'+Number(value||0)+'</strong></div>';
+  }).join('');
+  board='<div class="dots-arena"><div class="dots-board-shell"><div class="dots-board-grid">'+cells.join('')+'</div></div><div class="dots-scorebar">'+(scoreRows||'<div class="dots-score"><b>Score</b><strong>0 – 0</strong></div>')+'</div></div>';
+  meta='Dots & Boxes · '+(data.turn!=null?'Turn: '+esc(ownerName(data.turn)||data.turn):'Live match')+' · '+boxes.filter(Boolean).length+' boxes claimed';
+}else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
  const names=room.playerNames||{},presence=room.presence||{};
  const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
  const playerCards=roles.slice(0,2).map((role,index)=>{
