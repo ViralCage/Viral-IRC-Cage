@@ -140,7 +140,7 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
  filter:drop-shadow(0 22px 13px #000b);
  transition:transform .45s cubic-bezier(.2,.75,.25,1),filter .35s ease;
 }
-.spectator-board-face>.chess-stage{--board-base-rotation:90deg}
+
 .spectator-panel:fullscreen{width:100%;height:100%;max-width:none;margin:0;padding:clamp(18px,4vw,56px);overflow:auto;background:radial-gradient(ellipse at 50% 10%,#20294a,#080b14 72%);border:0;border-radius:0}
 .spectator-panel:fullscreen .spectator-board-wrap{min-height:65vh;display:grid;place-items:center}
 .spectator-panel:fullscreen .spectator-board-wrap>.spectator-grid{width:min(76vh,76vw);max-width:900px}
