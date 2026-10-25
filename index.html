@@ -565,6 +565,61 @@
     }
 
 
+
+        /* Compact Online Multiplayer card — visual-only; keep all room controls and logic intact */
+        #bagchal-blogger-container #onlinePanel {
+            margin: 7px 0 10px !important; padding: 9px 12px !important;
+            border: 1px solid rgba(129,140,248,.30) !important; border-radius: 13px !important;
+            background: linear-gradient(135deg, rgba(20,27,48,.96), rgba(30,28,58,.94)) !important;
+            box-shadow: 0 5px 16px rgba(4,8,24,.16), inset 0 1px 0 rgba(255,255,255,.045) !important;
+            color: #e8edff !important;
+        }
+        #bagchal-blogger-container #onlinePanel > div:first-child {
+            margin: 0 0 5px !important; color: #f2f4ff !important;
+            font-size: 13px; line-height: 1.25; letter-spacing: .025em;
+        }
+        #bagchal-blogger-container #onlinePanel .vc-room-game-picker { margin: 0 0 7px !important; padding: 0 !important; }
+        #bagchal-blogger-container #onlinePanel .vc-room-picker-label {
+            margin: 0 0 4px !important; color: #aeb9dc !important; font-size: 10px !important; line-height: 1.2;
+        }
+        #bagchal-blogger-container #onlinePanel .vc-room-game-icons { display:flex; flex-wrap:wrap; gap:6px !important; }
+        #bagchal-blogger-container #onlinePanel .vc-room-game-icon {
+            width:35px; min-width:35px; height:35px; min-height:35px !important; padding:3px !important;
+            border-radius:9px !important; background:rgba(255,255,255,.07) !important;
+            border:1px solid rgba(165,180,252,.22) !important; color:#f4f6ff !important; box-shadow:none !important;
+        }
+        #bagchal-blogger-container #onlinePanel .vc-room-game-icon.active {
+            background:linear-gradient(135deg,#6d5dfc,#2877d8) !important;
+            border-color:rgba(191,219,254,.65) !important; box-shadow:0 2px 8px rgba(79,70,229,.28) !important;
+        }
+        #bagchal-blogger-container #onlinePanel > div[style*="display:flex"] {
+            display:flex !important; flex-direction:row !important; flex-wrap:wrap !important;
+            align-items:center !important; gap:7px !important; margin:0 !important;
+        }
+        #bagchal-blogger-container #onlinePanel label[for="onlinePreferredRole"] {
+            color:#b8c3e4 !important; font-size:11px !important;
+        }
+        #bagchal-blogger-container #onlinePanel #onlinePreferredRole {
+            width:auto !important; min-width:112px; min-height:34px !important; padding:5px 8px !important; font-size:12px !important;
+        }
+        #bagchal-blogger-container #onlinePanel #onlineStatus {
+            margin-top:6px !important; color:#b9c6e8 !important; font-size:11px !important; line-height:1.35 !important;
+        }
+        #bagchal-blogger-container #onlinePanel > div:last-child { display:none !important; }
+        #bagchal-blogger-container #onlinePanel #roomCodeDisplay {
+            margin:7px 0 0 !important; padding:7px 9px !important; border-radius:9px !important;
+            background:rgba(255,255,255,.07) !important; border-color:rgba(165,180,252,.22) !important;
+        }
+        #bagchal-blogger-container #onlinePanel #roomCodeDisplay span,
+        #bagchal-blogger-container #onlinePanel #roomCodeText { color:#f3f5ff !important; }
+        @media (max-width:600px) {
+            #bagchal-blogger-container #onlinePanel { margin:6px 0 9px !important; padding:8px 9px !important; }
+            #bagchal-blogger-container #onlinePanel .vc-room-game-icon {
+                width:33px; min-width:33px; height:33px; min-height:33px !important;
+            }
+            #bagchal-blogger-container #onlinePanel #onlinePreferredRole { min-height:32px !important; }
+        }
+
         /* Premium colourful controls and menu theme — visual-only overrides */
         #bagchal-blogger-container {
             --ui-ink: #18233d;
