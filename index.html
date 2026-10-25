@@ -4344,7 +4344,7 @@
         const firstTurnMark = 'X';
         await db.ref('bagchalRooms/' + roomId).set({ players, presence: { [roleKey(preferredRole)]: { uid: firebaseUser.uid, name: getDisplayName(), connected: true, lastSeen: firebase.database.ServerValue.TIMESTAMP } }, game: initialOnlineGame(), activeGameType: onlineGameType, miniGames: { tictactoe: initialTicTacToeState(firstTurnMark), dotsboxes: initialDotsBoxesState(firstTurnMark), checkers: initialCheckersState(), fourconnect: initialFourConnectState(), chess: {history:[initialChessPosition()],lastMove:null,updatedAt:Date.now()} } });
         listenToOnlineRoom(roomId, code, preferredRole);
-        const inviteUrl = new URL('https://www.viralcage.com/p/bagh-chal-game.html');
+        const inviteUrl = new URL('https://play.viralcage.com/');
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
         const link = inviteUrl.toString();
@@ -4607,7 +4607,7 @@
             if (status) status.textContent = 'Create or join a room first.';
             return;
         }
-        const inviteUrl = new URL('https://www.viralcage.com/p/bagh-chal-game.html');
+        const inviteUrl = new URL('https://play.viralcage.com/');
         inviteUrl.searchParams.set('room', code);
         inviteUrl.hash = '';
         const link = inviteUrl.toString();
