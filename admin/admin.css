@@ -26,3 +26,6 @@ body.admin-authenticated #login-panel{display:none}
 #player-search{flex:1}
 #player-search-button{min-width:92px}
 @media(max-width:520px){.data-row{align-items:flex-start;flex-direction:column;gap:8px}.row-tag{align-self:flex-start}.search-row{flex-direction:column}.search-row .button{width:100%}}
+
+/* Private Super Admin workspace */
+textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9px;color:var(--text);padding:12px 13px;font:inherit;resize:vertical;min-height:100px}textarea::placeholder{color:#667087}#admin-notes-list,#activity-list{margin-top:14px}
