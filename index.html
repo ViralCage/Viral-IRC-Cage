@@ -2375,8 +2375,6 @@ body {
     let tttTurn = 'X';
     let tttWinner = null;
     let onlineGameType = 'baghchal';
-    // The category tab is only a view filter; changing it must not launch a game.
-    let activeModeTab = 'online';
     let dotsBoxesState = { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
     let baghAiMoveTimer = null;
     let onlineGameTypeListener = null;
@@ -3012,8 +3010,7 @@ body {
     }
     function applyDotsEdge(stateObj, edgeIndex, mark) {
         if(edgeIndex<0||edgeIndex>=40||stateObj.edges[edgeIndex]) return false;
-        // Store the player's mark on each edge so red/blue ownership is visible to both players.
-        stateObj.edges[edgeIndex]=mark; let scored=0;
+        stateObj.edges[edgeIndex]=true; let scored=0;
         const completed=(r,c)=>{const top=r*4+c,bottom=(r+1)*4+c,left=20+r*5+c,right=left+1;return stateObj.edges[top]&&stateObj.edges[bottom]&&stateObj.edges[left]&&stateObj.edges[right];};
         for(let r=0;r<4;r++)for(let c=0;c<4;c++){const bi=r*4+c;if(!stateObj.boxes[bi]&&completed(r,c)){stateObj.boxes[bi]=mark;scored++;stateObj.scores[mark]++;}}
         if(!scored)stateObj.turn=mark==='X'?'O':'X';
@@ -3043,73 +3040,18 @@ body {
         const nextTurn=chainFrom?side:(side==='X'?'O':'X'); const winner=chainFrom?null:(checkersAllMoves(board,nextTurn).length?null:side);
         return {board,turn:nextTurn,winner,chainFrom,lastMove:{id:String(Date.now())+'-'+Math.random().toString(36).slice(2,8),from:move.from,to:move.to,piece,capture:move.capture>=0,promoted,by:side},updatedAt:Date.now()};
     }
-    function evaluateCheckersForAI(st) {
-        if (st.winner === 'O') return 100000;
-        if (st.winner === 'X') return -100000;
-        let score = 0, redCount = 0, blackCount = 0;
-        for (let i = 0; i < 64; i++) {
-            const piece = st.board[i];
-            if (!piece) continue;
-            const row = Math.floor(i / 8), col = i % 8;
-            const king = piece.length > 1;
-            const value = king ? 185 : 100;
-            const centre = 3.5 - Math.abs(3.5 - col);
-            if (piece[0] === 'O') {
-                blackCount++;
-                score += value + (king ? 0 : row * 5) + centre * 2;
-            } else {
-                redCount++;
-                score -= value + (king ? 0 : (7 - row) * 5) + centre * 2;
-            }
-        }
-        const blackMoves = checkersAllMoves(st.board, 'O', st.turn === 'O' ? st.chainFrom : null).length;
-        const redMoves = checkersAllMoves(st.board, 'X', st.turn === 'X' ? st.chainFrom : null).length;
-        score += (blackMoves - redMoves) * 3;
-        if (!blackCount || (!blackMoves && st.turn === 'O')) return -100000;
-        if (!redCount || (!redMoves && st.turn === 'X')) return 100000;
-        return score;
-    }
-    function searchCheckersAI(st, depth, alpha, beta) {
-        const moves = checkersAllMoves(st.board, st.turn, st.chainFrom);
-        if (!moves.length) return st.turn === 'O' ? -100000 - depth : 100000 + depth;
-        if (depth <= 0 || st.winner) return evaluateCheckersForAI(st);
-        moves.sort((a,b) => (b.capture >= 0 ? 1000 : 0) - (a.capture >= 0 ? 1000 : 0));
-        const maximizing = st.turn === 'O';
-        let best = maximizing ? -Infinity : Infinity;
-        for (const move of moves) {
-            const next = applyCheckersMoveToState(st, move, st.turn);
-            const value = searchCheckersAI(next, depth - 1, alpha, beta);
-            if (maximizing) {
-                best = Math.max(best, value);
-                alpha = Math.max(alpha, best);
-            } else {
-                best = Math.min(best, value);
-                beta = Math.min(beta, best);
-            }
-            if (beta <= alpha) break;
-        }
-        return best;
-    }
     function makeHardCheckersMove() {
-        const moves = checkersAllMoves(checkersState.board, 'O', checkersState.chainFrom);
-        if (!moves.length) {
-            checkersState.winner = 'X'; checkersState.chainFrom = null;
-            updateStatusUI(); drawBoard(); showMiniGameResult('You Win!', 'The AI has no legal moves.'); return;
+        let moves=checkersAllMoves(checkersState.board,'O',checkersState.chainFrom); if(!moves.length){checkersState.winner='X';checkersState.chainFrom=null;updateStatusUI();drawBoard();showMiniGameResult('You Win!','The AI has no legal moves.');return;}
+        let best=-Infinity, choices=[];
+        for(const m of moves){const next=applyCheckersMoveToState(checkersState,m,'O');let score=(m.capture>=0?100:0)+(next.lastMove.promoted?35:0);
+            const replies=checkersAllMoves(next.board,'X',next.chainFrom); score-=replies.filter(r=>r.capture>=0).length*24;
+            score+=next.board.filter(v=>v==='OK').length*8;
+            if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
         }
-        let best = -Infinity, choices = [];
-        for (const move of moves) {
-            const next = applyCheckersMoveToState(checkersState, move, 'O');
-            const score = searchCheckersAI(next, 5, -Infinity, Infinity);
-            if (score > best) { best = score; choices = [move]; }
-            else if (score === best) choices.push(move);
-        }
-        const choice = choices[Math.floor(Math.random() * choices.length)];
-        checkersState = applyCheckersMoveToState(checkersState, choice, 'O');
-        checkersSelected = Number.isInteger(checkersState.chainFrom) ? checkersState.chainFrom : -1;
-        playMoveSound(checkersState.lastMove.capture ? 'capture' : 'move');
-        updateStatusUI(); drawBoard();
-        if (checkersState.winner) showMiniGameResult(checkersState.winner === 'X' ? 'You Win!' : 'AI Wins', 'Checkers finished.');
-        else if (checkersState.turn === 'O' && Number.isInteger(checkersState.chainFrom)) scheduleHardMiniAi();
+        checkersState=applyCheckersMoveToState(checkersState,choices[Math.floor(Math.random()*choices.length)],'O'); checkersSelected=Number.isInteger(checkersState.chainFrom)?checkersState.chainFrom:-1;
+        playMoveSound(checkersState.lastMove.capture?'capture':'move'); updateStatusUI();drawBoard();
+        if(checkersState.winner)showMiniGameResult(checkersState.winner==='X'?'You Win!':'AI Wins','Checkers finished.');
+        else if(checkersState.turn==='O'&&Number.isInteger(checkersState.chainFrom))scheduleHardMiniAi();
     }
 
     function initGame() {
@@ -3431,10 +3373,10 @@ body {
         const position = {board: state.board.slice(), goatsToPlace: state.goatsToPlace, goatsCaptured: state.goatsCaptured};
         const perspective = state.turn;
         let best = -Infinity, candidates = [];
-        // Depth 4 searches the chosen move and three further plies for stronger local play.
+        // Depth 3 searches the chosen move, opponent reply, and next response.
         for (const action of actions) {
             const next = hardestApply(position.board, action, position.goatsToPlace, position.goatsCaptured);
-            const score = hardestSearch(next, perspective === GOAT ? TIGER : GOAT, 3, perspective, -Infinity, Infinity);
+            const score = hardestSearch(next, perspective === GOAT ? TIGER : GOAT, 2, perspective, -Infinity, Infinity);
             if (score > best) { best = score; candidates = [action]; }
             else if (score === best) candidates.push(action);
         }
@@ -3897,14 +3839,12 @@ body {
 
         if (isDotsBoxesActive()) {
             const pad=width*0.1, gap=(width-pad*2)/4;
-            const playerColor = mark => mark==='X' ? '#ef4444' : '#2563eb';
-            const playerFill = mark => mark==='X' ? 'rgba(239,68,68,0.20)' : 'rgba(37,99,235,0.20)';
             for(let r=0;r<4;r++) for(let c=0;c<4;c++) {
                 const owner=dotsBoxesState.boxes[r*4+c];
-                if(owner){ctx.fillStyle=playerFill(owner);ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=playerColor(owner);ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
+                if(owner){ctx.fillStyle=owner==='X'?'rgba(37,99,235,0.20)':'rgba(220,38,38,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=owner==='X'?'#2563eb':'#dc2626';ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
             }
             ctx.lineCap='round';
-            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);const edge=dotsBoxesState.edges[i];ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=edge?(edge==='X'?'#ef4444':(edge==='O'?'#2563eb':'#64748b')):'#cbd5e1';ctx.lineWidth=edge?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
+            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]?'#334155':'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
             for(let r=0;r<5;r++) for(let c=0;c<5;c++){ctx.beginPath();ctx.arc(pad+c*gap,pad+r*gap,Math.max(3,width*0.018),0,Math.PI*2);ctx.fillStyle='#111827';ctx.fill();}
             return;
         }
@@ -5558,32 +5498,31 @@ body {
     function syncModeCardUI() {
         const selector = document.getElementById('gameSelection');
         const selected = selector ? selector.value : 'online';
-        const selectedIsAi = selected.startsWith('ai-');
         document.querySelectorAll('#bagchal-blogger-container [data-game-mode]').forEach(card => {
             const active = card.getAttribute('data-game-mode') === selected;
             card.classList.toggle('active', active);
             card.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
+        const isAi = selected.startsWith('ai-');
         document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
-            const active = tab.getAttribute('data-mode-tab') === activeModeTab;
-            tab.classList.toggle('active', active);
-            tab.setAttribute('aria-pressed', active ? 'true' : 'false');
+            const active = tab.getAttribute('data-mode-tab') === (isAi ? 'ai' : 'online');
+            tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         const onlineGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="online"]');
         const aiGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="ai"]');
         const onlineLabel = document.querySelector('#bagchal-blogger-container .vc-mode-section-label:not(.vc-ai-label)');
         const aiLabel = document.querySelector('#bagchal-blogger-container .vc-ai-label');
-        if (onlineGrid) onlineGrid.hidden = activeModeTab !== 'online';
-        if (onlineLabel) onlineLabel.hidden = activeModeTab !== 'online';
-        if (aiGrid) aiGrid.hidden = activeModeTab !== 'ai';
-        if (aiLabel) aiLabel.hidden = activeModeTab !== 'ai';
+        if (onlineGrid) onlineGrid.hidden = isAi;
+        if (onlineLabel) onlineLabel.hidden = isAi;
+        if (aiGrid) aiGrid.hidden = !isAi;
+        if (aiLabel) aiLabel.hidden = !isAi;
         const activeCard = document.querySelector('#bagchal-blogger-container [data-game-mode="' + selected + '"]');
         const name = activeCard ? activeCard.querySelector('strong').textContent : 'Game';
-        const description = selectedIsAi ? 'Strongest AI' : 'Online multiplayer';
+        const description = isAi ? 'Strongest AI' : 'Online multiplayer';
         const current = document.getElementById('vcModeCurrentText');
         if (current) current.textContent = name + ' · ' + description;
         const arenaLabel = document.getElementById('vcArenaGameLabel');
-        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (selectedIsAi ? 'Play vs AI' : 'Online multiplayer');
+        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (isAi ? 'Play vs AI' : 'Online multiplayer');
     }
 
     function syncGameSelection() {
@@ -5591,19 +5530,10 @@ body {
         const level = document.getElementById('aiLevel').value;
         const selector = document.getElementById('gameSelection');
         if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
-        const picker = document.getElementById('onlineGameType');
-        if (picker) picker.value = onlineGameType;
-        (function populateOnlineGameChoices() {
-            const el = document.getElementById('onlineGameType');
-            if (el && !el.options.length) {
-                [['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l]) => {
-                    const o = document.createElement('option'); o.value = v; o.textContent = l; el.appendChild(o);
-                });
-                el.value = onlineGameType;
-            }
-        })();
-        syncRoomGameIcons();
-        syncModeCardUI();
+        const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
+        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+    syncRoomGameIcons();
+    syncModeCardUI();
     }
 
     document.querySelectorAll('#bagchal-blogger-container [data-game-mode]').forEach(card => {
@@ -5611,8 +5541,9 @@ body {
             const selector = document.getElementById('gameSelection');
             if (!selector) return;
             const selectedMode = card.getAttribute('data-game-mode');
-            activeModeTab = selectedMode.startsWith('ai-') ? 'ai' : 'online';
             selector.value = selectedMode;
+            // Always initialize BaghChal AI cards at the strongest level and
+            // synchronize both selectors before the game-mode change is handled.
             if (selectedMode === 'ai-tiger-hardest' || selectedMode === 'ai-goat-hardest') {
                 const aiSide = selectedMode === 'ai-tiger-hardest' ? 'ai-tiger' : 'ai-goat';
                 const levelPicker = document.getElementById('aiLevel');
@@ -5622,19 +5553,26 @@ body {
                 state.difficulty = 'hardest';
             }
             selector.dispatchEvent(new Event('change', { bubbles: true }));
-            syncModeCardUI();
+            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+    syncModeCardUI();
+        });
+    });
+    document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const showAi = tab.getAttribute('data-mode-tab') === 'ai';
+            const grid = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"]');
+            if (grid && !grid.hidden) {
+                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
+    syncModeCardUI();
+                return;
+            }
+            const firstCard = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"] [data-game-mode]');
+            if (firstCard) firstCard.click();
         });
     });
 
-    document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
-        tab.addEventListener('click', () => {
-            activeModeTab = tab.getAttribute('data-mode-tab') === 'ai' ? 'ai' : 'online';
-            syncModeCardUI();
-        });
-    });
     document.getElementById('gameSelection').addEventListener('change', (e) => {
         const value = e.target.value;
-        activeModeTab = value.startsWith('ai-') ? 'ai' : 'online';
         if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-checkers' || value === 'online-fourconnect' || value === 'online-chess') {
             const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-checkers' ? 'checkers' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal'))));
             onlineGameType = type;
