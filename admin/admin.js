@@ -208,7 +208,7 @@ function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
  if(commentatorAudioEnabled){startTournamentAmbience();if(tournamentMusicEnabled)startTournamentMusic();if(commentatorPrevious)setTournamentGameAmbience(commentatorPrevious.type);}else{stopTournamentAmbience();stopTournamentMusic();}
  const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute live audio':'Enable live audio';
- const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · GAME FX · '+(tournamentMusicEnabled?'ORIGINAL MUSIC ON':'MUSIC OFF'):'SOUND OFF · Click Enable live audio to start';
+ const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · GAME FX · '+(tournamentMusicEnabled?'ORIGINAL MUSIC ON':'MUSIC OFF'):'SOUND OFF · Click Enable live audio to start';const musicButton=$('commentator-music');if(musicButton){musicButton.textContent=tournamentMusicEnabled?'Mute music':'Enable music';musicButton.setAttribute('aria-pressed',String(tournamentMusicEnabled));}
  if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Welcome to VC Play tournament live coverage. The match is about to begin.');u.lang='en-CA';speechSynthesis.speak(u);} }
  else if(window.speechSynthesis)speechSynthesis.cancel();
 }
