@@ -11,32 +11,21 @@ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
 
-let commentatorPrevious=null, commentatorAudioEnabled=false, commentatorLastText='';
+let commentatorPrevious=null,commentatorAudioEnabled=false,commentatorLastText='',commentatorLanguage='both';
+function commentatorPlayers(room){const names=room.playerNames||{},presence=room.presence||{};return Object.keys({...names,...presence}).map(role=>({role,name:(presence[role]&&presence[role].name)||names[role]||role}));}
+function commentatorName(room,token){const value=String(token||'').trim(),players=commentatorPlayers(room);const found=players.find(p=>p.role.toLowerCase()===value.toLowerCase()||p.name.toLowerCase()===value.toLowerCase());return found?found.name:value||'the players';}
+function bilingual(en,np){return commentatorLanguage==='en'?en:commentatorLanguage==='np'?np:en+' नेपालीमा: '+np;}
 function commentatorState(room){
  const type=room.activeGameType||'baghchal', data=type==='baghchal'?(room.game||{}):((room.miniGames||{})[type]||{});
  const board=Array.isArray(data.board)?data.board:(type==='chess'&&Array.isArray(data.history)?(data.history[data.history.length-1]||{}).b:[]);
  const winner=data.winner||room.winner||'';
  return {type,data,board:Array.isArray(board)?board.slice():[],winner:String(winner||''),turn:data.turn,moveCount:Array.isArray(data.history)?data.history.length:0,captured:Number(data.goatsCaptured||0),boxes:Array.isArray(data.boxes)?data.boxes.filter(Boolean).length:0,scores:data.scores||{}};
 }
-function commentatorSay(message,kind='move'){
- const feed=$('commentator-feed'); if(!feed)return;
- if(!message||message===commentatorLastText)return;
- commentatorLastText=message;
- const row=document.createElement('div');row.className='commentary-line '+kind;row.textContent=message;
- feed.prepend(row);while(feed.children.length>6)feed.lastElementChild.remove();
- const status=$('commentator-status');if(status)status.textContent=kind==='win'?'VICTORY COMMENTARY':'LIVE COMMENTARY';
- if(commentatorAudioEnabled&&'speechSynthesis'in window){
-  try{speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(message);utterance.rate=.96;utterance.pitch=kind==='win'?1.08:1;utterance.volume=.9;speechSynthesis.speak(utterance);}catch(_){}
- }
-}
-function fireworkBurst(){
- const panel=$('spectator-panel');if(!panel)return;
- let layer=panel.querySelector('.spectator-fireworks');
- if(!layer){layer=document.createElement('div');layer.className='spectator-fireworks';layer.setAttribute('aria-hidden','true');panel.appendChild(layer);}
- layer.innerHTML='';
- for(let n=0;n<42;n++){const bit=document.createElement('i');bit.style.setProperty('--x',(8+Math.random()*84)+'%');bit.style.setProperty('--y',(8+Math.random()*58)+'%');bit.style.setProperty('--delay',(Math.random()*.65)+'s');bit.style.setProperty('--hue',Math.floor(Math.random()*360));layer.appendChild(bit);}
- layer.classList.remove('celebrate');void layer.offsetWidth;layer.classList.add('celebrate');
- if(commentatorAudioEnabled)playFireworkSound();
+function commentatorSay(message,kind='move',speechText={en:message,np:message}){
+ const feed=$('commentator-feed');if(!feed||!message||message===commentatorLastText)return;commentatorLastText=message;
+ const row=document.createElement('div');row.className='commentary-line '+kind;row.textContent=message;feed.prepend(row);while(feed.children.length>6)feed.lastElementChild.remove();
+ const st=$('commentator-status');if(st)st.textContent=kind==='win'?'VICTORY COMMENTARY':'LIVE COMMENTARY';
+ if(commentatorAudioEnabled&&'speechSynthesis'in window){try{speechSynthesis.cancel();const parts=commentatorLanguage==='both'?[{text:speechText.en,lang:'en-CA'},{text:speechText.np,lang:'ne-NP'}]:[{text:commentatorLanguage==='np'?speechText.np:speechText.en,lang:commentatorLanguage==='np'?'ne-NP':'en-CA'}];parts.forEach(part=>{const u=new SpeechSynthesisUtterance(part.text);u.lang=part.lang;u.rate=.94;u.pitch=kind==='win'?1.08:1;u.volume=.9;speechSynthesis.speak(u);});}catch(_){}}
 }
 function playFireworkSound(){
  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
@@ -54,19 +43,21 @@ function playFireworkSound(){
 }
 function observeCommentary(room){
  const cur=commentatorState(room),prev=commentatorPrevious;commentatorPrevious=cur;
- if(!prev||prev.type!==cur.type){commentatorSay('Live '+cur.type+' match is on. Players are ready.','intro');return;}
- if(cur.winner&&cur.winner!==prev.winner){commentatorSay('What a finish! '+cur.winner+' wins the match! Congratulations!','win');fireworkBurst();return;}
+ const ps=commentatorPlayers(room),n1=ps[0]?.name||'Player 1',n2=ps[1]?.name||'Player 2';
+ if(!prev||prev.type!==cur.type){const en='Welcome to the live '+cur.type+' match. '+n1+' faces '+n2+'. Let the game begin!';const np='प्रत्यक्ष '+cur.type+' खेलमा स्वागत छ। '+n1+' र '+n2+' बीचको खेल सुरु हुँदैछ!';commentatorSay(bilingual(en,np),'intro',{en,np});return;}
+ if(cur.winner&&cur.winner!==prev.winner){const winner=commentatorName(room,cur.winner),en='What a finish! '+winner+' wins the match! Congratulations!',np='कस्तो शानदार खेल! '+winner+' ले खेल जित्नुभयो! धेरै धेरै बधाई!';commentatorSay(bilingual(en,np),'win',{en,np});fireworkBurst();return;}
  if(cur.board.join('|')!==prev.board.join('|')){
-  if(cur.type==='baghchal'&&cur.captured>prev.captured)commentatorSay('A tiger capture! '+cur.captured+' goats have been captured. The pressure is rising.');
-  else if(cur.type==='chess')commentatorSay('A move on the chessboard. '+(cur.turn===1?'White':'Black')+' to play next. Watch for the next tactical idea.');
-  else if(cur.type==='checkers')commentatorSay('A checkers move changes the position. The players are fighting for control.');
-  else if(cur.type==='fourconnect')commentatorSay('A counter has dropped into the grid. Every connection matters now.');
-  else if(cur.type==='tictactoe')commentatorSay('A mark is placed. One line could decide this game.');
-  else commentatorSay('The position has changed. Both players are looking for an advantage.');
+  let en='The position has changed. '+n1+' and '+n2+' are fighting for an advantage.',np='खेलको अवस्था बदलिएको छ। '+n1+' र '+n2+' फाइदा लिन संघर्ष गर्दै हुनुहुन्छ।';
+  if(cur.type==='baghchal'&&cur.captured>prev.captured){en='A tiger capture! '+cur.captured+' goats have been captured. The pressure is rising.';np='बाघले बाख्रा समात्यो! अहिलेसम्म '+cur.captured+' वटा बाख्रा समातिएका छन्। दबाब बढ्दैछ।';}
+  else if(cur.type==='chess'){en='A chess move has been played. '+(cur.turn===1?'White':'Black')+' to move next. Watch for a tactical opportunity.';np='चेसमा चाल चलियो। अब '+(cur.turn===1?'सेतो':'कालो')+' पक्षको पालो हो। अर्को रणनीतिक अवसरमा ध्यान दिनुहोस्।';}
+  else if(cur.type==='checkers'){en='A checkers move changes the position. Both players are fighting for control.';np='चेकर्समा चालसँगै खेलको अवस्था फेरिएको छ। दुवै खेलाडी नियन्त्रणका लागि प्रतिस्पर्धा गर्दै हुनुहुन्छ।';}
+  else if(cur.type==='fourconnect'){en='A counter drops into the grid. Every connection matters now.';np='ग्रिडमा एउटा गोटी थपियो। अब हरेक जोडाइ महत्त्वपूर्ण छ।';}
+  else if(cur.type==='tictactoe'){en='A mark is placed. One line could decide this game.';np='एउटा चिन्ह राखियो। अब एउटा लाइनले खेलको निर्णय गर्न सक्छ।';}
+  commentatorSay(bilingual(en,np),'move',{en,np});
  }
- if(cur.boxes>prev.boxes)commentatorSay('A box has been claimed! The score is moving.');
+ if(cur.boxes>prev.boxes){const en='A box has been claimed! The score is moving.',np='एउटा बाकस आफ्नो बनाइयो! स्कोर परिवर्तन हुँदैछ।';commentatorSay(bilingual(en,np),'move',{en,np});}
  const sx=Number(cur.scores.X||0),sy=Number(cur.scores.O||0),px=Number(prev.scores.X||0),py=Number(prev.scores.O||0);
- if(sx>px||sy>py)commentatorSay('Points on the board! The latest score is '+sx+' to '+sy+'.');
+ if(sx>px||sy>py){const en='Points on the board! The latest score is '+sx+' to '+sy+'.',np='स्कोर बढेको छ! अहिलेको स्कोर '+sx+' र '+sy+' छ।';commentatorSay(bilingual(en,np),'move',{en,np});}
 }
 function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
@@ -196,6 +187,7 @@ function applySpectatorCamera(){
 }
 $('spectator-panel')?.addEventListener('click',e=>{
  if(e.target.closest('#commentator-audio')){setCommentatorAudio();return;}
+ if(e.target.closest('#commentator-language'))return;
  const control=e.target.closest('[data-spectator-action]');
  if(!control)return;
  const action=control.getAttribute('data-spectator-action');
@@ -215,5 +207,6 @@ $('spectator-panel')?.addEventListener('click',e=>{
  applySpectatorCamera();
 });
 applySpectatorCamera();
+$('commentator-language')?.addEventListener('change',e=>{commentatorLanguage=e.target.value;commentatorLastText='';const st=$('commentator-audio-state');if(st)st.textContent='COMMENTARY LANGUAGE · '+(commentatorLanguage==='both'?'ENGLISH + नेपाली':commentatorLanguage==='np'?'नेपाली':'ENGLISH')+(commentatorAudioEnabled?' · AUDIO ON':' · SOUND OFF');});
 window.addEventListener('beforeunload',stopMonitoring);
 })();
