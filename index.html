@@ -5565,6 +5565,68 @@ body {
             card.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
+            const active = tab.getAttribute('data-mode-tab') === activeModeTab;
+            tab.classList.toggle('active', active);
+            tab.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        const onlineGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="online"]');
+        const aiGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="ai"]');
+        const onlineLabel = document.querySelector('#bagchal-blogger-container .vc-mode-section-label:not(.vc-ai-label)');
+        const aiLabel = document.querySelector('#bagchal-blogger-container .vc-ai-label');
+        if (onlineGrid) onlineGrid.hidden = activeModeTab !== 'online';
+        if (onlineLabel) onlineLabel.hidden = activeModeTab !== 'online';
+        if (aiGrid) aiGrid.hidden = activeModeTab !== 'ai';
+        if (aiLabel) aiLabel.hidden = activeModeTab !== 'ai';
+        const activeCard = document.querySelector('#bagchal-blogger-container [data-game-mode="' + selected + '"]');
+        const name = activeCard ? activeCard.querySelector('strong').textContent : 'Game';
+        const description = selectedIsAi ? 'Strongest AI' : 'Online multiplayer';
+        const current = document.getElementById('vcModeCurrentText');
+        if (current) current.textContent = name + ' · ' + description;
+        const arenaLabel = document.getElementById('vcArenaGameLabel');
+        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (selectedIsAi ? 'Play vs AI' : 'Online multiplayer');
+    }
+
+    function syncGameSelection() {
+        const mode = document.getElementById('gameMode').value;
+        const level = document.getElementById('aiLevel').value;
+        const selector = document.getElementById('gameSelection');
+        if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
+        const picker = document.getElementById('onlineGameType');
+        if (picker) picker.value = onlineGameType;
+        (function populateOnlineGameChoices() {
+            const el = document.getElementById('onlineGameType');
+            if (el && !el.options.length) {
+                [['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l]) => {
+                    const o = document.createElement('option'); o.value = v; o.textContent = l; el.appendChild(o);
+                });
+                el.value = onlineGameType;
+            }
+        })();
+        syncRoomGameIcons();
+        syncModeCardUI();
+    }
+
+    document.querySelectorAll('#bagchal-blogger-container [data-game-mode]').forEach(card => {
+        card.addEventListener('click', () => {
+            const selector = document.getElementById('gameSelection');
+            if (!selector) return;
+            const selectedMode = card.getAttribute('data-game-mode');
+            activeModeTab = selectedMode.startsWith('ai-') ? 'ai' : 'online';
+            selector.value = selectedMode;
+            if (selectedMode === 'ai-tiger-hardest' || selectedMode === 'ai-goat-hardest') {
+                const aiSide = selectedMode === 'ai-tiger-hardest' ? 'ai-tiger' : 'ai-goat';
+                const levelPicker = document.getElementById('aiLevel');
+                const modePicker = document.getElementById('gameMode');
+                if (levelPicker) levelPicker.value = 'hardest';
+                if (modePicker) modePicker.value = aiSide;
+                state.difficulty = 'hardest';
+            }
+            selector.dispatchEvent(new Event('change', { bubbles: true }));
+            syncModeCardUI();
+        });
+    });
+
+    document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
         tab.addEventListener('click', () => {
             activeModeTab = tab.getAttribute('data-mode-tab') === 'ai' ? 'ai' : 'online';
             syncModeCardUI();
