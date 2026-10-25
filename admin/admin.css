@@ -35,3 +35,15 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 
 /* Read-only live spectator panel */
 .spectator-meta{font-size:11px;color:#b9c4dc;margin:8px 0}.spectator-data{margin:0;padding:14px;max-height:520px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#080c16;border:1px solid #30384e;border-radius:10px;color:#c8d5ed;font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.watch-room-button{border:1px solid #465b86;background:#17243b;color:#b7d0ff;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer}.watch-room-button:hover{background:#223655}.room-actions{flex-wrap:wrap}
+
+/* Visual live-game spectator boards */
+.spectator-board-wrap{min-height:190px;padding:14px;border:1px solid #2b3449;border-radius:12px;background:#0a0e18;display:grid;place-items:center;overflow:auto}
+.spectator-grid{display:grid;gap:4px;width:min(100%,430px);aspect-ratio:1}
+.chess-grid,.checkers-grid{grid-template-columns:repeat(8,1fr)}
+.spectator-square{display:grid;place-items:center;min-width:0;aspect-ratio:1;font-size:clamp(17px,4vw,34px);font-weight:800}
+.spectator-square.light{background:#e5e7eb;color:#111827}.spectator-square.dark{background:#64748b;color:#fff}
+.ttt-grid{grid-template-columns:repeat(3,1fr);width:min(100%,330px);gap:8px}.ttt-square{background:#1b2335;border:1px solid #39445d;border-radius:8px;font-size:clamp(34px,8vw,64px)}.mark-x{color:#60a5fa}.mark-o{color:#fb7185}
+.checker-piece{width:72%;height:72%;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 3px 4px #ffffff55,0 3px 5px #0008}.red-piece{background:#dc4659;color:#fff}.black-piece{background:#161b29;color:#fff;border:2px solid #aab4c8}.yellow-piece{background:#facc15}
+.connect-grid{grid-template-columns:repeat(7,1fr);width:min(100%,420px);aspect-ratio:7/6;background:#2453a5;padding:10px;border-radius:12px;gap:6px}.connect-hole{border-radius:50%;background:#0b1222;display:grid;place-items:center}.connect-piece{width:82%;height:82%;border-radius:50%;box-shadow:inset 0 2px 5px #fff8,0 2px 4px #0008}
+.baghchal-grid{grid-template-columns:repeat(5,1fr);width:min(100%,390px);background:linear-gradient(90deg,transparent 49.5%,#8da0bd 49.5%,#8da0bd 50.5%,transparent 50.5%),linear-gradient(0deg,transparent 49.5%,#8da0bd 49.5%,#8da0bd 50.5%,transparent 50.5%);gap:0}.bagh-node{aspect-ratio:1;display:grid;place-items:center;border:1px solid #66748c;border-radius:50%;background:#151d2d;font-size:clamp(19px,4vw,34px)}
+.dots-board{width:min(100%,420px)}.dots-row{display:grid;grid-template-columns:10px 1fr 10px 1fr 10px 1fr 10px;align-items:center;height:43px}.dots-row i{width:10px;height:10px;border-radius:50%;background:#dbeafe;z-index:1}.dots-row span{text-align:center;color:#fff;font-weight:800}.dots-row b,.dots-hrow b{height:5px;background:#354157}.dots-row b.edge-on,.dots-hrow b.edge-on{background:#65a7ff}.dots-hrow{display:grid;grid-template-columns:repeat(4,1fr);height:5px;gap:0}.spectator-empty{color:#aab2c5;padding:35px;text-align:center}
