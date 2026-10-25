@@ -618,3 +618,65 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
   text-shadow:none;
 }
 .spectator-board-face .chess-tile.chess-dark small{color:#fff}
+
+
+/* Sculpted 3D chessmen for Admin Spectate */
+.spectator-board-face .chess-tile .chess-piece{
+  position:relative;
+  z-index:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:82%;
+  height:82%;
+  line-height:1;
+  font-family:"DejaVu Sans","Segoe UI Symbol","Noto Sans Symbols 2",serif;
+  font-size:clamp(25px,5.2vw,54px);
+  transform:translateY(-3%) perspective(360px) rotateX(7deg);
+  transform-origin:center 78%;
+  -webkit-text-stroke:0;
+  isolation:isolate;
+}
+.spectator-board-face .chess-piece:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:12%;right:12%;bottom:1%;
+  height:19%;
+  border-radius:50%;
+  background:linear-gradient(180deg,#fff8 0%,#a8a29e 25%,#292524 90%);
+  border:1px solid #ffffff70;
+  box-shadow:0 3px 2px #0009,inset 0 2px 2px #fff9,inset 0 -3px 4px #0008;
+}
+.spectator-board-face .piece-white{
+  color:#fffdf4;
+  -webkit-text-fill-color:#fffdf4;
+  text-shadow:
+    0 -1px 0 #fff,1px 0 0 #f4ead5,-1px 0 0 #b8a98d,
+    0 2px 0 #e0d3b9,0 4px 0 #a99a7f,0 6px 0 #786b58,
+    0 8px 3px #342b20,0 12px 9px #000b;
+  filter:drop-shadow(0 2px 1px #fff9) drop-shadow(0 7px 4px #0009);
+}
+.spectator-board-face .piece-white:before{
+  background:linear-gradient(180deg,#fffdf4 0%,#e6d8bd 28%,#a99a7f 68%,#665640 100%);
+  border-color:#fff9e9;
+  box-shadow:0 4px 3px #0009,inset 0 2px 2px #fff,inset 0 -3px 4px #786b58;
+}
+.spectator-board-face .piece-black{
+  color:#343b46;
+  -webkit-text-fill-color:#343b46;
+  text-shadow:
+    0 -1px 0 #b9c0ca,1px 0 0 #111827,-1px 0 0 #77808b,
+    0 2px 0 #252b35,0 4px 0 #151a22,0 6px 0 #080c12,
+    0 9px 3px #000,0 13px 9px #000d;
+  filter:drop-shadow(0 7px 4px #000b);
+}
+.spectator-board-face .piece-black:before{
+  background:linear-gradient(180deg,#626b78 0%,#343b46 32%,#151a22 72%,#05070b 100%);
+  border-color:#9ca3af;
+  box-shadow:0 4px 3px #000c,inset 0 2px 2px #b8c1ce,inset 0 -3px 4px #05070b;
+}
+.spectator-board-face .chess-tile .chess-piece:hover{transform:translateY(-6%) perspective(360px) rotateX(7deg)}
+@media(max-width:600px){
+ .spectator-board-face .chess-tile .chess-piece{font-size:clamp(22px,7vw,42px);width:88%;height:88%}
+}
