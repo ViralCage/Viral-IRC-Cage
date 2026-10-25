@@ -384,3 +384,104 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .moderation-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.moderation-actions button,.unban-player-button{border:1px solid #76506a;border-radius:8px;padding:7px 10px;background:#321c2a;color:#ffdce5;font:700 11px inherit;cursor:pointer}.moderation-actions button:hover,.unban-player-button:hover{background:#54253b;border-color:#d56b8b}.moderation-list-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0 8px;color:#edf0ff}.moderation-list-head span{font-size:11px;color:#aeb4c5}
 
 .copy-player-uid-button,.ban-player-fill-button,.end-room-button{border:1px solid #596b91;border-radius:8px;padding:7px 10px;background:#202c43;color:#edf3ff;font:700 11px inherit;cursor:pointer}.ban-player-fill-button{border-color:#8a5267;background:#321c2a;color:#ffdce5}.end-room-button{border-color:#9a465d;background:#381b28;color:#ffe1e8}.copy-player-uid-button:hover,.ban-player-fill-button:hover,.end-room-button:hover{filter:brightness(1.25)}
+
+
+/* Admin Spectate refinement: bring BaghChal and Chess up to the Checkers/TTT display quality.
+   These styles are confined to the admin spectator renderer. */
+.spectator-board-face>.baghchal-real-board{
+  isolation:isolate;
+  border:clamp(8px,1.4vw,13px) solid #5b3922;
+  border-radius:9px;
+  background:
+    linear-gradient(90deg,#6d4729 0 2px,transparent 2px calc(100% - 2px),#6d4729 calc(100% - 2px)),
+    repeating-linear-gradient(0deg,#00000008 0 1px,#ffffff08 1px 3px),
+    radial-gradient(ellipse at 24% 18%,#f4d9a0 0,#d5ad70 34%,#b7834e 72%,#80502d 100%);
+  box-shadow:
+    inset 0 2px 2px #fff9,
+    inset 0 0 0 3px #e8c995,
+    inset 0 0 0 7px #80502f,
+    inset 0 0 28px #4b2c17aa,
+    0 5px 0 #59371f,
+    0 10px 0 #302016,
+    0 24px 30px #000c;
+}
+.baghchal-real-board:before{
+  content:"";
+  position:absolute;
+  inset:4.5%;
+  border:1px solid #f5dba77a;
+  box-shadow:inset 0 0 0 2px #5e3b2366,0 0 0 1px #3d281b55;
+  pointer-events:none;
+  z-index:0;
+}
+.baghchal-real-board:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:2px;
+  background:linear-gradient(135deg,#fff2 0%,transparent 28%,transparent 70%,#21120735 100%);
+  pointer-events:none;
+  z-index:3;
+}
+.baghchal-lines{z-index:1;filter:drop-shadow(0 2px 0 #f7dfb5aa) drop-shadow(0 2px 2px #3c2417aa)}
+.baghchal-lines g{stroke:#51331f;stroke-width:6;filter:drop-shadow(0 1px 0 #f5dba0)}
+.baghchal-points{z-index:2}
+.baghchal-points .bagh-node{position:relative}
+.baghchal-points .bagh-node:after{
+  content:"";
+  position:absolute;
+  width:12%;height:12%;min-width:4px;min-height:4px;
+  border-radius:50%;
+  background:radial-gradient(circle at 32% 25%,#fff1c9,#704729 78%);
+  box-shadow:0 1px 2px #2b180f99,0 0 0 1px #4a2e1b88;
+  z-index:-1;
+}
+.baghchal-points .tiger-piece,.baghchal-points .goat-piece{filter:drop-shadow(0 7px 4px #24170dcc);transform:translateZ(18px)}
+.baghchal-points .animal-sculpture{filter:drop-shadow(0 2px 1px #0009) drop-shadow(0 5px 4px #2b1a10aa)}
+.spectator-panel:fullscreen .spectator-board-face>.baghchal-real-board{width:min(78vh,78vw);max-width:900px}
+
+.spectator-board-face>.chess-stage{filter:drop-shadow(0 26px 18px #000c)}
+.chess-board-frame{
+  position:relative;
+  padding:clamp(10px,2vw,17px);
+  border:1px solid #f0d5a077;
+  border-radius:20px;
+  background:
+    linear-gradient(145deg,#f1d9a9 0%,#a47a4c 13%,#4b3425 38%,#211811 76%,#9a7044 100%);
+  box-shadow:
+    inset 0 2px 3px #fff9,
+    inset 0 -7px 12px #120b07,
+    0 5px 0 #4b3424,
+    0 10px 0 #21170f,
+    0 25px 34px #000d;
+  transform:translateZ(8px);
+  transform-style:preserve-3d;
+}
+.chess-board{
+  position:relative;
+  border:3px solid #332319;
+  border-radius:5px;
+  box-shadow:
+    inset 0 0 0 2px #f4dfbd99,
+    inset 0 0 18px #26170d66,
+    0 3px 0 #17100b,
+    0 7px 12px #000b;
+  transform:translateZ(5px);
+}
+.chess-tile{box-shadow:inset 0 1px 0 #ffffff24,inset 0 -3px 0 #0004}
+.chess-light{background:linear-gradient(145deg,#f8efd9 0%,#dfc69c 55%,#b99a6b 100%)}
+.chess-dark{background:linear-gradient(145deg,#a27a56 0%,#765238 52%,#49301f 100%)}
+.chess-piece{filter:drop-shadow(0 5px 3px #000b);transform:translateY(-6%) translateZ(12px)}
+.piece-white{color:#fff9e9;-webkit-text-stroke:1px #72583a;text-shadow:0 1px 0 #fff,0 3px 0 #c6b18d,0 6px 0 #817052,0 9px 9px #21170ecc;filter:drop-shadow(0 3px 2px #fff8) drop-shadow(0 6px 3px #0009)}
+.piece-black{color:#242a34;-webkit-text-stroke:1px #c9b895;text-shadow:0 1px 0 #9da3aa,0 3px 0 #11151d,0 6px 0 #080a0e,0 9px 9px #000d;filter:drop-shadow(0 5px 3px #000c)}
+.chess-tile.last-move:after{background:linear-gradient(145deg,#ffe78b77,#d39b2f44);box-shadow:inset 0 0 0 2px #fff0aacc}
+.chess-legend{padding:7px 13px;border:1px solid #64718c66;border-radius:999px;background:linear-gradient(145deg,#1c2940,#0b1220);box-shadow:inset 0 1px #ffffff20,0 5px 12px #0008}
+@media(max-width:600px){
+ .spectator-board-face>.baghchal-real-board{border-width:7px}
+ .chess-board-frame{padding:8px;border-radius:14px}
+ .chess-board{border-width:2px}
+ .chess-piece{transform:translateY(-4%) translateZ(9px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .spectator-board-face>.baghchal-real-board,.spectator-board-face>.chess-stage{transition:none}
+}
