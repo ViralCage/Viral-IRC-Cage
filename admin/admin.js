@@ -10,6 +10,71 @@ function deny(){document.body.classList.remove('admin-authenticated');stopMonito
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
+
+let commentatorPrevious=null, commentatorAudioEnabled=false, commentatorLastText='';
+function commentatorState(room){
+ const type=room.activeGameType||'baghchal', data=type==='baghchal'?(room.game||{}):((room.miniGames||{})[type]||{});
+ const board=Array.isArray(data.board)?data.board:(type==='chess'&&Array.isArray(data.history)?(data.history[data.history.length-1]||{}).b:[]);
+ const winner=data.winner||room.winner||'';
+ return {type,data,board:Array.isArray(board)?board.slice():[],winner:String(winner||''),turn:data.turn,moveCount:Array.isArray(data.history)?data.history.length:0,captured:Number(data.goatsCaptured||0),boxes:Array.isArray(data.boxes)?data.boxes.filter(Boolean).length:0,scores:data.scores||{}};
+}
+function commentatorSay(message,kind='move'){
+ const feed=$('commentator-feed'); if(!feed)return;
+ if(!message||message===commentatorLastText)return;
+ commentatorLastText=message;
+ const row=document.createElement('div');row.className='commentary-line '+kind;row.textContent=message;
+ feed.prepend(row);while(feed.children.length>6)feed.lastElementChild.remove();
+ const status=$('commentator-status');if(status)status.textContent=kind==='win'?'VICTORY COMMENTARY':'LIVE COMMENTARY';
+ if(commentatorAudioEnabled&&'speechSynthesis'in window){
+  try{speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(message);utterance.rate=.96;utterance.pitch=kind==='win'?1.08:1;utterance.volume=.9;speechSynthesis.speak(utterance);}catch(_){}
+ }
+}
+function fireworkBurst(){
+ const panel=$('spectator-panel');if(!panel)return;
+ let layer=panel.querySelector('.spectator-fireworks');
+ if(!layer){layer=document.createElement('div');layer.className='spectator-fireworks';layer.setAttribute('aria-hidden','true');panel.appendChild(layer);}
+ layer.innerHTML='';
+ for(let n=0;n<42;n++){const bit=document.createElement('i');bit.style.setProperty('--x',(8+Math.random()*84)+'%');bit.style.setProperty('--y',(8+Math.random()*58)+'%');bit.style.setProperty('--delay',(Math.random()*.65)+'s');bit.style.setProperty('--hue',Math.floor(Math.random()*360));layer.appendChild(bit);}
+ layer.classList.remove('celebrate');void layer.offsetWidth;layer.classList.add('celebrate');
+ if(commentatorAudioEnabled)playFireworkSound();
+}
+function playFireworkSound(){
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+ try{
+  const ctx=new AC(),now=ctx.currentTime;
+  const noise=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.8),ctx.sampleRate),channel=noise.getChannelData(0);
+  for(let i=0;i<channel.length;i++)channel[i]=(Math.random()*2-1)*(1-i/channel.length);
+  const src=ctx.createBufferSource();src.buffer=noise;
+  const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(2600,now);filter.frequency.exponentialRampToValueAtTime(180,now+.72);
+  const gain=ctx.createGain();gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.32,now+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+.78);
+  src.connect(filter);filter.connect(gain);gain.connect(ctx.destination);src.start(now);src.stop(now+.8);
+  [0,.17,.34].forEach((delay,k)=>{const osc=ctx.createOscillator(),g=ctx.createGain();osc.type='sine';osc.frequency.setValueAtTime(95-k*13,now+delay);g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.13,now+delay+.02);g.gain.exponentialRampToValueAtTime(.0001,now+delay+.32);osc.connect(g);g.connect(ctx.destination);osc.start(now+delay);osc.stop(now+delay+.34);});
+  setTimeout(()=>ctx.close().catch(()=>{}),1300);
+ }catch(_){}
+}
+function observeCommentary(room){
+ const cur=commentatorState(room),prev=commentatorPrevious;commentatorPrevious=cur;
+ if(!prev||prev.type!==cur.type){commentatorSay('Live '+cur.type+' match is on. Players are ready.','intro');return;}
+ if(cur.winner&&cur.winner!==prev.winner){commentatorSay('What a finish! '+cur.winner+' wins the match! Congratulations!','win');fireworkBurst();return;}
+ if(cur.board.join('|')!==prev.board.join('|')){
+  if(cur.type==='baghchal'&&cur.captured>prev.captured)commentatorSay('A tiger capture! '+cur.captured+' goats have been captured. The pressure is rising.');
+  else if(cur.type==='chess')commentatorSay('A move on the chessboard. '+(cur.turn===1?'White':'Black')+' to play next. Watch for the next tactical idea.');
+  else if(cur.type==='checkers')commentatorSay('A checkers move changes the position. The players are fighting for control.');
+  else if(cur.type==='fourconnect')commentatorSay('A counter has dropped into the grid. Every connection matters now.');
+  else if(cur.type==='tictactoe')commentatorSay('A mark is placed. One line could decide this game.');
+  else commentatorSay('The position has changed. Both players are looking for an advantage.');
+ }
+ if(cur.boxes>prev.boxes)commentatorSay('A box has been claimed! The score is moving.');
+ const sx=Number(cur.scores.X||0),sy=Number(cur.scores.O||0),px=Number(prev.scores.X||0),py=Number(prev.scores.O||0);
+ if(sx>px||sy>py)commentatorSay('Points on the board! The latest score is '+sx+' to '+sy+'.');
+}
+function setCommentatorAudio(){
+ commentatorAudioEnabled=!commentatorAudioEnabled;
+ const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute commentator & effects':'Enable commentator & effects';
+ const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'VOICE + FIREWORK SOUND ON':'SOUND OFF';
+ if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Tournament commentator is ready.');speechSynthesis.speak(u);} }
+ else if(window.speechSynthesis)speechSynthesis.cancel();
+}
 function renderSpectatorGame(room){
  const type=room.activeGameType||'baghchal', mini=room.miniGames||{}, data=type==='baghchal'?(room.game||{}):(mini[type]||{});
  const arr=Array.isArray(data.board)?data.board:[];
@@ -54,7 +119,7 @@ function renderSpectatorGame(room){
  $('spectator-meta').textContent=meta+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+(data.winner?' · Winner: '+data.winner:'');
  $('spectator-data').innerHTML='<div class="spectator-player-rail">'+topCard+'</div><div class="spectator-board-face">'+board+'</div><div class="spectator-player-rail">'+bottomCard+'</div>';
 }
-function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
+function watchRoom(roomId){if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';observeCommentary(value);renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
 function presenceFor(room){
  const p=room&&room.presence||{},out=[];
  Object.keys(p).forEach(role=>{const x=p[role];if(x&&x.connected){out.push({uid:x.uid||'',name:x.name||room.playerNames&&room.playerNames[role]||role,role,lastSeen:x.lastSeen||null});}});
@@ -130,6 +195,7 @@ function applySpectatorCamera(){
  document.querySelectorAll('[data-spectator-action^="tilt-"]').forEach(btn=>btn.setAttribute('aria-pressed',String((btn.dataset.spectatorAction==='tilt-3d'&&spectatorTilt===17)||(btn.dataset.spectatorAction==='tilt-4d'&&spectatorTilt===32)||(btn.dataset.spectatorAction==='tilt-8d'&&spectatorTilt===48))));
 }
 $('spectator-panel')?.addEventListener('click',e=>{
+ if(e.target.closest('#commentator-audio')){setCommentatorAudio();return;}
  const control=e.target.closest('[data-spectator-action]');
  if(!control)return;
  const action=control.getAttribute('data-spectator-action');
