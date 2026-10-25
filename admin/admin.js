@@ -3,13 +3,13 @@
 const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
 const $=id=>document.getElementById(id);
 const form=$('admin-login-form'),email=$('admin-email'),password=$('admin-password'),button=$('admin-login-button'),googleButton=$('google-login-button'),message=$('login-message'),status=$('auth-status');
-let auth=null,db=null,unsubs=[],players=[],rooms=[],adminUid=null,spectatorRef=null,spectatorHandler=null;
+let auth=null,db=null,unsubs=[],players=[],rooms=[],adminUid=null,spectatorRef=null,spectatorHandler=null,inactiveRoomTimers=new Map();
 function msg(t,c){message.textContent=t;message.className='login-message'+(c?' '+c:'');}
 function state(t){status.innerHTML='<i></i> '+t;}
 function deny(){document.body.classList.remove('admin-authenticated');stopMonitoring();}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
-function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
+function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
 function renderSpectatorGame(room){
  const type=room.activeGameType||'baghchal', mini=room.miniGames||{}, data=type==='baghchal'?(room.game||{}):(mini[type]||{});
  const arr=Array.isArray(data.board)?data.board:[];
@@ -50,8 +50,8 @@ function presenceFor(room){
  return out;
 }
 function renderRooms(){
- const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No rooms found</b><p>No room records were returned from bagchalRooms.</p></div>';return;}
- el.innerHTML=rooms.map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="watch-room-button" type="button" data-watch-room="'+esc(r.id)+'">Watch</button><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
+ const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No active rooms</b><p>Inactive rooms are automatically removed after 2 minutes.</p></div>';return;}
+ el.innerHTML=rooms.filter(r=>r.active).map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="watch-room-button" type="button" data-watch-room="'+esc(r.id)+'">Watch</button><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
 }
 function renderPlayers(){
  const q=($('player-search').value||'').trim().toLowerCase(),shown=players.filter(p=>!q||(p.name+' '+p.uid+' '+p.room+' '+p.role).toLowerCase().includes(q));
@@ -72,12 +72,26 @@ function startMonitoring(){
   const data=snap.val()||{};rooms=[];players=[];
   Object.entries(data).forEach(([id,room])=>{
    if(!room||typeof room!=='object')return;
-   const present=presenceFor(room);
-   rooms.push({id,players:present,active:present.length>0,game:room.activeGameType||room.game&&room.game.type||'BaghChal'});if(present.length)present.forEach(p=>players.push({...p,room:id}));
+   const present=presenceFor(room),active=present.length>0;
+   if(active){
+    const pending=inactiveRoomTimers.get(id);if(pending){clearTimeout(pending);inactiveRoomTimers.delete(id);}
+    rooms.push({id,players:present,active:true,game:room.activeGameType||room.game&&room.game.type||'BaghChal'});
+    present.forEach(p=>players.push({...p,room:id}));
+   }else if(!inactiveRoomTimers.has(id)){
+    const timer=setTimeout(()=>{
+     inactiveRoomTimers.delete(id);
+     const ref=db.ref('bagchalRooms/'+id);
+     ref.once('value').then(current=>{
+      if(!current.exists()||presenceFor(current.val()).length)return;
+      return ref.remove();
+     }).catch(err=>{$('room-refresh-status').textContent='AUTO-DELETE ERROR';$('connection-detail').textContent='Could not remove inactive room '+id+': '+err.message;});
+    },120000);
+    inactiveRoomTimers.set(id,timer);
+   }
   });
   $('online-count').textContent=String(new Set(players.map(p=>p.uid||p.room+':'+p.role)).size);
   $('room-count').textContent=String(rooms.filter(r=>r.active).length);
-  $('room-refresh-status').textContent='LIVE';
+  $('room-refresh-status').textContent='LIVE · ACTIVE ONLY';
   renderRooms();renderPlayers();
  },err=>{ $('room-refresh-status').textContent='ERROR';$('connection-title').textContent='Database read blocked';$('connection-detail').textContent=err.message+' Check Realtime Database rules for authorized admins.';});
  unsubs.push(()=>roomsRef.off('value',unsubRooms));
