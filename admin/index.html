@@ -72,6 +72,16 @@
       <div id="room-list" class="data-list"><div class="empty"><b>Loading rooms</b><p>Waiting for Firebase Realtime Database.</p></div></div>
     </section>
 
+    <section class="panel" id="room-editor-panel">
+      <div class="panel-head"><div><p class="eyebrow">ADVANCED ADMIN CONTROL</p><h2>Live game data editor</h2></div><span class="pill" id="room-editor-status">NO ROOM SELECTED</span></div>
+      <p class="fine-print">Select Watch on an active room, then load its complete Firebase room record here. You can edit any stored field for any game and save it directly. Invalid JSON is rejected. Changes can break a match; copy the original record before editing. This changes database data, not game-client features that do not exist.</p>
+      <div class="search-row"><input id="room-editor-id" type="text" readonly placeholder="Choose a room using Watch"><button class="button button-muted" id="room-editor-load" type="button">Load latest</button></div>
+      <label class="field-label" for="room-editor-json">Complete room JSON</label>
+      <textarea id="room-editor-json" rows="18" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Choose Watch on a room to load its data." style="width:100%;min-height:340px;resize:vertical;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;"></textarea>
+      <div class="room-actions"><button class="button button-muted" id="room-editor-copy" type="button">Copy backup</button><button class="button button-danger" id="room-editor-save" type="button">Save room changes</button></div>
+      <p class="fine-print">Super Admin only. Saving replaces the selected room record. Do not remove presence or required game fields unless intended. For an actual pause/forced move UI, the main game client must support those controls; the locked root file will not be changed.</p>
+    </section>
+
     <section class="stats" aria-label="Live statistics">
       <article class="stat"><span>ONLINE PLAYERS</span><b id="online-count">—</b><small>Connected room participants</small></article>
       <article class="stat"><span>ACTIVE ROOMS</span><b id="room-count">—</b><small>Rooms with connected participants</small></article>
@@ -100,12 +110,12 @@
         </div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">ADMIN RECORDS</span></div>
+        <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">GLOBAL ENFORCEMENT</span></div>
         <label class="field-label" for="ban-target">Player UID</label><input id="ban-target" autocomplete="off" placeholder="Paste exact Firebase player UID">
         <label class="field-label" for="ban-reason">Reason</label><select id="ban-reason"><option value="">Select a reason</option><option>Cheating</option><option>Harassment</option><option>Disrupting games</option><option>Exploiting bugs</option><option>Other violation</option></select>
         <label class="field-label" for="ban-duration">Duration</label><select id="ban-duration"><option value="3600000">1 hour</option><option value="86400000" selected>24 hours</option><option value="604800000">7 days</option><option value="2592000000">30 days</option><option value="0">Permanent (until manually unbanned)</option></select>
         <button class="button button-danger full" id="ban-submit" type="button">Record ban</button>
-        <p class="fine-print">Records are saved to this Super Admin account. Current Spark game clients do not check these records, so this alone cannot block reconnects. Full enforcement requires game-client support or a trusted backend.</p>
+        <p class="fine-print">Bans are written to the shared globalBans database path. Enforcement depends on the published Realtime Database rules blocking banned UIDs.</p>
         <div class="moderation-list-head"><b>Ban records</b><span id="ban-record-status">Loading…</span></div><div id="ban-record-list" class="data-list"><div class="empty">No ban records loaded.</div></div>
       </article>
     </section>
