@@ -832,3 +832,208 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
   box-shadow:none;
 }
 .spectator-board-face .baghchal-last-move{stroke-width:14}
+
+
+/* ==========================================================
+   BAGHCHAL ADMIN SPECTATOR — OBSIDIAN / ANTIQUE BRASS EDITION
+   Admin preview only. Does not affect the player game board,
+   Firebase data, game rules, or any other game's spectator.
+   ========================================================== */
+.spectator-tv-layout:has(.baghchal-real-board){
+  grid-template-columns:minmax(125px,.62fr) minmax(320px,1.9fr) minmax(125px,.62fr);
+  align-items:center;
+  gap:clamp(10px,1.7vw,26px);
+}
+.spectator-tv-layout:has(.baghchal-real-board) .spectator-tv-seat{
+  border-color:#74603d;
+  background:linear-gradient(155deg,#202b29 0%,#101816 72%,#090e0d 100%);
+  box-shadow:inset 0 1px #fff2,0 14px 28px #0009,0 0 22px #c59b4b12;
+}
+.spectator-tv-layout:has(.baghchal-real-board) .spectator-tv-seat.seat-one{border-color:#b36b43}
+.spectator-tv-layout:has(.baghchal-real-board) .spectator-tv-seat.seat-two{border-color:#b99b54}
+.spectator-board-face:has(>.baghchal-real-board){
+  min-width:0;
+  padding:clamp(8px,1.6vw,22px);
+  border:1px solid #9b824f66;
+  border-radius:24px;
+  background:
+    radial-gradient(ellipse at 50% 42%,#263b32 0%,#14221d 48%,#0b1311 100%);
+  box-shadow:inset 0 1px #ffffff12,0 18px 42px #0008;
+}
+.spectator-board-face>.baghchal-real-board{
+  box-sizing:border-box;
+  width:min(100%,700px);
+  aspect-ratio:1;
+  position:relative;
+  isolation:isolate;
+  overflow:visible;
+  padding:7%;
+  border:clamp(9px,1.5vw,16px) solid #241c13;
+  border-radius:20px;
+  outline:1px solid #d7b875;
+  outline-offset:3px;
+  background:
+    radial-gradient(ellipse at 24% 15%,#465b45 0%,#263c30 35%,#17271f 72%,#101a16 100%);
+  box-shadow:
+    inset 0 2px 2px #fff4,
+    inset 0 0 0 2px #c7a96a,
+    inset 0 0 0 6px #493821,
+    inset 0 0 35px #050a08c9,
+    0 4px 0 #17120d,
+    0 9px 0 #090806,
+    0 26px 38px #000e;
+  transform:rotateX(var(--view-tilt,17deg)) rotateY(var(--view-yaw,0deg)) rotateZ(var(--view-rotation,0deg)) scale(var(--view-zoom,.94));
+}
+.spectator-board-face .baghchal-real-board:before{
+  display:block;
+  content:"";
+  position:absolute;
+  inset:3.3%;
+  border:1px solid #e3c98c99;
+  border-radius:7px;
+  box-shadow:inset 0 0 0 1px #080d0a99,0 0 0 1px #080d0a;
+  pointer-events:none;
+  z-index:0;
+}
+.spectator-board-face .baghchal-real-board:after{
+  display:block;
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(135deg,#ffffff12 0%,transparent 30%,transparent 70%,#0005 100%);
+  pointer-events:none;
+  z-index:3;
+}
+.spectator-board-face .baghchal-lines{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  overflow:visible;
+  pointer-events:none;
+}
+.spectator-board-face .baghchal-lines g{
+  fill:none;
+  stroke:#e2c27d;
+  stroke-width:7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:1;
+  filter:drop-shadow(0 2px 0 #342817) drop-shadow(0 0 5px #d6ae5a44);
+}
+.spectator-board-face .baghchal-points{
+  position:absolute;
+  inset:7%;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-rows:repeat(5,minmax(0,1fr));
+}
+.spectator-board-face .baghchal-points .bagh-node{
+  position:relative;
+  display:grid;
+  place-items:center;
+  min-width:0;
+  min-height:0;
+  aspect-ratio:auto;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  transform:none;
+}
+.spectator-board-face .baghchal-points .bagh-node:before{
+  content:"";
+  display:block!important;
+  position:absolute;
+  width:clamp(5px,.85vw,9px);
+  height:clamp(5px,.85vw,9px);
+  min-width:0;
+  min-height:0;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 25%,#fff0bd,#b28b49 55%,#49351c 100%);
+  box-shadow:0 1px 2px #000b,0 0 0 1px #f0d59a88;
+  opacity:.9;
+  z-index:0;
+}
+.spectator-board-face .baghchal-points .bagh-node:after{display:none!important;content:none!important}
+.spectator-board-face .baghchal-points .bagh-node.move-from:before{
+  background:#55baff;
+  box-shadow:0 0 0 5px #55baff33,0 0 16px #55baff;
+}
+.spectator-board-face .baghchal-points .bagh-node.move-to:before{
+  background:#ffe07a;
+  box-shadow:0 0 0 6px #ffe07a44,0 0 19px #ffd45c;
+}
+.spectator-board-face .baghchal-points .tiger-piece,
+.spectator-board-face .baghchal-points .goat-piece{
+  position:relative;
+  z-index:2;
+  width:94%;
+  height:94%;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  filter:drop-shadow(0 7px 5px #000d);
+  transform:translateZ(18px);
+}
+.spectator-board-face .baghchal-points .animal-sculpture{
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  filter:drop-shadow(0 2px 1px #000b) drop-shadow(0 6px 4px #0009);
+}
+.spectator-board-face .baghchal-points .tiger-sculpture{transform:scale(1.13)}
+.spectator-board-face .baghchal-points .goat-sculpture{transform:scale(1.1)}
+.spectator-board-face .baghchal-last-move{
+  fill:none;
+  stroke:#ffe17b;
+  stroke-width:13;
+  stroke-linecap:round;
+  stroke-dasharray:18 10;
+  filter:drop-shadow(0 0 5px #ffcf4d) drop-shadow(0 2px 2px #000);
+  opacity:1;
+}
+.spectator-board-face .baghchal-move-origin{
+  fill:#51b8ff;
+  stroke:#e5f5ff;
+  stroke-width:6;
+  filter:drop-shadow(0 0 9px #35aaff);
+}
+.spectator-board-face .baghchal-move-target{
+  fill:#ffd65a;
+  fill-opacity:.22;
+  stroke:#fff0ae;
+  stroke-width:7;
+  filter:drop-shadow(0 0 10px #ffcf45);
+}
+@media(max-width:760px){
+  .spectator-tv-layout:has(.baghchal-real-board){
+    grid-template-columns:minmax(0,1fr);
+  }
+  .spectator-tv-layout:has(.baghchal-real-board) .spectator-board-face{grid-row:1}
+  .spectator-tv-layout:has(.baghchal-real-board) .spectator-tv-seat{
+    flex-direction:row;
+    align-items:center;
+  }
+  .spectator-tv-layout:has(.baghchal-real-board) .spectator-camera-frame{
+    width:76px;
+    min-width:76px;
+    aspect-ratio:1;
+  }
+  .spectator-board-face>.baghchal-real-board{
+    width:min(100%,620px);
+    border-width:9px;
+    border-radius:13px;
+  }
+  .spectator-board-face .baghchal-lines g{stroke-width:6}
+}
+@media(prefers-reduced-motion:reduce){
+  .spectator-board-face>.baghchal-real-board{transition:none}
+}
