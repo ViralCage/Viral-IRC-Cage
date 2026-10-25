@@ -12,6 +12,7 @@ function formatSeen(value){if(value==null||value==='')return 'Last seen: unavail
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
 
 let commentatorPrevious=null,commentatorAudioEnabled=false,commentatorLastText='',commentatorLanguage='en',tournamentAudioContext=null,tournamentAmbience=null;
+let tournamentMusicEnabled=false,tournamentMusicTimer=null,tournamentMusicStep=0;
 function commentatorPlayers(room){const names=room.playerNames||{},presence=room.presence||{};return Object.keys({...names,...presence}).map(role=>({role,name:(presence[role]&&presence[role].name)||names[role]||role}));}
 function commentatorName(room,token){const value=String(token||'').trim(),players=commentatorPlayers(room);const found=players.find(p=>p.role.toLowerCase()===value.toLowerCase()||p.name.toLowerCase()===value.toLowerCase());return found?found.name:value||'the players';}
 function bilingual(en,np){return en;}
@@ -57,6 +58,31 @@ function stopTournamentAmbience(){
  if(!tournamentAmbience||!tournamentAudioContext)return;
  const ctx=tournamentAudioContext,amb=tournamentAmbience;tournamentAmbience=null;
  try{amb.master.gain.setTargetAtTime(0,ctx.currentTime,.18);setTimeout(()=>{try{amb.crowd.stop();amb.low.stop();amb.pulse.stop();amb.master.disconnect();}catch(_){}},900);}catch(_){}
+}
+function playTournamentMusicNote(midi,when,duration=.72,volume=.018){
+ const ctx=getTournamentAudio();if(!ctx)return;
+ const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
+ osc.type='sine';osc.frequency.value=440*Math.pow(2,(midi-69)/12);
+ filter.type='lowpass';filter.frequency.value=1500;
+ gain.gain.setValueAtTime(.0001,when);gain.gain.exponentialRampToValueAtTime(volume,when+.08);gain.gain.exponentialRampToValueAtTime(.0001,when+duration);
+ osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);osc.start(when);osc.stop(when+duration+.03);
+}
+function startTournamentMusic(){
+ if(!commentatorAudioEnabled||tournamentMusicTimer)return;
+ const ctx=getTournamentAudio();if(!ctx)return;
+ tournamentMusicEnabled=true;tournamentMusicStep=0;
+ const scale=[0,3,7,10,7,3,5,8,10,7,3,0],roots=[48,53,55,51];
+ const tick=()=>{
+  if(!tournamentMusicEnabled||!commentatorAudioEnabled)return;
+  const step=tournamentMusicStep++,root=roots[Math.floor(step/8)%roots.length],now=ctx.currentTime+.025;
+  playTournamentMusicNote(root+12+scale[step%scale.length],now,.62,.013);
+  if(step%2===0)playTournamentMusicNote(root+19+scale[(step+3)%scale.length],now+.02,.48,.008);
+  if(step%4===0)playTournamentMusicNote(root,now,.95,.012);
+ };
+ tick();tournamentMusicTimer=setInterval(tick,520);
+}
+function stopTournamentMusic(){
+ tournamentMusicEnabled=false;if(tournamentMusicTimer){clearInterval(tournamentMusicTimer);tournamentMusicTimer=null;}
 }
 function playTournamentMoveSound(type='generic',event='move'){
  const ctx=getTournamentAudio();if(!ctx||!commentatorAudioEnabled)return;
@@ -180,9 +206,9 @@ function observeCommentary(room){
 }
 function setCommentatorAudio(){
  commentatorAudioEnabled=!commentatorAudioEnabled;
- if(commentatorAudioEnabled){startTournamentAmbience();if(commentatorPrevious)setTournamentGameAmbience(commentatorPrevious.type);}else{stopTournamentAmbience();}
+ if(commentatorAudioEnabled){startTournamentAmbience();if(tournamentMusicEnabled)startTournamentMusic();if(commentatorPrevious)setTournamentGameAmbience(commentatorPrevious.type);}else{stopTournamentAmbience();stopTournamentMusic();}
  const b=$('commentator-audio');if(b)b.textContent=commentatorAudioEnabled?'Mute live audio':'Enable live audio';
- const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · STADIUM AMBIENCE · MOVE FX · VICTORY FIREWORKS ON':'SOUND OFF · Click Enable live audio to start';
+ const state=$('commentator-audio-state');if(state)state.textContent=commentatorAudioEnabled?'ENGLISH COMMENTARY · GAME FX · '+(tournamentMusicEnabled?'ORIGINAL MUSIC ON':'MUSIC OFF'):'SOUND OFF · Click Enable live audio to start';
  if(commentatorAudioEnabled){if(window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Welcome to VC Play tournament live coverage. The match is about to begin.');u.lang='en-CA';speechSynthesis.speak(u);} }
  else if(window.speechSynthesis)speechSynthesis.cancel();
 }
@@ -337,6 +363,17 @@ function applySpectatorCamera(){
  document.querySelectorAll('[data-spectator-action="tilt-3d"]').forEach(btn=>btn.setAttribute('aria-pressed',String(spectatorTilt===17)));
 }
 const spectatorToolbar=document.querySelector('.spectator-toolbar');
+const commentatorControls=document.querySelector('.commentator-controls');
+if(commentatorControls&&!commentatorControls.querySelector('#commentator-music')){
+ const musicButton=document.createElement('button');musicButton.type='button';musicButton.className='button button-muted';musicButton.id='commentator-music';musicButton.textContent='Enable music';musicButton.setAttribute('aria-pressed','false');musicButton.setAttribute('aria-label','Toggle original copyright-free background music');
+ $('commentator-audio')?.after(musicButton);
+ musicButton.addEventListener('click',()=>{
+  if(!commentatorAudioEnabled){commentatorAudioEnabled=true;startTournamentAmbience();const audioButton=$('commentator-audio');if(audioButton)audioButton.textContent='Mute live audio';}
+  if(tournamentMusicEnabled){stopTournamentMusic();musicButton.textContent='Enable music';musicButton.setAttribute('aria-pressed','false');}
+  else{startTournamentMusic();musicButton.textContent='Mute music';musicButton.setAttribute('aria-pressed','true');}
+  const state=$('commentator-audio-state');if(state)state.textContent='ORIGINAL SYNTHESIZED GAME MUSIC · '+(tournamentMusicEnabled?'ON':'OFF')+' · '+(commentatorAudioEnabled?'LIVE AUDIO ON':'SOUND OFF');
+ });
+}
 if(spectatorToolbar&&!spectatorToolbar.querySelector('[data-spectator-action="rotate-up"]')){
  const verticalButton=(action,label,aria)=>{const button=document.createElement('button');button.type='button';button.className='button button-muted';button.dataset.spectatorAction=action;button.setAttribute('aria-label',aria);button.textContent=label;return button;};
  const rightButton=spectatorToolbar.querySelector('[data-spectator-action="rotate-right"]');
