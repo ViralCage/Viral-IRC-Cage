@@ -206,3 +206,21 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 }
 .spectator-panel:fullscreen .spectator-board-face>.baghchal-real-board{width:min(76vh,76vw);max-width:900px}
 @media(max-width:600px){.spectator-panel:fullscreen .spectator-board-face>.baghchal-real-board{width:min(88vw,68vh)}}
+
+/* Detailed sculpted animal tokens for the BaghChal tournament spectator board */
+.baghchal-points .tiger-piece,
+.baghchal-points .goat-piece{
+ width:88%;height:88%;display:grid;place-items:center;
+ border:0;border-radius:0;background:transparent;box-shadow:none;
+ filter:drop-shadow(0 5px 3px #24170d99);
+ transform:translateZ(13px);
+}
+.baghchal-points .animal-sculpture{
+ display:block;width:100%;height:100%;overflow:visible;
+ filter:drop-shadow(0 2px 1px #0008);
+}
+.baghchal-points .tiger-sculpture{transform:scale(1.08)}
+.baghchal-points .goat-sculpture{transform:scale(1.04)}
+@media(max-width:520px){
+ .baghchal-points .tiger-piece,.baghchal-points .goat-piece{width:96%;height:96%}
+}
