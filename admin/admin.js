@@ -252,19 +252,21 @@ function renderSpectatorGame(room){
 }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
  const names=room.playerNames||{},presence=room.presence||{};
  const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
- const playerCards=roles.slice(0,2).map((role,index)=>{
-  const live=presence[role]||{},name=live.name||names[role]||role;
-  const label=String(role).replace(/[_-]/g,' ');
-  return '<div class="spectator-player-card '+(index===0?'spectator-player-top':'spectator-player-bottom')+'"><span class="spectator-player-side">'+(index===0?'PLAYER SIDE 1':'PLAYER SIDE 2')+'</span><strong>'+esc(name)+'</strong><small>'+esc(label)+' · '+(live.connected?'CONNECTED':'OFFLINE')+'</small></div>';
+ const seatAliases=[['player1','player_1','p1','goat','goats','white','x','1'],['player2','player_2','p2','tiger','tigers','black','o','2']];
+ const seats=seatAliases.map((aliases,index)=>{
+  let role=roles.find(r=>aliases.includes(String(r).toLowerCase()));
+  if(!role)role=roles[index]||'';
+  const live=role?presence[role]||{}:{},name=live.name||(role&&names[role])||(role?role:'Waiting for player');
+  return {role,name,connected:!!live.connected};
  });
- const playerLabels=roles.map(role=>{
-  const live=presence[role]||{},name=live.name||names[role]||role;
-  return esc(name)+(live.connected?' (connected)':'');
- });
- const topCard=playerCards[0]||'<div class="spectator-player-card spectator-player-top"><span class="spectator-player-side">PLAYER SIDE 1</span><strong>Waiting for player</strong><small>Not connected</small></div>';
- const bottomCard=playerCards[1]||'<div class="spectator-player-card spectator-player-bottom"><span class="spectator-player-side">PLAYER SIDE 2</span><strong>Waiting for player</strong><small>Not connected</small></div>';
+ const seatCard=(seat,index)=>{
+  const side=index===0?'PLAYER 1':'PLAYER 2',tone=index===0?'seat-one':'seat-two';
+  const state=seat.connected?'PLAYER CONNECTED':'WAITING FOR PLAYER';
+  return '<aside class="spectator-tv-seat '+tone+'"><div class="spectator-camera-frame"><div class="spectator-camera-glow"></div><div class="spectator-camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="27" height="26" rx="5"></rect><path d="m32 19 11-6v22l-11-6z"></path><circle cx="18.5" cy="24" r="6"></circle></svg></div><span class="spectator-camera-label">CAMERA FEED</span><span class="spectator-camera-status">'+(seat.connected?'CAMERA NOT SHARED':'PLAYER OFFLINE')+'</span></div><div class="spectator-seat-info"><span class="spectator-player-side">'+side+'</span><strong>'+esc(seat.name)+'</strong><small><i class="'+(seat.connected?'is-connected':'')+'"></i>'+state+'</small></div></aside>';
+ };
+ const playerLabels=seats.map(seat=>esc(seat.name)+(seat.connected?' (connected)':''));
  $('spectator-meta').textContent=meta+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+(data.winner?' · Winner: '+data.winner:'');
- $('spectator-data').innerHTML='<div class="spectator-player-rail">'+topCard+'</div><div class="spectator-board-face">'+board+'</div><div class="spectator-player-rail">'+bottomCard+'</div>';
+ $('spectator-data').innerHTML='<div class="spectator-tv-layout">'+seatCard(seats[0],0)+'<main class="spectator-board-face">'+board+'</main>'+seatCard(seats[1],1)+'</div>';
 }
 function watchRoom(roomId){commentatorPrevious=null;commentatorLastText='';if($('commentator-feed'))$('commentator-feed').innerHTML='<div class="commentary-line intro">Connecting to live match commentary…</div>';if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=db.ref('bagchalRooms/'+roomId);$('spectator-status').textContent='CONNECTING';$('spectator-meta').textContent='Room: '+roomId+' · Live updates';$('spectator-data').textContent='Loading live room…';spectatorHandler=snap=>{if(!snap.exists()){$('spectator-status').textContent='ROOM ENDED';$('spectator-data').textContent='This room record no longer exists.';return;}const value=snap.val();$('spectator-status').textContent='LIVE';observeCommentary(value);renderSpectatorGame(value);};spectatorRef.on('value',spectatorHandler,err=>{$('spectator-status').textContent='ERROR';$('spectator-data').textContent='Could not watch this room: '+err.message;});}
 function presenceFor(room){
