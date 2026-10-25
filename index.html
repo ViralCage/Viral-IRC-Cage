@@ -3433,7 +3433,7 @@ body {
                 drawBoard();
                 if ((state.mode === 'ai-tiger' && state.turn === TIGER) ||
                     (state.mode === 'ai-goat' && state.turn === GOAT)) {
-                    setTimeout(handleAILogic, 400);
+                    scheduleBaghChalAiMove(400);
                 }
             }
             return;
