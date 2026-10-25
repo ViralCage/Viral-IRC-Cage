@@ -219,29 +219,35 @@ function renderSpectatorGame(room){
   board='<div class="baghchal-real-board"><svg class="baghchal-lines" viewBox="0 0 500 500" aria-hidden="true"><g><path d="M50 50H450 M50 150H450 M50 250H450 M50 350H450 M50 450H450 M50 50V450 M150 50V450 M250 50V450 M350 50V450 M450 50V450"/><path d="M50 50L450 450 M450 50L50 450"/></g></svg><div class="baghchal-points">'+nodes.join('')+'</div></div>';
   meta='BaghChal · '+(data.goatsToPlace??'—')+' goats to place · '+(data.goatsCaptured??0)+' captured · Turn: '+(data.turn===1?'Tigers':'Goats');
  }else if(type==='dotsboxes'){
-  const edges=Array.isArray(data.edges)?data.edges:[],boxes=Array.isArray(data.boxes)?data.boxes:[];
+  const edges=Array.isArray(data.edges)?data.edges:[],edgeOwners=Array.isArray(data.edgeOwners)?data.edgeOwners:[],boxes=Array.isArray(data.boxes)?data.boxes:[];
   const players=room.playerNames||{},presence=room.presence||{};
   const ownerName=owner=>{
    const key=String(owner||'').toLowerCase(),role=({x:'player1',o:'player2',1:'player1',2:'player2'})[key]||key;
    const live=presence[role]||{};
    return live.name||players[role]||players[key]||owner;
   };
-  const cells=[];
-  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+  const lastEdge=Number(data.lastMove&&data.lastMove.edge),cells=[];
+  for(let r=0;r<9;r++)for(let c=0;c<9;c++){
    if(r%2===0&&c%2===0)cells.push('<div class="dots-node"></div>');
-   else if(r%2===0){const k=(r/2)*3+Math.floor(c/2),on=!!edges[k];cells.push('<div class="dots-edge dots-edge-h '+(on?'edge-on':'')+'"><span></span></div>');}
-   else if(c%2===0){const k=12+Math.floor(r/2)*4+c/2,on=!!edges[k];cells.push('<div class="dots-edge dots-edge-v '+(on?'edge-on':'')+'"><span></span></div>');}
-   else{
-    const k=Math.floor(r/2)*3+Math.floor(c/2),owner=boxes[k]||'',label=owner?ownerName(owner):'';
+   else if(r%2===0){
+    const k=(r/2)*4+Math.floor(c/2),on=!!edges[k],side=String(edgeOwners[k]||'').toLowerCase();
+    const color=side==='x'?'edge-x':side==='o'?'edge-o':'';
+    cells.push('<div class="dots-edge dots-edge-h '+(on?'edge-on ':'')+color+(k===lastEdge?' edge-last':'')+'"><span></span></div>');
+   }else if(c%2===0){
+    const k=20+Math.floor(r/2)*5+c/2,on=!!edges[k],side=String(edgeOwners[k]||'').toLowerCase();
+    const color=side==='x'?'edge-x':side==='o'?'edge-o':'';
+    cells.push('<div class="dots-edge dots-edge-v '+(on?'edge-on ':'')+color+(k===lastEdge?' edge-last':'')+'"><span></span></div>');
+   }else{
+    const k=Math.floor(r/2)*4+Math.floor(c/2),owner=boxes[k]||'',label=owner?ownerName(owner):'';
     const side=String(owner).toLowerCase(),cls=side==='x'||side==='player1'||side==='1'?'box-x':side==='o'||side==='player2'||side==='2'?'box-o':'';
     cells.push('<div class="dots-box '+cls+(owner?' box-claimed':'')+'">'+(owner?'<span>'+esc(label)+'</span>':'')+'</div>');
    }
   }
-  const score=data.scores||{},scoreRows=Object.entries(score).map(([side,value])=>{
-   const label=ownerName(side)||side,cls=String(side).toLowerCase()==='x'?'score-x':'score-o';
-   return '<div class="dots-score '+cls+'"><b>'+esc(label)+'</b><strong>'+Number(value||0)+'</strong></div>';
+  const score=data.scores||{},scoreRows=['X','O'].map(side=>{
+   const label=ownerName(side)||side,cls=side==='X'?'score-x':'score-o';
+   return '<div class="dots-score '+cls+'"><b>'+esc(label)+'</b><strong>'+Number(score[side]||0)+'</strong></div>';
   }).join('');
-  board='<div class="dots-arena"><div class="dots-board-shell"><div class="dots-board-grid">'+cells.join('')+'</div></div><div class="dots-scorebar">'+(scoreRows||'<div class="dots-score"><b>Score</b><strong>0 – 0</strong></div>')+'</div></div>';
+  board='<div class="dots-arena"><div class="dots-board-shell"><div class="dots-board-grid">'+cells.join('')+'</div></div><div class="dots-scorebar">'+scoreRows+'</div></div>';
   meta='Dots & Boxes · '+(data.turn!=null?'Turn: '+esc(ownerName(data.turn)||data.turn):'Live match')+' · '+boxes.filter(Boolean).length+' boxes claimed';
 }else{board='<div class="spectator-empty">Visual board is not available for '+esc(type)+'.</div>';meta='Game: '+esc(type);}
  const names=room.playerNames||{},presence=room.presence||{};
