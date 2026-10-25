@@ -803,3 +803,32 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
   .spectator-board-face>.baghchal-real-board{border-width:9px;border-radius:11px;padding:7%}
   .spectator-board-face .baghchal-lines g{stroke-width:6}
 }
+
+
+/* BaghChal Admin: show the traditional line network, not a dotted/boxed grid. */
+.spectator-board-face>.baghchal-real-board{
+  background:transparent;
+  border:0;
+  outline:0;
+  border-radius:0;
+  box-shadow:none;
+  padding:7%;
+}
+.spectator-board-face .baghchal-real-board:before,
+.spectator-board-face .baghchal-real-board:after{display:none}
+.spectator-board-face .baghchal-lines g{
+  fill:none;
+  stroke:#e7c58b;
+  stroke-width:8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 2px 2px #160d08);
+}
+.spectator-board-face .baghchal-points .bagh-node:before,
+.spectator-board-face .baghchal-points .bagh-node:after{display:none!important;content:none!important}
+.spectator-board-face .baghchal-points .bagh-node{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+.spectator-board-face .baghchal-last-move{stroke-width:14}
