@@ -322,12 +322,42 @@ function renderPlayers(){
   const now=Date.now(),updates={};updates['globalBans/'+uid+'/active']=false;updates['globalBans/'+uid+'/revokedAt']=now;updates[moderationPath()+'/bans/'+uid+'/revokedAt']=now;updates[moderationPath()+'/bans/'+uid+'/revokedBy']=adminUid;
   db.ref().update(updates).then(()=>audit('ban_revoked',{uid})).catch(e=>alert('Unban failed: '+e.message));
  }
- function requestKick(roomId,role,uid){
-  if(!confirm('Kick this player from room '+roomId+'? Their current room presence and matchmaking entries will be removed. They may reconnect until game-client enforcement is added.'))return;
-  const updates={};updates['bagchalRooms/'+roomId+'/presence/'+role]=null;
-  if(uid){updates['bagchalRandomMatchQueue/'+uid]=null;updates['bagchalMatchmaking/'+uid]=null;}
-  updates[moderationPath()+'/kickRequests/'+roomId+'_'+role+'_'+Date.now()]={roomId,role,uid:uid||'',by:adminUid,at:Date.now(),status:'presence_removed'};
-  db.ref().update(updates).then(()=>audit('kick_requested',{roomId,role,uid:uid||''})).then(()=>$('room-refresh-status').textContent='KICK REQUEST RECORDED').catch(e=>alert('Kick request failed: '+e.message));
+ async function requestKick(roomId,role,uid){
+  if(!roomId||!role||!adminUid||!db)return;
+  if(!confirm('Kick this player from room '+roomId+'? Their room presence and matching queue entries will be removed. They may reconnect unless game-client kick enforcement is enabled.'))return;
+  const status=$('room-refresh-status');status.textContent='KICKING PLAYER…';
+  try{
+   const [roomSnap,randomSnap,matchSnap]=await Promise.all([
+    db.ref('bagchalRooms/'+roomId).once('value'),
+    db.ref('bagchalRandomMatchQueue').once('value'),
+    db.ref('bagchalMatchmaking').once('value')
+   ]);
+   const room=roomSnap.val()||{},presence=room.presence||{},roles=[];
+   Object.entries(presence).forEach(([r,p])=>{if(r===role||uid&&p&&p.uid===uid)roles.push(r);});
+   if(!roles.includes(role))roles.push(role);
+   const updates={},now=Date.now();
+   roles.forEach(r=>{updates['bagchalRooms/'+roomId+'/presence/'+r]=null;});
+   const removeMatching=(snap,path)=>{
+    const data=snap.val()||{};
+    Object.entries(data).forEach(([key,value])=>{
+     if((uid&&key===uid)||(uid&&value&&typeof value==='object'&&value.uid===uid)){
+      updates[path+'/'+key]=null;
+     }
+    });
+   };
+   removeMatching(randomSnap,'bagchalRandomMatchQueue');
+   removeMatching(matchSnap,'bagchalMatchmaking');
+   const requestId=roomId+'_'+role+'_'+now;
+   updates[moderationPath()+'/kickRequests/'+requestId]={roomId,role,roles,uid:uid||'',by:adminUid,at:now,status:'presence_removed'};
+   await db.ref().update(updates);
+   await audit('kick_requested',{roomId,role,roles,uid:uid||''});
+   status.textContent='KICKED · ROOM PRESENCE REMOVED';
+   renderRooms();
+   renderPlayers();
+  }catch(e){
+   status.textContent='KICK ERROR';
+   alert('Could not kick player: '+e.message+' Check Super Admin database permissions for bagchalRooms, bagchalRandomMatchQueue and bagchalMatchmaking.');
+  }
  }
 function renderQueue(data){
  const el=$('queue-list'),entries=Object.entries(data||{}).map(([id,v])=>({id,...(v||{})}));
