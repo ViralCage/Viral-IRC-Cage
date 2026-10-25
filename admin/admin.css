@@ -164,3 +164,22 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-board-face{display:grid;place-items:center;min-width:0}
 .spectator-board-face .spectator-board-wrap{width:100%}
 @media(max-width:520px){.spectator-player-rail{padding:8px 4px}.spectator-player-card{min-width:75%;padding:9px 14px}}
+
+
+/* Preserve camera transforms after adding player seats around the board */
+.spectator-board-face>.spectator-grid,
+.spectator-board-face>.dots-board,
+.spectator-board-face:hover>.spectator-grid,
+.spectator-board-face:hover>.dots-board{
+ transform:rotateX(var(--view-tilt,17deg)) rotateZ(var(--view-rotation,0deg)) scale(var(--view-zoom,.94));
+ transform-origin:50% 50%;
+ transform-style:preserve-3d;
+ filter:drop-shadow(0 22px 13px #000b);
+ transition:transform .45s cubic-bezier(.2,.75,.25,1),filter .35s ease;
+}
+.spectator-panel:fullscreen .spectator-board-face>.spectator-grid{width:min(76vh,76vw);max-width:900px}
+.spectator-panel:fullscreen .spectator-board-face>.dots-board{width:min(76vh,76vw);max-width:900px}
+@media(max-width:600px){
+ .spectator-panel:fullscreen .spectator-board-face>.spectator-grid,
+ .spectator-panel:fullscreen .spectator-board-face>.dots-board{width:min(88vw,68vh)}
+}
