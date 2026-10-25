@@ -2375,6 +2375,8 @@ body {
     let tttTurn = 'X';
     let tttWinner = null;
     let onlineGameType = 'baghchal';
+    // The category tab is only a view filter; changing it must not launch a game.
+    let activeModeTab = 'online';
     let dotsBoxesState = { edges: Array(40).fill(false), boxes: Array(16).fill(''), turn: 'X', scores: { X: 0, O: 0 }, winner: null };
     let baghAiMoveTimer = null;
     let onlineGameTypeListener = null;
@@ -5501,81 +5503,21 @@ body {
     function syncModeCardUI() {
         const selector = document.getElementById('gameSelection');
         const selected = selector ? selector.value : 'online';
+        const selectedIsAi = selected.startsWith('ai-');
         document.querySelectorAll('#bagchal-blogger-container [data-game-mode]').forEach(card => {
             const active = card.getAttribute('data-game-mode') === selected;
             card.classList.toggle('active', active);
             card.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
-        const isAi = selected.startsWith('ai-');
         document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
-            const active = tab.getAttribute('data-mode-tab') === (isAi ? 'ai' : 'online');
-            tab.classList.toggle('active', active); tab.setAttribute('aria-pressed', active ? 'true' : 'false');
-        });
-        const onlineGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="online"]');
-        const aiGrid = document.querySelector('#bagchal-blogger-container [data-mode-group="ai"]');
-        const onlineLabel = document.querySelector('#bagchal-blogger-container .vc-mode-section-label:not(.vc-ai-label)');
-        const aiLabel = document.querySelector('#bagchal-blogger-container .vc-ai-label');
-        if (onlineGrid) onlineGrid.hidden = isAi;
-        if (onlineLabel) onlineLabel.hidden = isAi;
-        if (aiGrid) aiGrid.hidden = !isAi;
-        if (aiLabel) aiLabel.hidden = !isAi;
-        const activeCard = document.querySelector('#bagchal-blogger-container [data-game-mode="' + selected + '"]');
-        const name = activeCard ? activeCard.querySelector('strong').textContent : 'Game';
-        const description = isAi ? 'Strongest AI' : 'Online multiplayer';
-        const current = document.getElementById('vcModeCurrentText');
-        if (current) current.textContent = name + ' · ' + description;
-        const arenaLabel = document.getElementById('vcArenaGameLabel');
-        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (isAi ? 'Play vs AI' : 'Online multiplayer');
-    }
-
-    function syncGameSelection() {
-        const mode = document.getElementById('gameMode').value;
-        const level = document.getElementById('aiLevel').value;
-        const selector = document.getElementById('gameSelection');
-        if (selector) selector.value = mode === 'online' ? (onlineGameType === 'baghchal' ? 'online' : 'online-' + onlineGameType) : ((mode === 'ai-tiger' || mode === 'ai-goat') ? mode + '-' + level : mode);
-        const picker=document.getElementById('onlineGameType'); if(picker) picker.value=onlineGameType;
-        (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncRoomGameIcons();
-    syncModeCardUI();
-    }
-
-    document.querySelectorAll('#bagchal-blogger-container [data-game-mode]').forEach(card => {
-        card.addEventListener('click', () => {
-            const selector = document.getElementById('gameSelection');
-            if (!selector) return;
-            const selectedMode = card.getAttribute('data-game-mode');
-            selector.value = selectedMode;
-            // Always initialize BaghChal AI cards at the strongest level and
-            // synchronize both selectors before the game-mode change is handled.
-            if (selectedMode === 'ai-tiger-hardest' || selectedMode === 'ai-goat-hardest') {
-                const aiSide = selectedMode === 'ai-tiger-hardest' ? 'ai-tiger' : 'ai-goat';
-                const levelPicker = document.getElementById('aiLevel');
-                const modePicker = document.getElementById('gameMode');
-                if (levelPicker) levelPicker.value = 'hardest';
-                if (modePicker) modePicker.value = aiSide;
-                state.difficulty = 'hardest';
-            }
-            selector.dispatchEvent(new Event('change', { bubbles: true }));
-            (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncModeCardUI();
-        });
-    });
-    document.querySelectorAll('#bagchal-blogger-container [data-mode-tab]').forEach(tab => {
         tab.addEventListener('click', () => {
-            const showAi = tab.getAttribute('data-mode-tab') === 'ai';
-            const grid = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"]');
-            if (grid && !grid.hidden) {
-                (function populateOnlineGameChoices(){const el=document.getElementById('onlineGameType');if(el&&!el.options.length){[['baghchal','BaghChal'],['tictactoe','Tic-Tac-Toe'],['dotsboxes','Dots & Boxes'],['checkers','Checkers'],['fourconnect','Four Connect'],['chess','Chess']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;el.appendChild(o);});el.value=onlineGameType;}})();
-    syncModeCardUI();
-                return;
-            }
-            const firstCard = document.querySelector('#bagchal-blogger-container [data-mode-group="' + (showAi ? 'ai' : 'online') + '"] [data-game-mode]');
-            if (firstCard) firstCard.click();
+            activeModeTab = tab.getAttribute('data-mode-tab') === 'ai' ? 'ai' : 'online';
+            syncModeCardUI();
         });
     });
-
     document.getElementById('gameSelection').addEventListener('change', (e) => {
         const value = e.target.value;
+        activeModeTab = value.startsWith('ai-') ? 'ai' : 'online';
         if (value === 'online' || value === 'online-tictactoe' || value === 'online-dotsboxes' || value === 'online-checkers' || value === 'online-fourconnect' || value === 'online-chess') {
             const type = value === 'online-tictactoe' ? 'tictactoe' : (value === 'online-dotsboxes' ? 'dotsboxes' : (value === 'online-checkers' ? 'checkers' : (value === 'online-fourconnect' ? 'fourconnect' : (value === 'online-chess' ? 'chess' : 'baghchal'))));
             onlineGameType = type;
