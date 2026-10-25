@@ -100,15 +100,13 @@
         </div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">MODERATION</span></div>
-        <label class="field-label" for="ban-target">Nickname, player ID or IP</label>
-        <input id="ban-target" placeholder="Enter exact player identifier" disabled>
-        <label class="field-label" for="ban-reason">Reason</label>
-        <select id="ban-reason" disabled><option>Select a reason</option><option>Harassment</option><option>Cheating</option><option>Disrupting games</option><option>Other violation</option></select>
-        <label class="field-label" for="ban-duration">Duration</label>
-        <select id="ban-duration" disabled><option>24 hours</option><option>1 hour</option><option>7 days</option><option>Permanent</option></select>
-        <button class="button button-danger full" disabled>Ban player — unavailable</button>
-        <p class="fine-print">Moderation actions are disabled on Spark. A trusted server must enforce bans; browser-only controls are not secure.</p>
+        <div class="panel-head"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Ban management</h2></div><span class="pill">ADMIN RECORDS</span></div>
+        <label class="field-label" for="ban-target">Player UID</label><input id="ban-target" autocomplete="off" placeholder="Paste exact Firebase player UID">
+        <label class="field-label" for="ban-reason">Reason</label><select id="ban-reason"><option value="">Select a reason</option><option>Cheating</option><option>Harassment</option><option>Disrupting games</option><option>Exploiting bugs</option><option>Other violation</option></select>
+        <label class="field-label" for="ban-duration">Duration</label><select id="ban-duration"><option value="3600000">1 hour</option><option value="86400000" selected>24 hours</option><option value="604800000">7 days</option><option value="2592000000">30 days</option><option value="0">Permanent (until manually unbanned)</option></select>
+        <button class="button button-danger full" id="ban-submit" type="button">Record ban</button>
+        <p class="fine-print">Records are saved to this Super Admin account. Current Spark game clients do not check these records, so this alone cannot block reconnects. Full enforcement requires game-client support or a trusted backend.</p>
+        <div class="moderation-list-head"><b>Ban records</b><span id="ban-record-status">Loading…</span></div><div id="ban-record-list" class="data-list"><div class="empty">No ban records loaded.</div></div>
       </article>
     </section>
 
