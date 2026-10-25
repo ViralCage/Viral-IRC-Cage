@@ -6,7 +6,7 @@ const form=$('admin-login-form'),email=$('admin-email'),password=$('admin-passwo
 let auth=null,db=null,unsubs=[],players=[],rooms=[],adminUid=null,spectatorRef=null,spectatorHandler=null,inactiveRoomTimers=new Map(),activeSpectatorRoomId='',roomCodesById={},activeSpectatorRoomData=null;
 function msg(t,c){message.textContent=t;message.className='login-message'+(c?' '+c:'');}
 function state(t){status.innerHTML='<i></i> '+t;}
-function deny(){document.body.classList.remove('admin-authenticated');stopMonitoring();}
+function deny(){document.body.classList.remove('admin-authenticated');stopMonitoring();moderationBans={};if($('ban-count'))$('ban-count').textContent='—';if($('ban-record-list'))$('ban-record-list').innerHTML='<div class="empty">Sign in to load moderation records.</div>';}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
 function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
@@ -285,8 +285,48 @@ function renderPlayers(){
  if(!q){el.innerHTML='';return;}
  const shown=players.filter(p=>(p.name||'').toLowerCase().includes(q));
  if(!shown.length){el.innerHTML='<div class="empty"><b>No matching connected players</b><p>Only player names are searched.</p></div>';return;}
- el.innerHTML=shown.map(p=>'<article class="data-row"><div class="data-main"><b>'+esc(p.name)+'</b><span>'+esc(p.role)+' · Room '+esc(p.room)+'</span><small>UID: '+esc(p.uid||'Not provided')+'</small></div><span class="row-tag">CONNECTED</span></article>').join('');
+ el.innerHTML=shown.map(p=>'<article class="data-row"><div class="data-main"><b>'+esc(p.name)+'</b><span>'+esc(p.role)+' · Room '+esc(p.room)+'</span><small>UID: '+esc(p.uid||'Not provided')+'</small></div><div class="moderation-actions"><span class="row-tag">CONNECTED</span><button type="button" class="kick-player-button" data-kick-room="'+esc(p.room)+'" data-kick-role="'+esc(p.role)+'" data-kick-uid="'+esc(p.uid||'')+'">Kick request</button></div></article>').join('');
 }
+
+ const moderationPath=()=>adminUid?'adminData/'+adminUid+'/moderation':'';
+ let moderationBans={};
+ function renderBanRecords(){
+  const el=$('ban-record-list');if(!el)return;
+  const entries=Object.entries(moderationBans||{}).map(([uid,b])=>({uid,...(b||{})})).sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+  const now=Date.now(),active=entries.filter(x=>!x.revokedAt&&(!Number(x.expiresAt)||Number(x.expiresAt)>now));
+  if($('ban-count'))$('ban-count').textContent=String(active.length);
+  if($('ban-record-status'))$('ban-record-status').textContent=entries.length+' record(s)';
+  if(!entries.length){el.innerHTML='<div class="empty"><b>No moderation records</b><p>Ban records will appear here.</p></div>';return;}
+  el.innerHTML=entries.map(x=>{const inactive=!!x.revokedAt||(Number(x.expiresAt)>0&&Number(x.expiresAt)<=now);return '<article class="data-row"><div class="data-main"><b>'+esc(x.nickname||x.uid)+'</b><span>'+esc(x.reason||'No reason')+' · '+(inactive?'INACTIVE':'ACTIVE')+'</span><small>UID: '+esc(x.uid)+' · '+esc(x.durationLabel||'Unknown')+' · '+esc(x.createdAt?new Date(x.createdAt).toLocaleString():'Date unavailable')+'</small></div>'+(inactive?'':'<button type="button" class="unban-player-button" data-unban-uid="'+esc(x.uid)+'">Unban</button>')+'</article>';}).join('');
+ }
+ function watchModeration(){
+  if(!adminUid||!db)return;const ref=db.ref(moderationPath()+'/bans');
+  const handler=snap=>{moderationBans=snap.val()||{};renderBanRecords();};
+  ref.on('value',handler,err=>{if($('ban-record-status'))$('ban-record-status').textContent='Read error: '+err.message;});
+  unsubs.push(()=>ref.off('value',handler));
+ }
+ function durationLabel(ms){return ms===0?'Permanent':ms===3600000?'1 hour':ms===86400000?'24 hours':ms===604800000?'7 days':'30 days';}
+ function audit(action,details){return db.ref(moderationPath()+'/audit').push({action,details,by:adminUid,at:Date.now()});}
+ function createBan(){
+  const uid=$('ban-target').value.trim(),reason=$('ban-reason').value,duration=Number($('ban-duration').value);
+  if(!/^[A-Za-z0-9_-]{10,128}$/.test(uid)){alert('Enter a valid Firebase UID.');return;}
+  if(!reason){alert('Select a reason.');return;}if(!adminUid||!db){alert('Sign in as Super Admin first.');return;}
+  if(!confirm('Record a '+durationLabel(duration)+' ban for '+uid+'?'))return;
+  const p=players.find(x=>x.uid===uid),now=Date.now(),record={uid,nickname:p&&p.name||'',reason,durationMs:duration,durationLabel:durationLabel(duration),createdAt:now,expiresAt:duration?now+duration:0,revokedAt:0,createdBy:adminUid,enforcement:'ADMIN_RECORD_ONLY'};
+  const btn=$('ban-submit');btn.disabled=true;btn.textContent='Saving…';
+  db.ref(moderationPath()+'/bans/'+uid).set(record).then(()=>audit('ban_created',{uid,reason,durationMs:duration})).then(()=>{$('ban-target').value='';$('ban-reason').value='';$('ban-record-status').textContent='RECORD SAVED';}).catch(e=>alert('Save failed: '+e.message)).finally(()=>{btn.disabled=false;btn.textContent='Record ban';});
+ }
+ function revokeBan(uid){
+  if(!confirm('Revoke the ban record for '+uid+'?'))return;const ref=db.ref(moderationPath()+'/bans/'+uid);
+  ref.once('value').then(s=>{if(!s.exists())throw new Error('Record not found.');return ref.update({revokedAt:Date.now(),revokedBy:adminUid}).then(()=>audit('ban_revoked',{uid}));}).catch(e=>alert('Unban failed: '+e.message));
+ }
+ function requestKick(roomId,role,uid){
+  if(!confirm('Remove '+role+' presence from room '+roomId+'? The player may reconnect because the game client does not yet enforce kick commands.'))return;
+  const updates={};updates['bagchalRooms/'+roomId+'/presence/'+role]=null;
+  if(uid){updates['bagchalRandomMatchQueue/'+uid]=null;updates['bagchalMatchmaking/'+uid]=null;}
+  updates[moderationPath()+'/kickRequests/'+roomId+'_'+role+'_'+Date.now()]={roomId,role,uid:uid||'',by:adminUid,at:Date.now(),status:'presence_removed_client_enforcement_required'};
+  db.ref().update(updates).then(()=>audit('kick_requested',{roomId,role,uid:uid||''})).then(()=>$('room-refresh-status').textContent='KICK REQUEST RECORDED').catch(e=>alert('Kick request failed: '+e.message));
+ }
 function renderQueue(data){
  const el=$('queue-list'),entries=Object.entries(data||{}).map(([id,v])=>({id,...(v||{})}));
  if(!entries.length){el.innerHTML='<div class="empty"><b>Queue is empty</b><p>No matchmaking entries are currently visible.</p></div>';return;}
@@ -333,7 +373,7 @@ function startMonitoring(){
  const savedRoom=new URLSearchParams(window.location.search).get('watch');
  if(savedRoom)watchRoom(savedRoom);
 }
-function verify(user){return user.getIdTokenResult(true).then(result=>{if(result.claims.superAdmin!==true){deny();return auth.signOut().then(()=>{throw new Error('This account does not have Super Admin permission.');});}document.body.classList.add('admin-authenticated');state('SUPER ADMIN');msg('Authorized administrator session active. Game data remains read only.','success');startMonitoring();return user;});}
+function verify(user){return user.getIdTokenResult(true).then(result=>{if(result.claims.superAdmin!==true){deny();return auth.signOut().then(()=>{throw new Error('This account does not have Super Admin permission.');});}adminUid=user.uid;document.body.classList.add('admin-authenticated');state('SUPER ADMIN');msg('Authorized administrator session active. Game data remains read only.','success');startMonitoring();watchModeration();return user;});}
 try{if(!window.firebase)throw new Error('Firebase SDK did not load.');if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.database();auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);auth.onAuthStateChanged(user=>{if(!user){deny();state('SIGNED OUT');return;}state('VERIFYING ACCESS');verify(user).catch(e=>{msg(e.message||'Admin access denied.','error');state('ACCESS DENIED');});});}catch(e){msg(e.message||'Could not initialize Firebase.','error');state('LOGIN UNAVAILABLE');}
 googleButton.addEventListener('click',()=>{if(!auth){msg('Firebase login is unavailable.','error');return;}googleButton.disabled=true;googleButton.textContent='Connecting to Google…';msg('Checking administrator permission…');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(provider).then(verify).catch(e=>msg(e.message||'Google sign-in failed.','error')).finally(()=>{googleButton.disabled=false;googleButton.innerHTML='<span class="google-g" aria-hidden="true">G</span> Continue with Google';});});
 form.addEventListener('submit',e=>{e.preventDefault();if(!auth){msg('Firebase login is unavailable.','error');return;}button.disabled=true;button.textContent='Signing in…';msg('Checking administrator permission…');auth.signInWithEmailAndPassword(email.value.trim(),password.value).then(verify).catch(e=>msg(e.message||'Sign-in failed.','error')).finally(()=>{button.disabled=false;button.textContent='Sign in with email';password.value='';});});
@@ -341,6 +381,9 @@ $('spectator-meta').addEventListener('click',e=>{const copy=e.target.closest('.c
 $('room-list').addEventListener('click',e=>{const copy=e.target.closest('.copy-room-code-button');if(copy){const code=copy.getAttribute('data-copy-room')||'';if(code&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(()=>{copy.textContent='Copied';setTimeout(()=>{if(copy.isConnected)copy.textContent='Copy code';},1400);}).catch(()=>{window.prompt('Copy room code:',code);});}else if(code){window.prompt('Copy room code:',code);}return;}const watch=e.target.closest('.watch-room-button');if(watch){const id=watch.getAttribute('data-watch-room');if(id)watchRoom(id);return;}const btn=e.target.closest('.delete-room-button');if(!btn)return;const roomId=btn.getAttribute('data-room-id');if(!roomId||!adminUid||!db)return;if(!window.confirm('Permanently delete room "'+roomId+'"? This cannot be undone.'))return;btn.disabled=true;btn.textContent='Deleting…';db.ref('bagchalRooms/'+roomId).remove().then(()=>{$('room-refresh-status').textContent='ROOM DELETED';}).catch(err=>{btn.disabled=false;btn.textContent='Delete room';$('room-refresh-status').textContent='DELETE ERROR';window.alert('Could not delete room: '+err.message);});});
 $('player-search-button').addEventListener('click',renderPlayers);
 $('player-search').addEventListener('input',renderPlayers);
+ $('ban-submit')?.addEventListener('click',createBan);
+ $('ban-record-list')?.addEventListener('click',e=>{const b=e.target.closest('[data-unban-uid]');if(b)revokeBan(b.getAttribute('data-unban-uid'));});
+ $('player-results')?.addEventListener('click',e=>{const b=e.target.closest('.kick-player-button');if(b)requestKick(b.getAttribute('data-kick-room'),b.getAttribute('data-kick-role'),b.getAttribute('data-kick-uid'));});
 let spectatorRotation=0,spectatorTilt=17,spectatorZoom=.94;
 const spectatorStage=$('spectator-data');
 function applySpectatorCamera(){
