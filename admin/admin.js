@@ -121,7 +121,7 @@ function observeCommentary(room){
   commentatorSay(en,'intro',{en});return;
  }
  if(cur.winner&&cur.winner!==prev.winner){
-  const winner=commentatorName(room,cur.winner);
+  const winner=commentatorMover(room,cur.winner,1,cur.type,cur.data,cur.data);
   const en='What a finish! '+winner+' wins the '+cur.type+' match! A fantastic performance. Congratulations!';
   commentatorSay(en,'win',{en});fireworkBurst();return;
  }
