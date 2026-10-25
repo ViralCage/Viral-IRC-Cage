@@ -329,10 +329,11 @@ $('player-search').addEventListener('input',renderPlayers);
 let spectatorRotation=0,spectatorTilt=17,spectatorZoom=.94;
 const spectatorStage=$('spectator-data');
 function applySpectatorCamera(){
- spectatorStage.style.setProperty('--view-rotation',spectatorRotation+'deg');
+ spectatorStage.style.setProperty('--view-yaw',spectatorRotation+'deg');
+ spectatorStage.style.setProperty('--view-rotation','0deg');
  spectatorStage.style.setProperty('--view-tilt',spectatorTilt+'deg');
  spectatorStage.style.setProperty('--view-zoom',spectatorZoom);
- spectatorStage.style.setProperty('--view-perspective',spectatorTilt>=45?'2400px':spectatorTilt>=30?'1700px':'1200px');
+ spectatorStage.style.setProperty('--view-perspective', '1400px');
  document.querySelectorAll('[data-spectator-action="tilt-3d"]').forEach(btn=>btn.setAttribute('aria-pressed',String(spectatorTilt===17)));
 }
 $('spectator-panel')?.addEventListener('click',e=>{
@@ -341,8 +342,10 @@ $('spectator-panel')?.addEventListener('click',e=>{
  const control=e.target.closest('[data-spectator-action]');
  if(!control)return;
  const action=control.getAttribute('data-spectator-action');
- if(action==='rotate-left')spectatorRotation=(spectatorRotation-45+360)%360;
- else if(action==='rotate-right')spectatorRotation=(spectatorRotation+45)%360;
+ if(action==='rotate-left')spectatorRotation-=45;
+ else if(action==='rotate-right')spectatorRotation+=45;
+ else if(action==='rotate-up')spectatorTilt-=45;
+ else if(action==='rotate-down')spectatorTilt+=45;
  else if(action==='tilt-3d')spectatorTilt=17;
  else if(action==='zoom-in')spectatorZoom=Math.min(1.2,+(spectatorZoom+.08).toFixed(2));
  else if(action==='zoom-out')spectatorZoom=Math.max(.72,+(spectatorZoom-.08).toFixed(2));
