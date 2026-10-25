@@ -2068,21 +2068,6 @@ body {
   display: inline-block !important;
 }
 
-    /* Keep the active room code beside the VC logo in the top-right corner. */
-    #bagchal-blogger-container .game-topbar { display:flex !important; justify-content:space-between !important; align-items:center !important; gap:10px !important; padding-right:2px !important; }
-    #bagchal-blogger-container .game-topbar #roomCodeDisplay { flex:0 1 auto; min-width:0; max-width:52%; margin:0 !important; padding:7px 9px !important; justify-content:flex-end !important; gap:7px !important; }
-    #bagchal-blogger-container .game-topbar #roomCodeDisplay span:first-child { font-size:10px !important; white-space:nowrap; }
-    #bagchal-blogger-container .game-topbar #roomCodeText { font-size:clamp(15px,2.4vw,21px) !important; letter-spacing:.13em !important; }
-    #bagchal-blogger-container .game-topbar #copyRoomCodeBtn { width:32px !important; height:32px !important; min-width:32px !important; }
-    #bagchal-blogger-container .game-topbar #copyRoomCodeStatus { font-size:10px !important; }
-    @media(max-width:520px) {
-      #bagchal-blogger-container .game-topbar { gap:6px !important; min-height:56px !important; }
-      #bagchal-blogger-container .vc-brand-lockup { width:min(46%,210px) !important; }
-      #bagchal-blogger-container .game-topbar #roomCodeDisplay { max-width:52%; padding:5px 6px !important; gap:5px !important; }
-      #bagchal-blogger-container .game-topbar #roomCodeDisplay span:first-child { font-size:9px !important; }
-      #bagchal-blogger-container .game-topbar #roomCodeText { font-size:15px !important; letter-spacing:.1em !important; }
-      #bagchal-blogger-container .game-topbar #copyRoomCodeBtn { width:28px !important; height:28px !important; min-width:28px !important; }
-    }
     </style>
 
     <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg?v=3" sizes="any">
@@ -2094,12 +2079,7 @@ body {
         <a class="vc-brand-lockup" href="/" aria-label="VC Play home">
             <img class="vc-header-logo" src="/assets/vc-play-header-logo-exact.svg?v=4" alt="Crowned VC monogram with PLAY wordmark" width="360" height="88">
         </a>
-        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
-            <span style="font-size:13px; color:#4a5568;">Room code:</span>
-            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
-            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
-            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
-        </div>
+
     </div>
 
     <div class="status-board">
@@ -2221,6 +2201,12 @@ body {
         </div>
 
         <div id="onlineStatus" role="status" style="font-size:13px; color:#2d3748;"></div>
+        <div id="roomCodeDisplay" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0; padding:10px; background:#fff; border:1px solid #cbd5e0; border-radius:8px;">
+            <span style="font-size:13px; color:#4a5568;">Room code:</span>
+            <strong id="roomCodeText" style="font-size:22px; letter-spacing:3px; color:#1a202c; user-select:all;">----</strong>
+            <button id="copyRoomCodeBtn" data-tooltip="Copy share link" aria-label="Copy share link" title="Copy share link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span class="vc-sr-only">Copy Share Link</span></button>
+            <span id="copyRoomCodeStatus" aria-live="polite" style="font-size:12px; color:#276749;"></span>
+        </div>
         
     </div>
 
