@@ -336,6 +336,12 @@ function applySpectatorCamera(){
  spectatorStage.style.setProperty('--view-perspective', '1400px');
  document.querySelectorAll('[data-spectator-action="tilt-3d"]').forEach(btn=>btn.setAttribute('aria-pressed',String(spectatorTilt===17)));
 }
+const spectatorToolbar=document.querySelector('.spectator-toolbar');
+if(spectatorToolbar&&!spectatorToolbar.querySelector('[data-spectator-action="rotate-up"]')){
+ const verticalButton=(action,label,aria)=>{const button=document.createElement('button');button.type='button';button.className='button button-muted';button.dataset.spectatorAction=action;button.setAttribute('aria-label',aria);button.textContent=label;return button;};
+ const rightButton=spectatorToolbar.querySelector('[data-spectator-action="rotate-right"]');
+ if(rightButton){rightButton.after(verticalButton('rotate-down','Vertical ↓','Rotate board top to bottom'),verticalButton('rotate-up','Vertical ↑','Rotate board bottom to top'));}
+}
 $('spectator-panel')?.addEventListener('click',e=>{
  if(e.target.closest('#commentator-audio')){setCommentatorAudio();return;}
  if(e.target.closest('#commentator-language'))return;
