@@ -22,7 +22,7 @@ function presenceFor(room){
 }
 function renderRooms(){
  const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No rooms found</b><p>No room records were returned from bagchalRooms.</p></div>';return;}
- el.innerHTML=rooms.map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · ')+'</small></div><span class="row-tag">'+esc(r.type||'ROOM')+'</span></article>').join('');
+ el.innerHTML=rooms.map(r=>'<article class="data-row"><div class="data-main"><b>'+esc(r.id)+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span><button class="delete-room-button" type="button" data-room-id="'+esc(r.id)+'">Delete room</button></div></article>').join('');
 }
 function renderPlayers(){
  const q=($('player-search').value||'').trim().toLowerCase(),shown=players.filter(p=>!q||(p.name+' '+p.uid+' '+p.room+' '+p.role).toLowerCase().includes(q));
@@ -44,10 +44,10 @@ function startMonitoring(){
   Object.entries(data).forEach(([id,room])=>{
    if(!room||typeof room!=='object')return;
    const present=presenceFor(room);
-   if(present.length){rooms.push({id,players:present,game:room.activeGameType||room.game&&room.game.type||'BaghChal',type:'ACTIVE'});present.forEach(p=>players.push({...p,room:id}));}
+   rooms.push({id,players:present,active:present.length>0,game:room.activeGameType||room.game&&room.game.type||'BaghChal'});if(present.length)present.forEach(p=>players.push({...p,room:id}));
   });
   $('online-count').textContent=String(new Set(players.map(p=>p.uid||p.room+':'+p.role)).size);
-  $('room-count').textContent=String(rooms.length);
+  $('room-count').textContent=String(rooms.filter(r=>r.active).length);
   $('room-refresh-status').textContent='LIVE';
   renderRooms();renderPlayers();
  },err=>{ $('room-refresh-status').textContent='ERROR';$('connection-title').textContent='Database read blocked';$('connection-detail').textContent=err.message+' Check Realtime Database rules for authorized admins.';});
@@ -61,6 +61,7 @@ try{if(!window.firebase)throw new Error('Firebase SDK did not load.');if(!fireba
 googleButton.addEventListener('click',()=>{if(!auth){msg('Firebase login is unavailable.','error');return;}googleButton.disabled=true;googleButton.textContent='Connecting to Google…';msg('Checking administrator permission…');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(provider).then(verify).catch(e=>msg(e.message||'Google sign-in failed.','error')).finally(()=>{googleButton.disabled=false;googleButton.innerHTML='<span class="google-g" aria-hidden="true">G</span> Continue with Google';});});
 form.addEventListener('submit',e=>{e.preventDefault();if(!auth){msg('Firebase login is unavailable.','error');return;}button.disabled=true;button.textContent='Signing in…';msg('Checking administrator permission…');auth.signInWithEmailAndPassword(email.value.trim(),password.value).then(verify).catch(e=>msg(e.message||'Sign-in failed.','error')).finally(()=>{button.disabled=false;button.textContent='Sign in with email';password.value='';});});
 $('admin-note-form').addEventListener('submit',e=>{e.preventDefault();if(!adminRoot){adminStatus('Admin database is not ready. Sign in again.',true);return;}const title=$('admin-note-title').value.trim(),body=$('admin-note-body').value.trim(),save=$('save-admin-note');if(!title||!body)return;save.disabled=true;save.textContent='Saving…';adminRoot.child('notes').push({title,body,at:firebase.database.ServerValue.TIMESTAMP,createdBy:adminUid}).then(()=>logAdminAction('Private note saved',title)).then(()=>{$('admin-note-form').reset();adminStatus('Private note saved successfully.');}).catch(err=>adminStatus('Save failed: '+err.message,true)).finally(()=>{save.disabled=false;save.textContent='Save private note';});});
+$('room-list').addEventListener('click',e=>{const btn=e.target.closest('.delete-room-button');if(!btn)return;const roomId=btn.getAttribute('data-room-id');if(!roomId||!adminUid||!db)return;if(!window.confirm('Permanently delete room "'+roomId+'"? This cannot be undone.'))return;btn.disabled=true;btn.textContent='Deleting…';db.ref('bagchalRooms/'+roomId).remove().then(()=>logAdminAction('Room deleted',roomId)).then(()=>adminStatus('Room '+roomId+' deleted. Room-code records, if any, were not changed.',false)).catch(err=>{btn.disabled=false;btn.textContent='Delete room';adminStatus('Could not delete room: '+err.message,true);});});
 $('player-search-button').addEventListener('click',renderPlayers);
 $('player-search').addEventListener('input',renderPlayers);
 window.addEventListener('beforeunload',stopMonitoring);
