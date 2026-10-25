@@ -299,3 +299,48 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-panel:fullscreen .spectator-board-face>.dots-board-shell{width:min(76vh,76vw);max-width:900px}
 @media(max-width:600px){.spectator-panel:fullscreen .spectator-board-face>.dots-board-shell{width:min(88vw,68vh)}}
 @media(prefers-reduced-motion:reduce){.spectator-board-face>.dots-board-shell{transition:none}}
+
+
+/* Premium tournament chess spectator board */
+.chess-stage{width:min(100%,620px);display:grid;justify-items:center;gap:14px;margin:0 auto;padding:12px 8px 20px}
+.chess-board-frame{width:min(100%,560px);padding:clamp(8px,1.8vw,15px);border-radius:18px;background:linear-gradient(145deg,#d8c49c,#6e5537 22%,#2b211a 70%,#9a7748);box-shadow:inset 0 2px 3px #fff8,inset 0 -5px 10px #130d08,0 8px 0 #17110e,0 20px 30px #000b;transform:translateZ(0)}
+.chess-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));aspect-ratio:1;overflow:hidden;border:2px solid #33251b;border-radius:4px;box-shadow:inset 0 0 0 2px #f1dfbd55}
+.chess-tile{position:relative;display:grid;place-items:center;min-width:0;aspect-ratio:1;isolation:isolate}
+.chess-light{background:linear-gradient(145deg,#f3e8d2,#c8ad83)}
+.chess-dark{background:linear-gradient(145deg,#846348,#493323)}
+.chess-tile.last-move:after{content:"";position:absolute;inset:0;background:#e9c44b55;box-shadow:inset 0 0 0 2px #ffe28c99;z-index:-0}
+.chess-piece{position:relative;z-index:1;display:grid;place-items:center;width:94%;height:94%;font-family:"DejaVu Sans","Segoe UI Symbol",serif;font-size:clamp(25px,5.4vw,54px);line-height:1;transform:translateY(-3%);user-select:none}
+.piece-white{color:#fffaf0;-webkit-text-stroke:1px #51402d;text-shadow:0 1px 0 #fff,0 3px 0 #a99a80,0 6px 7px #21170eaa;filter:drop-shadow(0 2px 1px #fff8)}
+.piece-black{color:#20242c;-webkit-text-stroke:1px #d2c3a9;text-shadow:0 1px 0 #77808d,0 3px 0 #090b10,0 6px 7px #000b}
+.chess-rank,.chess-file{position:absolute;z-index:2;font:800 clamp(8px,1.2vw,11px)/1 system-ui,sans-serif;color:#5a422b;text-shadow:0 1px #fff8}
+.chess-rank{top:4px;left:5px}.chess-file{right:5px;bottom:4px}
+.chess-dark .chess-rank,.chess-dark .chess-file{color:#f4e4c9;text-shadow:0 1px #21170e}
+.chess-legend{display:flex;justify-content:center;gap:20px;color:#dce4f4;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.chess-legend span{display:flex;align-items:center;gap:7px}.chess-legend i{width:11px;height:11px;border-radius:50%;box-shadow:0 2px 4px #0008}.legend-white{background:#f6ead5}.legend-black{background:#252a34}
+.spectator-board-face>.chess-stage{width:min(100%,650px);transform:rotateX(var(--view-tilt,17deg)) rotateZ(var(--view-rotation,0deg)) scale(var(--view-zoom,.94));transform-origin:50% 50%;transform-style:preserve-3d;filter:drop-shadow(0 22px 13px #000b);transition:transform .45s ease}
+.spectator-panel:fullscreen .spectator-board-face>.chess-stage{width:min(78vh,78vw);max-width:850px}
+@media(max-width:600px){.chess-stage{padding:8px 2px}.chess-board-frame{padding:7px;border-radius:12px}.chess-piece{font-size:clamp(22px,7.8vw,42px)}.spectator-panel:fullscreen .spectator-board-face>.chess-stage{width:min(90vw,70vh)}}
+
+/* Accurate 4x4 Dots & Boxes geometry: 7x7 node/edge/box matrix */
+.dots-arena{width:min(100%,600px);display:grid;gap:18px;margin:0 auto;padding:14px 8px 22px}
+.dots-board-shell{width:100%;aspect-ratio:1;padding:clamp(12px,3vw,25px);border:1px solid #6682b8;border-radius:18px;background:linear-gradient(145deg,#263a62,#111b31 58%,#080f1d);box-shadow:inset 0 2px 0 #ffffff2b,inset 0 -12px 24px #0008,0 8px 0 #080d18,0 22px 32px #000b;transform-style:preserve-3d}
+.dots-board-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(7,minmax(0,1fr));align-items:stretch;justify-items:stretch;transform-style:preserve-3d}
+.dots-node{align-self:center;justify-self:center;width:clamp(9px,2.2vw,16px);height:clamp(9px,2.2vw,16px);border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#b8d8ff 42%,#4d6f9f 78%);border:1px solid #e1efff;box-shadow:0 2px 0 #36527c,0 5px 8px #000b;z-index:3}
+.dots-edge{position:relative;display:grid;place-items:center;min-width:0;min-height:0}
+.dots-edge span{display:block;border-radius:8px;background:linear-gradient(180deg,#3d4e6c,#1b2940);box-shadow:inset 0 1px 0 #ffffff26,0 3px 0 #070d18,0 5px 7px #0009;transition:background .2s,box-shadow .2s}
+.dots-edge-h span{width:100%;height:clamp(6px,1.2vw,10px)}
+.dots-edge-v span{width:clamp(6px,1.2vw,10px);height:100%}
+.dots-edge.edge-on span{background:linear-gradient(180deg,#b9ddff,#4c96ed 55%,#2860aa);box-shadow:inset 0 1px 0 #ffffffb0,0 3px 0 #153b70,0 6px 9px #000a;filter:drop-shadow(0 0 5px #5daaff88)}
+.dots-box{display:grid;place-items:center;min-width:0;min-height:0;border-radius:5px;background:#0b1425aa;box-shadow:inset 0 0 10px #0008;overflow:hidden}
+.dots-box.box-claimed{border:1px solid #ffffff28}
+.dots-box.box-x{background:linear-gradient(145deg,#e15a72aa,#76263eaa);box-shadow:inset 0 2px 8px #ffd4dc55,0 0 12px #df4d6d33}
+.dots-box.box-o{background:linear-gradient(145deg,#4d9df0aa,#214d8aaa);box-shadow:inset 0 2px 8px #d8ebff55,0 0 12px #4299ef33}
+.dots-box span{max-width:100%;padding:2px;color:#fff;font-size:clamp(7px,1.15vw,12px);font-weight:900;text-align:center;line-height:1.05;overflow-wrap:anywhere;text-shadow:0 2px 3px #000}
+.dots-scorebar{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.dots-score{min-width:120px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 14px;border:1px solid #526b95;border-radius:12px;background:linear-gradient(145deg,#1b2942,#0c1423);box-shadow:inset 0 1px #ffffff18,0 5px 12px #0007;color:#edf4ff}
+.dots-score strong{font-size:22px;font-variant-numeric:tabular-nums}.dots-score b{font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dots-score.score-x{border-color:#a54b62}.dots-score.score-o{border-color:#427db8}
+.spectator-board-face>.dots-arena{width:min(100%,650px);transform:rotateX(var(--view-tilt,17deg)) rotateZ(var(--view-rotation,0deg)) scale(var(--view-zoom,.94));transform-origin:50% 50%;transform-style:preserve-3d;filter:drop-shadow(0 22px 13px #000b);transition:transform .45s ease}
+.spectator-panel:fullscreen .spectator-board-face>.dots-arena{width:min(78vh,78vw);max-width:850px}
+@media(max-width:600px){.dots-arena{gap:12px;padding:8px 2px 14px}.dots-board-shell{padding:10px;border-radius:12px}.dots-score{min-width:105px;padding:8px 10px}.spectator-panel:fullscreen .spectator-board-face>.dots-arena{width:min(90vw,70vh)}}
+@media(prefers-reduced-motion:reduce){.spectator-board-face>.chess-stage,.spectator-board-face>.dots-arena{transition:none}}
