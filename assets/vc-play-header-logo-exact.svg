@@ -31,8 +31,8 @@
   <circle cx="65" cy="12" r="1.4" fill="#fff" opacity=".9"/>
 
   <!-- Wordmark -->
-  <text x="91" y="49" font-family="Orbitron, Rajdhani, Arial, sans-serif"
-        font-size="35" font-weight="900" letter-spacing="1.2" fill="url(#cyan)">VC</text>
+  <text x="91" y="49" font-family="Michroma, Orbitron, Arial, sans-serif"
+        font-size="31" font-weight="400" letter-spacing="2.4" fill="url(#cyan)">VC</text>
   <text x="151" y="49" font-family="Orbitron, Rajdhani, Arial, sans-serif"
         font-size="35" font-weight="900" letter-spacing="1.1" fill="url(#play)">PLAY</text>
   <path d="M93 58H286" stroke="url(#play)" stroke-width="1.2" stroke-linecap="round" opacity=".72"/>
