@@ -3010,7 +3010,7 @@ body {
     }
     function applyDotsEdge(stateObj, edgeIndex, mark) {
         if(edgeIndex<0||edgeIndex>=40||stateObj.edges[edgeIndex]) return false;
-        stateObj.edges[edgeIndex]=mark; let scored=0;
+        stateObj.edges[edgeIndex]=true; let scored=0;
         const completed=(r,c)=>{const top=r*4+c,bottom=(r+1)*4+c,left=20+r*5+c,right=left+1;return stateObj.edges[top]&&stateObj.edges[bottom]&&stateObj.edges[left]&&stateObj.edges[right];};
         for(let r=0;r<4;r++)for(let c=0;c<4;c++){const bi=r*4+c;if(!stateObj.boxes[bi]&&completed(r,c)){stateObj.boxes[bi]=mark;scored++;stateObj.scores[mark]++;}}
         if(!scored)stateObj.turn=mark==='X'?'O':'X';
@@ -3096,7 +3096,7 @@ body {
 
         if ((state.mode === 'ai-tiger' && state.turn === TIGER) || 
             (state.mode === 'ai-goat' && state.turn === GOAT)) {
-            scheduleBaghChalAiMove(400);
+            setTimeout(handleAILogic, 400);
         }
         if (state.mode === 'online' && onlineRoomRef && onlineRole && !onlineApplyingSnapshot) {
             publishOnlineState();
@@ -3146,7 +3146,7 @@ body {
             publishOnlineState();
         }
 
-        if (state.mode !== 'online') scheduleBaghChalAiMove(300);
+        if (state.mode !== 'online') setTimeout(handleAILogic, 300);
         else if (onlineAiOpponent && state.turn !== onlineRole) scheduleOnlineAiMove();
     }
 
@@ -3424,31 +3424,7 @@ body {
         const level = state.difficulty;
 
         if (level === 'hardest') {
-            let moved = false;
-            try {
-                moved = makeHardestMove();
-            } catch (error) {
-                console.error('BaghChal AI search failed; using a legal fallback move:', error);
-            }
-            // Never leave the game frozen if the search engine encounters a browser
-            // or position edge case. Apply one legal action as a safe fallback.
-            if (!moved) {
-                const actions = hardestGetActions(state.board, state.turn, state.goatsToPlace);
-                if (actions.length) {
-                    const action = actions[Math.floor(Math.random() * actions.length)];
-                    const next = hardestApply(state.board, action, state.goatsToPlace, state.goatsCaptured);
-                    state.board = next.board;
-                    state.goatsToPlace = next.goatsToPlace;
-                    state.goatsCaptured = next.goatsCaptured;
-                    moved = true;
-                }
-            }
-            if (!moved) {
-                checkGameStatus();
-                updateStatusUI();
-                drawBoard();
-                return;
-            }
+            makeHardestMove();
             checkGameStatus();
             if (!state.winner) {
                 state.turn = (state.turn === GOAT) ? TIGER : GOAT;
@@ -3457,7 +3433,7 @@ body {
                 drawBoard();
                 if ((state.mode === 'ai-tiger' && state.turn === TIGER) ||
                     (state.mode === 'ai-goat' && state.turn === GOAT)) {
-                    scheduleBaghChalAiMove(400);
+                    setTimeout(handleAILogic, 400);
                 }
             }
             return;
@@ -3868,7 +3844,7 @@ body {
                 if(owner){ctx.fillStyle=owner==='X'?'rgba(37,99,235,0.20)':'rgba(220,38,38,0.20)';ctx.fillRect(pad+c*gap+3,pad+r*gap+3,gap-6,gap-6);ctx.fillStyle=owner==='X'?'#2563eb':'#dc2626';ctx.font=`700 ${gap*0.36}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(owner,pad+(c+0.5)*gap,pad+(r+0.5)*gap);}
             }
             ctx.lineCap='round';
-            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]==='X'?'#2563eb':dotsBoxesState.edges[i]==='O'?'#dc2626':(dotsBoxesState.edges[i]?'#334155':'#64748b');ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(5,width*0.022):Math.max(2.5,width*0.012);ctx.stroke();}
+            for(let i=0;i<40;i++){const e=dotEdgeGeometry(i,width);ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.strokeStyle=dotsBoxesState.edges[i]?'#334155':'#cbd5e1';ctx.lineWidth=dotsBoxesState.edges[i]?Math.max(4,width*0.018):Math.max(1,width*0.006);ctx.stroke();}
             for(let r=0;r<5;r++) for(let c=0;c<5;c++){ctx.beginPath();ctx.arc(pad+c*gap,pad+r*gap,Math.max(3,width*0.018),0,Math.PI*2);ctx.fillStyle='#111827';ctx.fill();}
             return;
         }
@@ -4069,76 +4045,9 @@ body {
             ctx.fillStyle = '#000000';
 
             if (state.board[i] === TIGER) {
-                // Draw tiger tokens with canvas shapes instead of relying on emoji fonts,
-                // which can render as missing glyphs on some mobile browsers.
-                const radius = gridSpacing * 0.31;
-                ctx.save();
-                ctx.fillStyle = '#f59e0b';
-                ctx.strokeStyle = '#171717';
-                ctx.lineWidth = Math.max(2, gridSpacing * 0.035);
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                // Ears
-                ctx.fillStyle = '#f59e0b';
-                for (const side of [-1, 1]) {
-                    ctx.beginPath();
-                    ctx.arc(cx + side * radius * 0.62, cy - radius * 0.58, radius * 0.27, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.stroke();
-                }
-                // Bold dark tiger stripes
-                ctx.strokeStyle = '#171717';
-                ctx.lineWidth = Math.max(2, gridSpacing * 0.045);
-                ctx.lineCap = 'round';
-                for (const side of [-1, 1]) {
-                    ctx.beginPath();
-                    ctx.moveTo(cx + side * radius * 0.72, cy - radius * 0.42);
-                    ctx.lineTo(cx + side * radius * 0.38, cy - radius * 0.08);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(cx + side * radius * 0.82, cy + radius * 0.02);
-                    ctx.lineTo(cx + side * radius * 0.48, cy + radius * 0.32);
-                    ctx.stroke();
-                }
-                // Eyes and muzzle
-                ctx.fillStyle = '#ffffff';
-                for (const side of [-1, 1]) {
-                    ctx.beginPath();
-                    ctx.arc(cx + side * radius * 0.32, cy - radius * 0.12, radius * 0.105, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.fillStyle = '#171717';
-                ctx.beginPath();
-                ctx.arc(cx, cy + radius * 0.25, radius * 0.12, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
+                ctx.fillText('🐅', cx, cy);
             } else if (state.board[i] === GOAT) {
-                // Draw goats with canvas shapes so they remain visible on browsers
-                // that do not have a color-emoji font available.
-                const radius = gridSpacing * 0.27;
-                ctx.fillStyle = '#f8fafc';
-                ctx.strokeStyle = '#334155';
-                ctx.lineWidth = Math.max(2, gridSpacing * 0.035);
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-                // Small ears and horns make the white token distinct from an empty node.
-                ctx.beginPath();
-                ctx.moveTo(cx - radius * 0.48, cy - radius * 0.48);
-                ctx.lineTo(cx - radius * 0.72, cy - radius * 1.05);
-                ctx.lineTo(cx - radius * 0.12, cy - radius * 0.62);
-                ctx.moveTo(cx + radius * 0.48, cy - radius * 0.48);
-                ctx.lineTo(cx + radius * 0.72, cy - radius * 1.05);
-                ctx.lineTo(cx + radius * 0.12, cy - radius * 0.62);
-                ctx.stroke();
-                ctx.fillStyle = '#0f172a';
-                ctx.beginPath();
-                ctx.arc(cx - radius * 0.3, cy - radius * 0.08, radius * 0.075, 0, Math.PI * 2);
-                ctx.arc(cx + radius * 0.3, cy - radius * 0.08, radius * 0.075, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillText('🐐', cx, cy);
             }
             ctx.restore();
         }
@@ -5612,6 +5521,8 @@ body {
         const description = isAi ? 'Strongest AI' : 'Online multiplayer';
         const current = document.getElementById('vcModeCurrentText');
         if (current) current.textContent = name + ' · ' + description;
+        const arenaLabel = document.getElementById('vcArenaGameLabel');
+        if (arenaLabel) arenaLabel.textContent = name + ' · ' + (isAi ? 'Play vs AI' : 'Online multiplayer');
     }
 
     function syncGameSelection() {
