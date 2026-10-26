@@ -3,13 +3,13 @@
 const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
 const $=id=>document.getElementById(id);
 const form=$('admin-login-form'),email=$('admin-email'),password=$('admin-password'),button=$('admin-login-button'),googleButton=$('google-login-button'),message=$('login-message'),status=$('auth-status');
-let auth=null,db=null,unsubs=[],players=[],rooms=[],adminUid=null,spectatorRef=null,spectatorHandler=null,inactiveRoomTimers=new Map(),activeSpectatorRoomId='',roomCodesById={},activeSpectatorRoomData=null;
+let auth=null,db=null,unsubs=[],players=[],rooms=[],adminUid=null,spectatorRef=null,spectatorHandler=null,spectatorGameRef=null,spectatorGameHandler=null,inactiveRoomTimers=new Map(),activeSpectatorRoomId='',roomCodesById={},activeSpectatorRoomData=null;
 function msg(t,c){message.textContent=t;message.className='login-message'+(c?' '+c:'');}
 function state(t){status.innerHTML='<i></i> '+t;}
 function deny(){document.body.classList.remove('admin-authenticated');stopMonitoring();moderationBans={};if($('ban-count'))$('ban-count').textContent='—';if($('ban-record-list'))$('ban-record-list').innerHTML='<div class="empty">Sign in to load moderation records.</div>';}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function formatSeen(value){if(value==null||value==='')return 'Last seen: unavailable';const n=Number(value);if(!Number.isFinite(n)||n<=0)return 'Last seen: unavailable';const d=new Date(n);return 'Last seen: '+d.toLocaleString();}
-function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);spectatorRef=null;spectatorHandler=null;adminUid=null;}
+function stopMonitoring(){unsubs.forEach(fn=>{try{fn();}catch(e){}});unsubs=[];inactiveRoomTimers.forEach(timer=>clearTimeout(timer));inactiveRoomTimers.clear();if(spectatorRef&&spectatorHandler)spectatorRef.off('value',spectatorHandler);if(spectatorGameRef&&spectatorGameHandler)spectatorGameRef.off('value',spectatorGameHandler);spectatorRef=null;spectatorHandler=null;spectatorGameRef=null;spectatorGameHandler=null;adminUid=null;}
 
 let commentatorPrevious=null,commentatorAudioEnabled=false,commentatorLastText='',commentatorLanguage='en',tournamentAudioContext=null,tournamentAmbience=null;
 function commentatorPlayers(room){const names=room.playerNames||{},presence=room.presence||{};return Object.keys({...names,...presence}).map(role=>({role,name:(presence[role]&&presence[role].name)||names[role]||role}));}
@@ -453,27 +453,56 @@ function watchRoom(roomId){
   updateFreezeMatchControl(value);
   updateAdminCommandControls(value);
   const gameType=value.activeGameType||'baghchal';
-  const liveData=gameType==='baghchal'?(value.game||{}):((value.miniGames||{})[gameType]||{});
-  const sourceAt=Number(liveData.updatedAt||0);
+  if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);
+  // BaghChal board updates are watched directly at /game below. This keeps
+  // unrelated room/presence changes from rebuilding the detailed SVG board.
+  if(gameType!=='baghchal'){
+   const liveData=(value.miniGames||{})[gameType]||{};
+   const sourceAt=Number(liveData.updatedAt||0);
+   if(sourceAt&&sourceAt!==lastGameSourceAt){
+    if(lastGameSourceAt)lastDeliveryMs=Math.max(0,receivedAt-sourceAt);
+    lastGameSourceAt=sourceAt;
+   }
+   observeCommentary(value);
+   const renderStart=window.performance&&performance.now?performance.now():Date.now();
+   renderSpectatorGame(value);
+   const renderEnd=window.performance&&performance.now?performance.now():Date.now();
+   lastRenderMs=Math.max(0,renderEnd-renderStart);
+   let status='LIVE';
+   if(lastDeliveryMs!==null)status+=' · LAST UPDATE ARRIVED '+Math.round(lastDeliveryMs)+'ms AFTER WRITE';
+   else status+=' · MEASURING FIRST UPDATE';
+   status+=' · RENDER '+lastRenderMs.toFixed(1)+'ms';
+   $('spectator-status').textContent=status;
+  }
+ };
+ spectatorRef.on('value',spectatorHandler,err=>{
+  $('spectator-status').textContent='ERROR';
+  $('spectator-data').textContent='Could not watch this room: '+err.message;
+ });
+ spectatorGameRef=db.ref('bagchalRooms/'+roomId+'/game');
+ spectatorGameHandler=snap=>{
+  if(activeSpectatorRoomId!==String(roomId)||!activeSpectatorRoomData)return;
+  const receivedAt=Date.now(),game=snap.val()||{};
+  activeSpectatorRoomData=Object.assign({},activeSpectatorRoomData,{game});
+  const sourceAt=Number(game.updatedAt||0);
   if(sourceAt&&sourceAt!==lastGameSourceAt){
    if(lastGameSourceAt)lastDeliveryMs=Math.max(0,receivedAt-sourceAt);
    lastGameSourceAt=sourceAt;
   }
-  if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);
-  observeCommentary(value);
+  observeCommentary(activeSpectatorRoomData);
   const renderStart=window.performance&&performance.now?performance.now():Date.now();
-  renderSpectatorGame(value);
+  renderSpectatorGame(activeSpectatorRoomData);
   const renderEnd=window.performance&&performance.now?performance.now():Date.now();
   lastRenderMs=Math.max(0,renderEnd-renderStart);
-  let status='LIVE';
+  let status='LIVE · BAGHCHAL DIRECT GAME LISTENER';
   if(lastDeliveryMs!==null)status+=' · LAST UPDATE ARRIVED '+Math.round(lastDeliveryMs)+'ms AFTER WRITE';
   else status+=' · MEASURING FIRST UPDATE';
   status+=' · RENDER '+lastRenderMs.toFixed(1)+'ms';
   $('spectator-status').textContent=status;
  };
- spectatorRef.on('value',spectatorHandler,err=>{
+ spectatorGameRef.on('value',spectatorGameHandler,err=>{
   $('spectator-status').textContent='ERROR';
-  $('spectator-data').textContent='Could not watch this room: '+err.message;
+  $('spectator-data').textContent='Could not watch BaghChal game state: '+err.message;
  });
 }
 function presenceFor(room){
