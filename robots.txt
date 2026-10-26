@@ -1,0 +1,8 @@
+# Viral Cage Play — crawler guidance
+User-agent: *
+Allow: /
+
+# Keep the administration interface out of search results.
+Disallow: /admin/
+
+Sitemap: https://play.viralcage.com/sitemap.xml
