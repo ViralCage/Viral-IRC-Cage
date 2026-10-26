@@ -61,8 +61,8 @@
         <ul>
           <li><b>Nickname:</b> the display name you choose. The game code stores it in your browser’s local storage so it can be remembered on that device, and may send it to the online room so an opponent can see it.</li>
           <li><b>Game and room data:</b> room codes/identifiers, player roles, match state, moves, player presence and connection status needed to create, join, synchronize and monitor online games.</li>
-          <li><b>Technical session data:</b> Firebase Authentication may create an anonymous player identifier to support a session. The Service uses Firebase Realtime Database and Firebase web libraries supplied by Google to provide online functionality.</li>
-          <li><b>Voice/video calls:</b> if you choose to start or accept a call and grant browser permission, your device uses its microphone and/or camera. The call is designed to use WebRTC peer-to-peer media; Firebase may be used to exchange call setup/signaling information. Network routing may expose connection information such as IP addresses to the other peer or infrastructure involved in establishing the connection.</li>
+          <li><b>Technical session data:</b> The Service may process anonymous session identifiers and basic connection information needed to support online gameplay, security and abuse prevention.</li>
+          <li><b>Voice/video calls:</b> if you choose to start or accept a call and grant browser permission, your device uses its microphone and/or camera. Calls may involve peer-to-peer connections and supporting network services. Network routing can expose connection information, such as IP addresses, to the other peer or service providers involved in establishing the connection.</li>
           <li><b>Support and safety reports:</b> if you contact the operator or report a problem, information you choose to provide may be used to respond and investigate.</li>
         </ul>
         <h3>How information is used</h3>
@@ -74,9 +74,9 @@
           <li>Meet legal obligations and protect players, the operator and the Service.</li>
         </ul>
         <h3>Cookies and local storage</h3>
-        <p>The game uses browser local storage for settings such as your nickname and saved room/session details. Firebase and other infrastructure providers may use technologies necessary to provide their services. You can clear site data through your browser, but doing so may remove your saved nickname or room information.</p>
+        <p>The game uses browser local storage for settings such as your nickname and saved room/session details. The Service and its infrastructure providers may use technologies necessary to provide online functionality, security and reliability. You can clear site data through your browser, but doing so may remove your saved nickname or room information.</p>
         <h3>Service providers and sharing</h3>
-        <p>Online gameplay relies on Google Firebase services, including Firebase Authentication and Realtime Database, and Google-hosted Firebase JavaScript libraries. WebRTC connection setup may also use public STUN infrastructure. These providers process technical information as needed to deliver their services under their own terms and privacy policies. We do not sell personal information. We may disclose information when required by law or when reasonably necessary to investigate abuse, protect users, enforce these policies or secure the Service.</p>
+        <p>Online gameplay relies on third-party hosting, database, authentication and network infrastructure providers. Voice/video connection setup may also use network support services. These providers may process technical information as needed to deliver their services under their own terms and privacy policies. We do not sell personal information. We may disclose information when required by law or when reasonably necessary to investigate abuse, protect users, enforce these policies or secure the Service.</p>
         <h3>Retention and security</h3>
         <p>Room and presence information is retained according to the database configuration and cleanup processes in effect; we do not promise a fixed retention period for every record. Nickname and saved-room values may remain in your browser until you clear them. We use reasonable measures appropriate to a small online game service, but no internet transmission or storage system can be guaranteed completely secure.</p>
         <h3>Your choices and privacy requests</h3>
@@ -140,7 +140,7 @@
 
       <section class="section faq" id="faq">
         <div class="eyebrow">06 / Help</div><h2>Frequently Asked Questions</h2>
-        <details><summary>Do I need to create an account?</summary><p>Guest-style play is supported. The game may create an anonymous Firebase session identifier for online features; this is not the same as registering with an email and password.</p></details>
+        <details><summary>Do I need to create an account?</summary><p>Guest-style play is supported. The Service may create an anonymous session identifier for online features; this is not the same as registering with an email and password.</p></details>
         <details><summary>Why does my nickname come back?</summary><p>Your nickname may be saved in local storage on that browser. Clear the site’s stored data to remove the locally saved nickname.</p></details>
         <details><summary>Can I play without voice or video?</summary><p>Yes. Voice/video calls are optional. Do not grant microphone or camera permission if you do not want to use those features.</p></details>
         <details><summary>Why did my game disconnect?</summary><p>Online play depends on your connection, the other player’s connection, browser settings and third-party infrastructure. Rejoin the room if the game allows it. A disconnect may prevent recovery of the match.</p></details>
