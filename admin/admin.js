@@ -482,7 +482,7 @@ function presenceFor(room){
  return out;
 }
 function renderRooms(){
- const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No active rooms</b><p>Inactive rooms are automatically removed after 2 minutes.</p></div>';return;}
+ const el=$('room-list');if(!rooms.length){el.innerHTML='<div class="empty"><b>No active rooms</b><p>Inactive rooms are automatically removed after 1 day.</p></div>';return;}
  el.innerHTML=rooms.filter(r=>r.active).map(r=>{const code=roomCodesById[r.id]||'';return '<article class="data-row"><div class="data-main"><b>ROOM CODE: '+esc(code||'CODE UNAVAILABLE')+'</b><span>'+esc(r.game||'Game type not specified')+' · '+r.players.length+' connected</span><small>'+(r.players.length?r.players.map(p=>esc(p.name)+' ('+esc(p.role)+')').join(' · '):'No connected players')+' · Room ID: '+esc(r.id)+'</small></div><div class="room-actions"><span class="row-tag '+(r.active?'':'inactive-tag')+'">'+(r.active?'ACTIVE':'INACTIVE')+'</span>'+(code?'<button class="copy-room-code-button" type="button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'<button class="watch-room-button" type="button" data-watch-room="'+esc(r.id)+'">Watch</button><button class="end-room-button danger-outline" type="button" data-room-id="'+esc(r.id)+'">End game</button></div></article>';}).join('');
 }
 function renderPlayers(){
@@ -592,7 +592,7 @@ function startMonitoring(){
       if(!current.exists()||presenceFor(current.val()).length)return;
       return ref.remove();
      }).catch(err=>{$('room-refresh-status').textContent='AUTO-DELETE ERROR';$('connection-detail').textContent='Could not remove inactive room '+id+': '+err.message;});
-    },120000);
+    },24*60*60*1000);
     inactiveRoomTimers.set(id,timer);
    }
   });
