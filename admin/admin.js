@@ -136,7 +136,7 @@ function observeCommentary(room){
  }
  if(signature===prev.signature)return;
  const moveNumber=Math.max(1,cur.moveCount||prev.moveCount+1);
- const mover=commentaryMover(room,prev.turn,moveNumber);
+ const mover=commentatorMover(room,prev.turn,moveNumber);
  const nextTurn=cur.turn==null?'':String(cur.turn);
  const turnText=nextTurn?'. The next turn is '+nextTurn+'.':'';
  let en=mover+' makes the next move in '+cur.type+'. Every decision matters at this stage'+turnText;
