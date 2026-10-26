@@ -1620,6 +1620,25 @@
 }
 
 
+
+
+/* Desktop-only BaghChal board fit correction. Layout CSS only; mobile and game logic unchanged. */
+@media (min-width: 768px) {
+  #bagchal-blogger-container .board-container {
+    width: min(100%, 720px) !important;
+    max-width: 720px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    flex: 0 1 720px !important;
+  }
+  #bagchal-blogger-container .canvas-aspect-ratio-box,
+  #bagchal-blogger-container #canvasContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
 /* VC Play: wider layout and premium online-room controls — CSS only. */
 #bagchal-blogger-container { width:min(100%,1320px) !important; max-width:1320px !important; }
 #bagchal-blogger-container #onlinePanel {
