@@ -58,7 +58,35 @@ async function createSession(){
   $('camera-invite-link').value=url.toString();$('camera-session-code').textContent=sessionId;
   $('camera-session-tools').hidden=false;
   const qr=$('camera-invite-qr');
-  if(qr){qr.innerHTML='';qr.setAttribute('aria-busy','true');try{if(window.QRCode&&typeof window.QRCode.toCanvas==='function'){const canvas=document.createElement('canvas');await new Promise((resolve,reject)=>window.QRCode.toCanvas(canvas,url.toString(),{width:220,margin:2,errorCorrectionLevel:'M',color:{dark:'#111827',light:'#ffffff'}},err=>err?reject(err):resolve()));qr.appendChild(canvas);}else{throw new Error('QR library unavailable');}}catch(qrError){const image=document.createElement('img');image.alt='Scan to join the tournament camera session';image.width=220;image.height=220;image.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data='+encodeURIComponent(url.toString());image.onerror=()=>{qr.textContent='QR could not load. Use Copy link or Share link.';};qr.appendChild(image);}finally{qr.removeAttribute('aria-busy');}}$('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
+  if(qr){
+   qr.replaceChildren();
+   qr.setAttribute('aria-busy','true');
+   qr.style.width='240px';qr.style.height='240px';qr.style.minWidth='240px';qr.style.minHeight='240px';
+   const showFallback=index=>{
+    const sources=[
+     'https://api.qrserver.com/v1/create-qr-code/?size=220x220&format=png&data='+encodeURIComponent(url.toString()),
+     'https://quickchart.io/qr?text='+encodeURIComponent(url.toString())+'&size=220'
+    ];
+    if(index>=sources.length){qr.textContent='QR unavailable. Use Copy link or Share link.';qr.removeAttribute('aria-busy');return;}
+    const image=new Image();image.alt='Scan to join the tournament camera session';image.width=220;image.height=220;
+    image.style.cssText='display:block;width:220px;height:220px;max-width:100%;object-fit:contain';
+    image.onload=()=>{qr.replaceChildren(image);qr.removeAttribute('aria-busy');};
+    image.onerror=()=>showFallback(index+1);image.src=sources[index];
+   };
+   try{
+    if(!window.QRCode||typeof window.QRCode.toCanvas!=='function')throw new Error('QR generator did not load');
+    const canvas=document.createElement('canvas');
+    await new Promise((resolve,reject)=>{
+     const timeout=setTimeout(()=>reject(new Error('QR generation timed out')),8000);
+     window.QRCode.toCanvas(canvas,url.toString(),{width:220,margin:3,errorCorrectionLevel:'H',color:{dark:'#111827',light:'#ffffff'}},error=>{
+      clearTimeout(timeout);if(error)reject(error);else resolve();
+     });
+    });
+    canvas.style.cssText='display:block;width:220px;height:220px;max-width:100%';
+    qr.replaceChildren(canvas);qr.removeAttribute('aria-busy');
+   }catch(qrError){console.warn('Local QR generation failed:',qrError);showFallback(0);}
+  }
+  $('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
   status('SESSION ACTIVE · EXPIRES IN 2 HOURS');watchSession();
   expiryTimer=setTimeout(()=>{closeSession().catch(()=>{});},Math.max(0,expiresAt-Date.now()));
  }catch(e){status('Could not create session: '+e.message);}
