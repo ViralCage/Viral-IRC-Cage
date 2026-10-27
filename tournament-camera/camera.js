@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
-const $=id=>document.getElementById(id),sessionId=new URLSearchParams(location.search).get('s')||'',STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const $=id=>document.getElementById(id),sessionId=new URLSearchParams(location.search).get('s')||'',STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
 let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,participantHandler,declineHandler,stopped=false,cameraStarted=false,remoteAdminStream=null,phoneMuted=false,phoneCameraOff=false;
 function say(t){$('status').textContent=t;}
 function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.child('adminToPhone/answer').off('value',answerHandler);if(candidateHandler&&participantRef)participantRef.child('adminToPhone/candidates').off('child_added',candidateHandler);if(participantHandler&&participantRef)participantRef.off('value',participantHandler);if(declineHandler&&sessionRef)sessionRef.child('declinedRequests/'+uid).off('value',declineHandler);if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=$('preview');if(v)v.srcObject=null;const remote=$('admin-video');if(remote)remote.srcObject=null;}
