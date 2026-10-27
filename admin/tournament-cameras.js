@@ -77,7 +77,18 @@ async function createSession(){
  try{
   const match=null;
   if(sessionId&&sessionRef)await sessionRef.child('meta/status').set('closed');
-  stopSessionListeners();sessionId=db.ref(root).push().key;const now=Date.now(),expiresAt=now+2*60*60*1000;
+  stopSessionListeners();
+  let roomCode='';
+  for(let attempt=0;attempt<30;attempt++){
+   const random=new Uint32Array(1);
+   if(window.crypto&&window.crypto.getRandomValues)window.crypto.getRandomValues(random);
+   else random[0]=Math.floor(Math.random()*0xffffffff);
+   const candidate=String(10000+(random[0]%90000));
+   const existing=await db.ref(root+candidate+'/meta').once('value');
+   if(!existing.exists()){roomCode=candidate;break;}
+  }
+  if(!roomCode)throw new Error('Could not create a unique 5-digit room code. Please try again.');
+  sessionId=roomCode;const now=Date.now(),expiresAt=now+2*60*60*1000;
   sessionRef=db.ref(root+sessionId);
   await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active'});
   const url=new URL('/tournament-camera/',window.location.origin);url.searchParams.set('s',sessionId);
