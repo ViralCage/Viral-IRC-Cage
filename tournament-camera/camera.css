@@ -2,3 +2,5 @@
 .pip-button{display:block;width:100%;margin:12px 0 0;padding:11px 14px;border:1px solid #8b7cff;border-radius:10px;background:#242044;color:#fff;font:700 13px system-ui;cursor:pointer}
 .pip-button[hidden]{display:none!important}
 .pip-help{display:block;margin-top:8px;color:#aab3c8;font-size:11px;line-height:1.5}
+
+.call-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.call-controls .pip-button{margin:0}.call-controls .danger{grid-column:1/-1;background:#54202b;border-color:#a84b60}.admin-video-wrap{margin-top:16px;padding:10px;border:1px solid #4b5b80;border-radius:12px;background:#0b1020}.admin-video-wrap b{display:block;margin-bottom:8px;color:#c9c2ff;font-size:11px;letter-spacing:.12em}.admin-video-wrap video{width:100%;max-height:45vh;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#03060b}.admin-video-wrap[hidden]{display:none!important}
