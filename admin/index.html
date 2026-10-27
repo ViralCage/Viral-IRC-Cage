@@ -74,7 +74,8 @@
  <div class="camera-admin-actions"><button class="button" id="camera-create-session" type="button">Create camera session</button><button class="button button-muted" id="camera-close-session" type="button">Close session</button></div>
  <div class="camera-session-tools" id="camera-session-tools" hidden>
   <p class="fine-print">Session code: <span class="camera-session-code" id="camera-session-code"></span></p>
-  <div class="camera-invite-row"><input id="camera-invite-link" type="url" readonly aria-label="Private phone camera invitation link"><button class="button button-muted" id="camera-copy-invite" type="button">Copy invitation</button></div>
+  <div class="camera-invite-row"><input id="camera-invite-link" type="url" readonly aria-label="Private phone camera invitation link"><button class="button button-muted" id="camera-copy-invite" type="button">Copy link</button><button class="button" id="camera-share-invite" type="button">Share link</button></div>
+  <div class="camera-qr-panel"><div><h3>Scan to join</h3><p class="fine-print">Open your phone camera and scan this QR code, or share the invitation link directly.</p></div><div id="camera-invite-qr" class="camera-invite-qr" aria-label="QR code for the private camera invitation"></div></div>
   <h3>Phone approval requests</h3><div class="camera-requests" id="camera-requests"><p class="camera-empty">Waiting for phone requests…</p></div>
   <p class="fine-print">Approved camera feeds appear in the left and right player panels inside the selected live game view above.</p><div class="camera-slots" id="camera-slots" hidden></div>
  </div>
@@ -138,6 +139,7 @@
 
     <footer><span>VIRAL CAGE PLAY</span><span>Separate admin preview · Main game files untouched</span></footer>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
   <script src="./tournament-cameras.js"></script>
   <script src="./admin.js"></script>
 </body>
