@@ -21,8 +21,8 @@
 <label for="slot">Camera position</label><select id="slot"><option value="1">Left camera · Slot 1</option><option value="2">Right camera · Slot 2</option></select>
 <button id="request" disabled>Connect to admin</button>
 <p id="status" role="status" aria-live="polite">Checking private session…</p>
-<div class="preview-wrap" id="preview-wrap" hidden><video id="preview" autoplay playsinline muted></video><button id="pip-button" type="button" class="pip-button" hidden>Float camera over game</button><small>YOUR CAMERA PREVIEW · LIVE STREAM IS NOT RECORDED</small><small class="pip-help">Tap “Float camera over game”, then switch to the game tab. Keep this camera tab open.</small></div>
-<p class="privacy">Camera access is requested only after approval. Video is sent through WebRTC and is not uploaded to Firebase. Anonymous access creates a temporary Firebase session identifier; no account or password form is shown.</p>
+<div class="preview-wrap" id="preview-wrap" hidden><video id="preview" autoplay playsinline muted></video><button id="pip-button" type="button" class="pip-button" hidden>Float camera over game</button><div class="call-controls"><button id="phone-mute" type="button" class="pip-button">Mute microphone</button><button id="phone-camera-toggle" type="button" class="pip-button">Turn camera off</button><button id="phone-end-call" type="button" class="pip-button danger">End call</button></div><div class="admin-video-wrap" id="admin-video-wrap" hidden><b>ADMIN VIDEO</b><video id="admin-video" autoplay playsinline></video></div><small>YOUR CAMERA PREVIEW · LIVE STREAM IS NOT RECORDED</small><small class="pip-help">Tap “Float camera over game”, then switch to the game tab. Keep this camera tab open.</small></div>
+<p class="privacy">Camera access is requested only after approval. Two-way video and audio use WebRTC. Firebase stores only connection-signaling data; no recording is made.</p>
 </section>
 </main>
 <script src="./camera.js"></script>
