@@ -32,12 +32,12 @@ async function startCamera(){
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
   pc.onicecandidate=e=>{if(e.candidate)phoneSignal.child('candidates').push(e.candidate.toJSON()).catch(err=>say('Network setup failed: '+err.message));};
   let remoteReady=false;const queued=[];
-  candidateHandler=snap=>{const c=snap.val();if(!c)return;const ice=new RTCIceCandidate(c);if(remoteReady)pc.addIceCandidate(ice).catch(()=>{});else queued.push(ice);};
+  candidateHandler=snap=>{const c=snap.val();if(!c||!pc)return;const ice=new RTCIceCandidate(c);if(remoteReady&&pc.remoteDescription)pc.addIceCandidate(ice).catch(()=>{});else queued.push(ice);};
   adminSignal.child('candidates').on('child_added',candidateHandler);
+  answerHandler=async snap=>{const answer=snap.val();if(!answer||!answer.sdp||!pc||pc.remoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(answer));remoteReady=true;while(queued.length){const ice=queued.shift();await pc.addIceCandidate(ice).catch(()=>{});}say('Video call connected. You can see and hear the admin.');}catch(e){say('Connection setup failed: '+e.message);}};
+  adminSignal.child('answer').on('value',answerHandler);
   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
   await phoneSignal.child('offer').set({type:offer.type,sdp:offer.sdp});await participantRef.child('callState').set('connecting').catch(()=>{});
-  answerHandler=async snap=>{const answer=snap.val();if(!answer||!answer.sdp||pc.remoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(answer));remoteReady=true;while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});say('Video call connected. You can see and hear the admin.');}catch(e){say('Connection setup failed: '+e.message);}};
-  adminSignal.child('answer').on('value',answerHandler);
  }catch(e){cameraStarted=false;say(e.name==='NotAllowedError'?'Camera permission was denied. Allow camera access in your browser settings.':e.message||'Could not start camera.');}
 }
 async function init(){
