@@ -264,15 +264,23 @@ function renderSpectatorGame(room){
   return {role,name,connected:!!live.connected};
  });
  const seatCard=(seat,index)=>{
-  const side=index===0?'PLAYER 1':'PLAYER 2',tone=index===0?'seat-one':'seat-two';
+  const slot=index+1,side=index===0?'PLAYER 1':'PLAYER 2',tone=index===0?'seat-one':'seat-two';
   const state=seat.connected?'PLAYER CONNECTED':'WAITING FOR PLAYER';
-  return '<aside class="spectator-tv-seat '+tone+'"><div class="spectator-camera-frame"><div class="spectator-camera-glow"></div><div class="spectator-camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="27" height="26" rx="5"></rect><path d="m32 19 11-6v22l-11-6z"></path><circle cx="18.5" cy="24" r="6"></circle></svg></div><span class="spectator-camera-label">CAMERA FEED</span><span class="spectator-camera-status">'+(seat.connected?'CAMERA NOT SHARED':'PLAYER OFFLINE')+'</span></div><div class="spectator-seat-info"><span class="spectator-player-side">'+side+'</span><strong>'+esc(seat.name)+'</strong><small><i class="'+(seat.connected?'is-connected':'')+'"></i>'+state+'</small></div></aside>';
+  return '<aside class="spectator-tv-seat '+tone+'"><div class="spectator-camera-frame" id="spectator-camera-frame-'+slot+'"><div class="spectator-camera-placeholder"><div class="spectator-camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="27" height="26" rx="5"></rect><path d="m32 19 11-6v22l-11-6z"></path><circle cx="18.5" cy="24" r="6"></circle></svg></div><span class="spectator-camera-label">CAMERA '+slot+'</span></div><span class="spectator-camera-status" id="spectator-camera-status-'+slot+'">WAITING FOR CAMERA</span></div><div class="spectator-seat-info"><span class="spectator-player-side">'+side+'</span><strong>'+esc(seat.name)+'</strong><small><i class="'+(seat.connected?'is-connected':'')+'"></i>'+state+'</small></div></aside>';
  };
  const playerLabels=seats.map(seat=>esc(seat.name)+(seat.connected?' (connected)':''));
  const shortRoomCode=roomCodesById[activeSpectatorRoomId]||'';
  $('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(shortRoomCode||'CODE UNAVAILABLE')+'</strong>'+(shortRoomCode?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(shortRoomCode)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">'+esc(meta)+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+' · Room ID: '+esc(activeSpectatorRoomId)+(data.winner?' · Winner: '+esc(data.winner):'')+'</div>';
  $('spectator-data').innerHTML='<div class="spectator-tv-layout">'+seatCard(seats[0],0)+'<main class="spectator-board-face">'+board+'</main>'+seatCard(seats[1],1)+'</div>';
+ // Reuse the same video DOM nodes so Firebase board refreshes do not interrupt WebRTC streams.
+ for(let slot=1;slot<=2;slot++){
+  const frame=$('spectator-camera-frame-'+slot),video=window.getTournamentCameraVideo&&window.getTournamentCameraVideo(slot);
+  const status=$('spectator-camera-status-'+slot);
+  if(status&&window.getTournamentCameraStatus)status.textContent=window.getTournamentCameraStatus(slot).toUpperCase();
+  if(frame&&video){frame.insertBefore(video,frame.querySelector('.spectator-camera-status'));frame.classList.add('has-live-video');}
+ }
 }
+window.addEventListener('vc-tournament-camera-update',()=>{if(activeSpectatorRoomData&&activeSpectatorRoomId)renderSpectatorGame(activeSpectatorRoomData);});
 function loadRoomEditor(){
  const roomId=$('room-editor-id').value.trim();
  if(!roomId||!db){$('room-editor-status').textContent='SELECT A ROOM FIRST';return;}
