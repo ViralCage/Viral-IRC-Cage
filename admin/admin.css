@@ -1037,3 +1037,25 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 @media(prefers-reduced-motion:reduce){
   .spectator-board-face>.baghchal-real-board{transition:none}
 }
+
+
+/* Isolated two-phone tournament camera controls */
+.tournament-camera-panel{margin-top:18px}
+.tournament-camera-panel .camera-admin-status{color:#b8a9ff;font-size:11px;font-weight:800;letter-spacing:.1em}
+.camera-admin-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.camera-session-tools[hidden]{display:none!important}
+.camera-invite-row{display:flex;gap:8px;flex-wrap:wrap}
+.camera-invite-row input{flex:1;min-width:220px}
+.camera-session-code{font:12px ui-monospace,monospace;color:#c8bfff;overflow-wrap:anywhere}
+.camera-requests{display:grid;gap:9px;margin-top:12px}
+.camera-request{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #303956;border-radius:12px;background:#111827}
+.camera-request small{display:block;color:#98a4bc;font-size:11px;margin-top:3px}
+.camera-request .button{flex:none}
+.camera-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+.camera-slot{min-width:0;padding:12px;border:1px solid #39445e;border-radius:15px;background:#0d1422}
+.camera-slot-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px;font-size:11px;letter-spacing:.08em}
+.camera-slot-head span{color:#aab3c8;letter-spacing:0;text-align:right}
+.camera-slot video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#03060b;border-radius:9px}
+.camera-connection{display:block;color:#aab3c8;margin-top:7px;font-size:11px}
+.camera-empty{color:#9ba7bd;font-size:13px}
+@media(max-width:680px){.camera-slots{grid-template-columns:1fr}.camera-invite-row input{min-width:100%}}
