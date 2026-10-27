@@ -378,12 +378,12 @@ async function sendAdminGameCommand(type){
    resetPayload['adminControl/lastReset']={id:command.id,issuedAt:command.issuedAt,issuedBy:adminUid,gameType};
    await roomRef.update(resetPayload);
    await audit('match_reset_completed',{roomId,gameType,commandId:command.id});
-   if($('room-editor-status'))$('room-editor-status').textContent='MATCH RESET · '+gameType.toUpperCase();
+   
    if(btn)btn.textContent='Match reset';
   }else{
    await db.ref('bagchalRooms/'+roomId+'/adminControl/command').set(command);
    await audit('match_result_override_requested',{roomId,result,commandId:command.id});
-   if($('room-editor-status'))$('room-editor-status').textContent='RESULT OVERRIDE SENT';
+   
    if(btn)btn.textContent='Sent';
   }
  }catch(e){
@@ -414,7 +414,7 @@ async function toggleFreezeMatch(){
  try{
   await db.ref('bagchalRooms/'+roomId+'/adminControl').update({frozen:next,updatedAt:Date.now(),updatedBy:adminUid});
   await audit(next?'match_frozen':'match_unfrozen',{roomId});
-  if($('room-editor-status'))$('room-editor-status').textContent=next?'MATCH FROZEN':'MATCH UNFROZEN';
+  
  }catch(e){
   alert('Could not change match freeze state: '+e.message+' Check the bagchalRooms write rules.');
  }finally{updateFreezeMatchControl(activeSpectatorRoomData||{});}
@@ -649,11 +649,7 @@ $('room-list').addEventListener('click',e=>{const copy=e.target.closest('.copy-r
 $('freeze-match-button')?.addEventListener('click',toggleFreezeMatch);
 $('reset-match-button')?.addEventListener('click',()=>sendAdminGameCommand('reset_match'));
 $('override-result-button')?.addEventListener('click',()=>sendAdminGameCommand('override_result'));
-$('end-match-button')?.addEventListener('click',endSelectedMatch);
-$('room-editor-load')?.addEventListener('click',loadRoomEditor);
-$('room-editor-save')?.addEventListener('click',saveRoomEditor);
-$('room-editor-copy')?.addEventListener('click',()=>{const value=$('room-editor-json').value;if(!value)return;if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(()=>{$('room-editor-status').textContent='BACKUP COPIED';}).catch(()=>window.prompt('Copy room JSON:',value));else window.prompt('Copy room JSON:',value);});
-$('player-search-button').addEventListener('click',renderPlayers);
+$('end-match-button')?.addEventListener('click',endSelectedMatch);.addEventListener('click',renderPlayers);
 $('player-search').addEventListener('input',renderPlayers);
  $('ban-submit')?.addEventListener('click',createBan);
  $('ban-record-list')?.addEventListener('click',e=>{const b=e.target.closest('[data-unban-uid]');if(b)revokeBan(b.getAttribute('data-unban-uid'));});
@@ -664,46 +660,5 @@ $('player-search').addEventListener('input',renderPlayers);
  if(ban){const uid=ban.getAttribute('data-ban-uid')||'';$('ban-target').value=uid;$('ban-reason').value='Cheating';$('ban-target').scrollIntoView({behavior:'smooth',block:'center'});$('ban-target').focus();return;}
  const kick=e.target.closest('.kick-player-button');
  if(kick)requestKick(kick.getAttribute('data-kick-room'),kick.getAttribute('data-kick-role'),kick.getAttribute('data-kick-uid'));
-});
-let spectatorRotation=0,spectatorTilt=17,spectatorZoom=.94;
-const spectatorStage=$('spectator-data');
-function applySpectatorCamera(){
- spectatorStage.style.setProperty('--view-yaw',spectatorRotation+'deg');
- spectatorStage.style.setProperty('--view-rotation','0deg');
- spectatorStage.style.setProperty('--view-tilt',spectatorTilt+'deg');
- spectatorStage.style.setProperty('--view-zoom',spectatorZoom);
- spectatorStage.style.setProperty('--view-perspective', '1400px');
- document.querySelectorAll('[data-spectator-action="tilt-3d"]').forEach(btn=>btn.setAttribute('aria-pressed',String(spectatorTilt===17)));
-}
-const spectatorToolbar=document.querySelector('.spectator-toolbar');
-const commentatorControls=document.querySelector('.commentator-controls');
-if(spectatorToolbar&&!spectatorToolbar.querySelector('[data-spectator-action="rotate-up"]')){
- const verticalButton=(action,label,aria)=>{const button=document.createElement('button');button.type='button';button.className='button button-muted';button.dataset.spectatorAction=action;button.setAttribute('aria-label',aria);button.textContent=label;return button;};
- const rightButton=spectatorToolbar.querySelector('[data-spectator-action="rotate-right"]');
- if(rightButton){rightButton.after(verticalButton('rotate-down','Vertical ↓','Rotate board top to bottom'),verticalButton('rotate-up','Vertical ↑','Rotate board bottom to top'));}
-}
-$('spectator-panel')?.addEventListener('click',e=>{
- if(e.target.closest('#commentator-audio')){setCommentatorAudio();return;}
- if(e.target.closest('#commentator-language'))return;
- const control=e.target.closest('[data-spectator-action]');
- if(!control)return;
- const action=control.getAttribute('data-spectator-action');
- if(action==='rotate-left')spectatorRotation-=45;
- else if(action==='rotate-right')spectatorRotation+=45;
- else if(action==='rotate-up')spectatorTilt-=45;
- else if(action==='rotate-down')spectatorTilt+=45;
- else if(action==='tilt-3d')spectatorTilt=17;
- else if(action==='zoom-in')spectatorZoom=Math.min(1.2,+(spectatorZoom+.08).toFixed(2));
- else if(action==='zoom-out')spectatorZoom=Math.max(.72,+(spectatorZoom-.08).toFixed(2));
- else if(action==='reset'){spectatorRotation=0;spectatorTilt=17;spectatorZoom=.94;}
- else if(action==='fullscreen'){
-  const panel=$('spectator-panel');
-  if(document.fullscreenElement){document.exitFullscreen?.().catch(()=>{});}
-  else if(panel.requestFullscreen){panel.requestFullscreen().catch(()=>{});}
- }
- applySpectatorCamera();
-});
-applySpectatorCamera();
-$('commentator-language')?.addEventListener('change',e=>{commentatorLanguage=e.target.value;commentatorLastText='';const st=$('commentator-audio-state');if(st)st.textContent='COMMENTARY LANGUAGE · ENGLISH'+(commentatorAudioEnabled?' · AUDIO ON':' · SOUND OFF');});
-window.addEventListener('beforeunload',stopMonitoring);
+});window.addEventListener('beforeunload',stopMonitoring);
 })();
