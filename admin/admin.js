@@ -281,6 +281,19 @@ function renderSpectatorGame(room){
  }
 }
 window.addEventListener('vc-tournament-camera-update',()=>{if(activeSpectatorRoomData&&activeSpectatorRoomId)renderSpectatorGame(activeSpectatorRoomData);});
+window.getActiveTournamentCameraMatch=function(){
+ const room=activeSpectatorRoomData;
+ if(!room||!activeSpectatorRoomId)return null;
+ const names=room.playerNames||{},presence=room.presence||{};
+ const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
+ const aliases=[['player1','player_1','p1','goat','goats','white','x','1'],['player2','player_2','p2','tiger','tigers','black','o','2']];
+ const players=aliases.map((list,index)=>{
+  const role=roles.find(r=>list.includes(String(r).toLowerCase()))||roles[index]||'';
+  const live=role?presence[role]||{}:{};
+  return String(live.name||(role&&names[role])||'Player '+(index+1)).trim();
+ });
+ return {roomId:activeSpectatorRoomId,player1Name:players[0],player2Name:players[1]};
+};
 function loadRoomEditor(){
  const roomId=$('room-editor-id').value.trim();
  if(!roomId||!db){$('room-editor-status').textContent='SELECT A ROOM FIRST';return;}
