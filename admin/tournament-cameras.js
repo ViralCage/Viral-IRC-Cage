@@ -49,12 +49,11 @@ async function createSession(){
  if(!db||!adminUid)return status('Sign in as Super Admin first.');
  const btn=$('camera-create-session');btn.disabled=true;
  try{
-  const match=window.getActiveTournamentCameraMatch&&window.getActiveTournamentCameraMatch();
-  if(!match)return status('OPEN WATCH ON AN ACTIVE MATCH BEFORE CREATING THE CAMERA INVITATION.');
+  const match=null;
   if(sessionId&&sessionRef)await sessionRef.child('meta/status').set('closed');
   stopSessionListeners();sessionId=db.ref(root).push().key;const now=Date.now(),expiresAt=now+2*60*60*1000;
   sessionRef=db.ref(root+sessionId);
-  await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active',match});
+  await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active'});
   const url=new URL('/tournament-camera/',window.location.origin);url.searchParams.set('s',sessionId);
   $('camera-invite-link').value=url.toString();$('camera-session-code').textContent=sessionId;
   $('camera-session-tools').hidden=false;
