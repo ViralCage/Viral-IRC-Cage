@@ -2,15 +2,24 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-let db=null,adminUid='',sessionId='',sessionRef=null,requestsRef=null,participantsRef=null,requestHandler=null,participantHandler=null,peerByUid=new Map(),candidateHandlers=new Map(),offerHandlers=new Map(),activeStreams=new Map(),expiryTimer=null;
+let db=null,adminUid='',sessionId='',sessionRef=null,requestsRef=null,participantsRef=null,requestHandler=null,participantHandler=null,peerByUid=new Map(),candidateHandlers=new Map(),offerHandlers=new Map(),activeStreams=new Map(),expiryTimer=null,videoBySlot=new Map(),uidToSlot=new Map(),cameraStatus=new Map();
 const root='tournamentCameras/sessions/';
 function status(text){const el=$('camera-admin-status');if(el)el.textContent=text;}
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function stopPeer(uid){const pc=peerByUid.get(uid);if(pc){try{pc.close();}catch(_){}peerByUid.delete(uid);}const h=candidateHandlers.get(uid);if(h&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/candidates').off('child_added',h);candidateHandlers.delete(uid);}const oh=offerHandlers.get(uid);if(oh&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/offer').off('value',oh);offerHandlers.delete(uid);}const stream=activeStreams.get(uid);if(stream){stream.getTracks().forEach(t=>t.stop());activeStreams.delete(uid);}const video=$('camera-video-'+uid);if(video)video.srcObject=null;}
+function stopPeer(uid){const pc=peerByUid.get(uid);if(pc){try{pc.close();}catch(_){}peerByUid.delete(uid);}const h=candidateHandlers.get(uid);if(h&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/candidates').off('child_added',h);candidateHandlers.delete(uid);}const oh=offerHandlers.get(uid);if(oh&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/offer').off('value',oh);offerHandlers.delete(uid);}const stream=activeStreams.get(uid);if(stream){stream.getTracks().forEach(t=>t.stop());activeStreams.delete(uid);}const slot=uidToSlot.get(uid);const video=slot&&videoBySlot.get(slot);if(video)video.srcObject=null;if(slot){cameraStatus.set(slot,'Camera disconnected');notifyCameraLayout();}uidToSlot.delete(uid);}
 function stopSessionListeners(){if(requestsRef&&requestHandler)requestsRef.off('value',requestHandler);if(participantsRef&&participantHandler)participantsRef.off('child_added',participantHandler);requestsRef=null;participantsRef=null;requestHandler=null;participantHandler=null;peerByUid.forEach((_,uid)=>stopPeer(uid));if(expiryTimer)clearTimeout(expiryTimer);expiryTimer=null;}
 function renderRequests(data){const host=$('camera-requests');if(!host)return;const rows=Object.entries(data||{});if(!rows.length){host.innerHTML='<p class="camera-empty">No phone requests yet. Open the invitation on two phones.</p>';return;}host.innerHTML=rows.map(([uid,r])=>'<div class="camera-request"><div><b>'+escapeHtml(r.nickname||'Phone camera')+'</b><small>Camera '+escapeHtml(r.requestedSlot||'?')+' · '+escapeHtml(uid.slice(0,9))+'</small></div><button class="button camera-approve" type="button" data-camera-approve="'+escapeHtml(uid)+'" data-camera-slot="'+escapeHtml(r.requestedSlot||'1')+'">Approve</button></div>').join('');}
-function renderSlot(uid,slot,label){const host=$('camera-slots');if(!host)return;let card=$('camera-slot-'+slot);if(!card){card=document.createElement('article');card.className='camera-slot';card.id='camera-slot-'+slot;host.appendChild(card);}card.innerHTML='<div class="camera-slot-head"><b>CAMERA '+slot+'</b><span>'+escapeHtml(label||'Waiting for phone')+'</span></div><video id="camera-video-'+escapeHtml(uid)+'" autoplay playsinline muted></video><small class="camera-connection" id="camera-connection-'+escapeHtml(uid)+'">Connecting…</small>'; }
-function setPhoneState(uid,text){const el=$('camera-connection-'+uid);if(el)el.textContent=text;}
+function notifyCameraLayout(){window.dispatchEvent(new CustomEvent('vc-tournament-camera-update'));}
+function renderSlot(uid,slot,label){
+ slot=String(slot);uidToSlot.set(uid,slot);
+ let video=videoBySlot.get(slot);
+ if(!video){video=document.createElement('video');video.id='spectator-camera-video-'+slot;video.autoplay=true;video.playsInline=true;video.muted=true;video.setAttribute('aria-label','Tournament Camera '+slot);videoBySlot.set(slot,video);}
+ cameraStatus.set(slot,label||'Phone approved · connecting');
+ notifyCameraLayout();
+}
+function setPhoneState(uid,text){const slot=uidToSlot.get(uid);if(slot){cameraStatus.set(slot,text);notifyCameraLayout();}}
+window.getTournamentCameraVideo=slot=>videoBySlot.get(String(slot))||null;
+window.getTournamentCameraStatus=slot=>cameraStatus.get(String(slot))||'Waiting for camera';
 async function addPhone(uid,participant){
  if(!sessionRef||peerByUid.has(uid)||!participant||participant.approved!==true)return;
  const slot=String(participant.slot||'1');renderSlot(uid,slot,participant.nickname||'Phone connected');
