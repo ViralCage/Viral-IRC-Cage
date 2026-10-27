@@ -2,13 +2,14 @@
 'use strict';
 const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
 const $=id=>document.getElementById(id),sessionId=new URLSearchParams(location.search).get('s')||'',STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
-let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,participantHandler,declineHandler,stopped=false,cameraStarted=false,remoteAdminStream=null,phoneMuted=false,phoneCameraOff=false;
+let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,participantHandler,declineHandler,stopped=false,cameraStarted=false,remoteAdminStream=null,phoneMuted=false,phoneCameraOff=false,currentFacingMode='user';
 function say(t){$('status').textContent=t;}
 function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.child('adminToPhone/answer').off('value',answerHandler);if(candidateHandler&&participantRef)participantRef.child('adminToPhone/candidates').off('child_added',candidateHandler);if(participantHandler&&participantRef)participantRef.off('value',participantHandler);if(declineHandler&&sessionRef)sessionRef.child('declinedRequests/'+uid).off('value',declineHandler);if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=$('preview');if(v)v.srcObject=null;const remote=$('admin-video');if(remote)remote.srcObject=null;}
 async function switchPhoneCamera(){
  if(!stream||!pc)return;
  const oldTrack=stream.getVideoTracks()[0];
- const currentFacing=oldTrack&&oldTrack.getSettings?oldTrack.getSettings().facingMode:'user';
+ const actualFacing=oldTrack&&oldTrack.getSettings?oldTrack.getSettings().facingMode:null;
+ const currentFacing=actualFacing||currentFacingMode;
  const nextFacing=currentFacing==='environment'?'user':'environment';
  let nextStream=null;
  try{
@@ -20,6 +21,7 @@ async function switchPhoneCamera(){
   else pc.addTrack(nextTrack,stream);
   if(oldTrack){stream.removeTrack(oldTrack);oldTrack.stop();}
   stream.addTrack(nextTrack);
+  currentFacingMode=nextFacing;
   const preview=$('preview');if(preview)preview.srcObject=stream;
   const button=$('phone-switch-camera');
   const facing=nextTrack.getSettings?nextTrack.getSettings().facingMode:nextFacing;
@@ -35,13 +37,35 @@ async function startCamera(){
  try{
   say('Admin accepted your call. Allow camera and microphone access…');
   const preferredFacing=$('camera-facing')?.value==='environment'?'environment':'user';
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:preferredFacing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  currentFacingMode=preferredFacing;
+  const videoOptions={width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}};
+  let cameraError=null;
+  // For the default selfie setting, require the user-facing camera first.
+  // Some browsers reject exact constraints, so retry with a preferred facing mode.
+  try{
+   stream=await navigator.mediaDevices.getUserMedia({
+    video:{...videoOptions,facingMode:{exact:preferredFacing}},
+    audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+   });
+  }catch(firstError){
+   cameraError=firstError;
+   try{
+    stream=await navigator.mediaDevices.getUserMedia({
+     video:{...videoOptions,facingMode:{ideal:preferredFacing}},
+     audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+    });
+   }catch(secondError){throw secondError||cameraError;}
+  }
+  const actualTrack=stream.getVideoTracks()[0];
+  const actualFacing=actualTrack&&actualTrack.getSettings?actualTrack.getSettings().facingMode:null;
+  if(actualFacing)currentFacingMode=actualFacing;
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
   preview.srcObject=stream;
   preview.play().catch(()=>{});
   const initialSwitch=$('phone-switch-camera');
-  if(initialSwitch)initialSwitch.textContent=preferredFacing==='environment'?'Switch to front camera':'Switch to back camera';
+  if(initialSwitch)initialSwitch.textContent=currentFacingMode==='environment'?'Switch to front camera':'Switch to back camera';
+  if(currentFacingMode!==preferredFacing)say('Camera opened, but browser selected '+(currentFacingMode==='environment'?'back':'front')+' camera. You can switch it here.');
   if(pipButton){
    const supportsPiP=!!(document.pictureInPictureEnabled&&preview.requestPictureInPicture)||typeof preview.webkitSetPresentationMode==='function';
    pipButton.hidden=!supportsPiP;
