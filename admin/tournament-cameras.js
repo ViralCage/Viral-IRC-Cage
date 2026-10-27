@@ -57,7 +57,9 @@ async function createSession(){
   await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active',match});
   const url=new URL('/tournament-camera/',window.location.origin);url.searchParams.set('s',sessionId);
   $('camera-invite-link').value=url.toString();$('camera-session-code').textContent=sessionId;
-  $('camera-session-tools').hidden=false;$('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
+  $('camera-session-tools').hidden=false;
+  const qr=$('camera-invite-qr');
+  if(window.QRCode&&qr){qr.innerHTML='';await QRCode.toCanvas(url.toString(),{width:220,margin:2,errorCorrectionLevel:'M',color:{dark:'#111827',light:'#ffffff'}},(err,canvas)=>{if(err){qr.textContent='QR code could not be generated.';return;}qr.appendChild(canvas);});}$('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
   status('SESSION ACTIVE · EXPIRES IN 2 HOURS');watchSession();
   expiryTimer=setTimeout(()=>{closeSession().catch(()=>{});},Math.max(0,expiresAt-Date.now()));
  }catch(e){status('Could not create session: '+e.message);}
@@ -68,6 +70,13 @@ async function approve(uid,slot){if(!sessionRef||!adminUid)return;const request=
 document.addEventListener('click',e=>{const approveBtn=e.target.closest('[data-camera-approve]');if(approveBtn)approve(approveBtn.dataset.cameraApprove,approveBtn.dataset.cameraSlot);});
 $('camera-create-session')?.addEventListener('click',createSession);
 $('camera-close-session')?.addEventListener('click',()=>closeSession());
+$('camera-share-invite')?.addEventListener('click',async()=>{
+ const url=$('camera-invite-link')?.value;if(!url)return;
+ const data={title:'Viral Cage Play · Tournament Camera',text:'Join the live tournament camera session.',url};
+ try{if(navigator.share&&(!navigator.canShare||navigator.canShare(data))){await navigator.share(data);status('INVITATION READY TO SHARE');}
+ else{await navigator.clipboard.writeText(url);status('INVITATION LINK COPIED · SHARE IT IN YOUR MESSAGE APP');}}
+ catch(e){if(e&&e.name==='AbortError')return;try{await navigator.clipboard.writeText(url);status('INVITATION LINK COPIED');}catch(_){status('USE COPY INVITATION TO SHARE THIS LINK');}}
+});
 $('camera-copy-invite')?.addEventListener('click',async()=>{const input=$('camera-invite-link');if(!input.value)return;try{await navigator.clipboard.writeText(input.value);status('INVITATION LINK COPIED');}catch(_){input.select();document.execCommand('copy');status('INVITATION LINK COPIED');}});
 window.initTournamentCameras=function(options){if(!options||!options.db||!options.uid)return;db=options.db;adminUid=options.uid;status('READY · CREATE A PRIVATE SESSION');};
 window.addEventListener('vc-admin-ready',e=>window.initTournamentCameras(e.detail));
