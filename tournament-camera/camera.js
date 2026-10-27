@@ -12,7 +12,7 @@ async function startCamera(){
   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
   $('preview-wrap').hidden=false;$('preview').srcObject=stream;
   pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));
-  pc.onconnectionstatechange=()=>say('Camera connection: '+pc.connectionState.toUpperCase());
+  pc.onconnectionstatechange=()=>{say('Camera connection: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
   pc.onicecandidate=e=>{if(e.candidate)phoneSignal.child('candidates').push(e.candidate.toJSON()).catch(err=>say('Network setup failed: '+err.message));};
   let remoteReady=false;const queued=[];
