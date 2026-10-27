@@ -1071,3 +1071,10 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .spectator-camera-frame.has-live-video .spectator-camera-status{background:#061b17d9;color:#9bf0c8}
 .camera-slots[hidden]{display:none!important}
 @media(max-width:760px){.spectator-tv-layout{grid-template-columns:minmax(0,1fr);gap:12px}.spectator-board-face{grid-row:1}.spectator-tv-seat{display:grid;grid-template-columns:minmax(100px,.75fr) minmax(0,1fr);align-items:center}.spectator-camera-frame{aspect-ratio:16/9;min-height:0}.spectator-camera-frame video{object-fit:cover}}
+
+/* Shareable tournament camera invitation and QR code */
+.camera-qr-panel{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:16px 0;padding:16px;border:1px solid #35415d;border-radius:14px;background:linear-gradient(145deg,#151e31,#0c1220)}
+.camera-qr-panel h3{margin:0 0 6px;font-size:15px;color:#f4f6ff}
+.camera-invite-qr{flex:none;display:grid;place-items:center;min-width:156px;min-height:156px;padding:10px;background:#fff;border-radius:10px}
+.camera-invite-qr canvas{display:block;width:220px!important;height:220px!important;max-width:100%;max-height:100%}
+@media(max-width:520px){.camera-qr-panel{flex-direction:column;align-items:flex-start}.camera-invite-qr{align-self:center}}
