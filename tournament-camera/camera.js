@@ -34,11 +34,14 @@ async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
   say('Admin accepted your call. Allow camera and microphone access…');
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const preferredFacing=$('camera-facing')?.value==='environment'?'environment':'user';
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:preferredFacing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
   preview.srcObject=stream;
   preview.play().catch(()=>{});
+  const initialSwitch=$('phone-switch-camera');
+  if(initialSwitch)initialSwitch.textContent=preferredFacing==='environment'?'Switch to front camera':'Switch to back camera';
   if(pipButton){
    const supportsPiP=!!(document.pictureInPictureEnabled&&preview.requestPictureInPicture)||typeof preview.webkitSetPresentationMode==='function';
    pipButton.hidden=!supportsPiP;
@@ -75,7 +78,7 @@ async function init(){
   if(!meta||meta.status!=='active'||Number(meta.expiresAt)<=Date.now()){say('This camera invitation has expired or was closed. Ask admin for a new link.');return;}
   const slot=$('slot'),nicknameInput=$('nickname'),requestBtn=$('request');
   if(!slot||!nicknameInput||!requestBtn){say('Camera page is incomplete. Reload this page or ask the admin to refresh the site.');return;}
-  requestBtn.disabled=false;say('Enter your nickname and choose left or right camera. No game-name matching is required.');
+  requestBtn.disabled=false;say('Enter your nickname, choose a camera position and front or back camera, then connect.');
   requestBtn.addEventListener('click',async()=>{const nickname=String(nicknameInput.value||'').trim().slice(0,32),selected=String(slot.value||'1');if(!nickname){say('Please enter your nickname first.');nicknameInput.focus();return;}requestBtn.disabled=true;try{await sessionRef.child('declinedRequests/'+uid).remove();await sessionRef.child('joinRequests/'+uid).set({nickname,requestedSlot:selected,createdAt:Date.now()});say('Request sent as '+nickname+'. Waiting for admin approval…');participantRef=sessionRef.child('participants/'+uid);participantHandler=snap=>{const p=snap.val();if(p&&p.callState==='ended'){say('Admin ended the call.');clean();return;}if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');};participantRef.on('value',participantHandler,err=>{say('Connection update failed: '+err.message);requestBtn.disabled=false;});declineHandler=snap=>{if(snap.exists()){say('Admin declined the call request.');requestBtn.disabled=false;}};sessionRef.child('declinedRequests/'+uid).on('value',declineHandler);}catch(e){say('Could not send request: '+(e&&e.message?e.message:String(e)));requestBtn.disabled=false;}});
  }catch(e){say(e.code==='auth/operation-not-allowed'?'Anonymous Authentication is not enabled in Firebase.':e.message||'Could not connect to the camera service.');}
 }
