@@ -4834,15 +4834,33 @@
             voiceCallerRole = answeringIncoming ? oppositeRole(onlineRole) : onlineRole;
             voiceLocalStream.getTracks().forEach(track => voicePeerConnection.addTrack(track, voiceLocalStream));
             voicePeerConnection.ontrack = event => {
-                const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
+                // Use the negotiated remote stream for both media elements. The
+                // separate audio element carries sound; mute the video element so
+                // browser autoplay policies do not block the opponent's picture.
+                const stream = event.streams && event.streams[0]
+                    ? event.streams[0]
+                    : new MediaStream([event.track]);
                 const audio = document.getElementById('remoteVoiceAudio');
                 const remoteVideo = document.getElementById('remoteVideo');
-                if (audio) { audio.srcObject = stream; audio.play().catch(() => setVoiceStatus('Call connected. Tap the page once if audio does not start.')); }
-                if (remoteVideo && voiceCallMediaType === 'video') {
+                if (audio && !audio.srcObject) {
+                    audio.srcObject = stream;
+                    audio.play().catch(() => setVoiceStatus('Call connected. Tap the page once if audio does not start.'));
+                }
+                if (remoteVideo && event.track.kind === 'video') {
+                    remoteVideo.muted = true;
+                    remoteVideo.autoplay = true;
+                    remoteVideo.playsInline = true;
                     remoteVideo.srcObject = stream;
-                    remoteVideo.play().catch(() => {});
-                    const placeholder = document.getElementById('videoPlaceholder');
-                    if (placeholder && event.track.kind === 'video') placeholder.style.display = 'none';
+                    const revealRemoteVideo = () => {
+                        const placeholder = document.getElementById('videoPlaceholder');
+                        if (placeholder && remoteVideo.videoWidth > 0 && remoteVideo.videoHeight > 0) placeholder.style.display = 'none';
+                    };
+                    remoteVideo.addEventListener('loadeddata', revealRemoteVideo, { once: true });
+                    remoteVideo.addEventListener('playing', revealRemoteVideo, { once: true });
+                    remoteVideo.play().then(revealRemoteVideo).catch(err => {
+                        console.warn('Remote video autoplay was blocked:', err);
+                        setVoiceStatus('Opponent video received. Tap the video window to start playback.');
+                    });
                 }
             };
             voicePeerConnection.onicecandidate = event => {
