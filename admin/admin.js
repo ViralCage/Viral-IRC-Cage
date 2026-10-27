@@ -649,7 +649,7 @@ $('room-list').addEventListener('click',e=>{const copy=e.target.closest('.copy-r
 $('freeze-match-button')?.addEventListener('click',toggleFreezeMatch);
 $('reset-match-button')?.addEventListener('click',()=>sendAdminGameCommand('reset_match'));
 $('override-result-button')?.addEventListener('click',()=>sendAdminGameCommand('override_result'));
-$('end-match-button')?.addEventListener('click',endSelectedMatch);.addEventListener('click',renderPlayers);
+$('player-search-button')?.addEventListener('click',renderPlayers);
 $('player-search').addEventListener('input',renderPlayers);
  $('ban-submit')?.addEventListener('click',createBan);
  $('ban-record-list')?.addEventListener('click',e=>{const b=e.target.closest('[data-unban-uid]');if(b)revokeBan(b.getAttribute('data-unban-uid'));});
