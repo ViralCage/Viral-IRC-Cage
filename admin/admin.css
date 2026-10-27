@@ -1059,3 +1059,15 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .camera-connection{display:block;color:#aab3c8;margin-top:7px;font-size:11px}
 .camera-empty{color:#9ba7bd;font-size:13px}
 @media(max-width:680px){.camera-slots{grid-template-columns:1fr}.camera-invite-row input{min-width:100%}}
+
+/* Stable live camera feeds embedded in the tournament game stage */
+.spectator-tv-layout{grid-template-columns:minmax(150px,.78fr) minmax(300px,1.8fr) minmax(150px,.78fr);align-items:stretch}
+.spectator-tv-seat{min-width:0;justify-content:space-between}
+.spectator-camera-frame{aspect-ratio:4/5;min-height:150px}
+.spectator-camera-placeholder{display:flex;flex-direction:column;align-items:center;gap:10px}
+.spectator-camera-frame video{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;background:#03060b;border-radius:10px;z-index:1}
+.spectator-camera-frame.has-live-video .spectator-camera-placeholder{display:none}
+.spectator-camera-frame .spectator-camera-status{position:absolute;z-index:2;left:6px;right:6px;bottom:7px;padding:5px 6px;border-radius:6px;background:#050912cc;color:#d7e7ff;font-size:8px}
+.spectator-camera-frame.has-live-video .spectator-camera-status{background:#061b17d9;color:#9bf0c8}
+.camera-slots[hidden]{display:none!important}
+@media(max-width:760px){.spectator-tv-layout{grid-template-columns:minmax(0,1fr);gap:12px}.spectator-board-face{grid-row:1}.spectator-tv-seat{display:grid;grid-template-columns:minmax(100px,.75fr) minmax(0,1fr);align-items:center}.spectator-camera-frame{aspect-ratio:16/9;min-height:0}.spectator-camera-frame video{object-fit:cover}}
