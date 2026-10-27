@@ -9,7 +9,7 @@ async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
   say('Admin approved. Requesting camera permission…');
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
   $('preview-wrap').hidden=false;$('preview').srcObject=stream;
   pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));
   pc.onconnectionstatechange=()=>{say('Camera connection: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
@@ -32,8 +32,11 @@ async function init(){
   const credential=await auth.signInAnonymously();uid=credential.user.uid;sessionRef=db.ref('tournamentCameras/sessions/'+sessionId);
   const meta=(await sessionRef.child('meta').once('value')).val();
   if(!meta||meta.status!=='active'||Number(meta.expiresAt)<=Date.now()){say('This camera invitation has expired or was closed. Ask admin for a new link.');return;}
-  const requestBtn=$('request');requestBtn.disabled=false;say('Private session found. Select a camera slot and request approval.');
-  requestBtn.addEventListener('click',async()=>{requestBtn.disabled=true;try{const nickname=$('nickname').value.trim()||'Phone camera';await sessionRef.child('joinRequests/'+uid).set({nickname:nickname.slice(0,32),requestedSlot:$('slot').value,createdAt:Date.now()});say('Request sent. Keep this page open while the admin approves your phone.');participantRef=sessionRef.child('participants/'+uid);participantRef.on('value',snap=>{const p=snap.val();if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');});}catch(e){say('Could not send request: '+e.message);requestBtn.disabled=false;}});
+  const match=meta.match||{},slot=$('slot');
+  const name1=String(match.player1Name||'Player 1'),name2=String(match.player2Name||'Player 2');
+  slot.options[0].textContent='Slot 1 — '+name1;slot.options[1].textContent='Slot 2 — '+name2;
+  const requestBtn=$('request');requestBtn.disabled=false;say('Match found. Choose which player this phone belongs to and request approval.');
+  requestBtn.addEventListener('click',async()=>{requestBtn.disabled=true;try{const selected=slot.value,nickname=selected==='1'?name1:name2;await sessionRef.child('joinRequests/'+uid).set({nickname:nickname.slice(0,32),requestedSlot:selected,createdAt:Date.now()});say('Request sent for '+nickname+'. Waiting for admin approval…');participantRef=sessionRef.child('participants/'+uid);participantRef.on('value',snap=>{const p=snap.val();if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');});}catch(e){say('Could not send request: '+e.message);requestBtn.disabled=false;}});
  }catch(e){say(e.code==='auth/operation-not-allowed'?'Anonymous Authentication is not enabled in Firebase.':e.message||'Could not connect to the camera service.');}
 }
 window.addEventListener('pagehide',clean);document.addEventListener('visibilitychange',()=>{if(document.hidden&&pc&&pc.connectionState==='connected')say('Camera is still connected. Keep this page open.');});
