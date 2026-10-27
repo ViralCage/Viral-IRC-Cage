@@ -264,36 +264,15 @@ function renderSpectatorGame(room){
   return {role,name,connected:!!live.connected};
  });
  const seatCard=(seat,index)=>{
-  const slot=index+1,side=index===0?'PLAYER 1':'PLAYER 2',tone=index===0?'seat-one':'seat-two';
+  const side=index===0?'PLAYER 1':'PLAYER 2',tone=index===0?'seat-one':'seat-two';
   const state=seat.connected?'PLAYER CONNECTED':'WAITING FOR PLAYER';
-  return '<aside class="spectator-tv-seat '+tone+'"><div class="spectator-camera-frame" id="spectator-camera-frame-'+slot+'"><div class="spectator-camera-placeholder"><div class="spectator-camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="27" height="26" rx="5"></rect><path d="m32 19 11-6v22l-11-6z"></path><circle cx="18.5" cy="24" r="6"></circle></svg></div><span class="spectator-camera-label">CAMERA '+slot+'</span></div><span class="spectator-camera-status" id="spectator-camera-status-'+slot+'">WAITING FOR CAMERA</span></div><div class="spectator-seat-info"><span class="spectator-player-side">'+side+'</span><strong>'+esc(seat.name)+'</strong><small><i class="'+(seat.connected?'is-connected':'')+'"></i>'+state+'</small></div></aside>';
+  return '<aside class="spectator-tv-seat '+tone+'"><div class="spectator-camera-frame"><div class="spectator-camera-glow"></div><div class="spectator-camera-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="5" y="11" width="27" height="26" rx="5"></rect><path d="m32 19 11-6v22l-11-6z"></path><circle cx="18.5" cy="24" r="6"></circle></svg></div><span class="spectator-camera-label">CAMERA FEED</span><span class="spectator-camera-status">'+(seat.connected?'CAMERA NOT SHARED':'PLAYER OFFLINE')+'</span></div><div class="spectator-seat-info"><span class="spectator-player-side">'+side+'</span><strong>'+esc(seat.name)+'</strong><small><i class="'+(seat.connected?'is-connected':'')+'"></i>'+state+'</small></div></aside>';
  };
  const playerLabels=seats.map(seat=>esc(seat.name)+(seat.connected?' (connected)':''));
  const shortRoomCode=roomCodesById[activeSpectatorRoomId]||'';
  $('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(shortRoomCode||'CODE UNAVAILABLE')+'</strong>'+(shortRoomCode?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(shortRoomCode)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">'+esc(meta)+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+' · Room ID: '+esc(activeSpectatorRoomId)+(data.winner?' · Winner: '+esc(data.winner):'')+'</div>';
  $('spectator-data').innerHTML='<div class="spectator-tv-layout">'+seatCard(seats[0],0)+'<main class="spectator-board-face">'+board+'</main>'+seatCard(seats[1],1)+'</div>';
- // Reuse the same video DOM nodes so Firebase board refreshes do not interrupt WebRTC streams.
- for(let slot=1;slot<=2;slot++){
-  const frame=$('spectator-camera-frame-'+slot),video=window.getTournamentCameraVideo&&window.getTournamentCameraVideo(slot);
-  const status=$('spectator-camera-status-'+slot);
-  if(status&&window.getTournamentCameraStatus)status.textContent=window.getTournamentCameraStatus(slot).toUpperCase();
-  if(frame&&video){frame.insertBefore(video,frame.querySelector('.spectator-camera-status'));frame.classList.add('has-live-video');}
- }
-}
-window.addEventListener('vc-tournament-camera-update',()=>{if(activeSpectatorRoomData&&activeSpectatorRoomId)renderSpectatorGame(activeSpectatorRoomData);});
-window.getActiveTournamentCameraMatch=function(){
- const room=activeSpectatorRoomData;
- if(!room||!activeSpectatorRoomId)return null;
- const names=room.playerNames||{},presence=room.presence||{};
- const roles=[...new Set([...Object.keys(names),...Object.keys(presence)])];
- const aliases=[['player1','player_1','p1','goat','goats','white','x','1'],['player2','player_2','p2','tiger','tigers','black','o','2']];
- const players=aliases.map((list,index)=>{
-  const role=roles.find(r=>list.includes(String(r).toLowerCase()))||roles[index]||'';
-  const live=role?presence[role]||{}:{};
-  return String(live.name||(role&&names[role])||'Player '+(index+1)).trim();
- });
- return {roomId:activeSpectatorRoomId,player1Name:players[0],player2Name:players[1]};
-};
+
 function loadRoomEditor(){
  const roomId=$('room-editor-id').value.trim();
  if(!roomId||!db){$('room-editor-status').textContent='SELECT A ROOM FIRST';return;}
@@ -661,7 +640,7 @@ function startMonitoring(){
  const savedRoom=new URLSearchParams(window.location.search).get('watch');
  if(savedRoom)watchRoom(savedRoom);
 }
-function verify(user){const signedInAt=Date.parse(user.metadata&&user.metadata.lastSignInTime||'');if(Number.isFinite(signedInAt)&&Date.now()-signedInAt>30*24*60*60*1000){deny();return auth.signOut().then(()=>{throw new Error('Admin session expired after 30 days. Please sign in again.');});}return user.getIdTokenResult(true).then(result=>{if(result.claims.superAdmin!==true){deny();return auth.signOut().then(()=>{throw new Error('This account does not have Super Admin permission.');});}document.body.classList.add('admin-authenticated');state('SUPER ADMIN');msg('Authorized administrator session active. Moderation records are stored separately from game data.','success');startMonitoring();adminUid=user.uid;watchModeration();window.dispatchEvent(new CustomEvent('vc-admin-ready',{detail:{db,uid:user.uid}}));return user;});}
+function verify(user){const signedInAt=Date.parse(user.metadata&&user.metadata.lastSignInTime||'');if(Number.isFinite(signedInAt)&&Date.now()-signedInAt>30*24*60*60*1000){deny();return auth.signOut().then(()=>{throw new Error('Admin session expired after 30 days. Please sign in again.');});}return user.getIdTokenResult(true).then(result=>{if(result.claims.superAdmin!==true){deny();return auth.signOut().then(()=>{throw new Error('This account does not have Super Admin permission.');});}document.body.classList.add('admin-authenticated');state('SUPER ADMIN');msg('Authorized administrator session active. Moderation records are stored separately from game data.','success');startMonitoring();adminUid=user.uid;watchModeration();return user;});}
 try{if(!window.firebase)throw new Error('Firebase SDK did not load.');if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.database();auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(()=>{auth.onAuthStateChanged(user=>{if(!user){deny();state('SIGNED OUT');return;}state('VERIFYING ACCESS');verify(user).catch(e=>{msg(e.message||'Admin access denied.','error');state('ACCESS DENIED');});});});}catch(e){msg(e.message||'Could not initialize Firebase.','error');state('LOGIN UNAVAILABLE');}
 googleButton.addEventListener('click',()=>{if(!auth){msg('Firebase login is unavailable.','error');return;}googleButton.disabled=true;googleButton.textContent='Connecting to Google…';msg('Checking administrator permission…');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(provider).then(verify).catch(e=>msg(e.message||'Google sign-in failed.','error')).finally(()=>{googleButton.disabled=false;googleButton.innerHTML='<span class="google-g" aria-hidden="true">G</span> Continue with Google';});});
 form.addEventListener('submit',e=>{e.preventDefault();if(!auth){msg('Firebase login is unavailable.','error');return;}button.disabled=true;button.textContent='Signing in…';msg('Checking administrator permission…');auth.signInWithEmailAndPassword(email.value.trim(),password.value).then(verify).catch(e=>msg(e.message||'Sign-in failed.','error')).finally(()=>{button.disabled=false;button.textContent='Sign in with email';password.value='';});});
