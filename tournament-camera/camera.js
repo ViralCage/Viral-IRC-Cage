@@ -9,7 +9,7 @@ async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
   say('Admin accepted your call. Allow camera and microphone access…');
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
   preview.srcObject=stream;
