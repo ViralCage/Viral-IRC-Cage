@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
 let db=null,adminUid='',sessionId='',sessionRef=null,requestsRef=null,participantsRef=null,requestHandler=null,participantHandler=null,participantChangedHandler=null,peerByUid=new Map(),candidateHandlers=new Map(),offerHandlers=new Map(),activeStreams=new Map(),remoteAudioByUid=new Map(),expiryTimer=null,videoBySlot=new Map(),uidToSlot=new Map(),cameraStatus=new Map(),adminMediaStream=null,adminMuted=false,adminCameraOff=false;
 const root='tournamentCameras/sessions/';
 function status(text){const el=$('camera-admin-status');if(el)el.textContent=text;}
