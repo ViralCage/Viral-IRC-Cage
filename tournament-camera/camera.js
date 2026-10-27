@@ -10,7 +10,22 @@ async function startCamera(){
  try{
   say('Admin approved. Requesting camera permission…');
   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
-  $('preview-wrap').hidden=false;$('preview').srcObject=stream;
+  $('preview-wrap').hidden=false;
+  const preview=$('preview'),pipButton=$('pip-button');
+  preview.srcObject=stream;
+  preview.play().catch(()=>{});
+  if(pipButton){
+   const supportsPiP=!!(document.pictureInPictureEnabled&&preview.requestPictureInPicture)||typeof preview.webkitSetPresentationMode==='function';
+   pipButton.hidden=!supportsPiP;
+   pipButton.onclick=async()=>{
+    try{
+     if(document.pictureInPictureElement===preview){await document.exitPictureInPicture();return;}
+     if(document.pictureInPictureEnabled&&preview.requestPictureInPicture)await preview.requestPictureInPicture();
+     else if(typeof preview.webkitSetPresentationMode==='function')preview.webkitSetPresentationMode('picture-in-picture');
+     else say('Picture-in-Picture is not supported by this browser. Keep the camera tab open.');
+    }catch(error){say('Could not float the camera: '+(error.message||'Browser blocked Picture-in-Picture.'));}
+   };
+  }
   pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));
   pc.onconnectionstatechange=()=>{say('Camera connection: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
