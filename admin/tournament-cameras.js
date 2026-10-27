@@ -60,6 +60,6 @@ $('camera-close-session')?.addEventListener('click',()=>closeSession());
 $('camera-copy-invite')?.addEventListener('click',async()=>{const input=$('camera-invite-link');if(!input.value)return;try{await navigator.clipboard.writeText(input.value);status('INVITATION LINK COPIED');}catch(_){input.select();document.execCommand('copy');status('INVITATION LINK COPIED');}});
 window.initTournamentCameras=function(options){if(!options||!options.db||!options.uid)return;db=options.db;adminUid=options.uid;status('READY · CREATE A PRIVATE SESSION');};
 window.addEventListener('vc-admin-ready',e=>window.initTournamentCameras(e.detail));
-window.addEventListener('vc-admin-signed-out',()=>{stopSessionListeners();db=null;adminUid='';sessionId='';sessionRef=null;if($('camera-session-tools'))$('camera-session-tools').hidden=true;status('ADMIN SIGN-IN REQUIRED');});
+window.addEventListener('vc-admin-signed-out',()=>{if(sessionRef)sessionRef.child('meta/status').set('closed').catch(()=>{});stopSessionListeners();db=null;adminUid='';sessionId='';sessionRef=null;if($('camera-session-tools'))$('camera-session-tools').hidden=true;status('ADMIN SIGN-IN REQUIRED');});
 window.stopTournamentCameras=function(){stopSessionListeners();};
 })();
