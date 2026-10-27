@@ -5,11 +5,36 @@ const $=id=>document.getElementById(id),sessionId=new URLSearchParams(location.s
 let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,participantHandler,declineHandler,stopped=false,cameraStarted=false,remoteAdminStream=null,phoneMuted=false,phoneCameraOff=false;
 function say(t){$('status').textContent=t;}
 function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.child('adminToPhone/answer').off('value',answerHandler);if(candidateHandler&&participantRef)participantRef.child('adminToPhone/candidates').off('child_added',candidateHandler);if(participantHandler&&participantRef)participantRef.off('value',participantHandler);if(declineHandler&&sessionRef)sessionRef.child('declinedRequests/'+uid).off('value',declineHandler);if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=$('preview');if(v)v.srcObject=null;const remote=$('admin-video');if(remote)remote.srcObject=null;}
+async function switchPhoneCamera(){
+ if(!stream||!pc)return;
+ const oldTrack=stream.getVideoTracks()[0];
+ const currentFacing=oldTrack&&oldTrack.getSettings?oldTrack.getSettings().facingMode:'user';
+ const nextFacing=currentFacing==='environment'?'user':'environment';
+ let nextStream=null;
+ try{
+  nextStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:nextFacing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
+  let nextTrack=nextStream.getVideoTracks()[0];
+  if(!nextTrack)throw new Error('No camera was found.');
+  const sender=pc.getSenders().find(item=>item.track&&item.track.kind==='video');
+  if(sender)await sender.replaceTrack(nextTrack);
+  else pc.addTrack(nextTrack,stream);
+  if(oldTrack){stream.removeTrack(oldTrack);oldTrack.stop();}
+  stream.addTrack(nextTrack);
+  const preview=$('preview');if(preview)preview.srcObject=stream;
+  const button=$('phone-switch-camera');
+  const facing=nextTrack.getSettings?nextTrack.getSettings().facingMode:nextFacing;
+  if(button)button.textContent=facing==='environment'?'Switch to front camera':'Switch to back camera';
+  say(facing==='environment'?'Back camera active.':'Front camera active.');
+ }catch(error){
+  if(nextStream)nextStream.getTracks().forEach(track=>track.stop());
+  say('Could not switch camera: '+(error.message||'Camera unavailable. Try again.'));
+ }
+}
 async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
   say('Admin accepted your call. Allow camera and microphone access…');
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
   preview.srcObject=stream;
@@ -27,7 +52,7 @@ async function startCamera(){
    };
   }
   pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));pc.ontrack=e=>{const remote=$('admin-video');if(remote){remoteAdminStream=e.streams[0];remote.srcObject=remoteAdminStream;remote.muted=false;remote.play().catch(()=>say('Tap the admin video to enable call audio.'));$('admin-video-wrap').hidden=false;}};
-  const mute=$('phone-mute'),camera=$('phone-camera-toggle'),end=$('phone-end-call');if(mute)mute.onclick=()=>{phoneMuted=!phoneMuted;stream.getAudioTracks().forEach(t=>t.enabled=!phoneMuted);mute.textContent=phoneMuted?'Unmute microphone':'Mute microphone';};if(camera)camera.onclick=()=>{phoneCameraOff=!phoneCameraOff;stream.getVideoTracks().forEach(t=>t.enabled=!phoneCameraOff);camera.textContent=phoneCameraOff?'Turn camera on':'Turn camera off';};if(end)end.onclick=async()=>{if(participantRef)await participantRef.child('callState').set('ended').catch(()=>{});say('You ended the call.');clean();};
+  const mute=$('phone-mute'),camera=$('phone-camera-toggle'),switchCamera=$('phone-switch-camera'),end=$('phone-end-call');if(mute)mute.onclick=()=>{phoneMuted=!phoneMuted;stream.getAudioTracks().forEach(t=>t.enabled=!phoneMuted);mute.textContent=phoneMuted?'Unmute microphone':'Mute microphone';};if(camera)camera.onclick=()=>{phoneCameraOff=!phoneCameraOff;stream.getVideoTracks().forEach(t=>t.enabled=!phoneCameraOff);camera.textContent=phoneCameraOff?'Turn camera on':'Turn camera off';};if(switchCamera)switchCamera.onclick=switchPhoneCamera;if(end)end.onclick=async()=>{if(participantRef)await participantRef.child('callState').set('ended').catch(()=>{});say('You ended the call.');clean();};
   pc.onconnectionstatechange=()=>{say('Video call: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
   pc.onicecandidate=e=>{if(e.candidate)phoneSignal.child('candidates').push(e.candidate.toJSON()).catch(err=>say('Network setup failed: '+err.message));};
