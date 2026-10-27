@@ -1078,3 +1078,5 @@ textarea{width:100%;background:#0b0f1a;border:1px solid #30384e;border-radius:9p
 .camera-invite-qr{flex:none;display:grid;place-items:center;min-width:156px;min-height:156px;padding:10px;background:#fff;border-radius:10px}
 .camera-invite-qr canvas{display:block;width:220px!important;height:220px!important;max-width:100%;max-height:100%}
 @media(max-width:520px){.camera-qr-panel{flex-direction:column;align-items:flex-start}.camera-invite-qr{align-self:center}}
+
+.camera-request-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.camera-call-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;margin-top:8px;border:1px solid #39445e;border-radius:10px;background:#101a2b}.camera-call-controls strong{margin-right:auto;color:#dce4f8;font-size:12px}.camera-call-controls .button{font-size:11px;padding:8px 10px}
