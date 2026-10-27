@@ -2082,6 +2082,8 @@
     let voiceMuted = false;
     let voiceCallMediaType = 'audio';
     let voiceRemoteCandidates = [];
+    let voiceOfferHandlingPromise = null;
+    let voiceOfferHandlingSdp = null;
     let voiceOfferListener = null;
     let voiceAnswerListener = null;
     let voiceCandidateListener = null;
@@ -4756,17 +4758,38 @@
 
     async function handleVoiceOffer(offer) {
         if (!voicePeerConnection || !offer || !offer.sdp || onlineRole === voiceCallerRole) return;
+        if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === offer.sdp) return;
+        // Firebase's value listener fires immediately when attached. The Answer
+        // button also handles the saved offer, so serialize both paths by SDP.
+        if (voiceOfferHandlingPromise && voiceOfferHandlingSdp === offer.sdp) {
+            await voiceOfferHandlingPromise;
+            return;
+        }
+        const offerSdp = offer.sdp;
+        voiceOfferHandlingSdp = offerSdp;
+        const handling = (async () => {
+            try {
+                if (!voicePeerConnection) return;
+                if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === offerSdp) return;
+                await voicePeerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                await flushVoiceCandidates();
+                const answer = await voicePeerConnection.createAnswer();
+                await voicePeerConnection.setLocalDescription(answer);
+                await onlineRoomRef.child('voiceChat/answer').set({ type: answer.type, sdp: answer.sdp });
+                setVoiceStatus('Connecting to your opponent…');
+            } catch (err) {
+                console.error('Voice offer error:', err);
+                setVoiceStatus('Could not answer the voice call. Disconnect and try again.');
+            }
+        })();
+        voiceOfferHandlingPromise = handling;
         try {
-            if (voicePeerConnection.remoteDescription && voicePeerConnection.remoteDescription.sdp === offer.sdp) return;
-            await voicePeerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            await flushVoiceCandidates();
-            const answer = await voicePeerConnection.createAnswer();
-            await voicePeerConnection.setLocalDescription(answer);
-            await onlineRoomRef.child('voiceChat/answer').set({ type: answer.type, sdp: answer.sdp });
-            setVoiceStatus('Connecting to your opponent…');
-        } catch (err) {
-            console.error('Voice offer error:', err);
-            setVoiceStatus('Could not answer the voice call. Disconnect and try again.');
+            await handling;
+        } finally {
+            if (voiceOfferHandlingSdp === offerSdp) {
+                voiceOfferHandlingPromise = null;
+                voiceOfferHandlingSdp = null;
+            }
         }
     }
 
@@ -4804,6 +4827,8 @@
             if (localVideo) { localVideo.srcObject = voiceCallMediaType === 'video' ? voiceLocalStream : null; localVideo.style.display = voiceCallMediaType === 'video' ? 'block' : 'none'; }
             voicePeerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
             voiceRemoteCandidates = [];
+            voiceOfferHandlingPromise = null;
+            voiceOfferHandlingSdp = null;
             voiceActive = true;
             voiceMuted = false;
             voiceCallerRole = answeringIncoming ? oppositeRole(onlineRole) : onlineRole;
@@ -4901,6 +4926,8 @@
         if (voiceLocalStream) voiceLocalStream.getTracks().forEach(track => track.stop());
         voiceLocalStream = null;
         voiceRemoteCandidates = [];
+        voiceOfferHandlingPromise = null;
+        voiceOfferHandlingSdp = null;
         voiceActive = false;
         voiceMuted = false;
         voiceCallerRole = null;
