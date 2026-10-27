@@ -8,7 +8,7 @@ function status(text){const el=$('camera-admin-status');if(el)el.textContent=tex
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function stopPeer(uid){const pc=peerByUid.get(uid);if(pc){try{pc.close();}catch(_){}peerByUid.delete(uid);}const h=candidateHandlers.get(uid);if(h&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/candidates').off('child_added',h);candidateHandlers.delete(uid);}const oh=offerHandlers.get(uid);if(oh&&sessionRef){sessionRef.child('participants/'+uid+'/phoneToAdmin/offer').off('value',oh);offerHandlers.delete(uid);}const stream=activeStreams.get(uid);if(stream){stream.getTracks().forEach(t=>t.stop());activeStreams.delete(uid);}const slot=uidToSlot.get(uid);const video=slot&&videoBySlot.get(slot);if(video)video.srcObject=null;if(slot){cameraStatus.set(slot,'Camera disconnected');notifyCameraLayout();}uidToSlot.delete(uid);}
 function stopSessionListeners(){if(requestsRef&&requestHandler)requestsRef.off('value',requestHandler);if(participantsRef&&participantHandler)participantsRef.off('child_added',participantHandler);requestsRef=null;participantsRef=null;requestHandler=null;participantHandler=null;peerByUid.forEach((_,uid)=>stopPeer(uid));if(expiryTimer)clearTimeout(expiryTimer);expiryTimer=null;}
-function renderRequests(data){const host=$('camera-requests');if(!host)return;const rows=Object.entries(data||{});if(!rows.length){host.innerHTML='<p class="camera-empty">No phone requests yet. Open the invitation on two phones.</p>';return;}host.innerHTML=rows.map(([uid,r])=>'<div class="camera-request"><div><b>'+escapeHtml(r.nickname||'Phone camera')+'</b><small>Camera '+escapeHtml(r.requestedSlot||'?')+' · '+escapeHtml(uid.slice(0,9))+'</small></div><button class="button camera-approve" type="button" data-camera-approve="'+escapeHtml(uid)+'" data-camera-slot="'+escapeHtml(r.requestedSlot||'1')+'">Approve</button></div>').join('');}
+function renderRequests(data){const host=$('camera-requests');if(!host)return;const rows=Object.entries(data||{});if(!rows.length){host.innerHTML='<p class="camera-empty">No phone requests yet. Open the invitation on two phones.</p>';return;}host.innerHTML=rows.map(([uid,r])=>'<div class="camera-request"><div><b>'+escapeHtml(r.nickname||'Player')+'</b><small>Slot '+escapeHtml(r.requestedSlot||'?')+' · '+escapeHtml(uid.slice(0,9))+'</small></div><button class="button camera-approve" type="button" data-camera-approve="'+escapeHtml(uid)+'" data-camera-slot="'+escapeHtml(r.requestedSlot||'1')+'">Approve</button></div>').join('');}
 function notifyCameraLayout(){window.dispatchEvent(new CustomEvent('vc-tournament-camera-update'));}
 function renderSlot(uid,slot,label){
  slot=String(slot);uidToSlot.set(uid,slot);
@@ -49,10 +49,12 @@ async function createSession(){
  if(!db||!adminUid)return status('Sign in as Super Admin first.');
  const btn=$('camera-create-session');btn.disabled=true;
  try{
+  const match=window.getActiveTournamentCameraMatch&&window.getActiveTournamentCameraMatch();
+  if(!match)return status('OPEN WATCH ON AN ACTIVE MATCH BEFORE CREATING THE CAMERA INVITATION.');
   if(sessionId&&sessionRef)await sessionRef.child('meta/status').set('closed');
   stopSessionListeners();sessionId=db.ref(root).push().key;const now=Date.now(),expiresAt=now+2*60*60*1000;
   sessionRef=db.ref(root+sessionId);
-  await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active'});
+  await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active',match});
   const url=new URL('/tournament-camera/',window.location.origin);url.searchParams.set('s',sessionId);
   $('camera-invite-link').value=url.toString();$('camera-session-code').textContent=sessionId;
   $('camera-session-tools').hidden=false;$('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
