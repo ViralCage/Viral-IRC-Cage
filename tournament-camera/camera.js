@@ -8,7 +8,7 @@ function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.ch
 async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
-  say('Admin approved. Requesting camera permission…');
+  say('Admin accepted your call. Allow camera and microphone access…');
   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
@@ -26,7 +26,8 @@ async function startCamera(){
     }catch(error){say('Could not float the camera: '+(error.message||'Browser blocked Picture-in-Picture.'));}
    };
   }
-  pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));pc.ontrack=e=>{const remote=$('admin-video');if(remote){remoteAdminStream=e.streams[0];remote.srcObject=remoteAdminStream;remote.play().catch(()=>{});$('admin-video-wrap').hidden=false;}};
+  pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));pc.ontrack=e=>{const remote=$('admin-video');if(remote){remoteAdminStream=e.streams[0];remote.srcObject=remoteAdminStream;remote.muted=false;remote.play().catch(()=>say('Tap the admin video to enable call audio.'));$('admin-video-wrap').hidden=false;}};
+  const mute=$('phone-mute'),camera=$('phone-camera-toggle'),end=$('phone-end-call');if(mute)mute.onclick=()=>{phoneMuted=!phoneMuted;stream.getAudioTracks().forEach(t=>t.enabled=!phoneMuted);mute.textContent=phoneMuted?'Unmute microphone':'Mute microphone';};if(camera)camera.onclick=()=>{phoneCameraOff=!phoneCameraOff;stream.getVideoTracks().forEach(t=>t.enabled=!phoneCameraOff);camera.textContent=phoneCameraOff?'Turn camera on':'Turn camera off';};if(end)end.onclick=async()=>{if(participantRef)await participantRef.child('callState').set('ended').catch(()=>{});say('You ended the call.');clean();};
   pc.onconnectionstatechange=()=>{say('Video call: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
   pc.onicecandidate=e=>{if(e.candidate)phoneSignal.child('candidates').push(e.candidate.toJSON()).catch(err=>say('Network setup failed: '+err.message));};
@@ -34,7 +35,7 @@ async function startCamera(){
   candidateHandler=snap=>{const c=snap.val();if(!c)return;const ice=new RTCIceCandidate(c);if(remoteReady)pc.addIceCandidate(ice).catch(()=>{});else queued.push(ice);};
   adminSignal.child('candidates').on('child_added',candidateHandler);
   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
-  await phoneSignal.child('offer').set({type:offer.type,sdp:offer.sdp});
+  await phoneSignal.child('offer').set({type:offer.type,sdp:offer.sdp});await participantRef.child('callState').set('connecting').catch(()=>{});
   answerHandler=async snap=>{const answer=snap.val();if(!answer||!answer.sdp||pc.remoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(answer));remoteReady=true;while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});say('Video call connected. You can see and hear the admin.');}catch(e){say('Connection setup failed: '+e.message);}};
   adminSignal.child('answer').on('value',answerHandler);
  }catch(e){cameraStarted=false;say(e.name==='NotAllowedError'?'Camera permission was denied. Allow camera access in your browser settings.':e.message||'Could not start camera.');}
