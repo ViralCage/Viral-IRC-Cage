@@ -24,7 +24,7 @@ async function addPhone(uid,participant){
  if(!sessionRef||peerByUid.has(uid)||!participant||participant.approved!==true)return;
  const slot=String(participant.slot||'1');renderSlot(uid,slot,participant.nickname||'Phone connected');
  const pc=new RTCPeerConnection(STUN);peerByUid.set(uid,pc);
- pc.ontrack=e=>{const video=$('camera-video-'+uid);if(video){video.srcObject=e.streams[0];video.play().catch(()=>{});setPhoneState(uid,'LIVE · Camera connected');}};
+ pc.ontrack=e=>{const slot=uidToSlot.get(uid),video=slot&&videoBySlot.get(slot);if(video){video.srcObject=e.streams[0];video.play().catch(()=>{});setPhoneState(uid,'LIVE · Camera connected');}};
  pc.onconnectionstatechange=()=>setPhoneState(uid,'Connection: '+pc.connectionState.toUpperCase());
  const signal=sessionRef.child('participants/'+uid+'/phoneToAdmin'),adminSignal=sessionRef.child('participants/'+uid+'/adminToPhone');
  let remoteReady=false,answerStarted=false;const queued=[];
