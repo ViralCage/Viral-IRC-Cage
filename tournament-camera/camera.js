@@ -76,8 +76,10 @@ async function init(){
   const credential=await auth.signInAnonymously();uid=credential.user.uid;sessionRef=db.ref('tournamentCameras/sessions/'+sessionId);
   const meta=(await sessionRef.child('meta').once('value')).val();
   if(!meta||meta.status!=='active'||Number(meta.expiresAt)<=Date.now()){say('This camera invitation has expired or was closed. Ask admin for a new link.');return;}
-  const slot=$('slot'),nicknameInput=$('nickname'),requestBtn=$('request');
+  const slot=$('slot'),nicknameInput=$('nickname'),requestBtn=$('request'),facingSelect=$('camera-facing');
   if(!slot||!nicknameInput||!requestBtn){say('Camera page is incomplete. Reload this page or ask the admin to refresh the site.');return;}
+  // Always open the invitation with the front-facing selfie camera selected.
+  if(facingSelect)facingSelect.value='user';
   requestBtn.disabled=false;say('Enter your nickname, choose a camera position and front or back camera, then connect.');
   requestBtn.addEventListener('click',async()=>{const nickname=String(nicknameInput.value||'').trim().slice(0,32),selected=String(slot.value||'1');if(!nickname){say('Please enter your nickname first.');nicknameInput.focus();return;}requestBtn.disabled=true;try{await sessionRef.child('declinedRequests/'+uid).remove();await sessionRef.child('joinRequests/'+uid).set({nickname,requestedSlot:selected,createdAt:Date.now()});say('Request sent as '+nickname+'. Waiting for admin approval…');participantRef=sessionRef.child('participants/'+uid);participantHandler=snap=>{const p=snap.val();if(p&&p.callState==='ended'){say('Admin ended the call.');clean();return;}if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');};participantRef.on('value',participantHandler,err=>{say('Connection update failed: '+err.message);requestBtn.disabled=false;});declineHandler=snap=>{if(snap.exists()){say('Admin declined the call request.');requestBtn.disabled=false;}};sessionRef.child('declinedRequests/'+uid).on('value',declineHandler);}catch(e){say('Could not send request: '+(e&&e.message?e.message:String(e)));requestBtn.disabled=false;}});
  }catch(e){say(e.code==='auth/operation-not-allowed'?'Anonymous Authentication is not enabled in Firebase.':e.message||'Could not connect to the camera service.');}
