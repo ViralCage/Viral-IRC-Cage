@@ -15,22 +15,20 @@ async function addPhone(uid,participant){
  if(!sessionRef||peerByUid.has(uid)||!participant||participant.approved!==true)return;
  const slot=String(participant.slot||'1');renderSlot(uid,slot,participant.nickname||'Phone connected');
  const pc=new RTCPeerConnection(STUN);peerByUid.set(uid,pc);
- pc.ontrack=e=>{const video=$('camera-video-'+uid);if(video){video.srcObject=e.streams[0];video.play().catch(()=>{});setPhoneState(uid,'LIVE · '+(e.streams[0].getVideoTracks()[0]?.label||'Camera connected'));}};
+ pc.ontrack=e=>{const video=$('camera-video-'+uid);if(video){video.srcObject=e.streams[0];video.play().catch(()=>{});setPhoneState(uid,'LIVE · Camera connected');}};
  pc.onconnectionstatechange=()=>setPhoneState(uid,'Connection: '+pc.connectionState.toUpperCase());
- const signal=sessionRef.child('participants/'+uid+'/phoneToAdmin');
- const adminSignal=sessionRef.child('participants/'+uid+'/adminToPhone');
- let remoteReady=false;const queued=[];
- const candRef=signal.child('candidates');
+ const signal=sessionRef.child('participants/'+uid+'/phoneToAdmin'),adminSignal=sessionRef.child('participants/'+uid+'/adminToPhone');
+ let remoteReady=false,answerStarted=false;const queued=[];
  const candidateHandler=snap=>{const c=snap.val();if(!c)return;const ice=new RTCIceCandidate(c);if(remoteReady)pc.addIceCandidate(ice).catch(()=>{});else queued.push(ice);};
- candidateHandlers.set(uid,candidateHandler);candRef.on('child_added',candidateHandler);
- pc.onicecandidate=e=>{if(e.candidate)adminSignal.child('candidates').push(e.candidate.toJSON());};
- const offerSnap=await signal.child('offer').once('value');const offer=offerSnap.val();
- if(!offer||!offer.sdp){setPhoneState(uid,'Waiting for phone offer…');return;}
- await pc.setRemoteDescription(new RTCSessionDescription(offer));remoteReady=true;
- while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});
- const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
- await adminSignal.child('answer').set({type:answer.type,sdp:answer.sdp});
- setPhoneState(uid,'Negotiating secure video…');
+ candidateHandlers.set(uid,candidateHandler);signal.child('candidates').on('child_added',candidateHandler);
+ pc.onicecandidate=e=>{if(e.candidate)adminSignal.child('candidates').push(e.candidate.toJSON()).catch(()=>{});};
+ const offerHandler=async snap=>{
+  const offer=snap.val();if(!offer||!offer.sdp||answerStarted||!peerByUid.has(uid))return;answerStarted=true;
+  try{await pc.setRemoteDescription(new RTCSessionDescription(offer));remoteReady=true;while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await adminSignal.child('answer').set({type:answer.type,sdp:answer.sdp});setPhoneState(uid,'Negotiating live video…');}
+  catch(err){setPhoneState(uid,'Connection setup failed: '+err.message);}
+ };
+ signal.child('offer').on('value',offerHandler);
+ setPhoneState(uid,'Waiting for phone camera…');
 }
 function watchSession(){
  stopSessionListeners();
@@ -42,10 +40,10 @@ async function createSession(){
  if(!db||!adminUid)return status('Sign in as Super Admin first.');
  const btn=$('camera-create-session');btn.disabled=true;
  try{
-  if(sessionId&&sessionRef)await sessionRef.child('status').set('closed');
+  if(sessionId&&sessionRef)await sessionRef.child('meta/status').set('closed');
   stopSessionListeners();sessionId=db.ref(root).push().key;const now=Date.now(),expiresAt=now+2*60*60*1000;
   sessionRef=db.ref(root+sessionId);
-  await sessionRef.set({adminUid,createdAt:now,expiresAt,status:'active'});
+  await sessionRef.child('meta').set({adminUid,createdAt:now,expiresAt,status:'active'});
   const url=new URL('/tournament-camera/',window.location.origin);url.searchParams.set('s',sessionId);
   $('camera-invite-link').value=url.toString();$('camera-session-code').textContent=sessionId;
   $('camera-session-tools').hidden=false;$('camera-slots').innerHTML='';$('camera-requests').innerHTML='<p class="camera-empty">Waiting for phone requests…</p>';
@@ -54,12 +52,14 @@ async function createSession(){
  }catch(e){status('Could not create session: '+e.message);}
  finally{btn.disabled=false;}
 }
-async function closeSession(){if(sessionRef){await sessionRef.child('status').set('closed').catch(()=>{});await sessionRef.child('closedAt').set(Date.now()).catch(()=>{});}stopSessionListeners();sessionId='';sessionRef=null;$('camera-session-tools').hidden=true;$('camera-invite-link').value='';$('camera-slots').innerHTML='';status('SESSION CLOSED');}
+async function closeSession(){if(sessionRef){await sessionRef.child('meta/status').set('closed').catch(()=>{});await sessionRef.child('meta/closedAt').set(Date.now()).catch(()=>{});}stopSessionListeners();sessionId='';sessionRef=null;$('camera-session-tools').hidden=true;$('camera-invite-link').value='';$('camera-slots').innerHTML='';status('SESSION CLOSED');}
 async function approve(uid,slot){if(!sessionRef||!adminUid)return;const request=(await sessionRef.child('joinRequests/'+uid).once('value')).val();if(!request)return;try{await sessionRef.child('participants/'+uid).set({approved:true,slot:String(slot||request.requestedSlot||'1'),nickname:String(request.nickname||'Phone camera').slice(0,32),joinedAt:Date.now()});await sessionRef.child('joinRequests/'+uid).remove();status('APPROVED · CAMERA '+(slot||request.requestedSlot||'1'));}catch(e){status('Approval failed: '+e.message);}}
 document.addEventListener('click',e=>{const approveBtn=e.target.closest('[data-camera-approve]');if(approveBtn)approve(approveBtn.dataset.cameraApprove,approveBtn.dataset.cameraSlot);});
 $('camera-create-session')?.addEventListener('click',createSession);
 $('camera-close-session')?.addEventListener('click',()=>closeSession());
 $('camera-copy-invite')?.addEventListener('click',async()=>{const input=$('camera-invite-link');if(!input.value)return;try{await navigator.clipboard.writeText(input.value);status('INVITATION LINK COPIED');}catch(_){input.select();document.execCommand('copy');status('INVITATION LINK COPIED');}});
 window.initTournamentCameras=function(options){if(!options||!options.db||!options.uid)return;db=options.db;adminUid=options.uid;status('READY · CREATE A PRIVATE SESSION');};
+window.addEventListener('vc-admin-ready',e=>window.initTournamentCameras(e.detail));
+window.addEventListener('vc-admin-signed-out',()=>{stopSessionListeners();db=null;adminUid='';sessionId='';sessionRef=null;if($('camera-session-tools'))$('camera-session-tools').hidden=true;status('ADMIN SIGN-IN REQUIRED');});
 window.stopTournamentCameras=function(){stopSessionListeners();};
 })();
