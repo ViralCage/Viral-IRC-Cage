@@ -30,7 +30,7 @@ async function init(){
  try{
   if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.database();
   const credential=await auth.signInAnonymously();uid=credential.user.uid;sessionRef=db.ref('tournamentCameras/sessions/'+sessionId);
-  const meta=(await sessionRef.once('value')).val();
+  const meta=(await sessionRef.child('meta').once('value')).val();
   if(!meta||meta.status!=='active'||Number(meta.expiresAt)<=Date.now()){say('This camera invitation has expired or was closed. Ask admin for a new link.');return;}
   const requestBtn=$('request');requestBtn.disabled=false;say('Private session found. Select a camera slot and request approval.');
   requestBtn.addEventListener('click',async()=>{requestBtn.disabled=true;try{const nickname=$('nickname').value.trim()||'Phone camera';await sessionRef.child('joinRequests/'+uid).set({nickname:nickname.slice(0,32),requestedSlot:$('slot').value,createdAt:Date.now()});say('Request sent. Keep this page open while the admin approves your phone.');participantRef=sessionRef.child('participants/'+uid);participantRef.on('value',snap=>{const p=snap.val();if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');});}catch(e){say('Could not send request: '+e.message);requestBtn.disabled=false;}});
