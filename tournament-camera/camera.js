@@ -2,14 +2,14 @@
 'use strict';
 const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
 const $=id=>document.getElementById(id),sessionId=new URLSearchParams(location.search).get('s')||'',STUN={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,stopped=false,cameraStarted=false;
+let auth,db,uid,sessionRef,participantRef,pc,stream,answerHandler,candidateHandler,participantHandler,declineHandler,stopped=false,cameraStarted=false,remoteAdminStream=null,phoneMuted=false,phoneCameraOff=false;
 function say(t){$('status').textContent=t;}
-function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.child('adminToPhone/answer').off('value',answerHandler);if(candidateHandler&&participantRef)participantRef.child('adminToPhone/candidates').off('child_added',candidateHandler);if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=$('preview');if(v)v.srcObject=null;}
+function clean(){stopped=true;if(answerHandler&&participantRef)participantRef.child('adminToPhone/answer').off('value',answerHandler);if(candidateHandler&&participantRef)participantRef.child('adminToPhone/candidates').off('child_added',candidateHandler);if(participantHandler&&participantRef)participantRef.off('value',participantHandler);if(declineHandler&&sessionRef)sessionRef.child('declinedRequests/'+uid).off('value',declineHandler);if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=$('preview');if(v)v.srcObject=null;const remote=$('admin-video');if(remote)remote.srcObject=null;}
 async function startCamera(){
  if(stopped||!participantRef||cameraStarted)return;cameraStarted=true;
  try{
   say('Admin approved. Requesting camera permission…');
-  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false});
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   $('preview-wrap').hidden=false;
   const preview=$('preview'),pipButton=$('pip-button');
   preview.srcObject=stream;
@@ -26,8 +26,8 @@ async function startCamera(){
     }catch(error){say('Could not float the camera: '+(error.message||'Browser blocked Picture-in-Picture.'));}
    };
   }
-  pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));
-  pc.onconnectionstatechange=()=>{say('Camera connection: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
+  pc=new RTCPeerConnection(STUN);stream.getTracks().forEach(track=>pc.addTrack(track,stream));pc.ontrack=e=>{const remote=$('admin-video');if(remote){remoteAdminStream=e.streams[0];remote.srcObject=remoteAdminStream;remote.play().catch(()=>{});$('admin-video-wrap').hidden=false;}};
+  pc.onconnectionstatechange=()=>{say('Video call: '+pc.connectionState.toUpperCase());if(pc&&['closed','failed'].includes(pc.connectionState))clean();};
   const phoneSignal=participantRef.child('phoneToAdmin'),adminSignal=participantRef.child('adminToPhone');
   pc.onicecandidate=e=>{if(e.candidate)phoneSignal.child('candidates').push(e.candidate.toJSON()).catch(err=>say('Network setup failed: '+err.message));};
   let remoteReady=false;const queued=[];
@@ -35,7 +35,7 @@ async function startCamera(){
   adminSignal.child('candidates').on('child_added',candidateHandler);
   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
   await phoneSignal.child('offer').set({type:offer.type,sdp:offer.sdp});
-  answerHandler=async snap=>{const answer=snap.val();if(!answer||!answer.sdp||pc.remoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(answer));remoteReady=true;while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});say('Connecting live camera to admin…');}catch(e){say('Connection setup failed: '+e.message);}};
+  answerHandler=async snap=>{const answer=snap.val();if(!answer||!answer.sdp||pc.remoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(answer));remoteReady=true;while(queued.length)await pc.addIceCandidate(queued.shift()).catch(()=>{});say('Video call connected. You can see and hear the admin.');}catch(e){say('Connection setup failed: '+e.message);}};
   adminSignal.child('answer').on('value',answerHandler);
  }catch(e){cameraStarted=false;say(e.name==='NotAllowedError'?'Camera permission was denied. Allow camera access in your browser settings.':e.message||'Could not start camera.');}
 }
@@ -50,7 +50,7 @@ async function init(){
   const slot=$('slot'),nicknameInput=$('nickname'),requestBtn=$('request');
   if(!slot||!nicknameInput||!requestBtn){say('Camera page is incomplete. Reload this page or ask the admin to refresh the site.');return;}
   requestBtn.disabled=false;say('Enter your nickname and choose left or right camera. No game-name matching is required.');
-  requestBtn.addEventListener('click',async()=>{const nickname=String(nicknameInput.value||'').trim().slice(0,32),selected=String(slot.value||'1');if(!nickname){say('Please enter your nickname first.');nicknameInput.focus();return;}requestBtn.disabled=true;try{await sessionRef.child('joinRequests/'+uid).set({nickname,requestedSlot:selected,createdAt:Date.now()});say('Request sent as '+nickname+'. Waiting for admin approval…');participantRef=sessionRef.child('participants/'+uid);participantRef.on('value',snap=>{const p=snap.val();if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');},err=>{say('Connection update failed: '+err.message);requestBtn.disabled=false;});}catch(e){say('Could not send request: '+(e&&e.message?e.message:String(e)));requestBtn.disabled=false;}});
+  requestBtn.addEventListener('click',async()=>{const nickname=String(nicknameInput.value||'').trim().slice(0,32),selected=String(slot.value||'1');if(!nickname){say('Please enter your nickname first.');nicknameInput.focus();return;}requestBtn.disabled=true;try{await sessionRef.child('joinRequests/'+uid).set({nickname,requestedSlot:selected,createdAt:Date.now()});say('Request sent as '+nickname+'. Waiting for admin approval…');participantRef=sessionRef.child('participants/'+uid);participantHandler=snap=>{const p=snap.val();if(p&&p.callState==='ended'){say('Admin ended the call.');clean();return;}if(p&&p.approved===true)startCamera();else if(!p)say('Waiting for admin approval…');};participantRef.on('value',participantHandler,err=>{say('Connection update failed: '+err.message);requestBtn.disabled=false;});declineHandler=snap=>{if(snap.exists()){say('Admin declined the call request.');requestBtn.disabled=false;}};sessionRef.child('declinedRequests/'+uid).on('value',declineHandler);}catch(e){say('Could not send request: '+(e&&e.message?e.message:String(e)));requestBtn.disabled=false;}});
  }catch(e){say(e.code==='auth/operation-not-allowed'?'Anonymous Authentication is not enabled in Firebase.':e.message||'Could not connect to the camera service.');}
 }
 window.addEventListener('pagehide',clean);document.addEventListener('visibilitychange',()=>{if(document.hidden&&pc&&pc.connectionState==='connected')say('Camera is still connected. Keep this page open.');});
