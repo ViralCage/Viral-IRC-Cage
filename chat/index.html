@@ -2,76 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Viral Cage Chat</title>
-<meta name="description" content="Private peer-to-peer chat on Viral Cage. Messages travel directly between connected browsers.">
+<title>Viral Cage · Room Chat</title><meta name="description" content="Private peer-to-peer chat for your Viral Cage game room.">
 <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg">
 <style>
-:root{color-scheme:dark;--bg:#090b12;--panel:#111522;--line:#252c40;--muted:#8e9ab2;--accent:#8065ff;--blue:#3198ff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#25204b 0,#101321 42%,#080a10 100%);color:#f4f6ff;font:15px/1.45 Inter,system-ui,Arial,sans-serif;min-height:100vh}
-header{height:76px;border-bottom:1px solid #ffffff12;display:flex;align-items:center;justify-content:center;padding:10px 18px}
-.logo{width:min(250px,68vw);height:54px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') center/contain no-repeat}
-main{width:min(920px,calc(100% - 28px));margin:34px auto 60px}.intro{text-align:center;margin:0 0 24px}.intro h1{font-size:clamp(27px,5vw,40px);letter-spacing:-1.2px;margin:0 0 6px}.intro p{color:var(--muted);margin:0}
-.card{background:linear-gradient(145deg,#151a2aee,#0e1220f2);border:1px solid var(--line);border-radius:20px;box-shadow:0 22px 70px #0007;overflow:hidden}
-.setup{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:#aeb9d0;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-input{width:100%;background:#090e1a;border:1px solid #303951;color:#fff;padding:13px 14px;border-radius:11px;outline:none;font:inherit}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #8065ff25}
-.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:11px;padding:13px 18px;background:linear-gradient(100deg,var(--accent),#477eff);color:white;font-weight:800;cursor:pointer}.btn.secondary{background:#20283b;border:1px solid #3a4560}.btn:disabled{opacity:.45;cursor:not-allowed}
-.note{color:var(--muted);font-size:12px}.status{padding:12px 18px;border-top:1px solid var(--line);color:#b7c5df;font-size:13px;display:flex;gap:9px;align-items:center}.dot{width:8px;height:8px;border-radius:50%;background:#d7a84a;display:inline-block}.dot.good{background:#40d69a}
-.chat{display:none;grid-template-rows:auto 1fr auto;min-height:520px}.chathead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}.room{font-weight:800;letter-spacing:.12em}.messages{padding:20px;overflow:auto;display:flex;flex-direction:column;gap:12px;min-height:330px;max-height:56vh}.empty{margin:auto;text-align:center;color:var(--muted)}.bubble{max-width:min(76%,560px);padding:11px 14px;border-radius:15px;background:#202940;border:1px solid #34415d;overflow-wrap:anywhere}.bubble.mine{align-self:flex-end;background:linear-gradient(130deg,#5949b5,#315eaa);border-color:#7770e6}.bubble .who{font-size:11px;color:#d3d9f0;font-weight:800;margin-bottom:3px}.bubble .when{font-size:10px;color:#c1cce0;margin-top:5px;text-align:right}
-.composer{padding:14px;border-top:1px solid var(--line);display:flex;gap:10px}.composer input{flex:1;min-width:0}.composer button{min-width:88px}
-.foot{text-align:center;color:#78849c;font-size:11px;margin-top:17px}
-@media(max-width:650px){main{margin-top:22px}.setup{grid-template-columns:1fr;padding:17px}.chat{min-height:calc(100dvh - 190px)}.messages{max-height:none;flex:1}.chathead{padding:13px}.composer{padding:10px}.composer button{min-width:72px}.intro p{font-size:13px}}
-</style>
-</head>
-<body>
-<header><div class="logo" role="img" aria-label="Viral Cage Play"></div></header>
-<main>
-<div class="intro"><h1>Private P2P Chat</h1><p>Connect directly. Your chat messages are not saved to Firebase.</p></div>
-<section class="card" id="setup">
- <div class="setup">
-  <div class="field"><label for="nickname">Your nickname</label><input id="nickname" maxlength="24" placeholder="Enter nickname" autocomplete="nickname"></div>
-  <div class="field"><label for="roomcode">Room code</label><input id="roomcode" maxlength="6" placeholder="6-character code" autocapitalize="characters"></div>
-  <div class="actions"><button class="btn" id="create">Create private room</button></div>
-  <div class="actions"><button class="btn secondary" id="join">Join room</button></div>
- </div>
- <div class="status"><i class="dot" id="dot"></i><span id="status">Ready. Create a room or enter an invite code.</span></div>
-</section>
-<section class="card chat" id="chat">
- <div class="chathead"><div><div class="room">ROOM <span id="activecode">------</span></div><div class="note" id="peerstatus">Waiting for peer connection…</div></div><div class="actions"><button class="btn secondary" id="copy">Copy invite</button><button class="btn secondary" id="leave">Leave</button></div></div>
- <div class="messages" id="messages"><div class="empty">Your private conversation starts when the other person connects.</div></div>
- <form class="composer" id="sendform"><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off" disabled><button class="btn" id="send" disabled>Send</button></form>
-</section>
-<div class="foot">Peer-to-peer transport uses WebRTC. Firebase is used only to exchange connection setup data.</div>
+:root{color-scheme:dark;--line:#283149;--muted:#93a0b8;--accent:#8065ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#29224f,#101321 45%,#080a10);color:#f4f6ff;font:15px/1.45 Inter,system-ui,Arial,sans-serif}header{height:76px;border-bottom:1px solid #ffffff12;display:flex;justify-content:center;align-items:center}.logo{width:min(250px,68vw);height:54px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') center/contain no-repeat}main{width:min(900px,calc(100% - 28px));margin:30px auto}.intro{text-align:center;margin-bottom:22px}.intro h1{font-size:clamp(27px,5vw,39px);margin:0 0 5px}.intro p{margin:0;color:var(--muted)}.card{background:linear-gradient(145deg,#151a2aee,#0e1220f2);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 22px 70px #0007}.setup{padding:22px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}.field{flex:1;min-width:190px;display:grid;gap:7px}.field label{font-size:11px;color:#aeb9d0;font-weight:800;letter-spacing:.1em;text-transform:uppercase}input{width:100%;background:#090e1a;border:1px solid #303951;color:white;padding:13px 14px;border-radius:11px;font:inherit;outline:none}input:focus{border-color:var(--accent)}button{border:0;border-radius:11px;padding:13px 18px;background:linear-gradient(100deg,#8065ff,#477eff);color:white;font-weight:800;cursor:pointer}button.secondary{background:#20283b;border:1px solid #3a4560}.status{padding:12px 18px;border-top:1px solid var(--line);color:#b7c5df;font-size:13px}.chat{display:none;grid-template-rows:auto 1fr auto;min-height:530px}.chathead{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.room{font-weight:900;letter-spacing:.13em}.muted{font-size:12px;color:var(--muted)}.messages{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:340px;max-height:58vh;overflow:auto}.empty{margin:auto;text-align:center;color:var(--muted)}.bubble{max-width:min(76%,560px);padding:11px 14px;border-radius:15px;background:#202940;border:1px solid #34415d;overflow-wrap:anywhere}.bubble.mine{align-self:flex-end;background:linear-gradient(130deg,#5949b5,#315eaa)}.who{font-size:11px;font-weight:800;color:#d3d9f0;margin-bottom:3px}.when{font-size:10px;color:#c1cce0;text-align:right;margin-top:5px}.composer{padding:13px;border-top:1px solid var(--line);display:flex;gap:10px}.composer input{flex:1;min-width:0}.composer button{min-width:85px}.foot{text-align:center;color:#78849c;font-size:11px;margin:16px 5px}@media(max-width:620px){main{margin-top:20px}.chat{min-height:calc(100dvh - 180px)}.messages{flex:1;max-height:none}.chathead{align-items:flex-start;flex-wrap:wrap}.setup{padding:16px}.composer{padding:10px}}
+</style></head>
+<body><header><div class="logo" role="img" aria-label="Viral Cage"></div></header><main>
+<div class="intro"><h1>Game Room Chat</h1><p>Use the same room code as your active Viral Cage game.</p></div>
+<section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your game nickname"></div><div class="field"><label for="roomcode">Existing game room code</label><input id="roomcode" maxlength="6" placeholder="Enter game room code"></div><button id="connect">Connect to game room</button></div><div class="status" id="status">Enter the room code shown in your game. This page does not create a separate room.</div></section>
+<section class="card chat" id="chat"><div class="chathead"><div><div class="room">GAME ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">Connecting peer-to-peer…</div></div><button class="secondary" id="leave">Disconnect</button></div><div class="messages" id="messages"><div class="empty">Waiting for the other player to open this room chat.</div></div><form class="composer" id="sendform"><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off" disabled><button id="send" disabled>Send</button></form></section>
+<div class="foot">Messages travel directly between browsers using WebRTC. Firebase is used only to locate the existing game room and exchange connection setup data. Chat messages are not written to Firebase.</div>
 </main>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-(() => {
-'use strict';
-const firebaseConfig={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a8"};
-const $=id=>document.getElementById(id);let db=null,pc=null,channel=null,roomRef=null,roomCode='',role='',myId=crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2),peerName='Peer',candidateSeen={},unsubs=[],connected=false;
+(()=>{'use strict';
+const cfg={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a"};
+const $=id=>document.getElementById(id);let db,auth,pc,dc,roomRef,signalRef,roomCode,role,myUid,peerName='Opponent',offs=[],candidateKeys=new Set(),connected=false;
 const rtc={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-function status(s,ok=false){$('status').textContent=s;$('dot').className='dot'+(ok?' good':'')}
-function chatStatus(s,ok=false){$('peerstatus').textContent=s;$('dot').className='dot'+(ok?' good':'')}
-function init(){if(!window.firebase){throw Error('Firebase SDK could not load. Check your connection.')}if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);db=firebase.database()}
-function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
-function name(){return $('nickname').value.trim().slice(0,24)||'Guest'}
+function setStatus(s){$('status').textContent=s}$('roomcode').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
+function listen(ref,event,fn){ref.on(event,fn);offs.push(()=>ref.off(event,fn))}
 function showChat(){ $('setup').style.display='none';$('chat').style.display='grid';$('activecode').textContent=roomCode}
-function listen(ref,event,fn){ref.on(event,fn);unsubs.push(()=>ref.off(event,fn))}
-function addMessage(text,who,mine=false){const box=$('messages');const empty=box.querySelector('.empty');if(empty)empty.remove();const b=document.createElement('div');b.className='bubble'+(mine?' mine':'');const n=document.createElement('div');n.className='who';n.textContent=who;const t=document.createElement('div');t.textContent=text;const tm=document.createElement('div');tm.className='when';tm.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});b.append(n,t,tm);box.appendChild(b);box.scrollTop=box.scrollHeight}
-function setConnected(ch){channel=ch;ch.onopen=()=>{connected=true;$('message').disabled=false;$('send').disabled=false;chatStatus('Direct connection established',true);addMessage('Peer connection established. Messages are sent directly between devices.','SYSTEM')};ch.onclose=()=>{connected=false;$('message').disabled=true;$('send').disabled=true;chatStatus('Peer disconnected')};ch.onerror=()=>chatStatus('Connection error');ch.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.type==='chat'&&typeof m.text==='string')addMessage(m.text,peerName,false);if(m.type==='hello'&&m.name)peerName=String(m.name).slice(0,24)}catch{}}}
-function sendSignal(key,value){return roomRef.child(key).set(value)}
-function setupPC(initiator){pc=new RTCPeerConnection(rtc);pc.onicecandidate=e=>{if(e.candidate&&roomRef)roomRef.child('candidates/'+role).push(e.candidate.toJSON()).catch(err=>status('Signaling error: '+err.message))};pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed')chatStatus('Direct connection failed. Network may require TURN relay.');else if(pc.connectionState==='disconnected')chatStatus('Connection interrupted')};
-if(initiator){setConnected(pc.createDataChannel('vc-private-chat',{ordered:true}))}else pc.ondatachannel=e=>setConnected(e.channel);
-const other=role==='host'?'guest':'host';const candRef=roomRef.child('candidates/'+other);listen(candRef,'child_added',async snap=>{if(candidateSeen[snap.key])return;candidateSeen[snap.key]=true;try{await pc.addIceCandidate(new RTCIceCandidate(snap.val()))}catch(e){console.warn('ICE candidate:',e)}});
-}
-async function createRoom(){try{init();role='host';roomCode=code();roomRef=db.ref('p2pChatRooms/'+roomCode);const nick=name();await roomRef.set({hostId:myId,hostName:nick,state:'waiting',createdAt:firebase.database.ServerValue.TIMESTAMP,expiresAt:Date.now()+3600000});showChat();status('Room created. Share the code with one person.',true);setupPC(true);const offer=await pc.createOffer();await pc.setLocalDescription(offer);await sendSignal('offer',{type:offer.type,sdp:offer.sdp});listen(roomRef,'value',async snap=>{const v=snap.val();if(!v)return;if(v.guestName)peerName=v.guestName;if(v.answer&&!pc.currentRemoteDescription){try{await pc.setRemoteDescription(new RTCSessionDescription(v.answer))}catch(e){chatStatus('Could not accept connection: '+e.message)}}});$('copy').onclick=copyInvite}catch(e){status('Could not create room: '+e.message)}}
-async function joinRoom(){try{init();roomCode=$('roomcode').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(roomCode))throw Error('Enter a valid 6-character room code.');role='guest';roomRef=db.ref('p2pChatRooms/'+roomCode);const snap=await roomRef.once('value');const v=snap.val();if(!v||!v.offer||v.state!=='waiting'||v.guestId)throw Error('Room not found, already occupied, or expired.');peerName=v.hostName||'Host';await roomRef.update({guestId:myId,guestName:name(),state:'connecting'});showChat();status('Joining room…',true);setupPC(false);await pc.setRemoteDescription(new RTCSessionDescription(v.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await sendSignal('answer',{type:answer.type,sdp:answer.sdp});$('copy').onclick=copyInvite}catch(e){status('Could not join: '+e.message)}}
-function copyInvite(){const url=location.origin+location.pathname+'?room='+roomCode;navigator.clipboard?.writeText(url).then(()=>chatStatus('Invite link copied',true)).catch(()=>chatStatus('Room code: '+roomCode))}
-$('create').onclick=createRoom;$('join').onclick=joinRoom;
-$('sendform').addEventListener('submit',e=>{e.preventDefault();const text=$('message').value.trim();if(!text||!channel||channel.readyState!=='open')return;channel.send(JSON.stringify({type:'chat',text}));addMessage(text,name(),true);$('message').value=''});
-$('leave').onclick=async()=>{try{unsubs.forEach(f=>f());unsubs=[];if(channel)channel.close();if(pc)pc.close();if(role==='host'&&roomRef)await roomRef.remove();else if(roomRef)await roomRef.update({guestId:null,guestName:null,state:'waiting',answer:null});}catch(e){console.warn(e)}location.href=location.pathname};
-$('roomcode').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
-const params=new URLSearchParams(location.search);if(params.get('room'))$('roomcode').value=params.get('room').toUpperCase();
+function peerStatus(s){$('peerstatus').textContent=s}
+function addMessage(text,who,mine){const box=$('messages'),empty=box.querySelector('.empty');if(empty)empty.remove();const b=document.createElement('div');b.className='bubble'+(mine?' mine':'');const n=document.createElement('div');n.className='who';n.textContent=who;const t=document.createElement('div');t.textContent=text;const tm=document.createElement('div');tm.className='when';tm.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});b.append(n,t,tm);box.appendChild(b);box.scrollTop=box.scrollHeight}
+function setupChannel(ch){dc=ch;ch.onopen=()=>{connected=true;$('message').disabled=false;$('send').disabled=false;peerStatus('Direct peer connection established');ch.send(JSON.stringify({type:'hello',name:$('nickname').value.trim()||'Guest'}));addMessage('Peer-to-peer connection established.','SYSTEM',false)};ch.onclose=()=>{connected=false;$('message').disabled=true;$('send').disabled=true;peerStatus('Other player disconnected')};ch.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.type==='hello'&&m.name)peerName=String(m.name).slice(0,24);if(m.type==='chat'&&typeof m.text==='string')addMessage(m.text,peerName,false)}catch{}}}
+async function connect(){try{
+ if(!firebase.apps.length)firebase.initializeApp(cfg);auth=firebase.auth();if(!auth.currentUser)await auth.signInAnonymously();myUid=auth.currentUser.uid;db=firebase.database();
+ roomCode=$('roomcode').value.trim().toUpperCase();if(!/^[A-Z0-9]{4,6}$/.test(roomCode))throw Error('Enter the room code from your active game.');
+ const mapSnap=await db.ref('bagchalRoomCodes/'+roomCode).once('value');const roomId=mapSnap.val();if(!roomId)throw Error('That game room code was not found. Check the code in your game.');
+ roomRef=db.ref('bagchalRooms/'+roomId);const snap=await roomRef.once('value');const room=snap.val();if(!room||!room.players)throw Error('The game room is unavailable.');
+ if(room.players.goat===myUid)role='goat';else if(room.players.tiger===myUid)role='tiger';else throw Error('This browser is not signed in as a player in that game room. Open the chat in the same browser where you joined the game.');
+ peerName=(room.playerNames&&room.playerNames[role==='goat'?'tiger':'goat'])||'Opponent';
+ signalRef=roomRef.child('p2pChat');showChat();setStatus('Connected to existing game room '+roomCode+'.');peerStatus('Waiting for the other game player to open chat…');
+ pc=new RTCPeerConnection(rtc);pc.onicecandidate=e=>{if(e.candidate)signalRef.child('candidates/'+role).push(e.candidate.toJSON()).catch(err=>peerStatus('Signaling blocked: '+err.message))};pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed')peerStatus('WebRTC failed. This network may require a TURN relay.');else if(pc.connectionState==='disconnected')peerStatus('Connection interrupted')};
+ const other=role==='goat'?'tiger':'goat';
+ const candidateRef=signalRef.child('candidates/'+other);listen(candidateRef,'child_added',async s=>{if(candidateKeys.has(s.key))return;candidateKeys.add(s.key);try{await pc.addIceCandidate(new RTCIceCandidate(s.val()))}catch(e){console.warn(e)}});
+ if(role==='goat'){setupChannel(pc.createDataChannel('vc-room-chat',{ordered:true}));const offer=await pc.createOffer();await pc.setLocalDescription(offer);await signalRef.child('offer').set({type:offer.type,sdp:offer.sdp,from:myUid,at:Date.now()});listen(signalRef,'value',async s=>{const v=s.val();if(v&&v.answer&&v.answer.to===myUid&&!pc.currentRemoteDescription)try{await pc.setRemoteDescription(new RTCSessionDescription(v.answer))}catch(e){peerStatus('Could not apply answer: '+e.message)}})}
+ else {listen(signalRef,'value',async s=>{const v=s.val();if(!v||!v.offer||v.offer.from===myUid||v.answer)return;if(pc.currentRemoteDescription)return;try{await pc.setRemoteDescription(new RTCSessionDescription(v.offer));pc.ondatachannel=e=>setupChannel(e.channel);const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await signalRef.child('answer').set({type:answer.type,sdp:answer.sdp,to:v.offer.from,at:Date.now()})}catch(e){peerStatus('Could not answer offer: '+e.message)}})}
+ }catch(e){setStatus(e.message);console.error(e)}}
+$('connect').onclick=connect;
+$('sendform').addEventListener('submit',e=>{e.preventDefault();const text=$('message').value.trim();if(!text||!dc||dc.readyState!=='open')return;dc.send(JSON.stringify({type:'chat',text}));addMessage(text,$('nickname').value.trim()||'You',true);$('message').value=''});
+$('leave').onclick=()=>{offs.forEach(f=>f());offs=[];if(dc)dc.close();if(pc)pc.close();location.href=location.pathname};
+const q=new URLSearchParams(location.search);if(q.get('room'))$('roomcode').value=q.get('room').toUpperCase();
 })();
-</script>
-</body></html>
+</script></body></html>
