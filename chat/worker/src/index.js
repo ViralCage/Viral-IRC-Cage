@@ -21,13 +21,14 @@ function json(data, status = 200, origin = CORS_ORIGIN) {
 }
 
 function validRoomCode(value) {
-  return /^\d{3,4}$/.test(String(value || ""));
+  return /^[A-Z0-9]{6}$/.test(String(value || "").toUpperCase());
 }
 
-function makeRoomCode(length) {
-  const bytes = new Uint8Array(length);
+function makeRoomCode() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = new Uint8Array(6);
   crypto.getRandomValues(bytes);
-  return Array.from(bytes, byte => String(byte % 10)).join("");
+  return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join("");
 }
 
 export default {
@@ -42,7 +43,7 @@ export default {
     }
 
     if (url.pathname === "/health" && request.method === "GET") {
-      return json({ ok: true, service: "viral-cage-chat", transport: "websocket", roomCodeFormat: "3-4-digit-numeric", build: "chat-room-codes-v2" }, 200, origin);
+      return json({ ok: true, service: "viral-cage-chat", transport: "websocket" }, 200, origin);
     }
 
     if (url.pathname === "/rooms" && request.method === "POST") {
@@ -50,21 +51,17 @@ export default {
       try { body = await request.json(); } catch { return json({ error: "Invalid request body." }, 400, origin); }
       if (body.action !== "create") return json({ error: "Unsupported room action." }, 400, origin);
 
-      // Prefer compact 3-digit codes; fall back to 4 digits after repeated collisions.
-      for (const length of [3, 4]) {
-        for (let attempt = 0; attempt < 40; attempt++) {
-          const code = makeRoomCode(length);
-          const id = env.CHAT_ROOMS.idFromName(code);
-          const stub = env.CHAT_ROOMS.get(id);
-          const result = await stub.fetch("https://room.internal/create", { method: "POST" });
-          if (result.status === 201) return json({ room: code }, 201, origin);
-          if (result.status !== 409) return json({ error: "Room service could not create a room." }, 503, origin);
-        }
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const code = makeRoomCode();
+        const id = env.CHAT_ROOMS.idFromName(code);
+        const stub = env.CHAT_ROOMS.get(id);
+        const result = await stub.fetch("https://room.internal/create", { method: "POST" });
+        if (result.status === 201) return json({ room: code }, 201, origin);
       }
-      return json({ error: "Room capacity is busy. Please try again." }, 503, origin);
+      return json({ error: "Could not create a room. Please try again." }, 503, origin);
     }
 
-    const match = url.pathname.match(/^\/rooms\/(\d{3,4})$/);
+    const match = url.pathname.match(/^\/rooms\/([A-Z0-9]{6})$/i);
     if (match && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
       const code = match[1].toUpperCase();
       const id = env.CHAT_ROOMS.idFromName(code);
