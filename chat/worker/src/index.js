@@ -41,6 +41,13 @@ export default {
       return json({error:"Room capacity is busy. Please try again."},503,origin);
     }
     const match=url.pathname.match(/^\/rooms\/(\d{3,4})$/);
+    if(match&&request.method==="POST"){
+      const id=env.CHAT_ROOMS.idFromName(match[1]);
+      const stub=env.CHAT_ROOMS.get(id);
+      const result=await stub.fetch("https://room.internal/create",{method:"POST"});
+      if(result.status!==201&&result.status!==409)return json({error:"Could not prepare the matching game chat room."},503,origin);
+      return json({ok:true,room:match[1]},200,origin);
+    }
     if(match&&request.headers.get("Upgrade")?.toLowerCase()==="websocket"){
       const id=env.CHAT_ROOMS.idFromName(match[1]);return env.CHAT_ROOMS.get(id).fetch(request);
     }
