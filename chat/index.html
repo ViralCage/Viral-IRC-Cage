@@ -58,30 +58,89 @@ button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px s
 <body>
 <header><div class="logo" role="img" aria-label="Viral Cage Play"></div><div class="header-right"><span class="avatar">●</span><span>Guest⌄</span><span aria-hidden="true">⚙</span><span aria-hidden="true">☾</span></div></header>
 <div class="shell">
-<aside class="sidebar" aria-label="Navigation"><a class="navitem" href="https://viralcage.com/"><span class="navicon">⌂</span>Home</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">♧</span>Games</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">♙</span>Profile</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">⚙</span>Settings</a><div class="tagline">Play Together.<br>Think Different.</div></aside>
+<aside class="sidebar" aria-label="Navigation"><a class="navitem" href="https://viralcage.com/"><span class="navicon">⌂</span>Home</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♧</span>Games</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♙</span>Profile</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">⚙</span>Settings</a><div class="tagline">Play Together.<br>Think Different.</div></aside>
 <main>
 <div class="intro"><h1>Viral Cage Chat</h1><p>Create a chat room and share its link. You can start messaging before anyone joins.</p></div>
 <section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your nickname"></div><div class="field"><label for="roomcode">Room code to join</label><input id="roomcode" maxlength="6" placeholder="Enter 6-character code"></div><button id="create">Create chat room</button><button class="secondary" id="join">Join room</button></div><div class="status" id="status">Connect to VC Server to create a new room or join with an invite code.</div></section>
 <section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #243e82;background:#101d3e">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
-<div class="foot">Private room messages are stored in VC Server for this chat room. Share the invite link with people you want to chat with.</div>
+<div class="foot">Live messages use the independent Cloudflare chat service. Messages are not saved; inactive rooms expire after 24 hours.</div>
 </main></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (()=>{'use strict';
-const cfg={apiKey:"AIzaSyC_R_O2e3D1-fGjHByesj98uynbjXnG9ng",authDomain:"bagh-chal-5dc2f.firebaseapp.com",databaseURL:"https://bagh-chal-5dc2f-default-rtdb.firebaseio.com",projectId:"bagh-chal-5dc2f",storageBucket:"bagh-chal-5dc2f.firebasestorage.app",messagingSenderId:"304434839417",appId:"1:304434839417:web:6c1ac04800e26c8f0039a"};
-const $=id=>document.getElementById(id);let db,uid,roomRef,roomCode,listener=null;
-const clean=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-function status(v){$('status').textContent=v}
-async function init(){if(!firebase.apps.length)firebase.initializeApp(cfg);const auth=firebase.auth();if(!auth.currentUser)await auth.signInAnonymously();uid=auth.currentUser.uid;db=firebase.database()}
-function showRoom(){ $('setup').style.display='none';$('chat').style.display='grid';$('activecode').textContent=roomCode;const link=new URL('/chat/', 'https://viralcage.com/');link.searchParams.set('room',roomCode);$('inviteurl').textContent=link.href}
-function addMessage(m){const box=$('messages');const empty=box.querySelector('.empty');if(empty)empty.remove();const b=document.createElement('div');b.className='bubble'+(m.uid===uid?' mine':'');const n=document.createElement('div');n.className='who';n.textContent=m.name||'Guest';const t=document.createElement('div');t.textContent=m.text||'';const tm=document.createElement('div');tm.className='when';tm.textContent=m.at?new Date(m.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';b.append(n,t,tm);box.appendChild(b);box.scrollTop=box.scrollHeight}
-function listen(){const ref=roomRef.child('messages').limitToLast(300);listener=s=>addMessage(s.val()||{});ref.on('child_added',listener,e=>{$('peerstatus').textContent='VC Server error: '+e.message});$('peerstatus').textContent='VC Server connected · you can message now'}
-async function enter(value,create){$('create').disabled=true;$('join').disabled=true;try{await init();roomCode=create?Math.random().toString(36).slice(2,8).toUpperCase():clean(value);if(!create&&roomCode.length!==6)throw Error('Enter a valid 6-character room code.');roomRef=db.ref('vcChatRooms/'+roomCode);if(create){const exists=await roomRef.once('value');if(exists.exists())throw Error('Please create the room again.');await roomRef.set({createdAt:firebase.database.ServerValue.TIMESTAMP,createdBy:uid,active:true})}else{const snap=await roomRef.once('value');if(!snap.exists())throw Error('Room not found. Check the code or invite link.')}showRoom();listen();$('message').focus()}catch(e){status('Could not connect: '+e.message);console.error(e)}finally{$('create').disabled=false;$('join').disabled=false}}
-$('create').onclick=()=>enter('',true);$('join').onclick=()=>enter($('roomcode').value,false);$('roomcode').oninput=e=>e.target.value=clean(e.target.value);
-$('sendform').onsubmit=async e=>{e.preventDefault();const text=$('message').value.trim();if(!text||!roomRef)return;const button=$('send');button.disabled=true;try{await roomRef.child('messages').push({uid,name:$('nickname').value.trim().slice(0,24)||'Guest',text,at:firebase.database.ServerValue.TIMESTAMP});$('message').value=''}catch(err){$('peerstatus').textContent='Message not sent: '+err.message}finally{button.disabled=false}};
-$('copylink').onclick=async()=>{try{await navigator.clipboard.writeText($('inviteurl').textContent);$('copylink').textContent='Copied!';setTimeout(()=>$('copylink').textContent='Copy invite link',1500)}catch{$('peerstatus').textContent='Copy failed. Copy the invite link manually.'}};
-$('emoji').onclick=()=>{let tray=$('emojiTray');if(tray){tray.remove();return}tray=document.createElement('div');tray.id='emojiTray';tray.style.cssText='display:flex;flex-wrap:wrap;gap:7px;padding:10px;background:#07132d;border-top:1px solid #183a89';['😀','😂','😍','👍','❤️','🔥','👏','🙏','🎉','😎','🤔','😢'].forEach(ch=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=ch;b.style.padding='8px';b.onclick=()=>{$('message').value+=ch;$('message').focus();tray.remove()};tray.appendChild(b)});$('chat').insertBefore(tray,$('sendform'))};
-$('leave').onclick=()=>{if(roomRef&&listener)roomRef.child('messages').off('child_added',listener);location.href=location.pathname};
-const q=new URLSearchParams(location.search);if(q.get('room')){$('roomcode').value=clean(q.get('room'));status('Invite link detected. Enter your nickname and tap Join room.')}
+const API_BASE="https://viral-cage-chat.viralcage.workers.dev";
+const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
+const $=id=>document.getElementById(id);
+let socket=null,roomCode="",uid=localStorage.getItem("vcChatGuestId");
+if(!uid){uid=crypto.randomUUID();localStorage.setItem("vcChatGuestId",uid)}
+const clean=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
+function status(v){$("status").textContent=v}
+function addMessage(m,kind="message"){
+ const box=$("messages"),empty=box.querySelector(".empty");if(empty)empty.remove();
+ const b=document.createElement("div");b.className=kind==="message"?"bubble"+(m.uid===uid?" mine":""):"bubble";
+ if(kind!=="message")b.style.cssText="align-self:center;max-width:90%;padding:6px 12px;color:#9eb4e7;background:#08132b;border-color:#172d5d;font-size:12px;text-align:center";
+ if(kind==="message"){const n=document.createElement("div");n.className="who";n.textContent=m.name||"Guest";b.append(n)}
+ const t=document.createElement("div");t.textContent=m.text||"";b.append(t);
+ if(kind==="message"&&m.at){const tm=document.createElement("div");tm.className="when";tm.textContent=new Date(m.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});b.append(tm)}
+ box.append(b);box.scrollTop=box.scrollHeight;
+}
+function showRoom(){
+ $("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;
+ const link=new URL("/chat/","https://viralcage.com/");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href;
+}
+function connect(code){
+ roomCode=clean(code);if(roomCode.length!==6){status("Enter a valid 6-character room code.");return}
+ const name=($("nickname").value.trim().slice(0,24)||"Guest");
+ showRoom();$("messages").innerHTML='<div class="empty">Connecting to chat room…</div>';
+ $("peerstatus").textContent="Connecting to Cloudflare chat…";
+ socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
+ socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · Cloudflare chat";$("message").focus()});
+ socket.addEventListener("message",event=>{
+  let data;try{data=JSON.parse(event.data)}catch{return}
+  if(data.type==="message")addMessage(data);
+  else if(data.type==="system")addMessage(data,"system");
+  else if(data.type==="presence")$("peerstatus").textContent="Connected · "+data.online+" online";
+  else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
+ });
+ socket.addEventListener("close",event=>{
+  $("peerstatus").textContent=event.reason||"Disconnected from chat";
+  if(event.code===1006)$("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed.";
+ });
+ socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check the chat server setup."});
+}
+async function createRoom(){
+ $("create").disabled=true;$("join").disabled=true;status("Creating a room…");
+ try{
+  const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");
+  connect(data.room);
+ }catch(error){status("Could not create room: "+error.message)}
+ finally{$("create").disabled=false;$("join").disabled=false}
+}
+$("create").addEventListener("click",createRoom);
+$("join").addEventListener("click",()=>connect($("roomcode").value));
+$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
+$("sendform").addEventListener("submit",e=>{
+ e.preventDefault();const text=$("message").value.trim();
+ if(!text||!socket||socket.readyState!==WebSocket.OPEN)return;
+ if(text.length>2000){$("peerstatus").textContent="Message is too long.";return}
+ try{socket.send(JSON.stringify({type:"message",text}));$("message").value=""}
+ catch{$("peerstatus").textContent="Message could not be sent."}
+});
+$("copylink").addEventListener("click",async()=>{
+ try{await navigator.clipboard.writeText($("inviteurl").textContent);$("copylink").textContent="Copied!";setTimeout(()=>$("copylink").textContent="Copy invite link",1500)}
+ catch{$("peerstatus").textContent="Copy failed. Copy the invite link manually."}
+});
+$("emoji").addEventListener("click",()=>{
+ let tray=$("emojiTray");if(tray){tray.remove();return}
+ tray=document.createElement("div");tray.id="emojiTray";tray.style.cssText="display:flex;flex-wrap:wrap;gap:7px;padding:10px;background:#07132d;border-top:1px solid #183a89";
+ ["😀","😂","😍","👍","❤️","🔥","👏","🙏","🎉","😎","🤔","😢"].forEach(ch=>{
+  const b=document.createElement("button");b.type="button";b.className="secondary";b.textContent=ch;b.style.padding="8px";
+  b.addEventListener("click",()=>{$("message").value+=$("message").value?ch:ch;$("message").focus();tray.remove()});tray.append(b);
+ });
+ $("chat").insertBefore(tray,$("sendform"));
+});
+$("leave").addEventListener("click",()=>{if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
+const invite=new URLSearchParams(location.search).get("room");
+if(invite){$("roomcode").value=clean(invite);status("Invite link detected. Enter your nickname and tap Join room.")}
 })();
 </script></body></html>
