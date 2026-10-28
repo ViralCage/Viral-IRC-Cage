@@ -23,7 +23,7 @@
   let db=null, authUid=null, sessionRef=null, directoryRef=null, incomingRef=null;
   let peer=null, localStream=null, activeRef=null, activeSide=null, remoteUid=null;
   let callValueHandler=null, remoteCandidateHandler=null, incomingCallRef=null, incomingCallData=null;
-  let pendingCandidates=[], muted=false, ending=false;
+  let pendingCandidates=[], muted=false, ending=false, callerIceQueue=[], callNodeReady=false;
   let ringTimer=null;
 
   function nickname() {
@@ -147,10 +147,11 @@
       status('Requesting microphone permission…');localStream=await microphone();
       activeSide='caller';remoteUid=player.uid;peer=makePeer();
       localStream.getTracks().forEach(t=>peer.addTrack(t,localStream));
-      activeRef=db.ref(CALLS+'/'+player.uid).push();
-      peer.onicecandidate=e=>{if(e.candidate&&activeRef)activeRef.child('candidates/'+authUid).push(e.candidate.toJSON()).catch(console.warn);};
+      activeRef=db.ref(CALLS+'/'+player.uid).push();callNodeReady=false;callerIceQueue=[];
+      peer.onicecandidate=e=>{if(!e.candidate||!activeRef)return;const c=e.candidate.toJSON();if(!callNodeReady)callerIceQueue.push(c);else activeRef.child('candidates/'+authUid).push(c).catch(console.warn);};
       const offer=await peer.createOffer();await peer.setLocalDescription(offer);
       await activeRef.set({callerUid:authUid,callerName:nickname(),calleeUid:player.uid,status:'ringing',createdAt:firebase.database.ServerValue.TIMESTAMP,offer:{type:peer.localDescription.type,sdp:peer.localDescription.sdp}});
+      callNodeReady=true;for(const c of callerIceQueue.splice(0))activeRef.child('candidates/'+authUid).push(c).catch(console.warn);
       activeRef.onDisconnect().remove();watchCall();
       $('vcVoiceActiveTitle').textContent='Calling '+player.name+'…';$('vcVoiceActive').classList.add('open');
       status('Calling '+player.name+'… waiting for answer.');
@@ -196,7 +197,7 @@
     if(peer){try{peer.close();}catch{}}peer=null;
     if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=null;
     const audio=$('vcVoiceRemoteAudio');if(audio){audio.pause();audio.srcObject=null;audio.remove();}
-    activeRef=null;activeSide=null;remoteUid=null;callValueHandler=null;remoteCandidateHandler=null;pendingCandidates=[];muted=false;
+    activeRef=null;activeSide=null;remoteUid=null;callValueHandler=null;remoteCandidateHandler=null;pendingCandidates=[];callerIceQueue=[];callNodeReady=false;muted=false;
     $('vcVoiceActive').classList.remove('open');$('vcVoiceMute').textContent='Mute';
     if(message)status(message);ending=false;
   }
