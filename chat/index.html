@@ -142,7 +142,20 @@ $("voice").addEventListener("click",async()=>{if(recorder&&recorder.state==="rec
 $("showqr").addEventListener("click",()=>{const panel=$("qrpanel");if(!panel.hidden){panel.hidden=true;return}panel.hidden=false;if(typeof QRCode==="undefined"){$("qrimage").alt="QR generator unavailable; copy invite link instead";return}const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");if(canvas)$("qrimage").src=canvas.toDataURL("image/png");else if(img)$("qrimage").src=img.src;holder.remove()});
 $("copylink").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("inviteurl").textContent);$("copylink").textContent="Copied!";setTimeout(()=>$("copylink").textContent="Copy invite link",1400)}catch{$("peerstatus").textContent="Copy failed. Select the invite link to copy it."}});
 $("leave").addEventListener("click",()=>{stopCamera();if(recorder&&recorder.state==="recording")recorder.stop();if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
-const invite=new URLSearchParams(location.search).get("room");if(invite){$("roomcode").value=clean(invite);status("Invite detected. Enter your nickname and join the room.")}
+const params=new URLSearchParams(location.search);
+ const invite=params.get("room");
+ const linkedNickname=(params.get("nickname")||"").trim().replace(/\\s+/g," ").slice(0,24);
+ if(linkedNickname){$("nickname").value=linkedNickname;saveGuestSession(linkedNickname)}
+ if(invite){
+  $("roomcode").value=clean(invite);
+  if(linkedNickname){
+   const linkedCode=clean(invite);
+   status("Opening your game room chat…");
+   fetch(API_BASE+"/rooms/"+encodeURIComponent(linkedCode),{method:"POST"})
+    .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Could not open matching chat room.");connect(linkedCode)})
+    .catch(error=>status("Could not connect to game room chat: "+error.message));
+  }else status("Invite detected. Enter your nickname and join the room.");
+ }
 window.addEventListener("pagehide",stopCamera);
 })();
 </script>
