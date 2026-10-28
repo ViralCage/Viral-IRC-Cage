@@ -155,14 +155,18 @@ const params=new URLSearchParams(location.search);
  const linkedNickname=(params.get("nickname")||"").trim().replace(/\s+/g," ").slice(0,24);
  if(linkedNickname){$("nickname").value=linkedNickname;saveGuestSession(linkedNickname)}
  if(invite){
-  $("roomcode").value=clean(invite);
-  if(linkedNickname){
-   const linkedCode=clean(invite);
-   status("Opening your game room chat…");
+  const linkedCode=clean(invite);
+  $("roomcode").value=linkedCode;
+  // Each participant keeps their own guest identity on their device for 7 days.
+  // Invite links carry only the room code, never the room creator's nickname.
+  const rememberedName=String(guestSession.nickname||"").trim().slice(0,24);
+  if(/^\d{3,4}$/.test(linkedCode)&&(linkedNickname||rememberedName)){
+   if(!linkedNickname)$("nickname").value=rememberedName;
+   status("Signing you in and opening your chat room…");
    fetch(API_BASE+"/rooms/"+encodeURIComponent(linkedCode),{method:"POST"})
-    .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Could not open matching chat room.");connect(linkedCode)})
-    .catch(error=>status("Could not connect to game room chat: "+error.message));
-  }else status("Invite detected. Enter your nickname and join the room.");
+    .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Could not open chat room.");connect(linkedCode)})
+    .catch(error=>status("Could not connect to chat room: "+error.message));
+  }else status("Invite detected. Enter your nickname once, then you'll be remembered on this device for 7 days.");
  }
 window.addEventListener("pagehide",stopCamera);
 })();
