@@ -144,7 +144,7 @@ $("copylink").addEventListener("click",async()=>{try{await navigator.clipboard.w
 $("leave").addEventListener("click",()=>{stopCamera();if(recorder&&recorder.state==="recording")recorder.stop();if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
 const params=new URLSearchParams(location.search);
  const invite=params.get("room");
- const linkedNickname=(params.get("nickname")||"").trim().replace(/\\s+/g," ").slice(0,24);
+ const linkedNickname=(params.get("nickname")||"").trim().replace(/\s+/g," ").slice(0,24);
  if(linkedNickname){$("nickname").value=linkedNickname;saveGuestSession(linkedNickname)}
  if(invite){
   $("roomcode").value=clean(invite);
