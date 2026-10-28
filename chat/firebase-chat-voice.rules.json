@@ -15,7 +15,7 @@
     },
     "chatVoiceCalls": {
       "$calleeUid": {
-        ".read": "auth != null && (auth.uid === $calleeUid || data.child('$any').child('callerUid').val() === auth.uid)",
+        ".read": "auth != null && auth.uid === $calleeUid",
         "$callId": {
           ".read": "auth != null && (auth.uid === $calleeUid || auth.uid === data.child('callerUid').val())",
           ".write": "auth != null && (( !data.exists() && auth.uid === newData.child('callerUid').val() && newData.child('calleeUid').val() === $calleeUid && auth.uid !== $calleeUid) || (data.exists() && (auth.uid === data.child('callerUid').val() || auth.uid === $calleeUid)))",
