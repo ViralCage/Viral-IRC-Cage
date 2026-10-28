@@ -5,14 +5,66 @@
 <title>Viral Cage · Chat</title><meta name="description" content="Create a Viral Cage chat room and invite friends.">
 <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg">
 <style>
-:root{color-scheme:dark;--line:#283149;--muted:#93a0b8;--accent:#8065ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#29224f,#101321 45%,#080a10);color:#f4f6ff;font:15px/1.45 Inter,system-ui,Arial,sans-serif}header{height:76px;border-bottom:1px solid #ffffff12;display:flex;justify-content:center;align-items:center}.logo{width:min(250px,68vw);height:54px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') center/contain no-repeat}main{width:min(900px,calc(100% - 28px));margin:30px auto}.intro{text-align:center;margin-bottom:22px}.intro h1{font-size:clamp(27px,5vw,39px);margin:0 0 5px}.intro p{margin:0;color:var(--muted)}.card{background:linear-gradient(145deg,#151a2aee,#0e1220f2);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 22px 70px #0007}.setup{padding:22px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}.field{flex:1;min-width:190px;display:grid;gap:7px}.field label{font-size:11px;color:#aeb9d0;font-weight:800;letter-spacing:.1em;text-transform:uppercase}input{width:100%;background:#090e1a;border:1px solid #303951;color:white;padding:13px 14px;border-radius:11px;font:inherit;outline:none}input:focus{border-color:var(--accent)}button{border:0;border-radius:11px;padding:13px 18px;background:linear-gradient(100deg,#8065ff,#477eff);color:white;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button.secondary{background:#20283b;border:1px solid #3a4560}.status{padding:12px 18px;border-top:1px solid var(--line);color:#b7c5df;font-size:13px}.chat{display:none;grid-template-rows:auto auto 1fr auto;min-height:530px}.chathead{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.room{font-weight:900;letter-spacing:.13em}.muted{font-size:12px;color:var(--muted)}.messages{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:340px;max-height:58vh;overflow:auto}.empty{margin:auto;text-align:center;color:var(--muted)}.bubble{max-width:min(76%,560px);padding:11px 14px;border-radius:15px;background:#202940;border:1px solid #34415d;overflow-wrap:anywhere}.bubble.mine{align-self:flex-end;background:linear-gradient(130deg,#5949b5,#315eaa)}.who{font-size:11px;font-weight:800;color:#d3d9f0;margin-bottom:3px}.when{font-size:10px;color:#c1cce0;text-align:right;margin-top:5px}.composer{padding:13px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}.composer input{flex:1;min-width:0}.composer #emoji{padding:10px 13px;font-size:19px}.composer button{min-width:76px}.invite{padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px;color:#b7c5df;overflow-wrap:anywhere}.invite button{margin-left:8px;padding:8px 11px}.foot{text-align:center;color:#78849c;font-size:11px;margin:16px 5px}@media(max-width:620px){main{margin-top:20px}.chat{min-height:calc(100dvh - 180px)}.messages{flex:1;max-height:none}.chathead{align-items:flex-start;flex-wrap:wrap}.setup{padding:16px}.composer{padding:10px;gap:6px}.composer button{min-width:52px;padding:11px 10px}}
+:root{color-scheme:dark;--line:#142b67;--muted:#91a8db;--purple:#a000ff;--blue:#087dff;--cyan:#00d8ff;--panel:#050d25;--panel2:#091632}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#111e58 0,#050a1d 48%,#020510 100%);color:#f5f7ff;font:15px/1.45 Inter,system-ui,Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(145deg,transparent 68%,#1900ff12 69%,transparent 76%),radial-gradient(ellipse at 0 75%,#3810a526,transparent 35%);z-index:-1}
+header{height:108px;border-bottom:1px solid #173b9b;box-shadow:0 2px 22px #003bff55;display:flex;align-items:center;padding:0 4%;position:relative}
+header:after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,#6d00ff,#006dff,#00d9ff)}
+.logo{width:min(390px,65vw);height:78px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') left center/contain no-repeat}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:18px;color:#b8c9ff;font-weight:700}
+.avatar{width:42px;height:42px;border:2px solid #796cff;border-radius:50%;display:grid;place-items:center;color:#a9baff;font-size:22px;box-shadow:0 0 15px #592cff88}
+.shell{width:min(1450px,96%);margin:28px auto 36px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:24px;align-items:start}
+.sidebar{min-height:calc(100vh - 160px);display:flex;flex-direction:column;gap:12px;padding:8px 0}
+.navitem{display:flex;align-items:center;gap:13px;padding:14px 16px;border:1px solid transparent;border-radius:13px;color:#aabaff;font-weight:700;text-decoration:none}
+.navitem.active{color:white;background:linear-gradient(100deg,#7900ff,#075dff);box-shadow:0 0 22px #3c32ff66}
+.navicon{font-size:21px;width:26px;text-align:center}
+.tagline{margin:auto 0 20px;padding:12px 8px;color:#397dff;font-size:24px;font-weight:900;font-style:italic;line-height:1.25;transform:rotate(-7deg);text-shadow:0 0 16px #351dff}
+main{min-width:0}
+.intro{text-align:left;margin:0 0 18px;padding:0 4px}
+.intro h1{font-size:clamp(26px,4vw,36px);margin:0 0 5px;letter-spacing:-.03em}
+.intro p{margin:0;color:var(--muted)}
+.card{background:linear-gradient(145deg,#07132df2,#03091bf5);border:1px solid #183a89;border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px #2411a522,0 18px 65px #0009,0 0 28px #073eff20}
+#setup{position:relative}
+.setup{padding:24px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.field{flex:1;min-width:190px;display:grid;gap:8px}
+.field label{font-size:11px;color:#9eb8f5;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+input{width:100%;background:#030a1c;border:1px solid #1c397c;color:white;padding:14px 15px;border-radius:11px;font:inherit;outline:none;box-shadow:inset 0 0 16px #06183b}
+input:focus{border-color:#7b4dff;box-shadow:0 0 0 2px #7b4dff33,0 0 18px #1b61ff55}
+button{border:1px solid #466aff;border-radius:12px;padding:13px 18px;background:linear-gradient(105deg,#8b00ff,#174dff 70%,#007cff);color:white;font-weight:800;cursor:pointer;box-shadow:0 0 18px #4d20ff44;transition:filter .15s,transform .15s}
+button:hover{filter:brightness(1.15);transform:translateY(-1px)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px solid #243e82;box-shadow:none}
+.status{padding:13px 20px;border-top:1px solid #18336f;color:#a9c2f5;font-size:13px;background:#040b1d}
+.chat{display:none;grid-template-rows:auto auto 1fr auto;min-height:660px}
+.chathead{padding:17px 20px;border-bottom:1px solid #193878;display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(90deg,#0a1638,#07112b)}
+.room{font-weight:900;letter-spacing:.12em;color:#e8efff}
+.muted{font-size:12px;color:#91a9df}
+.messages{padding:22px;display:flex;flex-direction:column;gap:13px;min-height:390px;max-height:60vh;overflow:auto;background:radial-gradient(ellipse at 50% 0,#0b1b43aa,transparent 70%)}
+.empty{margin:auto;text-align:center;color:#9db1e1}
+.bubble{max-width:min(76%,560px);padding:12px 15px;border-radius:15px;background:linear-gradient(145deg,#101f43,#0b1631);border:1px solid #294681;overflow-wrap:anywhere;box-shadow:0 5px 18px #0005}
+.bubble.mine{align-self:flex-end;background:linear-gradient(130deg,#5511b5,#104eaa);border-color:#6951ff}
+.who{font-size:11px;font-weight:800;color:#cbd9ff;margin-bottom:3px}
+.when{font-size:10px;color:#b9c9eb;text-align:right;margin-top:5px}
+.composer{padding:14px;border-top:1px solid #193878;display:flex;gap:10px;align-items:center;background:#050d22}
+.composer input{flex:1;min-width:0}
+.composer #emoji{padding:10px 14px;font-size:19px;min-width:48px}
+.composer button{min-width:76px}
+.invite{padding:12px 18px;border-bottom:1px solid #193878;font-size:12px;color:#b4c8f5;overflow-wrap:anywhere;background:#07122b}
+.invite button{margin-left:8px;padding:8px 11px}
+.foot{text-align:center;color:#748bbd;font-size:11px;margin:16px 5px}
+@media(max-width:760px){header{height:82px;padding:0 16px}.logo{height:58px;width:min(270px,65vw)}.header-right{gap:8px;font-size:12px}.avatar{width:34px;height:34px}.shell{width:calc(100% - 20px);margin:16px auto;display:block}.sidebar{display:none}.intro{margin-bottom:14px}.chat{min-height:calc(100dvh - 180px)}.messages{flex:1;max-height:none;min-height:300px;padding:15px}.chathead{align-items:flex-start;flex-wrap:wrap;padding:14px}.setup{padding:16px}.field{min-width:100%}.composer{padding:10px;gap:6px}.composer button{min-width:52px;padding:11px 10px}.foot{padding:0 10px}}
 </style></head>
-<body><header><div class="logo" role="img" aria-label="Viral Cage"></div></header><main>
+<body>
+<header><div class="logo" role="img" aria-label="Viral Cage Play"></div><div class="header-right"><span class="avatar">●</span><span>Guest⌄</span><span aria-hidden="true">⚙</span><span aria-hidden="true">☾</span></div></header>
+<div class="shell">
+<aside class="sidebar" aria-label="Navigation"><a class="navitem" href="https://viralcage.com/"><span class="navicon">⌂</span>Home</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">♧</span>Games</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">♙</span>Profile</a><a class="navitem" href="https://play.viralcage.com/"><span class="navicon">⚙</span>Settings</a><div class="tagline">Play Together.<br>Think Different.</div></aside>
+<main>
 <div class="intro"><h1>Viral Cage Chat</h1><p>Create a chat room and share its link. You can start messaging before anyone joins.</p></div>
 <section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your nickname"></div><div class="field"><label for="roomcode">Room code to join</label><input id="roomcode" maxlength="6" placeholder="Enter 6-character code"></div><button id="create">Create chat room</button><button class="secondary" id="join">Join room</button></div><div class="status" id="status">Connect to VC Server to create a new room or join with an invite code.</div></section>
-<section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #3a4560;background:#20283b">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
+<section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #243e82;background:#101d3e">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
 <div class="foot">Private room messages are stored in VC Server for this chat room. Share the invite link with people you want to chat with.</div>
-</main>
+</main></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (()=>{'use strict';
@@ -28,7 +80,7 @@ async function enter(value,create){$('create').disabled=true;$('join').disabled=
 $('create').onclick=()=>enter('',true);$('join').onclick=()=>enter($('roomcode').value,false);$('roomcode').oninput=e=>e.target.value=clean(e.target.value);
 $('sendform').onsubmit=async e=>{e.preventDefault();const text=$('message').value.trim();if(!text||!roomRef)return;const button=$('send');button.disabled=true;try{await roomRef.child('messages').push({uid,name:$('nickname').value.trim().slice(0,24)||'Guest',text,at:firebase.database.ServerValue.TIMESTAMP});$('message').value=''}catch(err){$('peerstatus').textContent='Message not sent: '+err.message}finally{button.disabled=false}};
 $('copylink').onclick=async()=>{try{await navigator.clipboard.writeText($('inviteurl').textContent);$('copylink').textContent='Copied!';setTimeout(()=>$('copylink').textContent='Copy invite link',1500)}catch{$('peerstatus').textContent='Copy failed. Copy the invite link manually.'}};
-$('emoji').onclick=()=>{let tray=$('emojiTray');if(tray){tray.remove();return}tray=document.createElement('div');tray.id='emojiTray';tray.style.cssText='display:flex;flex-wrap:wrap;gap:7px;padding:10px;background:#171e30;border-top:1px solid #283149';['😀','😂','😍','👍','❤️','🔥','👏','🙏','🎉','😎','🤔','😢'].forEach(ch=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=ch;b.style.padding='8px';b.onclick=()=>{$('message').value+=ch;$('message').focus();tray.remove()};tray.appendChild(b)});$('chat').insertBefore(tray,$('sendform'))};
+$('emoji').onclick=()=>{let tray=$('emojiTray');if(tray){tray.remove();return}tray=document.createElement('div');tray.id='emojiTray';tray.style.cssText='display:flex;flex-wrap:wrap;gap:7px;padding:10px;background:#07132d;border-top:1px solid #183a89';['😀','😂','😍','👍','❤️','🔥','👏','🙏','🎉','😎','🤔','😢'].forEach(ch=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=ch;b.style.padding='8px';b.onclick=()=>{$('message').value+=ch;$('message').focus();tray.remove()};tray.appendChild(b)});$('chat').insertBefore(tray,$('sendform'))};
 $('leave').onclick=()=>{if(roomRef&&listener)roomRef.child('messages').off('child_added',listener);location.href=location.pathname};
 const q=new URLSearchParams(location.search);if(q.get('room')){$('roomcode').value=clean(q.get('room'));status('Invite link detected. Enter your nickname and tap Join room.')}
 })();
