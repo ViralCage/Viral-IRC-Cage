@@ -157,7 +157,7 @@ function connect(code){
   else if(data.type==="typing-clear")$("typing").textContent="";
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
  });
- socket.addEventListener("close",event=>{$("typing").textContent="";$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006)$("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
+ socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
  socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
 }
 async function createRoom(){ $("create").disabled=true;$("join").disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");connect(data.room)}catch(error){status("Could not create room: "+error.message)}finally{$("create").disabled=false;$("join").disabled=false}}
