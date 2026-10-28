@@ -120,12 +120,13 @@ function playSound(kind){
 document.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
 $("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
 const GUEST_SESSION_MS=7*24*60*60*1000;
+const GUEST_SESSION_KEY="vcChatGuestSession";
 let guestSession=null;
-try{guestSession=JSON.parse(localStorage.getItem("vcChatGuestSession")||"null")}catch{}
-if(!guestSession||!guestSession.uid||!guestSession.expiresAt||Date.now()>guestSession.expiresAt){guestSession={uid:(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2)),expiresAt:Date.now()+GUEST_SESSION_MS,nickname:""}}
+try{guestSession=JSON.parse(localStorage.getItem(GUEST_SESSION_KEY)||"null")}catch{}
+if(!guestSession||!guestSession.uid||!guestSession.expiresAt||Date.now()>Number(guestSession.expiresAt)){guestSession={uid:(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2)),expiresAt:Date.now()+GUEST_SESSION_MS,nickname:"",roomCode:""}}
 let uid=guestSession.uid;
-function saveGuestSession(name,room){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||guestSession.nickname||"").trim().slice(0,24),roomCode:room===undefined?(guestSession.roomCode||""):clean(room)};localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession))}
-localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession));
+function saveGuestSession(name,room){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||guestSession.nickname||"Guest").trim().slice(0,24)||"Guest",roomCode:room===undefined?String(guestSession.roomCode||""):clean(room)};try{localStorage.setItem(GUEST_SESSION_KEY,JSON.stringify(guestSession))}catch{status("Your browser is blocking saved chat login. Enable site storage for viralcage.com.")}}
+try{localStorage.setItem(GUEST_SESSION_KEY,JSON.stringify(guestSession))}catch{}
 $("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
@@ -197,8 +198,8 @@ const params=new URLSearchParams(location.search);
   // Each participant keeps their own guest identity on their device for 7 days.
   // Invite links carry only the room code, never the room creator's nickname.
   const rememberedName=String(guestSession.nickname||"").trim().slice(0,24);
-  if(/^\d{3,4}$/.test(linkedCode)&&(linkedNickname||rememberedName)){
-   if(!linkedNickname)$("nickname").value=rememberedName;
+  if(/^\d{3,4}$/.test(linkedCode)){
+   if(!linkedNickname)$("nickname").value=rememberedName||"Guest";
    status("Signing you in and opening your chat room…");
    fetch(API_BASE+"/rooms/"+encodeURIComponent(linkedCode),{method:"POST"})
     .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Could not open chat room.");connect(linkedCode)})
