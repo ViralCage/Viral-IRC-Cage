@@ -35,6 +35,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || CORS_ORIGIN;
+    const originAllowed = origin === CORS_ORIGIN || origin === "https://www.viralcage.com";
+    if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed", { status: 403 });
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
@@ -83,7 +85,8 @@ export class ChatRoom {
     if (url.pathname === "/create" && request.method === "POST") {
       const existing = await this.state.get("created");
       if (existing) return new Response("exists", { status: 409 });
-      await this.state.put({ created: true, createdAt: Date.now() });
+      await this.state.put("created", true);
+      await this.state.put("createdAt", Date.now());
       await this.state.setAlarm(Date.now() + ROOM_TTL_MS);
       return new Response("created", { status: 201 });
     }
@@ -173,8 +176,10 @@ export class ChatRoom {
   }
 
   async alarm() {
-    for (const socket of this.ctx.getWebSockets()) {
-      try { socket.close(1001, "Room expired after inactivity"); } catch {}
+    const sockets = this.ctx.getWebSockets();
+    if (sockets.length) {
+      await this.touch();
+      return;
     }
     await this.state.deleteAll();
   }
