@@ -148,6 +148,7 @@ function addMessage(m){
 function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
+  const roomUrl=new URL(location.href);roomUrl.searchParams.set("room",roomCode);history.replaceState({},"",roomUrl.pathname+roomUrl.search+roomUrl.hash);
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
  socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · waiting for others";$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
