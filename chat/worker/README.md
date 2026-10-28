@@ -33,3 +33,7 @@ This is designed to minimize server work, not promise unlimited usage. WebSocket
 - Do not place API tokens or secrets in the frontend.
 - Room codes are random six-character codes; share them only with intended participants.
 - No durable chat history is retained.
+
+## Cloudflare build trigger
+
+This documentation-only update is on the `feature/cloudflare-chat-migration` branch. It can be used to verify that the connected Cloudflare Git integration detects commits on the configured production branch.
