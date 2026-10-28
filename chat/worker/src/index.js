@@ -42,7 +42,7 @@ export default {
     }
 
     if (url.pathname === "/health" && request.method === "GET") {
-      return json({ ok: true, service: "viral-cage-chat", transport: "websocket" }, 200, origin);
+      return json({ ok: true, service: "viral-cage-chat", transport: "websocket", roomCodeFormat: "3-4-digit-numeric", build: "chat-room-codes-v2" }, 200, origin);
     }
 
     if (url.pathname === "/rooms" && request.method === "POST") {
