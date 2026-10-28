@@ -67,7 +67,7 @@ button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px s
 </main></div>
 <script>
 (()=>{'use strict';
-const API_BASE="https://chat-api.viralcage.com";
+const API_BASE="https://viral-cage-chat.viralcage.workers.dev";
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",uid=localStorage.getItem("vcChatGuestId");
