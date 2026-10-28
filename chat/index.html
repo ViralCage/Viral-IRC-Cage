@@ -124,7 +124,7 @@ let guestSession=null;
 try{guestSession=JSON.parse(localStorage.getItem("vcChatGuestSession")||"null")}catch{}
 if(!guestSession||!guestSession.uid||!guestSession.expiresAt||Date.now()>guestSession.expiresAt){guestSession={uid:(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2)),expiresAt:Date.now()+GUEST_SESSION_MS,nickname:""}}
 let uid=guestSession.uid;
-function saveGuestSession(name){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||"").trim().slice(0,24)};localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession))}
+function saveGuestSession(name,room){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||guestSession.nickname||"").trim().slice(0,24),roomCode:room===undefined?(guestSession.roomCode||""):clean(room)};localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession))}
 localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession));
 $("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
@@ -148,6 +148,7 @@ function addMessage(m){
 function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
+  saveGuestSession($("nickname").value.trim().slice(0,24)||"Guest",roomCode);
   const roomUrl=new URL(location.href);roomUrl.searchParams.set("room",roomCode);history.replaceState({},"",roomUrl.pathname+roomUrl.search+roomUrl.hash);
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
@@ -185,9 +186,9 @@ $("capture").addEventListener("click",()=>{const video=$("cameraVideo");if(!vide
 $("voice").addEventListener("click",async()=>{if(recorder&&recorder.state==="recording"){recorder.stop();$("voice").textContent="🎙";$("voice").title="Record voice message";return}if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$("peerstatus").textContent="Voice recording is not supported by this browser.";return}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});let options={};if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus"))options.mimeType="audio/webm;codecs=opus";recorder=new MediaRecorder(stream,options);voiceChunks=[];recorder.ondataavailable=e=>{if(e.data.size)voiceChunks.push(e.data)};recorder.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(voiceChunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>800*1024){$("peerstatus").textContent="Voice message too large. Keep recordings short.";return}const data=await readData(blob);sendPacket({type:"voice",name:"Voice message",mime:blob.type,size:blob.size,data})};recorder.start();$("voice").textContent="■";$("voice").title="Stop and send recording";$("peerstatus").textContent="Recording voice message… max 30 seconds";setTimeout(()=>{if(recorder&&recorder.state==="recording"){recorder.stop();$("voice").textContent="🎙"}},30000)}catch(err){$("peerstatus").textContent="Microphone permission was not granted."}});
 $("showqr").addEventListener("click",()=>{const panel=$("qrpanel");if(!panel.hidden){panel.hidden=true;return}panel.hidden=false;if(typeof QRCode==="undefined"){$("qrimage").alt="QR generator unavailable; copy invite link instead";return}const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");if(canvas)$("qrimage").src=canvas.toDataURL("image/png");else if(img)$("qrimage").src=img.src;holder.remove()});
 $("copylink").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("inviteurl").textContent);$("copylink").textContent="Copied!";setTimeout(()=>$("copylink").textContent="Copy invite link",1400)}catch{$("peerstatus").textContent="Copy failed. Select the invite link to copy it."}});
-$("leave").addEventListener("click",()=>{stopCamera();if(recorder&&recorder.state==="recording")recorder.stop();if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
+$("leave").addEventListener("click",()=>{stopCamera();if(recorder&&recorder.state==="recording")recorder.stop();if(socket){socket.close(1000,"Guest left");socket=null}saveGuestSession($("nickname").value.trim(), "");location.href=location.pathname});
 const params=new URLSearchParams(location.search);
- const invite=params.get("room");
+ const invite=params.get("room")||guestSession.roomCode||"";
  const linkedNickname=(params.get("nickname")||"").trim().replace(/\s+/g," ").slice(0,24);
  if(linkedNickname){$("nickname").value=linkedNickname;saveGuestSession(linkedNickname)}
  if(invite){
