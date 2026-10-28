@@ -1,159 +1,143 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Viral Cage · Chat</title><meta name="description" content="Create a Viral Cage chat room and invite friends.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050a1d">
+<title>Viral Cage Chat</title>
+<meta name="description" content="Create a private Viral Cage chat room, share the invite link and start chatting instantly.">
 <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-:root{color-scheme:dark;--line:#142b67;--muted:#91a8db;--purple:#a000ff;--blue:#087dff;--cyan:#00d8ff;--panel:#050d25;--panel2:#091632}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#111e58 0,#050a1d 48%,#020510 100%);color:#f5f7ff;font:15px/1.45 Inter,system-ui,Arial,sans-serif}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(145deg,transparent 68%,#1900ff12 69%,transparent 76%),radial-gradient(ellipse at 0 75%,#3810a526,transparent 35%);z-index:-1}
-header{height:108px;border-bottom:1px solid #173b9b;box-shadow:0 2px 22px #003bff55;display:flex;align-items:center;padding:0 4%;position:relative}
-header:after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:linear-gradient(90deg,#6d00ff,#006dff,#00d9ff)}
-.logo{width:min(390px,65vw);height:78px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') left center/contain no-repeat}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:18px;color:#b8c9ff;font-weight:700}
-.avatar{width:42px;height:42px;border:2px solid #796cff;border-radius:50%;display:grid;place-items:center;color:#a9baff;font-size:22px;box-shadow:0 0 15px #592cff88}
-.shell{width:min(1450px,96%);margin:28px auto 36px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:24px;align-items:start}
-.sidebar{min-height:calc(100vh - 160px);display:flex;flex-direction:column;gap:12px;padding:8px 0}
-.navitem{display:flex;align-items:center;gap:13px;padding:14px 16px;border:1px solid transparent;border-radius:13px;color:#aabaff;font-weight:700;text-decoration:none}
-.navitem.active{color:white;background:linear-gradient(100deg,#7900ff,#075dff);box-shadow:0 0 22px #3c32ff66}
-.navicon{font-size:21px;width:26px;text-align:center}
-.tagline{margin:auto 0 20px;padding:12px 8px;color:#397dff;font-size:24px;font-weight:900;font-style:italic;line-height:1.25;transform:rotate(-7deg);text-shadow:0 0 16px #351dff}
-main{min-width:0}
-.intro{text-align:left;margin:0 0 18px;padding:0 4px}
-.intro h1{font-size:clamp(26px,4vw,36px);margin:0 0 5px;letter-spacing:-.03em}
-.intro p{margin:0;color:var(--muted)}
-.card{background:linear-gradient(145deg,#07132df2,#03091bf5);border:1px solid #183a89;border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px #2411a522,0 18px 65px #0009,0 0 28px #073eff20}
-#setup{position:relative}
-.setup{padding:24px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
-.field{flex:1;min-width:190px;display:grid;gap:8px}
-.field label{font-size:11px;color:#9eb8f5;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-input{width:100%;background:#030a1c;border:1px solid #1c397c;color:white;padding:14px 15px;border-radius:11px;font:inherit;outline:none;box-shadow:inset 0 0 16px #06183b}
-input:focus{border-color:#7b4dff;box-shadow:0 0 0 2px #7b4dff33,0 0 18px #1b61ff55}
-button{border:1px solid #466aff;border-radius:12px;padding:13px 18px;background:linear-gradient(105deg,#8b00ff,#174dff 70%,#007cff);color:white;font-weight:800;cursor:pointer;box-shadow:0 0 18px #4d20ff44;transition:filter .15s,transform .15s}
-button:hover{filter:brightness(1.15);transform:translateY(-1px)}
-button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px solid #243e82;box-shadow:none}
-.status{padding:13px 20px;border-top:1px solid #18336f;color:#a9c2f5;font-size:13px;background:#040b1d}
-.chat{display:none;grid-template-rows:auto auto 1fr auto;min-height:660px}
-.chathead{padding:17px 20px;border-bottom:1px solid #193878;display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(90deg,#0a1638,#07112b)}
-.room{font-weight:900;letter-spacing:.12em;color:#e8efff}
-.muted{font-size:12px;color:#91a9df}
-.messages{padding:22px;display:flex;flex-direction:column;gap:13px;min-height:390px;max-height:60vh;overflow:auto;background:radial-gradient(ellipse at 50% 0,#0b1b43aa,transparent 70%)}
-.empty{margin:auto;text-align:center;color:#9db1e1}
-.bubble{max-width:min(76%,560px);padding:12px 15px;border-radius:15px;background:linear-gradient(145deg,#101f43,#0b1631);border:1px solid #294681;overflow-wrap:anywhere;box-shadow:0 5px 18px #0005}
-.bubble.mine{align-self:flex-end;background:linear-gradient(130deg,#5511b5,#104eaa);border-color:#6951ff}
-.who{font-size:11px;font-weight:800;color:#cbd9ff;margin-bottom:3px}
-.when{font-size:10px;color:#b9c9eb;text-align:right;margin-top:5px}
-.composer{padding:14px;border-top:1px solid #193878;display:flex;gap:10px;align-items:center;background:#050d22}
-.composer input{flex:1;min-width:0}
-.composer #emoji{padding:10px 14px;font-size:19px;min-width:48px}
-.composer button{min-width:76px}
-.invite{padding:12px 18px;border-bottom:1px solid #193878;font-size:12px;color:#b4c8f5;overflow-wrap:anywhere;background:#07122b}
-.invite button{margin-left:8px;padding:8px 11px}
-.qrpanel{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #193878;background:#061027}.qrpanel[hidden]{display:none}.qrpanel img{width:176px;height:176px;padding:8px;background:#fff;border-radius:10px}.qrnote{color:#a9c2f5;font-size:12px}.qrnote strong{display:block;color:#fff;font-size:14px;margin-bottom:4px}
-.foot{text-align:center;color:#748bbd;font-size:11px;margin:16px 5px}
-@media(max-width:760px){header{height:82px;padding:0 16px}.logo{height:58px;width:min(270px,65vw)}.header-right{gap:8px;font-size:12px}.avatar{width:34px;height:34px}.shell{width:calc(100% - 20px);margin:16px auto;display:block}.sidebar{display:none}.intro{margin-bottom:14px}.chat{min-height:calc(100dvh - 180px)}.messages{flex:1;max-height:none;min-height:300px;padding:15px}.chathead{align-items:flex-start;flex-wrap:wrap;padding:14px}.setup{padding:16px}.field{min-width:100%}.composer{padding:10px;gap:6px}.composer button{min-width:52px;padding:11px 10px}.foot{padding:0 10px}}
-</style></head>
+:root{color-scheme:dark;--bg:#05091b;--panel:#09152e;--panel2:#0d1d3b;--line:#203e80;--muted:#9aadd5;--purple:#8b35ff;--blue:#176bff;--cyan:#00cfff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#17265f 0,transparent 52%),linear-gradient(145deg,#05091b,#020510);color:#f5f7ff;font:15px/1.5 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{border:1px solid #4565c4;border-radius:12px;padding:12px 17px;background:linear-gradient(110deg,#8528ef,#145eff);color:white;font-weight:800;cursor:pointer;touch-action:manipulation;min-height:44px}button:hover{filter:brightness(1.12)}button:disabled{opacity:.45;cursor:not-allowed}
+button.ghost{background:#101f3e;border-color:#2b477f;box-shadow:none}button.iconbtn{width:46px;min-width:46px;padding:8px;font-size:19px;background:#101f3e;border-color:#2b477f;box-shadow:none}
+header{height:82px;padding:0 clamp(14px,4vw,54px);display:flex;align-items:center;border-bottom:1px solid #1c397b;box-shadow:0 3px 25px #003cff35;position:relative}
+header:after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#8b25ff,#176bff,#00d8ff)}
+.logo{width:min(310px,64vw);height:62px;background:url('/assets/vc-play-header-logo-exact.svg?v=4') left center/contain no-repeat}
+.headright{margin-left:auto;color:#b8c9f2;font-size:13px;font-weight:750}
+.wrap{width:min(1060px,calc(100% - 28px));margin:34px auto 26px}
+.intro{margin:0 0 20px}.eyebrow{color:#67a5ff;font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+h1{font-size:clamp(27px,5vw,39px);line-height:1.12;letter-spacing:-.04em;margin:7px 0 8px}
+.intro p{color:#a9bce4;margin:0;max-width:680px;font-size:15px}
+.card{background:linear-gradient(145deg,#0b1834f5,#050d21f5);border:1px solid #1b3b82;border-radius:20px;overflow:hidden;box-shadow:0 18px 60px #0008,0 0 30px #1649ff15}
+.setup{padding:22px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.field{flex:1;min-width:190px;display:grid;gap:7px}.field label{font-size:11px;color:#a8bdf0;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+input{width:100%;min-width:0;background:#030a1b;border:1px solid #29447f;color:#fff;border-radius:11px;padding:13px 14px;outline:none;min-height:46px}
+input:focus{border-color:#8c58ff;box-shadow:0 0 0 3px #7c4dff26}
+.status{padding:12px 20px;border-top:1px solid #1a3675;background:#050d20;color:#a8bce8;font-size:13px}
+.chat{display:none;grid-template-rows:auto auto minmax(300px,1fr) auto auto;min-height:650px}
+.chathead{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1b397a;background:linear-gradient(90deg,#101f47,#09152e)}
+.roomtitle{font-weight:900;letter-spacing:.1em}.substatus{color:#9bb2e7;font-size:12px;margin-top:3px}
+.headactions{display:flex;gap:8px;flex-wrap:wrap}.headactions button{padding:9px 12px;font-size:12px;min-height:40px}
+.invite{padding:11px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#07122a;border-bottom:1px solid #1a3675;color:#b7c9f1;font-size:12px}
+.inviteurl{overflow-wrap:anywhere;flex:1;min-width:160px;color:#e0eaff}.invite button{padding:7px 11px;min-height:36px;font-size:12px}
+.qrpanel{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#061027;border-bottom:1px solid #1a3675}.qrpanel[hidden]{display:none}.qrpanel img{width:150px;height:150px;padding:7px;background:white;border-radius:9px}.qrnote{color:#a9bce8;font-size:12px}.qrnote strong{display:block;color:#fff;font-size:14px}
+.messages{padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:300px;max-height:58vh;background:radial-gradient(ellipse at 50% 0,#12255270,transparent 70%)}
+.empty{margin:auto;text-align:center;color:#9aadd5}.bubble{max-width:min(78%,600px);padding:11px 14px;border:1px solid #29477f;border-radius:16px;background:linear-gradient(145deg,#122346,#0b1730);overflow-wrap:anywhere;box-shadow:0 5px 16px #0004}
+.bubble.mine{align-self:flex-end;background:linear-gradient(135deg,#5621a8,#124f9c);border-color:#6956d9}.bubble.system{align-self:center;max-width:95%;padding:5px 12px;color:#9eb4e7;background:#08132b;border-color:#172d5d;font-size:12px;text-align:center}
+.who{font-size:11px;font-weight:850;color:#d1ddff;margin-bottom:4px}.when{font-size:10px;color:#c2d0ee;text-align:right;margin-top:5px}
+.filecard{display:flex;align-items:center;gap:10px;min-width:min(250px,65vw);padding:10px;border-radius:10px;background:#07122a;border:1px solid #36518a}.filecard a{color:#dce8ff;text-decoration:none;overflow-wrap:anywhere}.filecard small{display:block;color:#a7b9df}
+.chatimage{display:block;max-width:min(100%,320px);max-height:260px;object-fit:contain;border-radius:10px;margin-top:5px}
+audio{width:min(280px,65vw);height:40px;margin-top:5px}
+.typing{min-height:24px;padding:0 20px 6px;color:#90a9dc;font-size:12px}
+.composer{display:flex;gap:8px;align-items:center;padding:12px;border-top:1px solid #1b397a;background:#050d20}.composer input{flex:1}
+.tools{display:flex;gap:7px}.cameraBox{padding:12px;border-top:1px solid #1b397a;background:#07122a}.cameraBox[hidden]{display:none}.cameraBox video{width:100%;max-height:300px;background:#000;border-radius:12px;object-fit:contain}.cameraActions{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.emojiTray{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:#07132d;border-top:1px solid #183a89}.emojiTray[hidden]{display:none}.emojiTray button{padding:6px 9px;min-height:38px;background:#101f3e;border-color:#2b477f}
+.foot{text-align:center;color:#788fbf;font-size:11px;margin:14px 6px}
+@media(max-width:700px){header{height:70px;padding:0 13px}.logo{height:52px;width:min(240px,65vw)}.wrap{width:calc(100% - 16px);margin:19px auto}.intro{padding:0 5px;margin-bottom:15px}.chat{min-height:calc(100dvh - 165px);min-height:calc(100svh - 165px)}.chathead{padding:12px}.headactions{width:100%}.headactions button{flex:1}.messages{padding:13px;max-height:none;flex:1}.bubble{max-width:88%}.setup{padding:15px}.field{min-width:100%}.setup button{flex:1}.composer{padding:9px;gap:6px;flex-wrap:wrap}.composer input{order:0;flex:1 1 55%;}.tools{order:1}.composer>#send{order:2;flex:1}.composer button{min-height:44px}.invite{padding:10px 12px}.qrpanel{flex-wrap:wrap}.typing{padding-left:13px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
 <body>
-<header><div class="logo" role="img" aria-label="Viral Cage Play"></div><div class="header-right"><span class="avatar">●</span><span>Guest⌄</span><span aria-hidden="true">⚙</span><span aria-hidden="true">☾</span></div></header>
-<div class="shell">
-<aside class="sidebar" aria-label="Navigation"><a class="navitem" href="https://viralcage.com/"><span class="navicon">⌂</span>Home</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♧</span>Games</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♙</span>Profile</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">⚙</span>Settings</a><div class="tagline">Play Together.<br>Think Different.</div></aside>
-<main>
-<div class="intro"><h1>Viral Cage Chat</h1><p>Create a chat room and share its link. You can start messaging before anyone joins.</p></div>
-<section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your nickname"></div><div class="field"><label for="roomcode">Room code to join</label><input id="roomcode" maxlength="4" inputmode="numeric" pattern="[0-9]{3,4}" placeholder="Enter 3 or 4 digit code"></div><button id="create">Create chat room</button><button class="secondary" id="join">Join room</button></div><div class="status" id="status">Connect to VC Server to create a new room or join with an invite code.</div></section>
-<section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #243e82;background:#101d3e">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="showqr">QR Share</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for this chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your camera and scan the code to open the invite link.</div></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
-<div class="foot">Live messages use the independent Cloudflare chat service. Messages are not saved; inactive rooms expire after 24 hours.</div>
-</main></div>
+<header><div class="logo" role="img" aria-label="Viral Cage"></div><div class="headright">PRIVATE ROOMS · LIVE CHAT</div></header>
+<main class="wrap">
+<section class="intro"><div class="eyebrow">VIRAL CAGE · CONNECT</div><h1>Viral Cage Chat</h1><p>Create a private room. Share your invite link. Start chatting instantly—even when you're the first person in the room.</p></section>
+<section class="card" id="setup"><div class="setup">
+<div class="field"><label for="nickname">Your nickname</label><input id="nickname" maxlength="24" placeholder="Enter a nickname" autocomplete="nickname"></div>
+<div class="field"><label for="roomcode">Room code</label><input id="roomcode" maxlength="4" inputmode="numeric" pattern="[0-9]{3,4}" placeholder="3 or 4 digit code"></div>
+<button id="create">Create room</button><button class="ghost" id="join">Join room</button>
+</div><div class="status" id="status">Create a room or enter an invite code to join.</div></section>
+<section class="card chat" id="chat">
+<div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div><div class="substatus" id="peerstatus">Connecting…</div></div>
+<div class="headactions"><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div></div>
+<div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
+<div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
+<div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div>
+<div class="typing" id="typing"></div>
+<div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
+<div class="emojiTray" id="emojiTray" hidden></div>
+<form class="composer" id="sendform">
+<div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
+<input id="fileInput" type="file" hidden><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off" aria-label="Message">
+<button id="send">Send</button>
+</form></section>
+<p class="foot">Live chat and shared media are temporary. Messages and attachments are not saved after delivery. Rooms expire after 24 hours without activity. Keep personal or sensitive files out of public networks.</p>
+</main>
 <script>
 (()=>{'use strict';
 const API_BASE="https://viral-cage-chat.viralcage.workers.dev";
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
-let socket=null,roomCode="",uid=localStorage.getItem("vcChatGuestId");
-if(!uid){uid=crypto.randomUUID();localStorage.setItem("vcChatGuestId",uid)}
+let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
+let uid=localStorage.getItem("vcChatGuestId");
+if(!uid){uid=(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2));localStorage.setItem("vcChatGuestId",uid)}
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
+const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
-function addMessage(m,kind="message"){
+function showRoom(){ $("setup").hidden=true;$("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;const link=new URL("/chat/","https://viralcage.com");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href; }
+function addSystem(text){const b=document.createElement("div");b.className="bubble system";b.textContent=text;$("messages").append(b);scrollMessages()}
+function scrollMessages(){$("messages").scrollTop=$("messages").scrollHeight}
+function addMessage(m){
  const box=$("messages"),empty=box.querySelector(".empty");if(empty)empty.remove();
- const b=document.createElement("div");b.className=kind==="message"?"bubble"+(m.uid===uid?" mine":""):"bubble";
- if(kind!=="message")b.style.cssText="align-self:center;max-width:90%;padding:6px 12px;color:#9eb4e7;background:#08132b;border-color:#172d5d;font-size:12px;text-align:center";
- if(kind==="message"){const n=document.createElement("div");n.className="who";n.textContent=m.name||"Guest";b.append(n)}
- const t=document.createElement("div");t.textContent=m.text||"";b.append(t);
- if(kind==="message"&&m.at){const tm=document.createElement("div");tm.className="when";tm.textContent=new Date(m.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});b.append(tm)}
- box.append(b);box.scrollTop=box.scrollHeight;
+ const b=document.createElement("div");b.className="bubble"+(m.uid===uid?" mine":"");
+ const who=document.createElement("div");who.className="who";who.textContent=m.name||"Guest";b.append(who);
+ if(m.type==="attachment"||m.type==="voice"){
+  const data=String(m.data||"");const mime=String(m.mime||"application/octet-stream");
+  if(m.type==="voice"&&data.startsWith("data:audio/")){const audio=document.createElement("audio");audio.controls=true;audio.preload="none";audio.src=data;b.append(audio);const note=document.createElement("div");note.textContent="Voice message";note.style.cssText="font-size:11px;color:#c6d5f5";b.append(note)}
+  else if(mime.startsWith("image/")&&data.startsWith("data:image/")){const img=document.createElement("img");img.className="chatimage";img.src=data;img.alt=m.name||"Shared image";b.append(img)}
+  else if(data.startsWith("data:")){const wrap=document.createElement("div");wrap.className="filecard";const a=document.createElement("a");a.href=data;a.download=safeName(m.name);a.textContent="↓ "+safeName(m.name);a.rel="noopener";const small=document.createElement("small");small.textContent=(m.size?Math.ceil(m.size/1024)+" KB":"Attachment")+" · download";a.append(small);wrap.append(a);b.append(wrap)}
+ }else{const t=document.createElement("div");t.textContent=m.text||"";b.append(t)}
+ const when=document.createElement("div");when.className="when";when.textContent=new Date(m.at||Date.now()).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});b.append(when);box.append(b);scrollMessages();
 }
-function showRoom(){
- $("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;
- const link=new URL("/chat/","https://viralcage.com/");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href;
-}
+function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";return false}try{socket.send(JSON.stringify(packet));return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
- const name=($("nickname").value.trim().slice(0,24)||"Guest");
- showRoom();$("messages").innerHTML='<div class="empty">Connecting to chat room…</div>';
- $("peerstatus").textContent="Connecting to Cloudflare chat…";
+ const name=$("nickname").value.trim().slice(0,24)||"Guest";showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
- socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · Cloudflare chat";$("message").focus()});
- socket.addEventListener("message",event=>{
-  let data;try{data=JSON.parse(event.data)}catch{return}
-  if(data.type==="message")addMessage(data);
-  else if(data.type==="system")addMessage(data,"system");
+ socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · waiting for others";$("message").focus()});
+ socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
+  if(data.type==="message"||data.type==="attachment"||data.type==="voice")addMessage(data);
+  else if(data.type==="system")addSystem(data.text||"Room update");
   else if(data.type==="presence")$("peerstatus").textContent="Connected · "+data.online+" online";
+  else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
+  else if(data.type==="typing-clear")$("typing").textContent="";
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
  });
- socket.addEventListener("close",event=>{
-  $("peerstatus").textContent=event.reason||"Disconnected from chat";
-  if(event.code===1006)$("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed.";
- });
- socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check the chat server setup."});
+ socket.addEventListener("close",event=>{$("typing").textContent="";$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006)$("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
+ socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check chat server deployment."});
 }
-async function createRoom(){
- $("create").disabled=true;$("join").disabled=true;status("Creating a room…");
- try{
-  const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");
-  connect(data.room);
- }catch(error){status("Could not create room: "+error.message)}
- finally{$("create").disabled=false;$("join").disabled=false}
-}
-$("create").addEventListener("click",createRoom);
-$("join").addEventListener("click",()=>connect($("roomcode").value));
-$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
-$("showqr").addEventListener("click",()=>{
- const panel=$("qrpanel");
- if(!panel.hidden){panel.hidden=true;return}
- panel.hidden=false;
- if(typeof QRCode==="undefined"){panel.querySelector(".qrnote").textContent="QR generator is unavailable. Use Copy invite link instead.";return}
- $("qrimage").src="";
- const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);
- new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
- const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");
- if(canvas){$("qrimage").src=canvas.toDataURL("image/png");holder.remove()}else if(img){$("qrimage").src=img.src;holder.remove()}
-});
-$("sendform").addEventListener("submit",e=>{
- e.preventDefault();const text=$("message").value.trim();
- if(!text||!socket||socket.readyState!==WebSocket.OPEN)return;
- if(text.length>2000){$("peerstatus").textContent="Message is too long.";return}
- try{socket.send(JSON.stringify({type:"message",text}));$("message").value=""}
- catch{$("peerstatus").textContent="Message could not be sent."}
-});
-$("copylink").addEventListener("click",async()=>{
- try{await navigator.clipboard.writeText($("inviteurl").textContent);$("copylink").textContent="Copied!";setTimeout(()=>$("copylink").textContent="Copy invite link",1500)}
- catch{$("peerstatus").textContent="Copy failed. Copy the invite link manually."}
-});
-$("emoji").addEventListener("click",()=>{
- let tray=$("emojiTray");if(tray){tray.remove();return}
- tray=document.createElement("div");tray.id="emojiTray";tray.style.cssText="display:flex;flex-wrap:wrap;gap:7px;padding:10px;background:#07132d;border-top:1px solid #183a89";
- ["😀","😂","😍","👍","❤️","🔥","👏","🙏","🎉","😎","🤔","😢"].forEach(ch=>{
-  const b=document.createElement("button");b.type="button";b.className="secondary";b.textContent=ch;b.style.padding="8px";
-  b.addEventListener("click",()=>{$("message").value+=$("message").value?ch:ch;$("message").focus();tray.remove()});tray.append(b);
- });
- $("chat").insertBefore(tray,$("sendform"));
-});
-$("leave").addEventListener("click",()=>{if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
-const invite=new URLSearchParams(location.search).get("room");
-if(invite){$("roomcode").value=clean(invite);status("Invite link detected. Enter your nickname and tap Join room.")}
+async function createRoom(){ $("create").disabled=true;$("join").disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");connect(data.room)}catch(error){status("Could not create room: "+error.message)}finally{$("create").disabled=false;$("join").disabled=false}}
+$("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
+$("sendform").addEventListener("submit",e=>{e.preventDefault();const text=$("message").value.trim();if(!text)return;if(sendPacket({type:"message",text})){$("message").value="";sendTyping(false)}});
+function sendTyping(active){if(typingActive===active)return;typingActive=active;sendPacket({type:active?"typing":"typing-clear"})}
+$("message").addEventListener("input",()=>{sendTyping(true);clearTimeout(typingTimer);typingTimer=setTimeout(()=>sendTyping(false),1200)});
+$("emoji").addEventListener("click",()=>{$("emojiTray").hidden=!$("emojiTray").hidden});
+["😀","😂","😍","👍","❤️","🔥","👏","🙏","🎉","😎","🤔","😢","🥳","💯","👋","✨","🙌","😉"].forEach(ch=>{const b=document.createElement("button");b.type="button";b.textContent=ch;b.addEventListener("click",()=>{$("message").value+=ch;$("message").focus();$("emojiTray").hidden=true});$("emojiTray").append(b)});
+$("attach").addEventListener("click",()=>$("fileInput").click());
+$("fileInput").addEventListener("change",async e=>{const file=e.target.files&&e.target.files[0];e.target.value="";if(!file)return;if(file.size>800*1024){$("peerstatus").textContent="Files must be 800 KB or smaller on the free chat service.";return}if(/\.(html?|svg|js|mjs|exe|dmg|bat|cmd)$/i.test(file.name)){$("peerstatus").textContent="That file type is not allowed.";return}try{const data=await readData(file);sendPacket({type:"attachment",name:safeName(file.name),mime:file.type||"application/octet-stream",size:file.size,data})}catch{$("peerstatus").textContent="Could not read that file."}});
+function readData(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob)})}
+$("camera").addEventListener("click",async()=>{try{if(!navigator.mediaDevices?.getUserMedia)throw new Error("Camera access requires a secure HTTPS browser.");cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});$("cameraVideo").srcObject=cameraStream;$("cameraBox").hidden=false}catch(err){$("peerstatus").textContent=err.message||"Camera permission was not granted."}});
+function stopCamera(){if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}$("cameraVideo").srcObject=null;$("cameraBox").hidden=true}
+$("closeCamera").addEventListener("click",stopCamera);
+$("capture").addEventListener("click",()=>{const video=$("cameraVideo");if(!video.videoWidth)return;const scale=Math.min(1,1280/video.videoWidth);const canvas=document.createElement("canvas");canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);const data=canvas.toDataURL("image/jpeg",.72);if(data.length>1100000){$("peerstatus").textContent="Photo is too large. Try again.";return}sendPacket({type:"attachment",name:"viral-cage-photo.jpg",mime:"image/jpeg",size:Math.round(data.length*.75),data});stopCamera()});
+$("voice").addEventListener("click",async()=>{if(recorder&&recorder.state==="recording"){recorder.stop();$("voice").textContent="🎙";$("voice").title="Record voice message";return}if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$("peerstatus").textContent="Voice recording is not supported by this browser.";return}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});let options={};if(MediaRecorder.isTypeSupported("audio/webm;codecs=opus"))options.mimeType="audio/webm;codecs=opus";recorder=new MediaRecorder(stream,options);voiceChunks=[];recorder.ondataavailable=e=>{if(e.data.size)voiceChunks.push(e.data)};recorder.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(voiceChunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>800*1024){$("peerstatus").textContent="Voice message too large. Keep recordings short.";return}const data=await readData(blob);sendPacket({type:"voice",name:"Voice message",mime:blob.type,size:blob.size,data})};recorder.start();$("voice").textContent="■";$("voice").title="Stop and send recording";$("peerstatus").textContent="Recording voice message… max 30 seconds";setTimeout(()=>{if(recorder&&recorder.state==="recording"){recorder.stop();$("voice").textContent="🎙"}},30000)}catch(err){$("peerstatus").textContent="Microphone permission was not granted."}});
+$("showqr").addEventListener("click",()=>{const panel=$("qrpanel");if(!panel.hidden){panel.hidden=true;return}panel.hidden=false;if(typeof QRCode==="undefined"){$("qrimage").alt="QR generator unavailable; copy invite link instead";return}const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");if(canvas)$("qrimage").src=canvas.toDataURL("image/png");else if(img)$("qrimage").src=img.src;holder.remove()});
+$("copylink").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("inviteurl").textContent);$("copylink").textContent="Copied!";setTimeout(()=>$("copylink").textContent="Copy invite link",1400)}catch{$("peerstatus").textContent="Copy failed. Select the invite link to copy it."}});
+$("leave").addEventListener("click",()=>{stopCamera();if(recorder&&recorder.state==="recording")recorder.stop();if(socket){socket.close(1000,"Guest left");socket=null}location.href=location.pathname});
+const invite=new URLSearchParams(location.search).get("room");if(invite){$("roomcode").value=clean(invite);status("Invite detected. Enter your nickname and join the room.")}
+window.addEventListener("pagehide",stopCamera);
 })();
-</script></body></html>
+</script>
+</body></html>
