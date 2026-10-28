@@ -28,7 +28,7 @@ export default {
     const originAllowed = origin === CORS_ORIGIN || origin === "https://www.viralcage.com";
     if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed",{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
-    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice-calls","webrtc-video-calls"]},200,origin);
+    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence"]},200,origin);
     if (url.pathname === "/rooms" && request.method === "POST") {
       let body={};try{body=await request.json()}catch{return json({error:"Invalid request body."},400,origin)}
       if(body.action!=="create")return json({error:"Unsupported room action."},400,origin);
@@ -82,24 +82,6 @@ export class ChatRoom {
     let message;try{message=JSON.parse(raw)}catch{return}
     if(!message||typeof message.type!=="string")return;
     const attachment=socket.deserializeAttachment()||{};
-    if(message.type==="call-offer"||message.type==="call-answer"||message.type==="call-ice"||message.type==="call-end"){
-      const now=Date.now(),rate=this.rate.get(socket)||{start:now,count:0};
-      if(now-rate.start>1000){rate.start=now;rate.count=0}
-      rate.count++;this.rate.set(socket,rate);
-      if(rate.count>45)return;
-      const signal={type:message.type,uid:attachment.uid||"guest",name:attachment.name||"Guest"};
-      if(message.type==="call-offer"){
-        if(!message.sdp||!(message.mode==="audio"||message.mode==="video"))return;
-        signal.sdp=message.sdp;signal.mode=message.mode;
-      }else if(message.type==="call-answer"){
-        if(!message.sdp)return;
-        signal.sdp=message.sdp;
-      }else if(message.type==="call-ice"){
-        if(!message.candidate)return;
-        signal.candidate=message.candidate;
-      }
-      this.broadcast(signal,socket);await this.touch();return;
-    }
     if(message.type==="typing"||message.type==="typing-clear"){
       const now=Date.now(),last=this.typing.get(socket)||0;if(now-last<700)return;this.typing.set(socket,now);
       this.broadcast({type:message.type,name:attachment.name||"A guest"},socket);return;
