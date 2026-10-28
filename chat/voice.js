@@ -138,8 +138,7 @@
       }
     };
     activeRef.on('value',callValueHandler);
-    remoteCandidateHandler=s=>addRemoteCandidate(s.val());
-    activeRef.child('candidates/'+remoteUid).on('child_added',remoteCandidateHandler);
+    if(!remoteCandidateHandler){remoteCandidateHandler=s=>addRemoteCandidate(s.val());activeRef.child('candidates/'+remoteUid).on('child_added',remoteCandidateHandler);}
   }
   async function startCall(player){
     if(activeRef)return;
