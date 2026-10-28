@@ -9,3 +9,11 @@ class_name = "ChatRoom"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["ChatRoom"]
+
+[[durable_objects.bindings]]
+name = "VOICE_HUB"
+class_name = "ChatVoiceHub"
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ChatVoiceHub"]
