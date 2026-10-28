@@ -1,39 +1,28 @@
-# Viral Cage Chat — Cloudflare Worker
+# Viral Cage Chat
 
-This Worker is the standalone backend for `https://viralcage.com/chat/`.
-It is intentionally separate from the game backend and does not edit the root site.
+Standalone chat page: `https://viralcage.com/chat/`.
 
-## Current scope
+## Features
+- Guest rooms with 3-digit codes and 4-digit fallback.
+- Live text messages, emoji picker, online count and typing status.
+- Temporary file/photo attachments (800 KB client limit), camera photo capture and voice-message recording.
+- Invite URL copy and QR sharing.
+- Messages and media are relayed live and are not persisted as chat history.
+- Empty rooms expire after 24 hours without activity.
 
-- Creates six-character invite rooms.
-- WebSocket real-time text messaging.
-- Guest nicknames; no Firebase Auth.
-- Live online count and join/leave notices.
-- Messages are broadcast live and are **not stored**.
-- Rooms expire after 24 hours without activity.
-- Message length and per-connection send rate are limited.
+## Deploy the Worker separately
+The Cloudflare Pages project that serves the website and this Worker are separate deployments.
 
-## Deploy
+1. In Cloudflare **Workers & Pages**, open the Worker named `viral-cage-chat`.
+2. Deploy the contents of this folder using the existing `wrangler.toml` configuration, or from this folder run `npx wrangler deploy`.
+3. Confirm the Worker has the Durable Object binding `CHAT_ROOMS` and the `ChatRoom` SQLite migration.
+4. Check `https://viral-cage-chat.viralcage.workers.dev/health`. It should return `ok: true` and list the chat features.
+5. The chat page frontend uses that Worker URL.
 
-1. In Cloudflare, open **Workers & Pages** and create a Worker named `viral-cage-chat`.
-2. Upload/deploy the files in this folder, or use Wrangler from this folder:
-   `npx wrangler deploy`.
-3. Confirm the Worker has the Durable Object binding `CHAT_ROOMS` and the `ChatRoom` SQLite migration from `wrangler.toml`.
-4. In the Worker settings, add the custom domain `chat-api.viralcage.com`. This is a dedicated chat API hostname; it does not change the root website or game routes.
-5. Check `https://chat-api.viralcage.com/health`. It should return JSON with `ok: true`.
-6. Set `API_BASE` in `../index.html` to `https://chat-api.viralcage.com` (already set for the planned custom domain in this branch).
+## Free-tier limits and privacy
+This implementation uses browser APIs and the existing Cloudflare Worker/Durable Objects. It does not require a paid chat SDK, media API, Firebase, or a paid storage service. Cloudflare free-plan quotas and limits still apply; this is not unlimited hosting. Media is temporarily relayed through the room and is not saved for later download. File transfers are limited to small attachments to control bandwidth. Camera and microphone access require HTTPS and explicit user permission. Browser/device support varies.
 
-## Free-plan note
-
-This is designed to minimize server work, not promise unlimited usage. WebSocket sessions, Durable Object requests and storage are subject to Cloudflare plan limits. Live text messages pass through the room Durable Object. File transfer and voice/video P2P are not included in this first migration phase.
-
-## Security and operations
-
-- Only `https://viralcage.com` and `https://www.viralcage.com` are allowed by the CORS response.
-- Do not place API tokens or secrets in the frontend.
-- Room codes are random six-character codes; share them only with intended participants.
-- No durable chat history is retained.
-
-## Cloudflare build trigger
-
-This documentation-only update is on the `feature/cloudflare-chat-migration` branch. It can be used to verify that the connected Cloudflare Git integration detects commits on the configured production branch.
+## Security
+- Only `https://viralcage.com` and `https://www.viralcage.com` origins are allowed.
+- Never put API tokens or secrets in the frontend.
+- Do not share sensitive files in guest rooms.
