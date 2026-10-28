@@ -28,7 +28,11 @@ export default {
     const originAllowed = origin === CORS_ORIGIN || origin === "https://www.viralcage.com";
     if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed",{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
-    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence"]},200,origin);
+    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling"]},200,origin);
+    if (url.pathname === "/voice" && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
+      const id = env.VOICE_HUB.idFromName("global");
+      return env.VOICE_HUB.get(id).fetch(request);
+    }
     if (url.pathname === "/rooms" && request.method === "POST") {
       let body={};try{body=await request.json()}catch{return json({error:"Invalid request body."},400,origin)}
       if(body.action!=="create")return json({error:"Unsupported room action."},400,origin);
@@ -107,4 +111,53 @@ export class ChatRoom {
   }
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence()}
   async alarm(){if(this.ctx.getWebSockets().length){await this.touch();return}await this.state.deleteAll()}
+}
+
+/* Global Cloudflare Durable Object for WebRTC presence and signaling.
+   Audio/video media stays peer-to-peer; this object relays SDP/ICE only. */
+export class ChatVoiceHub {
+  constructor(ctx) { this.ctx = ctx; }
+  async fetch(request) {
+    if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return new Response("WebSocket upgrade required", {status:426});
+    const url = new URL(request.url);
+    const uid = String(url.searchParams.get("uid") || "").slice(0,64);
+    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\\x00-\\x1f]/g,"").trim().slice(0,24) || "Guest";
+    if (!/^[a-zA-Z0-9_-]{8,64}$/.test(uid)) return new Response("Invalid guest identity", {status:400});
+    const pair = new WebSocketPair(), client = pair[0], server = pair[1];
+    this.ctx.acceptWebSocket(server, [uid]);
+    server.serializeAttachment({uid,name});
+    server.send(JSON.stringify({type:"ready",uid}));
+    this.broadcastDirectory();
+    return new Response(null,{status:101,webSocket:client});
+  }
+  peers() {
+    const unique = new Map();
+    for (const ws of this.ctx.getWebSockets()) {
+      if (ws.readyState !== WebSocket.OPEN) continue;
+      const a = ws.deserializeAttachment() || {};
+      if (a.uid) unique.set(a.uid,{uid:a.uid,name:a.name || "Guest"});
+    }
+    return [...unique.values()];
+  }
+  broadcastDirectory() {
+    const packet = JSON.stringify({type:"directory",peers:this.peers()});
+    for (const ws of this.ctx.getWebSockets()) if (ws.readyState === WebSocket.OPEN) { try { ws.send(packet); } catch {} }
+  }
+  webSocketMessage(socket, raw) {
+    if (typeof raw !== "string" || raw.length > 100000) return;
+    let msg; try { msg = JSON.parse(raw); } catch { return; }
+    const sender = socket.deserializeAttachment() || {};
+    if (!sender.uid || !["offer","answer","ice","hangup","reject","busy"].includes(msg.signalType)) return;
+    const to = String(msg.to || "").slice(0,64), callId = String(msg.callId || "").slice(0,80);
+    if (!to || !callId || to === sender.uid) return;
+    const payload = msg.payload == null ? null : msg.payload;
+    const encoded = JSON.stringify({type:"signal",from:sender.uid,fromName:sender.name || "Guest",signalType:msg.signalType,callId,payload});
+    for (const ws of this.ctx.getWebSockets()) {
+      if (ws.readyState !== WebSocket.OPEN) continue;
+      const target = ws.deserializeAttachment() || {};
+      if (target.uid === to) { try { ws.send(encoded); } catch {} }
+    }
+  }
+  webSocketClose() { this.broadcastDirectory(); }
+  webSocketError(socket) { try { socket.close(1011,"Signaling connection error"); } catch {} this.broadcastDirectory(); }
 }
