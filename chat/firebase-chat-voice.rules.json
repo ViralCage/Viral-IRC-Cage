@@ -1,0 +1,40 @@
+{
+  "rules": {
+    "chatVoicePresence": {
+      ".read": "auth != null",
+      "$uid": {
+        "$session": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['name', 'online', 'lastSeen'])",
+          "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
+          "online": { ".validate": "newData.isBoolean()" },
+          "lastSeen": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+    "chatVoiceCalls": {
+      "$calleeUid": {
+        ".read": "auth != null && (auth.uid === $calleeUid || data.child('$any').child('callerUid').val() === auth.uid)",
+        "$callId": {
+          ".read": "auth != null && (auth.uid === $calleeUid || auth.uid === data.child('callerUid').val())",
+          ".write": "auth != null && (( !data.exists() && auth.uid === newData.child('callerUid').val() && newData.child('calleeUid').val() === $calleeUid && auth.uid !== $calleeUid) || (data.exists() && (auth.uid === data.child('callerUid').val() || auth.uid === $calleeUid)))",
+          "callerUid": { ".validate": "newData.isString()" },
+          "callerName": { ".validate": "newData.isString() && newData.val().length <= 24" },
+          "calleeUid": { ".validate": "newData.val() === $calleeUid" },
+          "status": { ".validate": "newData.val() === 'ringing' || newData.val() === 'accepted' || newData.val() === 'declined' || newData.val() === 'ended'" },
+          "createdAt": { ".validate": "newData.isNumber()" },
+          "offer": { ".validate": "newData.hasChildren(['type','sdp'])" },
+          "answer": { ".validate": "newData.hasChildren(['type','sdp'])" },
+          "candidates": {
+            "$senderUid": {
+              ".write": "auth != null && (auth.uid === $senderUid) && (auth.uid === $calleeUid || auth.uid === root.child('chatVoiceCalls').child($calleeUid).child($callId).child('callerUid').val())",
+              ".read": "auth != null && (auth.uid === $calleeUid || auth.uid === root.child('chatVoiceCalls').child($calleeUid).child($callId).child('callerUid').val())"
+            }
+          },
+          "$other": { ".validate": true }
+        }
+      }
+    }
+  }
+}
