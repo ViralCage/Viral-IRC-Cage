@@ -81,8 +81,14 @@ const API_BASE="https://viral-cage-chat.viralcage.workers.dev";
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
-let uid=localStorage.getItem("vcChatGuestId");
-if(!uid){uid=(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2));localStorage.setItem("vcChatGuestId",uid)}
+const GUEST_SESSION_MS=7*24*60*60*1000;
+let guestSession=null;
+try{guestSession=JSON.parse(localStorage.getItem("vcChatGuestSession")||"null")}catch{}
+if(!guestSession||!guestSession.uid||!guestSession.expiresAt||Date.now()>guestSession.expiresAt){guestSession={uid:(crypto.randomUUID?crypto.randomUUID():"guest-"+Math.random().toString(36).slice(2)),expiresAt:Date.now()+GUEST_SESSION_MS,nickname:""}}
+let uid=guestSession.uid;
+function saveGuestSession(name){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||"").trim().slice(0,24)};localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession))}
+localStorage.setItem("vcChatGuestSession",JSON.stringify(guestSession));
+$("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
@@ -104,7 +110,7 @@ function addMessage(m){
 function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";return false}try{socket.send(JSON.stringify(packet));return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
- const name=$("nickname").value.trim().slice(0,24)||"Guest";showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
+ const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
  socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · waiting for others";$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
