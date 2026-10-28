@@ -5577,7 +5577,7 @@ Room codes and random matchmaking use the game server. Client-side rules alone c
     var url=new URL('https://viralcage.com/chat/');
     var code=(document.getElementById('roomCodeText')?.textContent||'').trim();
     var nickname=(document.getElementById('guestNameInput')?.value||'').trim();
-    if(/^\\d{4}$/.test(code))url.searchParams.set('room',code);
+    if(/^\d{4}$/.test(code))url.searchParams.set('room',code);
     if(nickname)url.searchParams.set('nickname',nickname.slice(0,24));
     link.href=url.toString();
   });
