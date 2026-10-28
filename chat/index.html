@@ -158,7 +158,7 @@ function connect(code){
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid)playSound("receive")}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
-  else if(data.type==="presence")$("peerstatus").textContent="Connected · "+data.online+" online";
+  else if(data.type==="presence")$("peerstatus").textContent="Connected";
   else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
   else if(data.type==="typing-clear")$("typing").textContent="";
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
