@@ -4,7 +4,6 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Viral Cage · Chat</title><meta name="description" content="Create a Viral Cage chat room and invite friends.">
 <link rel="icon" type="image/svg+xml" href="/assets/vc-play-crown-favicon.svg">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{color-scheme:dark;--line:#142b67;--muted:#91a8db;--purple:#a000ff;--blue:#087dff;--cyan:#00d8ff;--panel:#050d25;--panel2:#091632}
 *{box-sizing:border-box}
@@ -53,7 +52,6 @@ button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px s
 .composer button{min-width:76px}
 .invite{padding:12px 18px;border-bottom:1px solid #193878;font-size:12px;color:#b4c8f5;overflow-wrap:anywhere;background:#07122b}
 .invite button{margin-left:8px;padding:8px 11px}
-.qrpanel{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #193878;background:#061027}.qrpanel[hidden]{display:none}.qrpanel img{width:176px;height:176px;padding:8px;background:#fff;border-radius:10px}.qrnote{color:#a9c2f5;font-size:12px}.qrnote strong{display:block;color:#fff;font-size:14px;margin-bottom:4px}
 .foot{text-align:center;color:#748bbd;font-size:11px;margin:16px 5px}
 @media(max-width:760px){header{height:82px;padding:0 16px}.logo{height:58px;width:min(270px,65vw)}.header-right{gap:8px;font-size:12px}.avatar{width:34px;height:34px}.shell{width:calc(100% - 20px);margin:16px auto;display:block}.sidebar{display:none}.intro{margin-bottom:14px}.chat{min-height:calc(100dvh - 180px)}.messages{flex:1;max-height:none;min-height:300px;padding:15px}.chathead{align-items:flex-start;flex-wrap:wrap;padding:14px}.setup{padding:16px}.field{min-width:100%}.composer{padding:10px;gap:6px}.composer button{min-width:52px;padding:11px 10px}.foot{padding:0 10px}}
 </style></head>
@@ -63,8 +61,8 @@ button.secondary{background:linear-gradient(145deg,#101d3e,#08132b);border:1px s
 <aside class="sidebar" aria-label="Navigation"><a class="navitem" href="https://viralcage.com/"><span class="navicon">⌂</span>Home</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♧</span>Games</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">♙</span>Profile</a><a class="navitem" href="https://viralcage.com/"><span class="navicon">⚙</span>Settings</a><div class="tagline">Play Together.<br>Think Different.</div></aside>
 <main>
 <div class="intro"><h1>Viral Cage Chat</h1><p>Create a chat room and share its link. You can start messaging before anyone joins.</p></div>
-<section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your nickname"></div><div class="field"><label for="roomcode">Room code to join</label><input id="roomcode" maxlength="4" inputmode="numeric" pattern="[0-9]{3,4}" placeholder="Enter 3 or 4 digit code"></div><button id="create">Create chat room</button><button class="secondary" id="join">Join room</button></div><div class="status" id="status">Connect to VC Server to create a new room or join with an invite code.</div></section>
-<section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #243e82;background:#101d3e">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="showqr">QR Share</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for this chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your camera and scan the code to open the invite link.</div></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
+<section class="card" id="setup"><div class="setup"><div class="field"><label for="nickname">Nickname</label><input id="nickname" maxlength="24" placeholder="Your nickname"></div><div class="field"><label for="roomcode">Room code to join</label><input id="roomcode" maxlength="6" placeholder="Enter 6-character code"></div><button id="create">Create chat room</button><button class="secondary" id="join">Join room</button></div><div class="status" id="status">Connect to VC Server to create a new room or join with an invite code.</div></section>
+<section class="card chat" id="chat"><div class="chathead"><div><div class="room">VC CHAT ROOM · <span id="activecode"></span></div><div class="muted" id="peerstatus">VC Server connected</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="secondary" href="https://viralcage.com/" style="display:inline-flex;align-items:center;text-decoration:none;padding:11px 14px;border-radius:11px;color:#fff;font-weight:800;border:1px solid #243e82;background:#101d3e">← Back to Game</a><button class="secondary" id="copylink">Copy invite link</button><button class="secondary" id="leave">Leave</button></div></div><div class="invite">Invite link: <span id="inviteurl"></span></div><div class="messages" id="messages"><div class="empty">Your room is ready. Start typing.</div></div><form class="composer" id="sendform"><button type="button" class="secondary" id="emoji" title="Insert emoji">☺</button><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off"><button id="send">Send</button></form></section>
 <div class="foot">Live messages use the independent Cloudflare chat service. Messages are not saved; inactive rooms expire after 24 hours.</div>
 </main></div>
 <script>
@@ -74,7 +72,7 @@ const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",uid=localStorage.getItem("vcChatGuestId");
 if(!uid){uid=crypto.randomUUID();localStorage.setItem("vcChatGuestId",uid)}
-const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
+const clean=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
 function status(v){$("status").textContent=v}
 function addMessage(m,kind="message"){
  const box=$("messages"),empty=box.querySelector(".empty");if(empty)empty.remove();
@@ -90,7 +88,7 @@ function showRoom(){
  const link=new URL("/chat/","https://viralcage.com/");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href;
 }
 function connect(code){
- roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
+ roomCode=clean(code);if(roomCode.length!==6){status("Enter a valid 6-character room code.");return}
  const name=($("nickname").value.trim().slice(0,24)||"Guest");
  showRoom();$("messages").innerHTML='<div class="empty">Connecting to chat room…</div>';
  $("peerstatus").textContent="Connecting to Cloudflare chat…";
@@ -121,17 +119,6 @@ async function createRoom(){
 $("create").addEventListener("click",createRoom);
 $("join").addEventListener("click",()=>connect($("roomcode").value));
 $("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
-$("showqr").addEventListener("click",()=>{
- const panel=$("qrpanel");
- if(!panel.hidden){panel.hidden=true;return}
- panel.hidden=false;
- if(typeof QRCode==="undefined"){panel.querySelector(".qrnote").textContent="QR generator is unavailable. Use Copy invite link instead.";return}
- $("qrimage").src="";
- const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);
- new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
- const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");
- if(canvas){$("qrimage").src=canvas.toDataURL("image/png");holder.remove()}else if(img){$("qrimage").src=img.src;holder.remove()}
-});
 $("sendform").addEventListener("submit",e=>{
  e.preventDefault();const text=$("message").value.trim();
  if(!text||!socket||socket.readyState!==WebSocket.OPEN)return;
