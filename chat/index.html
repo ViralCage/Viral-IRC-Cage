@@ -24,6 +24,7 @@ header:after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;bac
 h1{font-size:clamp(34px,5vw,52px);line-height:1.04;letter-spacing:-.055em;margin:13px 0 12px;font-weight:900}h1 span{background:linear-gradient(100deg,#b58aff,#66b9ff 65%,#62e7e0);-webkit-background-clip:text;background-clip:text;color:transparent}
 .intro p{color:#bdcbed;margin:0;max-width:590px;font-size:15px;line-height:1.7}.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.feature-pills span{border:1px solid #4965a04f;background:#172b50a8;border-radius:99px;padding:6px 10px;color:#c7d8ff;font-size:11px;font-weight:700}
 .hero-mark{position:relative;flex:0 0 190px;width:190px;height:190px;display:grid;place-items:center}.hero-core{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:28px;transform:rotate(-8deg);background:linear-gradient(145deg,#8c42ff,#176eff 70%,#13c9db);box-shadow:0 0 55px #397aff80,inset 0 1px #ffffff80}.hero-core span{font-size:30px;font-weight:950;letter-spacing:-.08em;color:white;transform:rotate(8deg);text-shadow:0 2px 12px #08122c80}.hero-core i{position:absolute;width:8px;height:8px;right:13px;top:13px;border-radius:50%;background:#78fff0;box-shadow:0 0 12px #78fff0}.hero-orbit{position:absolute;border:1px solid #83a8ff45;border-radius:50%;transform:rotate(-25deg)}.orbit-one{width:150px;height:150px}.orbit-two{width:188px;height:100px;transform:rotate(45deg);border-color:#9c7aff55}.hero-spark{position:absolute;color:#a8c8ff;text-shadow:0 0 14px #6f8fff;font-size:22px}.spark-one{right:12px;top:24px}.spark-two{left:13px;bottom:25px}
+@keyframes vcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes vcGlow{0%,100%{box-shadow:0 0 0 0 #42e7c000}50%{box-shadow:0 0 0 5px #42e7c018}}@keyframes vcEnter{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}.hero-core{animation:vcFloat 5s ease-in-out infinite}.intro{transition:border-color .25s,box-shadow .25s}.intro:hover{border-color:#5275d4;box-shadow:0 22px 65px #0008,0 0 32px #356bff22}.card{backdrop-filter:blur(14px)}.chat.is-connected .roomtitle:after{content:"";display:inline-block;width:7px;height:7px;margin:0 0 2px 9px;border-radius:50%;background:#48e5bb;box-shadow:0 0 12px #48e5bb;animation:vcGlow 2s infinite}.bubble:not(.system){animation:vcEnter .22s ease-out both}.chathead{background:linear-gradient(100deg,#111f49,#0b1731 55%,#14214b)}.headactions button,.composer button,.quick-reactions button{transition:transform .16s,filter .16s,border-color .16s}.headactions button:hover,.composer button:hover,.quick-reactions button:hover{transform:translateY(-1px);border-color:#819aff}@media(prefers-reduced-motion:reduce){.hero-core,.chat.is-connected .roomtitle:after,.bubble:not(.system){animation:none}}
 .card{background:linear-gradient(145deg,#0b1834f5,#050d21f5);border:1px solid #1b3b82;border-radius:20px;overflow:hidden;box-shadow:0 18px 60px #0008,0 0 30px #1649ff15}
 .setup{padding:22px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
 .field{flex:1;min-width:190px;display:grid;gap:7px}.field label{font-size:11px;color:#a8bdf0;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
@@ -86,7 +87,36 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 const API_BASE="https://viral-cage-chat.viralcage.workers.dev";
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
-let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;\nlet soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;\nfunction playSound(kind){if(!soundEnabled)return;try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")return;const now=audioContext.currentTime;const notes=kind==="receive"?[659,880]:kind==="room"?[523,659,784]:kind==="error"?[220,165]:[784,988];notes.forEach((freq,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=kind==="error"?"triangle":"sine";osc.frequency.setValueAtTime(freq,now+i*.085);gain.gain.setValueAtTime(.0001,now+i*.085);gain.gain.exponentialRampToValueAtTime(kind==="receive"?.055:.04,now+i*.085+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+i*.085+.16);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.085);osc.stop(now+i*.085+.17)})}catch{}}\ndocument.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});\n$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
+let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
+let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
+function playSound(kind){
+ if(!soundEnabled)return;
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")return;
+  const now=audioContext.currentTime;
+  const patterns={
+   send:[{f:740,t:0,d:.12},{f:990,t:.075,d:.16}],
+   receive:[{f:587,t:0,d:.13},{f:784,t:.075,d:.18}],
+   room:[{f:523,t:0,d:.13},{f:659,t:.09,d:.13},{f:784,t:.18,d:.2}],
+   connect:[{f:523,t:0,d:.16},{f:659,t:.11,d:.16},{f:880,t:.22,d:.26}],
+   disconnect:[{f:659,t:0,d:.14},{f:494,t:.11,d:.14},{f:392,t:.22,d:.22}],
+   error:[{f:247,t:0,d:.16},{f:185,t:.12,d:.2}]
+  };
+  (patterns[kind]||patterns.room).forEach((note)=>{
+   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+   osc.type=kind==="error"?"triangle":"sine";
+   osc.frequency.setValueAtTime(note.f,now+note.t);
+   gain.gain.setValueAtTime(.0001,now+note.t);
+   gain.gain.exponentialRampToValueAtTime(kind==="connect"?.048:.038,now+note.t+.018);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
+   osc.connect(gain);gain.connect(audioContext.destination);
+   osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
+  });
+ }catch{}
+}
+document.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
+$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
 const GUEST_SESSION_MS=7*24*60*60*1000;
 let guestSession=null;
 try{guestSession=JSON.parse(localStorage.getItem("vcChatGuestSession")||"null")}catch{}
@@ -118,7 +148,7 @@ function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
- socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · waiting for others";$("message").focus()});
+ socket.addEventListener("open",()=>{$("peerstatus").textContent="Connected · waiting for others";$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid)playSound("receive")}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
@@ -128,7 +158,7 @@ function connect(code){
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
  });
  socket.addEventListener("close",event=>{$("typing").textContent="";$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006)$("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
- socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check chat server deployment."});
+ socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
 }
 async function createRoom(){ $("create").disabled=true;$("join").disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");connect(data.room)}catch(error){status("Could not create room: "+error.message)}finally{$("create").disabled=false;$("join").disabled=false}}
 $("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
