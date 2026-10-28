@@ -96,8 +96,8 @@ function addMessage(m){
  if(m.type==="attachment"||m.type==="voice"){
   const data=String(m.data||"");const mime=String(m.mime||"application/octet-stream");
   if(m.type==="voice"&&data.startsWith("data:audio/")){const audio=document.createElement("audio");audio.controls=true;audio.preload="none";audio.src=data;b.append(audio);const note=document.createElement("div");note.textContent="Voice message";note.style.cssText="font-size:11px;color:#c6d5f5";b.append(note)}
-  else if(mime.startsWith("image/")&&data.startsWith("data:image/")){const img=document.createElement("img");img.className="chatimage";img.src=data;img.alt=m.name||"Shared image";b.append(img)}
-  else if(data.startsWith("data:")){const wrap=document.createElement("div");wrap.className="filecard";const a=document.createElement("a");a.href=data;a.download=safeName(m.name);a.textContent="↓ "+safeName(m.name);a.rel="noopener";const small=document.createElement("small");small.textContent=(m.size?Math.ceil(m.size/1024)+" KB":"Attachment")+" · download";a.append(small);wrap.append(a);b.append(wrap)}
+  else if(mime.startsWith("image/")&&data.startsWith("data:image/")){const img=document.createElement("img");img.className="chatimage";img.src=data;img.alt=m.fileName||"Shared image";b.append(img)}
+  else if(data.startsWith("data:")){const wrap=document.createElement("div");wrap.className="filecard";const a=document.createElement("a");a.href=data;a.download=safeName(m.fileName);a.textContent="↓ "+safeName(m.fileName);a.rel="noopener";const small=document.createElement("small");small.textContent=(m.size?Math.ceil(m.size/1024)+" KB":"Attachment")+" · download";a.append(small);wrap.append(a);b.append(wrap)}
  }else{const t=document.createElement("div");t.textContent=m.text||"";b.append(t)}
  const when=document.createElement("div");when.className="when";when.textContent=new Date(m.at||Date.now()).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});b.append(when);box.append(b);scrollMessages();
 }
