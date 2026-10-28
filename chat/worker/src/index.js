@@ -121,7 +121,7 @@ export class ChatVoiceHub {
     if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return new Response("WebSocket upgrade required", {status:426});
     const url = new URL(request.url);
     const uid = String(url.searchParams.get("uid") || "").slice(0,64);
-    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\\x00-\\x1f]/g,"").trim().slice(0,24) || "Guest";
+    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\x00-\x1f]/g,"").trim().slice(0,24) || "Guest";
     if (!/^[a-zA-Z0-9_-]{8,64}$/.test(uid)) return new Response("Invalid guest identity", {status:400});
     const pair = new WebSocketPair(), client = pair[0], server = pair[1];
     this.ctx.acceptWebSocket(server, [uid]);
