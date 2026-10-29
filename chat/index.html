@@ -133,7 +133,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
-<div class="message-preview" id="messagePreview" aria-live="polite"><span class="preview-label">MESSAGE PREVIEW</span><span class="preview-text" id="previewText">Your message will appear here as you type.</span></div>
+<div class="message-preview" id="messagePreview" aria-live="polite" hidden><span class="preview-label">MESSAGE PREVIEW</span><span class="preview-text" id="previewText">Your message will appear here as you type.</span></div>
 <div class="quick-reactions" id="quickReactions"><span>Quick react</span></div>
 <form class="composer" id="sendform">
 <div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
@@ -248,7 +248,7 @@ async function createRoom(){ $("create").disabled=true;$("join").disabled=true;s
 $("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
 $("sendform").addEventListener("submit",e=>{e.preventDefault();const text=$("message").value.trim();if(!text)return;if(sendPacket({type:"message",text})){$("message").value="";$("message").dispatchEvent(new Event("input",{bubbles:true}));sendTyping(false)}});
 function sendTyping(active){if(typingActive===active)return;typingActive=active;sendPacket({type:active?"typing":"typing-clear"})}
-$("message").addEventListener("input",()=>{const value=$("message").value;const preview=$("previewText");preview.textContent=value||"Your message will appear here as you type.";preview.classList.toggle("is-empty",!value);sendTyping(!!value.trim());clearTimeout(typingTimer);if(value.trim())typingTimer=setTimeout(()=>sendTyping(false),1200)});
+$("message").addEventListener("input",()=>{const value=$("message").value;const preview=$("previewText");const hasText=!!value.trim();$("messagePreview").hidden=!hasText;preview.textContent=value;preview.classList.toggle("is-empty",!hasText);sendTyping(hasText);clearTimeout(typingTimer);if(value.trim())typingTimer=setTimeout(()=>sendTyping(false),1200)});
 function filterMessages(){const q=$("messageSearch").value.trim().toLowerCase();$("messages").querySelectorAll(".bubble:not(.system)").forEach(node=>{node.hidden=!!q&&!node.textContent.toLowerCase().includes(q)})}
 function openSearch(){$("searchPanel").hidden=false;$("toggleSearch").setAttribute("aria-expanded","true");$("messageSearch").focus()}
 function closeSearch(){$("messageSearch").value="";filterMessages();$("searchPanel").hidden=true;$("toggleSearch").setAttribute("aria-expanded","false")}
