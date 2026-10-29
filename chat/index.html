@@ -180,24 +180,38 @@ function playSound(kind){
 function playEmojiSound(value){
  const emoji=String(value||"").trim().replace(/\uFE0F/g,"");
  if(!soundEnabled)return;
- // CC0 reaction clips. These are AI-generated sound effects, not real infant recordings.
- const clips={
-  "😂":"https://sfxmint.com/dl/laugh-06.mp3",
-  "🤣":"https://sfxmint.com/dl/laugh-06.mp3",
-  "😭":"https://sfxmint.com/dl/baby-crying-02.mp3",
-  "😢":"https://sfxmint.com/dl/baby-crying-02.mp3",
-  "😡":"https://sfxmint.com/dl/baby-crying-06.mp3",
-  "😍":"https://sfxmint.com/dl/laugh-05.mp3",
-  "❤️":"https://sfxmint.com/dl/laugh-05.mp3",
-  "👏":"https://sfxmint.com/dl/laugh-06.mp3",
-  "👍":"https://sfxmint.com/dl/laugh-05.mp3",
-  "😮":"https://sfxmint.com/dl/laugh-05.mp3",
-  "🎉":"https://sfxmint.com/dl/laugh-06.mp3"
+ // Original synthesized cartoon sound effects only; no human or baby voice recordings.
+ const patterns={
+  "😂":[{f:880,t:0,d:.09},{f:1175,t:.10,d:.10},{f:1568,t:.22,d:.14}],
+  "🤣":[{f:988,t:0,d:.08},{f:1318,t:.09,d:.08},{f:1760,t:.19,d:.16}],
+  "😭":[{f:740,t:0,d:.16},{f:554,t:.17,d:.18},{f:415,t:.36,d:.23}],
+  "😢":[{f:659,t:0,d:.15},{f:494,t:.16,d:.20}],
+  "😡":[{f:220,t:0,d:.12},{f:185,t:.13,d:.12},{f:147,t:.27,d:.16}],
+  "😍":[{f:784,t:0,d:.13},{f:1047,t:.14,d:.20}],
+  "❤️":[{f:523,t:0,d:.12},{f:659,t:.13,d:.18}],
+  "👏":[{f:1047,t:0,d:.07},{f:784,t:.10,d:.08}],
+  "👍":[{f:784,t:0,d:.10},{f:988,t:.11,d:.16}],
+  "😮":[{f:392,t:0,d:.12},{f:784,t:.14,d:.22}],
+  "🎉":[{f:659,t:0,d:.08},{f:880,t:.09,d:.08},{f:1318,t:.19,d:.20}]
  };
- const src=clips[emoji];if(!src){playSound("send");return}
+ const notes=patterns[emoji];if(!notes){playSound("send");return}
  try{
-  const audio=new Audio(src);audio.preload="auto";audio.volume=.72;
-  const play=audio.play();if(play&&typeof play.catch==="function")play.catch(()=>{});
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!audioContext&&C)audioContext=new C();
+  if(!audioContext)return;
+  if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
+  const now=audioContext.currentTime;
+  notes.forEach(note=>{
+   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+   osc.type="sine";
+   osc.frequency.setValueAtTime(note.f,now+note.t);
+   osc.frequency.exponentialRampToValueAtTime(note.f*1.12,now+note.t+note.d*.55);
+   gain.gain.setValueAtTime(.0001,now+note.t);
+   gain.gain.exponentialRampToValueAtTime(.055,now+note.t+.015);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
+   osc.connect(gain);gain.connect(audioContext.destination);
+   osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
+  });
  }catch{}
 }
 function isEmojiOnlyMessage(value){return Object.keys({"😂":1,"🤣":1,"😭":1,"😢":1,"😡":1,"😍":1,"👏":1,"👍":1,"😮":1}).includes(String(value||"").trim().replace(/\uFE0F/g,""))}
