@@ -55,6 +55,63 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 @media(max-width:520px){.intro{padding:22px 17px}.hero-mark{position:absolute;right:-20px;top:3px;opacity:.22;pointer-events:none}.hero-copy{max-width:100%}h1{font-size:36px}.intro p{font-size:14px}}
 @media(max-width:700px){.intro{min-height:0;padding:23px 20px}.hero-mark{flex-basis:88px;width:88px;height:88px;opacity:.75;transform:scale(.72);transform-origin:center right;margin-right:-12px}.hero-core{width:70px;height:70px;border-radius:22px}.hero-core span{font-size:23px}.orbit-one{width:112px;height:112px}.orbit-two{width:138px;height:76px}.feature-pills{gap:6px}.feature-pills span{font-size:10px;padding:5px 8px}header{height:70px;padding:0 13px}.logo{height:52px;width:min(240px,65vw)}.wrap{width:calc(100% - 16px);margin:19px auto}.intro{padding:0 5px;margin-bottom:15px}.chat{min-height:calc(100dvh - 165px);min-height:calc(100svh - 165px)}.chathead{padding:12px}.headactions{width:100%}.headactions button{flex:1}.room-tools{padding:8px 10px}.local-note{display:none}.quick-reactions{overflow-x:auto}.messages{padding:13px;max-height:none;flex:1}.bubble{max-width:88%}.setup{padding:15px}.field{min-width:100%}.setup button{flex:1}.composer{padding:9px;gap:6px;flex-wrap:wrap}.composer input{order:0;flex:1 1 55%;}.tools{order:1}.composer>#send{order:2;flex:1}.composer button{min-height:44px}.invite{padding:10px 12px}.qrpanel{flex-wrap:wrap}.typing{padding-left:13px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Responsive layout fixes for the intro and chat controls */
+@media (max-width:900px){
+ .wrap{width:calc(100% - 28px)}
+ .intro{gap:14px;padding:25px 24px}
+ .hero-mark{flex-basis:150px;width:150px;height:150px}
+}
+@media (max-width:700px){
+ header{gap:10px}
+ .headright{font-size:10px;letter-spacing:.04em;text-align:right;line-height:1.25}
+ .logo{width:min(220px,58vw)}
+ .wrap{width:calc(100% - 20px);margin:16px auto}
+ .intro{display:block;min-height:0;padding:22px 18px;margin-bottom:15px}
+ .hero-copy{max-width:100%;padding-right:0}
+ .hero-mark{position:absolute;right:-18px;top:8px;flex:none;width:120px;height:120px;margin:0;opacity:.18;pointer-events:none;transform:none}
+ .hero-core{width:70px;height:70px}
+ .hero-core span{font-size:23px}
+ .orbit-one{width:112px;height:112px}
+ .orbit-two{width:138px;height:76px}
+ h1{font-size:clamp(30px,8vw,40px);overflow-wrap:anywhere}
+ .intro p{max-width:100%;font-size:14px;line-height:1.6}
+ .feature-pills{position:relative;z-index:2;gap:7px}
+ .feature-pills span{font-size:10px}
+ .setup{align-items:stretch}
+ .field{min-width:0;flex:1 1 100%}
+ .setup button{flex:1 1 calc(50% - 8px)}
+ .chat{min-height:calc(100dvh - 150px);min-height:calc(100svh - 150px)}
+ .chathead{align-items:flex-start}
+ .headactions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+ .headactions button{min-width:0;width:100%;padding:9px 7px;white-space:normal}
+ .inviteurl{min-width:0;overflow-wrap:anywhere}
+ .messages{min-height:220px;padding:12px}
+ .composer{align-items:stretch}
+ .composer input{min-width:0}
+ .tools{flex:0 0 auto;max-width:100%;flex-wrap:wrap}
+ .composer #send{min-width:64px}
+}
+@media (max-width:390px){
+ header{height:64px;padding:0 10px}
+ .logo{width:52vw;height:46px}
+ .headright{font-size:9px;max-width:112px}
+ .wrap{width:calc(100% - 14px)}
+ .intro{padding:19px 14px}
+ h1{font-size:29px}
+ .eyebrow{font-size:9px;letter-spacing:.14em}
+ .feature-pills span{font-size:9px;padding:5px 7px}
+ .headactions{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .headactions button{font-size:11px}
+ .composer{gap:5px;padding:8px}
+ .tools{gap:5px}
+ .composer .iconbtn{width:40px;min-width:40px;padding:6px}
+ .composer input{flex:1 1 100%;order:0}
+ .tools{order:1}
+ .composer #send{order:2;flex:1}
+ .quick-reactions{padding:7px 9px}
+ .quick-reactions span{white-space:nowrap}
+}
 </style>
 </head>
 <body>
