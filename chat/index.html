@@ -35,7 +35,7 @@ input:focus{border-color:#8c58ff;box-shadow:0 0 0 3px #7c4dff26}
 .status{padding:12px 20px;border-top:1px solid #1a3675;background:#050d20;color:#a8bce8;font-size:13px}
 .chat{display:none;grid-template-rows:auto auto minmax(300px,1fr) auto auto;min-height:650px}
 .chathead{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1b397a;background:linear-gradient(90deg,#101f47,#09152e)}
-.roomtitle{font-weight:900;letter-spacing:.1em}.substatus{color:#9bb2e7;font-size:12px;margin-top:3px}
+.roomtitle{font-weight:900;letter-spacing:.1em}.substatus{color:#9bb2e7;font-size:12px;margin:0 4px 0 0;padding:7px 10px;border:1px solid #29477f;border-radius:999px;background:#091a38;white-space:nowrap;align-self:center}
 .headactions{display:flex;gap:8px;flex-wrap:wrap}.headactions button{padding:9px 12px;font-size:12px;min-height:40px}
 .invite{padding:11px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#07122a;border-bottom:1px solid #1a3675;color:#b7c9f1;font-size:12px}
 .inviteurl{overflow-wrap:anywhere;flex:1;min-width:160px;color:#e0eaff}.invite button{padding:7px 11px;min-height:36px;font-size:12px}
@@ -83,7 +83,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
  .setup button{flex:1 1 calc(50% - 8px)}
  .chat{min-height:calc(100dvh - 150px);min-height:calc(100svh - 150px)}
  .chathead{align-items:flex-start}
- .headactions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+ .headactions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.headactions .substatus{grid-column:1/-1;justify-self:end;margin:0 0 2px}
  .headactions button{min-width:0;width:100%;padding:9px 7px;white-space:normal}
  .inviteurl{min-width:0;overflow-wrap:anywhere}
  .messages{min-height:220px;padding:12px}
@@ -124,8 +124,8 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <button id="create">Create room</button><button class="ghost" id="join">Join room</button>
 </div><div class="status" id="status">Create a room or enter an invite code to join.</div></section>
 <section class="card chat" id="chat">
-<div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div><div class="substatus" id="peerstatus">Connecting…</div></div>
-<div class="headactions"><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
+<div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
+<div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
