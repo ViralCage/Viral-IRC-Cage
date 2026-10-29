@@ -91,7 +91,10 @@ export class ChatRoom {
       this.broadcast({type:message.type,name:attachment.name||"A guest"},socket);return;
     }
     let outgoing;
-    if(message.type==="message"){
+    if(message.type==="emote"){
+      const emoji=String(message.emoji||"");if(!["😂","😭","😡","😮","👏","❤️","👍","😍","🎉"].includes(emoji))return;
+      outgoing={type:"emote",uid:attachment.uid||"guest",name:attachment.name||"Guest",emoji,at:Date.now()};
+    }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
