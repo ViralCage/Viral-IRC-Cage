@@ -36,6 +36,8 @@ input:focus{border-color:#8c58ff;box-shadow:0 0 0 3px #7c4dff26}
 .chat{display:none;grid-template-rows:auto auto minmax(300px,1fr) auto auto;min-height:650px}
 .chathead{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #1b397a;background:linear-gradient(90deg,#101f47,#09152e)}
 .roomtitle{font-weight:900;letter-spacing:.1em}.substatus{color:#9bb2e7;font-size:12px;margin:0 4px 0 0;padding:7px 10px;border:1px solid #29477f;border-radius:999px;background:#091a38;white-space:nowrap;align-self:center}
+/* Keep connection confirmation inside the chat conversation only; hide duplicate header status. */
+.substatus{display:none!important}
 .headactions{display:flex;gap:8px;flex-wrap:wrap}.headactions button{padding:9px 12px;font-size:12px;min-height:40px}
 .invite{padding:11px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#07122a;border-bottom:1px solid #1a3675;color:#b7c9f1;font-size:12px}
 .inviteurl{overflow-wrap:anywhere;flex:1;min-width:160px;color:#e0eaff}.invite button{padding:7px 11px;min-height:36px;font-size:12px}
