@@ -175,6 +175,26 @@ function playSound(kind){
   });
  }catch{}
 }
+function playEmojiSound(value){
+ const emoji=String(value||"").trim().replace(/\uFE0F/g,"");
+ const sounds={
+  "😂":[{f:880,t:0,d:.09,w:"sine"},{f:1175,t:.10,d:.09,w:"sine"},{f:988,t:.20,d:.10,w:"sine"},{f:1318,t:.31,d:.13,w:"sine"}],
+  "🤣":[{f:1046,t:0,d:.07,w:"sine"},{f:1396,t:.08,d:.07,w:"sine"},{f:1175,t:.16,d:.08,w:"sine"},{f:1568,t:.25,d:.08,w:"sine"},{f:1318,t:.34,d:.14,w:"sine"}],
+  "😭":[{f:660,t:0,d:.18,w:"sine"},{f:554,t:.20,d:.20,w:"sine"},{f:440,t:.42,d:.25,w:"sine"},{f:349,t:.69,d:.30,w:"sine"}],
+  "😢":[{f:587,t:0,d:.16,w:"sine"},{f:494,t:.18,d:.19,w:"sine"},{f:392,t:.39,d:.24,w:"sine"}],
+  "😡":[{f:165,t:0,d:.15,w:"sawtooth"},{f:130,t:.18,d:.16,w:"sawtooth"},{f:110,t:.37,d:.22,w:"sawtooth"}],
+  "😍":[{f:523,t:0,d:.13,w:"sine"},{f:659,t:.13,d:.13,w:"sine"},{f:784,t:.26,d:.2,w:"sine"}],
+  "👏":[{f:950,t:0,d:.045,w:"triangle"},{f:760,t:.10,d:.045,w:"triangle"},{f:950,t:.20,d:.045,w:"triangle"},{f:760,t:.30,d:.06,w:"triangle"}],
+  "👍":[{f:660,t:0,d:.10,w:"sine"},{f:880,t:.12,d:.16,w:"sine"}],
+  "😮":[{f:392,t:0,d:.13,w:"sine"},{f:587,t:.14,d:.16,w:"sine"},{f:784,t:.31,d:.22,w:"sine"}]
+ };
+ const notes=sounds[emoji];if(!notes){playSound("send");return}
+ if(!soundEnabled)return;
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioContext)audioContext=new C();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});const now=audioContext.currentTime;
+  notes.forEach(n=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=n.w;osc.frequency.setValueAtTime(n.f,now+n.t);gain.gain.setValueAtTime(.0001,now+n.t);gain.gain.exponentialRampToValueAtTime(.055,now+n.t+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+n.t);osc.stop(now+n.t+n.d+.02)});
+ }catch{}
+}
+function isEmojiOnlyMessage(value){return Object.keys({"😂":1,"🤣":1,"😭":1,"😢":1,"😡":1,"😍":1,"👏":1,"👍":1,"😮":1}).includes(String(value||"").trim().replace(/\uFE0F/g,""))}
 document.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
 $("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
 const GUEST_SESSION_MS=7*24*60*60*1000;
@@ -205,7 +225,7 @@ function addMessage(m){
  }else{const t=document.createElement("div");t.className="message-text";renderClickableText(t,m.text||"");b.append(t)}
  const when=document.createElement("div");when.className="when";when.textContent=new Date(m.at||Date.now()).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});b.append(when);const copy=document.createElement("button");copy.type="button";copy.className="message-copy";copy.textContent="Copy message";copy.addEventListener("click",async()=>{const content=m.text||m.fileName||"Shared media";try{await navigator.clipboard.writeText(content);copy.textContent="Copied";setTimeout(()=>copy.textContent="Copy message",1100)}catch{copy.textContent="Copy unavailable"}});b.append(copy);box.append(b);scrollMessages();
 }
-function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
+function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="message"&&isEmojiOnlyMessage(packet.text))playEmojiSound(packet.text);else if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
  roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
   saveGuestSession($("nickname").value.trim().slice(0,24)||"Guest",roomCode);
@@ -214,7 +234,7 @@ function connect(code){
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
  socket.addEventListener("open",()=>{$("peerstatus").textContent="You are connected · waiting for others";$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
-  if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid)playSound("receive")}
+  if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
   else if(data.type==="presence")$("peerstatus").textContent="You are connected";
   else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
