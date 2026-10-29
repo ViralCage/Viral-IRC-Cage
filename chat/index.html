@@ -249,43 +249,64 @@ $("voice").addEventListener("click",async()=>{
   try{recorder.stop()}catch(err){button.disabled=false;button.textContent="🎙";button.title="Record voice message";$("peerstatus").textContent="Could not stop recording: "+(err.message||"unknown error")}
   return;
  }
- if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$("peerstatus").textContent="Voice recording is not supported here. Use the latest Chrome, Edge, or Safari over HTTPS.";return}
+ if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){
+  $("peerstatus").textContent="This browser does not support voice recording. Open viralcage.com/chat in Safari or the latest Chrome.";
+  return;
+ }
  if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Connect to the room before recording a voice message.";return}
  button.disabled=true;$("peerstatus").textContent="Requesting microphone access…";
  let stream;
  try{
-  stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-  const types=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
-  const mimeType=types.find(type=>MediaRecorder.isTypeSupported(type));
-  try{recorder=mimeType?new MediaRecorder(stream,{mimeType,audioBitsPerSecond:24000}):new MediaRecorder(stream,{audioBitsPerSecond:24000})}
-  catch{recorder=mimeType?new MediaRecorder(stream,{mimeType}):new MediaRecorder(stream)}
+  // Keep constraints simple for iPhone Safari; some device/browser combinations reject advanced audio constraints.
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
+  const ua=navigator.userAgent||"";
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const mimeCandidates=isIOS
+   ?["audio/mp4","audio/mp4;codecs=mp4a.40.2","audio/webm;codecs=opus","audio/webm"]
+   :["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
+  const mimeType=mimeCandidates.find(type=>typeof MediaRecorder.isTypeSupported==="function"&&MediaRecorder.isTypeSupported(type));
+  let options={audioBitsPerSecond:24000};
+  if(mimeType)options.mimeType=mimeType;
+  try{recorder=new MediaRecorder(stream,options)}
+  catch{recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined)}
   voiceChunks=[];
   const activeRecorder=recorder;
   activeRecorder.ondataavailable=e=>{if(e.data&&e.data.size)voiceChunks.push(e.data)};
   activeRecorder.onerror=e=>{
-   stream.getTracks().forEach(t=>t.stop());button.disabled=false;button.classList.remove("is-recording");button.textContent="🎙";button.title="Record voice message";
+   stream.getTracks().forEach(t=>t.stop());
+   button.disabled=false;button.classList.remove("is-recording");button.textContent="🎙";button.title="Record voice message";
    $("peerstatus").textContent="Microphone recording failed: "+(e.error?.message||"check microphone permission and browser support.");
   };
   activeRecorder.onstop=async()=>{
-   stream.getTracks().forEach(t=>t.stop());button.disabled=false;button.classList.remove("is-recording");button.textContent="🎙";button.title="Record voice message";
+   stream.getTracks().forEach(t=>t.stop());
+   button.disabled=false;button.classList.remove("is-recording");button.textContent="🎙";button.title="Record voice message";
    try{
-    const blob=new Blob(voiceChunks,{type:activeRecorder.mimeType||"audio/webm"});
-    if(!blob.size){$("peerstatus").textContent="No audio was captured. Check that the correct microphone is enabled.";return}
+    const detectedType=activeRecorder.mimeType||(voiceChunks[0]&&voiceChunks[0].type)||(isIOS?"audio/mp4":"audio/webm");
+    const blob=new Blob(voiceChunks,{type:detectedType});
+    if(!blob.size){$("peerstatus").textContent="No audio was captured. Check microphone permission and try again.";return}
     if(blob.size>700*1024){$("peerstatus").textContent="Voice recording is too large. Try a shorter recording.";return}
     $("peerstatus").textContent="Preparing voice message…";
     const data=await readData(blob);
     if(data.length>1100000){$("peerstatus").textContent="Voice recording is too large. Try a shorter recording.";return}
-    if(sendPacket({type:"voice",name:"Voice message",mime:blob.type||"application/octet-stream",size:blob.size,data}))$("peerstatus").textContent="Voice message sent.";
+    if(sendPacket({type:"voice",name:"Voice message",mime:blob.type||detectedType,size:blob.size,data}))$("peerstatus").textContent="Voice message sent.";
    }catch(err){$("peerstatus").textContent="Could not send voice recording: "+(err.message||"unknown error")}
   };
-  activeRecorder.start(500);
-  button.disabled=false;button.classList.add("is-recording");button.textContent="●";button.title="Recording — click to stop and send";button.setAttribute("aria-label","Recording voice message — click to stop");
-  $("peerstatus").textContent="Recording… click the red button to stop and send (max 30 seconds).";
-  setTimeout(()=>{if(recorder===activeRecorder&&activeRecorder.state==="recording"){button.disabled=true;button.classList.remove("is-recording");button.textContent="…";button.title="Finishing voice message…";try{activeRecorder.stop()}catch{}$("peerstatus").textContent="Finishing voice recording…"}},30000);
+  // Do not pass a timeslice: Safari on iOS can emit fragmented MP4 chunks that do not combine reliably.
+  activeRecorder.start();
+  button.disabled=false;button.classList.add("is-recording");button.textContent="●";button.title="Recording — tap to stop and send";button.setAttribute("aria-label","Recording voice message — tap to stop");
+  $("peerstatus").textContent="Recording… tap the red button to stop and send (max 30 seconds).";
+  setTimeout(()=>{
+   if(recorder===activeRecorder&&activeRecorder.state==="recording"){
+    button.disabled=true;button.classList.remove("is-recording");button.textContent="…";button.title="Finishing voice message…";
+    try{activeRecorder.stop()}catch{}
+    $("peerstatus").textContent="Finishing voice recording…";
+   }
+  },30000);
  }catch(err){
   if(stream)stream.getTracks().forEach(t=>t.stop());
   button.disabled=false;button.classList.remove("is-recording");button.textContent="🎙";button.title="Record voice message";
-  $("peerstatus").textContent=err.name==="NotAllowedError"?"Microphone permission is blocked. Allow microphone access for viralcage.com in browser site settings.":err.name==="NotFoundError"?"No microphone was found. Connect or enable a microphone and try again.":err.name==="NotReadableError"?"The microphone is busy in another app or browser tab. Close the other app and retry.":(err.message||"Could not start microphone recording.");
+  $("peerstatus").textContent=err.name==="NotAllowedError"?"Microphone permission is blocked. In iPhone Settings, allow microphone access for Safari, then allow it for viralcage.com.":err.name==="NotFoundError"?"No microphone was found.":err.name==="NotReadableError"?"The microphone is busy in another app. Close the other app and retry.":(err.message||"Could not start microphone recording.");
  }
 });
 $("showqr").addEventListener("click",()=>{const panel=$("qrpanel");if(!panel.hidden){panel.hidden=true;return}panel.hidden=false;if(typeof QRCode==="undefined"){$("qrimage").alt="QR generator unavailable; copy invite link instead";return}const holder=document.createElement("div");holder.style.cssText="position:absolute;left:-9999px";document.body.append(holder);new QRCode(holder,{text:$("inviteurl").textContent,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});const canvas=holder.querySelector("canvas"),img=holder.querySelector("img");if(canvas)$("qrimage").src=canvas.toDataURL("image/png");else if(img)$("qrimage").src=img.src;holder.remove()});
