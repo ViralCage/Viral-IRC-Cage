@@ -179,21 +179,25 @@ function playSound(kind){
 }
 function playEmojiSound(value){
  const emoji=String(value||"").trim().replace(/\uFE0F/g,"");
- const sounds={
-  "😂":[{f:880,t:0,d:.09,w:"sine"},{f:1175,t:.10,d:.09,w:"sine"},{f:988,t:.20,d:.10,w:"sine"},{f:1318,t:.31,d:.13,w:"sine"}],
-  "🤣":[{f:1046,t:0,d:.07,w:"sine"},{f:1396,t:.08,d:.07,w:"sine"},{f:1175,t:.16,d:.08,w:"sine"},{f:1568,t:.25,d:.08,w:"sine"},{f:1318,t:.34,d:.14,w:"sine"}],
-  "😭":[{f:660,t:0,d:.18,w:"sine"},{f:554,t:.20,d:.20,w:"sine"},{f:440,t:.42,d:.25,w:"sine"},{f:349,t:.69,d:.30,w:"sine"}],
-  "😢":[{f:587,t:0,d:.16,w:"sine"},{f:494,t:.18,d:.19,w:"sine"},{f:392,t:.39,d:.24,w:"sine"}],
-  "😡":[{f:165,t:0,d:.15,w:"sawtooth"},{f:130,t:.18,d:.16,w:"sawtooth"},{f:110,t:.37,d:.22,w:"sawtooth"}],
-  "😍":[{f:523,t:0,d:.13,w:"sine"},{f:659,t:.13,d:.13,w:"sine"},{f:784,t:.26,d:.2,w:"sine"}],
-  "👏":[{f:950,t:0,d:.045,w:"triangle"},{f:760,t:.10,d:.045,w:"triangle"},{f:950,t:.20,d:.045,w:"triangle"},{f:760,t:.30,d:.06,w:"triangle"}],
-  "👍":[{f:660,t:0,d:.10,w:"sine"},{f:880,t:.12,d:.16,w:"sine"}],
-  "😮":[{f:392,t:0,d:.13,w:"sine"},{f:587,t:.14,d:.16,w:"sine"},{f:784,t:.31,d:.22,w:"sine"}]
- };
- const notes=sounds[emoji];if(!notes){playSound("send");return}
  if(!soundEnabled)return;
- try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioContext)audioContext=new C();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});const now=audioContext.currentTime;
-  notes.forEach(n=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type=n.w;osc.frequency.setValueAtTime(n.f,now+n.t);gain.gain.setValueAtTime(.0001,now+n.t);gain.gain.exponentialRampToValueAtTime(.055,now+n.t+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+n.t);osc.stop(now+n.t+n.d+.02)});
+ // CC0 reaction clips. These are AI-generated sound effects, not real infant recordings.
+ const clips={
+  "😂":"https://sfxmint.com/dl/laugh-06.mp3",
+  "🤣":"https://sfxmint.com/dl/laugh-06.mp3",
+  "😭":"https://sfxmint.com/dl/baby-crying-02.mp3",
+  "😢":"https://sfxmint.com/dl/baby-crying-02.mp3",
+  "😡":"https://sfxmint.com/dl/baby-crying-06.mp3",
+  "😍":"https://sfxmint.com/dl/laugh-05.mp3",
+  "❤️":"https://sfxmint.com/dl/laugh-05.mp3",
+  "👏":"https://sfxmint.com/dl/laugh-06.mp3",
+  "👍":"https://sfxmint.com/dl/laugh-05.mp3",
+  "😮":"https://sfxmint.com/dl/laugh-05.mp3",
+  "🎉":"https://sfxmint.com/dl/laugh-06.mp3"
+ };
+ const src=clips[emoji];if(!src){playSound("send");return}
+ try{
+  const audio=new Audio(src);audio.preload="auto";audio.volume=.72;
+  const play=audio.play();if(play&&typeof play.catch==="function")play.catch(()=>{});
  }catch{}
 }
 function isEmojiOnlyMessage(value){return Object.keys({"😂":1,"🤣":1,"😭":1,"😢":1,"😡":1,"😍":1,"👏":1,"👍":1,"😮":1}).includes(String(value||"").trim().replace(/\uFE0F/g,""))}
