@@ -106,11 +106,16 @@ export class ChatRoom {
     if(rate.count>8){try{socket.send(JSON.stringify({type:"error",message:"Please slow down."}))}catch{};return}
     this.broadcast(outgoing);await this.touch();
   }
-  async webSocketClose(socket,code,reason){
-    const attachment=socket.deserializeAttachment()||{};this.broadcast({type:"system",text:(attachment.name||"A guest")+" left the room."});this.broadcastPresence();await this.touch();
+  async clearIfEmpty(except=null){
+    const hasOtherOpenSockets=this.ctx.getWebSockets().some(ws=>ws!==except&&ws.readyState===WebSocket.OPEN);
+    if(!hasOtherOpenSockets){await this.state.deleteAll();return}
+    await this.touch();
   }
-  async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence()}
-  async alarm(){if(this.ctx.getWebSockets().length){await this.touch();return}await this.state.deleteAll()}
+  async webSocketClose(socket,code,reason){
+    const attachment=socket.deserializeAttachment()||{};this.broadcast({type:"system",text:(attachment.name||"A guest")+" left the room."});this.broadcastPresence();await this.clearIfEmpty(socket);
+  }
+  async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
+  async alarm(){if(this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN)){await this.touch();return}await this.state.deleteAll()}
 }
 
 /* Global Cloudflare Durable Object for WebRTC presence and signaling.
