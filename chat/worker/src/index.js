@@ -18,7 +18,7 @@ function json(data, status = 200, origin = CORS_ORIGIN) {
 }
 function validRoomCode(value) { return /^\d{3,4}$/.test(String(value || "")); }
 
-// VC Guard blocks messages containing known adult domains or adult-content URL signals.
+// VC Gardian blocks messages containing known adult domains or adult-content URL signals.
 function containsAdultLink(text) {
   const value=String(text||"");
   const knownAdultDomains=[
@@ -130,7 +130,7 @@ export class ChatRoom {
       outgoing={type:"emote",uid:attachment.uid||"guest",name:attachment.name||"Guest",emoji,at:Date.now()};
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
-      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guard: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
+      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Gardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
       const data=String(message.data||""),mime=String(message.mime||"application/octet-stream");
@@ -145,10 +145,10 @@ export class ChatRoom {
     }else return;
     const now=Date.now(),rate=this.rate.get(socket)||{start:now,count:0};
     if(now-rate.start>1000){rate.start=now;rate.count=0}rate.count++;this.rate.set(socket,rate);
-    if(rate.count>8){try{socket.send(JSON.stringify({type:"error",message:"VC Guard: message rate is too high. Please slow down."}))}catch{};return}
-    // VC Guard: lightweight, server-side spam and room-disruption monitoring.
+    if(rate.count>8){try{socket.send(JSON.stringify({type:"error",message:"VC Gardian: message rate is too high. Please slow down."}))}catch{};return}
+    // VC Gardian: lightweight, server-side spam and room-disruption monitoring.
     const guard=this.guard.get(socket)||{events:[],recentText:"",repeat:0,lastTextAt:0,warnings:0,mutedUntil:0};
-    if(guard.mutedUntil>now){try{socket.send(JSON.stringify({type:"error",message:"VC Guard: you are temporarily muted for "+Math.ceil((guard.mutedUntil-now)/1000)+" more seconds."}))}catch{};return}
+    if(guard.mutedUntil>now){try{socket.send(JSON.stringify({type:"error",message:"VC Gardian: you are temporarily muted for "+Math.ceil((guard.mutedUntil-now)/1000)+" more seconds."}))}catch{};return}
     guard.events=guard.events.filter(t=>now-t<6000);guard.events.push(now);
     const body=outgoing.type==="message"?String(outgoing.text||"").trim().toLowerCase():"";
     if(body&&body===guard.recentText&&now-guard.lastTextAt<30000)guard.repeat++;else guard.repeat=body?1:0;
@@ -164,9 +164,9 @@ export class ChatRoom {
       if(duration)guard.mutedUntil=now+duration;
       this.guard.set(socket,guard);
       const notice=duration?"temporarily muted for "+Math.round(duration/1000)+" seconds":"please stop "+reason+" or the bot will mute you";
-      const botText="VC Guard: "+(attachment.name||"A participant")+" was flagged for "+reason+"; "+notice+".";
+      const botText="VC Gardian: "+(attachment.name||"A participant")+" was flagged for "+reason+"; "+notice+".";
       this.broadcast({type:"system",text:botText,at:now});
-      try{socket.send(JSON.stringify({type:"error",message:"VC Guard: "+reason+" detected. "+notice+"."}))}catch{}
+      try{socket.send(JSON.stringify({type:"error",message:"VC Gardian: "+reason+" detected. "+notice+"."}))}catch{}
       return;
     }
     this.guard.set(socket,guard);
