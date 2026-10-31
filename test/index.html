@@ -200,9 +200,16 @@
             <h1 class="font-orbitron text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-red-500 italic tracking-wider mb-2">
                 TURBO RACER 3D
             </h1>
-            <p class="text-gray-300 text-sm md:text-base mb-6 font-medium">
-                Conquer the circuit! Drift around bends, hit speed boosts, collect checkpoints, and beat the clock.
+            <p class="text-gray-300 text-sm md:text-base mb-3 font-medium">
+                Race the high-altitude Himalayan roads beneath Mount Everest.
             </p>
+            <div class="bg-slate-900/80 rounded-xl border border-cyan-300/30 px-4 py-3 mb-5 text-left">
+                <label for="race-location" class="block text-[10px] tracking-[0.2em] font-bold text-cyan-300 mb-1">RACE LOCATION</label>
+                <select id="race-location" class="w-full bg-slate-800 text-white rounded-lg p-2 border border-white/20 outline-none">
+                    <option value="everest">Mount Everest — Nepal / Tibet Himalaya</option>
+                </select>
+                <div class="text-[10px] text-slate-400 mt-1">Scenic 3D recreation inspired by the Everest region; not a surveyed GPS terrain map.</div>
+            </div>
 
             <!-- Instructions Box -->
             <div class="bg-slate-900/80 rounded-2xl p-4 mb-6 text-left border border-white/10 text-xs md:text-sm text-gray-300 space-y-2">
@@ -436,8 +443,9 @@
 
             // Scene setup
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a);
-            scene.fog = new THREE.FogExp2(0x0f172a, 0.0035);
+            scene.background = new THREE.Color(0x9fc8e8);
+            scene.fog = new THREE.FogExp2(0xa9c9dc, 0.00165);
+            scene.environment = null;
 
             // Camera setup
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -458,6 +466,7 @@
             // Build Track Curves & Environment
             generateTrackWaypoints();
             buildTerrainAndTrack();
+            buildHimalayanEverestRange();
             buildEnvironmentDecorations();
 
             // Create Bike & Rider
@@ -587,6 +596,116 @@
             
             // Build Checkpoint Arches and Boost Pads
             buildCheckpointsAndPads();
+        }
+
+        // --- HIMALAYAN / MOUNT EVEREST SCENERY ---
+        // Procedural high-altitude mountain meshes, snow caps and layered ridgelines.
+        // This is a visual recreation, not survey-grade geographic terrain data.
+        function buildHimalayanEverestRange() {
+            const rockPalette = [0x53616a, 0x66737a, 0x7d898d, 0x929b9b];
+            const snowPalette = [0xeaf4f7, 0xf7fbff, 0xdce8ed];
+
+            function makePeak(x, z, radius, height, seed, isEverest = false) {
+                const segments = 28;
+                const rings = 12;
+                const vertices = [];
+                const colors = [];
+                const indices = [];
+                const rand = (n) => {
+                    const v = Math.sin(n * 127.1 + seed * 311.7) * 43758.5453;
+                    return v - Math.floor(v);
+                };
+                const base = new THREE.Color();
+                const snow = new THREE.Color();
+                const ringNoise = [];
+                for (let r = 0; r <= rings; r++) {
+                    ringNoise[r] = 0.78 + rand(r + 2) * 0.42;
+                }
+                for (let r = 0; r <= rings; r++) {
+                    const t = r / rings;
+                    const y = height * t;
+                    const ringRadius = radius * Math.pow(1 - t, 0.88) * ringNoise[r];
+                    for (let j = 0; j <= segments; j++) {
+                        const a = (j / segments) * Math.PI * 2;
+                        const jagged = 1 + (rand(r * 71 + j * 13) - 0.5) * 0.13;
+                        const px = Math.cos(a) * ringRadius * jagged;
+                        const pz = Math.sin(a) * ringRadius * jagged;
+                        vertices.push(px, y + (r === rings ? 0 : (rand(j * 9 + r) - 0.5) * 2.2), pz);
+                        const snowLine = isEverest ? 0.58 : 0.66 + rand(j + seed) * 0.08;
+                        const c = new THREE.Color();
+                        if (t > snowLine) {
+                            c.setHex(snowPalette[Math.floor(rand(j + r + seed) * snowPalette.length)]);
+                        } else {
+                            c.setHex(rockPalette[Math.floor(rand(j * 3 + r * 11 + seed) * rockPalette.length)]);
+                        }
+                        colors.push(c.r, c.g, c.b);
+                    }
+                }
+                for (let r = 0; r < rings; r++) {
+                    for (let j = 0; j < segments; j++) {
+                        const a = r * (segments + 1) + j;
+                        const b = a + segments + 1;
+                        indices.push(a, b, a + 1, b, b + 1, a + 1);
+                    }
+                }
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                geo.setIndex(indices);
+                geo.computeVertexNormals();
+                const mat = new THREE.MeshStandardMaterial({
+                    vertexColors: true, roughness: 0.96, metalness: 0.02,
+                    flatShading: true
+                });
+                const peak = new THREE.Mesh(geo, mat);
+                peak.position.set(x, -2, z);
+                peak.castShadow = true;
+                peak.receiveShadow = true;
+                scene.add(peak);
+
+                // Snow apron at the upper shoulder gives the summit a glaciated profile.
+                if (isEverest) {
+                    const glacierMat = new THREE.MeshStandardMaterial({ color: 0xe8f3f7, roughness: 0.88, flatShading: true });
+                    for (let k = 0; k < 5; k++) {
+                        const angle = k * Math.PI * 0.4 + 0.3;
+                        const ridge = new THREE.Mesh(
+                            new THREE.ConeGeometry(radius * (0.17 + k * 0.018), height * (0.32 + k * 0.025), 5),
+                            glacierMat
+                        );
+                        ridge.position.set(x + Math.cos(angle) * radius * 0.24, height * (0.53 + k * 0.015), z + Math.sin(angle) * radius * 0.24);
+                        ridge.rotation.z = (rand(k + 91) - 0.5) * 0.22;
+                        ridge.rotation.x = (rand(k + 31) - 0.5) * 0.2;
+                        ridge.castShadow = true;
+                        scene.add(ridge);
+                    }
+                }
+            }
+
+            // Distant Himalayan wall encircles the playable valley, leaving the circuit visible.
+            const peaks = [
+                [-430,-390,145,250],[-210,-520,120,205],[80,-510,165,275],
+                [360,-430,145,230],[520,-170,125,190],[470,220,160,245],
+                [260,470,135,210],[-80,510,160,245],[-390,380,150,225],
+                [-540,60,120,180],[-330,-120,100,155],[350,40,105,165]
+            ];
+            peaks.forEach((p,i) => makePeak(p[0],p[1],p[2],p[3],i+1,false));
+            // Iconic tallest summit placed on the distant north-west skyline.
+            makePeak(-390, -610, 190, 330, 77, true);
+
+            // Layered foothills and scree slopes add depth between road and high peaks.
+            const foothillMat = new THREE.MeshStandardMaterial({ color: 0x65746e, roughness: 1, flatShading: true });
+            for (let i = 0; i < 26; i++) {
+                const a = (i / 26) * Math.PI * 2;
+                const radius = 285 + (i % 4) * 24;
+                const hill = new THREE.Mesh(
+                    new THREE.ConeGeometry(48 + (i % 3) * 12, 48 + (i % 5) * 11, 7),
+                    foothillMat
+                );
+                hill.position.set(Math.cos(a) * radius, 12, Math.sin(a) * radius);
+                hill.rotation.y = a;
+                hill.castShadow = true;
+                scene.add(hill);
+            }
         }
 
         // --- BUILD CURBS & TRACK ACCENTS ---
