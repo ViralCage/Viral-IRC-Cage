@@ -148,16 +148,6 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
-<div class="trivia-panel">
- <div class="trivia-top"><div><div class="trivia-brand">VC KINGDOM · LIVE TRIVIA</div><div class="trivia-desc">Play together in this room. Correct answers earn 10 points.</div></div><button class="trivia-toggle" id="triviaToggle" type="button">Open Trivia</button></div>
- <div id="triviaGame" hidden>
-  <div class="trivia-status" id="triviaStatus">VC Kingdom is ready to host. Start a game when everyone is here.</div>
-  <div class="trivia-question" id="triviaQuestion"></div>
-  <div class="trivia-choices" id="triviaChoices"></div>
-  <div class="trivia-score" id="triviaScore"></div>
-  <div class="trivia-actions"><button id="triviaStart" type="button">Start Live Trivia</button><button class="ghost" id="triviaJoin" type="button">Join Game</button><button class="ghost" id="triviaNext" type="button" hidden>Next Question</button></div>
- </div>
-</div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
 <div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div>
 <div class="typing" id="typing"></div>
@@ -180,41 +170,21 @@ const GUARD_AVATAR="https://images.stockcake.com/public/d/f/b/dfbb7744-c5bd-4186
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
-let triviaState=null;
 function renderTrivia(state){
- triviaState=state;
- $("triviaGame").hidden=false;
- $("triviaToggle").textContent="Hide Trivia";
- if(!state.active){
-  $("triviaStatus").textContent="VC Kingdom is ready to host. Start a game when everyone is here.";
-  $("triviaQuestion").textContent="Play live quiz rounds with everyone in this chat room.";
-  $("triviaChoices").innerHTML="";$("triviaScore").innerHTML="";
-  $("triviaStart").hidden=false;$("triviaJoin").hidden=true;$("triviaNext").hidden=true;return;
+ if(!state.active){addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
+ const lines=[];
+ if(state.phase==="finished"){
+  lines.push("TRIVIA COMPLETE · FINAL SCOREBOARD");
+  (state.scoreboard||[]).forEach((p,i)=>lines.push((i+1)+". "+p.name+" — "+p.score+" points"));
+ }else{
+  lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
+  lines.push(state.question);
+  (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":state.answered+" answer(s) submitted. Type A, B, C or D to answer.");
+  if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
- $("triviaStart").hidden=true;$("triviaJoin").hidden=false;
- $("triviaStatus").textContent=state.phase==="finished"?"Game complete · final leaderboard":(state.revealed?"Answers are in · correct answer shown":"Question "+state.round+" of "+state.total+" · "+state.category+" · "+state.answered+" answered");
- $("triviaQuestion").textContent=state.question||"Trivia complete";
- $("triviaChoices").innerHTML="";
- (state.choices||[]).forEach((choice,index)=>{
-  const b=document.createElement("button");b.type="button";b.textContent=String.fromCharCode(65+index)+". "+choice;
-  if(state.revealed&&index===state.correctIndex)b.classList.add("correct");
-  b.disabled=state.revealed||state.phase==="finished";
-  b.addEventListener("click",()=>sendPacket({type:"trivia",action:"answer",choice:index}));
-  $("triviaChoices").append(b);
- });
- $("triviaScore").innerHTML="";
- (state.scoreboard||[]).forEach((player,index)=>{
-  const item=document.createElement("span");item.textContent=(index+1)+". "+player.name+" — "+player.score+" pts";$("triviaScore").append(item);
- });
- $("triviaJoin").hidden=state.phase==="finished";
- $("triviaNext").hidden=!(state.revealed||state.phase==="finished");
- $("triviaNext").textContent=state.phase==="finished"?"Play Again":"Next Question";
+ addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:lines.join("\n"),at:Date.now()});
 }
-$("triviaToggle").addEventListener("click",()=>{const panel=$("triviaGame");panel.hidden=!panel.hidden;$("triviaToggle").textContent=panel.hidden?"Open Trivia":"Hide Trivia";if(!panel.hidden&&triviaState?.active)sendPacket({type:"trivia",action:"join"})});
-$("triviaStart").addEventListener("click",()=>sendPacket({type:"trivia",action:"start"}));
-$("triviaJoin").addEventListener("click",()=>sendPacket({type:"trivia",action:"join"}));
-$("triviaNext").addEventListener("click",()=>{if(triviaState?.phase==="finished")sendPacket({type:"trivia",action:"start"});else sendPacket({type:"trivia",action:"next"})});
-
 let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
 function playSound(kind){
  if(!soundEnabled)return;
