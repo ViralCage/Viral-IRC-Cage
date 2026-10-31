@@ -89,7 +89,7 @@ export default {
   }
 };
 export class ChatRoom {
-  constructor(ctx,env){this.ctx=ctx;this.env=env;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap()}
+  constructor(ctx,env){this.ctx=ctx;this.env=env;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap();this.trivia=null}
   async fetch(request){
     const url=new URL(request.url);
     if(url.pathname==="/create"&&request.method==="POST"){
@@ -128,6 +128,11 @@ export class ChatRoom {
     if(message.type==="typing"||message.type==="typing-clear"){
       const now=Date.now(),last=this.typing.get(socket)||0;if(now-last<700)return;this.typing.set(socket,now);
       this.broadcast({type:message.type,name:attachment.name||"A guest"},socket);return;
+    }
+    if(message.type==="trivia"){
+      await this.handleTrivia(socket,attachment,message);
+      await this.touch();
+      return;
     }
     let outgoing;
     if(message.type==="emote"){
@@ -178,6 +183,58 @@ export class ChatRoom {
     this.broadcast(outgoing);await this.touch();
     if(outgoing.type==="message") await this.maybeReplyAsBot(outgoing);
   }
+
+  triviaQuestions(){
+    return [{"category":"Science","q":"Which planet is known as the Red Planet?","choices":["Venus","Mars","Jupiter","Mercury"],"a":1},{"category":"Geography","q":"What is the capital of Japan?","choices":["Seoul","Beijing","Tokyo","Bangkok"],"a":2},{"category":"General Knowledge","q":"How many sides does a hexagon have?","choices":["5","6","7","8"],"a":1},{"category":"Science","q":"What gas do plants absorb from the atmosphere?","choices":["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],"a":2},{"category":"History","q":"Which ancient civilization built the pyramids at Giza?","choices":["Romans","Egyptians","Greeks","Persians"],"a":1},{"category":"Sports","q":"How many players are on the field for one soccer team?","choices":["9","10","11","12"],"a":2},{"category":"Geography","q":"Which is the largest ocean on Earth?","choices":["Atlantic","Indian","Arctic","Pacific"],"a":3},{"category":"Science","q":"What is H2O commonly known as?","choices":["Salt","Water","Oxygen","Hydrogen"],"a":1},{"category":"Technology","q":"What does CPU stand for?","choices":["Central Processing Unit","Computer Power Utility","Core Program Upload","Central Print Unit"],"a":0},{"category":"Animals","q":"What is the fastest land animal?","choices":["Lion","Cheetah","Horse","Leopard"],"a":1},{"category":"General Knowledge","q":"How many days are in a leap year?","choices":["364","365","366","367"],"a":2},{"category":"Geography","q":"Which country is home to the city of Kathmandu?","choices":["India","Bhutan","Nepal","Bangladesh"],"a":2},{"category":"Science","q":"Which part of a plant usually absorbs water?","choices":["Leaves","Roots","Flowers","Stem"],"a":1},{"category":"Sports","q":"In tennis, what word means a score of zero?","choices":["Nil","Love","Blank","Duck"],"a":1},{"category":"History","q":"Who was the first person to walk on the Moon?","choices":["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],"a":2}];
+  }
+  triviaSnapshot(){
+    const game=this.trivia;
+    if(!game)return {type:"trivia-state",active:false,host:"VC Kingdom"};
+    const revealed=game.revealed;
+    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
+  }
+  async handleTrivia(socket,attachment,message){
+    const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
+    const action=String(message.action||"");
+    if(action==="start"){
+      if(this.trivia&&this.trivia.phase!=="finished"){socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Join the current game."}));return}
+      const bank=this.triviaQuestions(),picked=[];
+      while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
+      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false};
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom is hosting Live Trivia! Join the game and answer each question. Correct answers earn 10 points.",at:Date.now()});
+      this.broadcast(this.triviaSnapshot());return;
+    }
+    if(!this.trivia||this.trivia.phase==="finished"){socket.send(JSON.stringify({type:"error",message:"No live trivia game. Ask VC Kingdom to start one with /trivia."}));return}
+    if(action==="join"){
+      this.trivia.players[uid]=name;
+      if(!this.trivia.scores[uid])this.trivia.scores[uid]={name,score:0};
+      this.broadcast(this.triviaSnapshot());return;
+    }
+    if(action==="answer"){
+      if(this.trivia.phase!=="question"||this.trivia.revealed)return;
+      if(!this.trivia.players[uid]){this.trivia.players[uid]=name;this.trivia.scores[uid]={name,score:0}}
+      if(this.trivia.answers[uid]!==undefined)return;
+      const choice=Number(message.choice);
+      if(!Number.isInteger(choice)||choice<0||choice>3)return;
+      this.trivia.answers[uid]=choice;
+      if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
+      const total=Object.keys(this.trivia.players).length;
+      if(Object.keys(this.trivia.answers).length>=total)this.trivia.revealed=true;
+      this.broadcast(this.triviaSnapshot());return;
+    }
+    if(action==="next"){
+      if(this.trivia.phase!=="revealed"&&!this.trivia.revealed)return;
+      this.trivia.index++;
+      if(this.trivia.index>=this.trivia.total){
+        this.trivia.phase="finished";this.trivia.revealed=true;
+        this.broadcast(this.triviaSnapshot());
+        const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type /trivia to play another round.",at:Date.now()});return;
+      }
+      this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";
+      this.broadcast(this.triviaSnapshot());return;
+    }
+  }
   async maybeReplyAsBot(message){
     const text=String(message.text||"").trim();
     const lower=text.toLowerCase();
@@ -186,12 +243,14 @@ export class ChatRoom {
     const commands={
       "/help":"Commands: /help, /rules, /quiz, /riddle, /dice, /coin. Mention God by name in your message to get an AI reply—no @ symbol needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
-      "/quiz":"Quick quiz: What is the largest planet in our solar system? Reply with your answer!",
+      "/quiz":"Use the Trivia button or type /trivia to start a live multiplayer trivia game hosted by VC Kingdom.",
+      "/trivia":"Starting a live trivia game hosted by VC Kingdom.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
       "/dice":"You rolled a "+(1+Math.floor(Math.random()*6))+".",
       "/coin":"The coin landed on "+(Math.random()<0.5?"heads":"tails")+"."
     };
     let reply=commands[command];
+    if(command==="/trivia"){await this.handleTrivia(null,{uid:message.uid||"vc-room-bot",name:message.name||"Guest"},{action:"start"});return}
     if(!reply&&!mentioned)return;
     if(!reply){
       const now=Date.now();
