@@ -986,20 +986,64 @@
             addMesh(bike, new THREE.CylinderGeometry(0.14,0.14,0.08,20), alloy, [0.58,1.0,-1.79], null, [Math.PI/2,0,-0.18]);
             addMesh(bike, new THREE.BoxGeometry(0.26,0.13,0.12), redLight, [0,2.08,-1.73]);
 
-            // Racing rider: boots, legs, torso, arms, gloves and full-face helmet.
+            // Human-shaped racing rider: articulated anatomy, racing suit, gloves and helmet.
+            // Built as a smooth skinned-look assembly with overlapping forms and joint transitions.
             riderMesh = new THREE.Group();
-            addMesh(riderMesh, new THREE.SphereGeometry(0.48,24,20), riderSuit, [0,2.65,-0.62], [0.9,1.2,0.72], [0.42,0,0]);
-            addMesh(riderMesh, new THREE.SphereGeometry(0.39,24,20), riderSuit, [0,3.35,-0.08], [0.86,0.78,0.72], [0.35,0,0]);
+            const suit = new THREE.MeshPhysicalMaterial({ color: 0x171e2b, roughness: 0.68, metalness: 0.04, clearcoat: 0.18 });
+            const suitRed = new THREE.MeshStandardMaterial({ color: 0xc51e2a, roughness: 0.72 });
+            const leather = new THREE.MeshStandardMaterial({ color: 0x080b10, roughness: 0.86 });
+            const armor = new THREE.MeshStandardMaterial({ color: 0x303b49, roughness: 0.5, metalness: 0.16 });
+            const gloveMat = new THREE.MeshStandardMaterial({ color: 0x10151c, roughness: 0.88 });
+            const helmetShell = new THREE.MeshPhysicalMaterial({ color: 0xdfe8ef, roughness: 0.19, metalness: 0.28, clearcoat: 1 });
+            const visor = new THREE.MeshPhysicalMaterial({ color: 0x071521, roughness: 0.08, metalness: 0.55, clearcoat: 1 });
+            const addLimb = (parent, a, b, radiusA, radiusB, material) => {
+                const va = new THREE.Vector3(...a), vb = new THREE.Vector3(...b);
+                const dir = new THREE.Vector3().subVectors(vb, va);
+                const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radiusB, radiusA, dir.length(), 18, 1), material);
+                mesh.position.copy(va).add(vb).multiplyScalar(0.5);
+                mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize());
+                mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh);
+                const joint = new THREE.Mesh(new THREE.SphereGeometry(Math.max(radiusA,radiusB)*0.98,18,14), material);
+                joint.position.copy(vb); joint.castShadow = true; parent.add(joint);
+                return mesh;
+            };
+            const bodyPart = (geo, mat, pos, scale, rot) => addMesh(riderMesh, geo, mat, pos, scale, rot);
+
+            // Pelvis and forward-canted torso, matching a sport-bike tuck.
+            bodyPart(new THREE.SphereGeometry(0.43,32,24), suit, [0,2.43,-0.62], [0.88,0.78,0.9], [0.48,0,0]);
+            bodyPart(new THREE.SphereGeometry(0.48,36,28), suit, [0,2.98,-0.18], [0.88,1.12,0.72], [0.42,0,0]);
+            bodyPart(new THREE.SphereGeometry(0.49,28,20), armor, [0,3.04,-0.1], [0.91,0.55,0.76], [0.42,0,0]);
+            // Chest zipper, shoulder panels, back hump and protective knee/elbow armor.
+            bodyPart(new THREE.BoxGeometry(0.045,0.68,0.035), alloy, [0,3.12,0.49], null, [0.42,0,0]);
+            bodyPart(new THREE.SphereGeometry(0.31,24,18), leather, [0,3.18,-0.72], [1.05,0.78,0.55], [0.35,0,0]);
             for (const side of [-1,1]) {
-                bar(riderMesh, [side*0.28,2.55,-0.55], [side*0.43,1.28,-0.85], 0.19, riderSuit);
-                addMesh(riderMesh, new THREE.BoxGeometry(0.3,0.34,0.52), carbon, [side*0.43,1.17,-0.94], null, [0.15,0,side*0.08]);
-                bar(riderMesh, [side*0.34,3.32,0.05], [side*0.64,2.75,1.08], 0.14, riderSuit);
-                addMesh(riderMesh, new THREE.SphereGeometry(0.16,16,12), carbon, [side*0.64,2.72,1.1]);
-                addMesh(riderMesh, new THREE.SphereGeometry(0.53,28,22), helmetMat, [0,4.02,0.25], [0.92,1.05,0.96]);
-                addMesh(riderMesh, new THREE.SphereGeometry(0.4,24,16), visorMat, [0,4.03,0.68], [0.9,0.68,0.42]);
+                bodyPart(new THREE.SphereGeometry(0.2,20,16), suitRed, [side*0.4,3.22,0.03], [0.62,0.82,0.62], [0,0,side*0.2]);
+                // Legs bend around tank: thigh, knee, shin, boot and slider.
+                addLimb(riderMesh,[side*0.24,2.48,-0.48],[side*0.48,1.92,0.05],0.23,0.19,suit);
+                bodyPart(new THREE.SphereGeometry(0.22,20,16), armor,[side*0.48,1.91,0.06],[1,1,0.8]);
+                addLimb(riderMesh,[side*0.48,1.91,0.06],[side*0.43,1.22,-0.83],0.18,0.14,suit);
+                bodyPart(new THREE.SphereGeometry(0.2,20,16), leather,[side*0.43,1.15,-0.91],[0.78,0.65,1.25],[0.15,0,0]);
+                bodyPart(new THREE.SphereGeometry(0.11,16,12), suitRed,[side*0.49,1.88,0.12],[1,0.85,0.7]);
+                // Arms reach forward to the clip-ons, with elbow and wrist joints.
+                addLimb(riderMesh,[side*0.39,3.28,0.02],[side*0.67,2.84,0.63],0.17,0.145,suit);
+                bodyPart(new THREE.SphereGeometry(0.17,18,14), armor,[side*0.67,2.84,0.63],[1,1,0.9]);
+                addLimb(riderMesh,[side*0.67,2.84,0.63],[side*0.76,2.69,1.48],0.14,0.105,suit);
+                bodyPart(new THREE.SphereGeometry(0.14,18,14), gloveMat,[side*0.76,2.68,1.5],[1.15,0.82,1.35]);
+                // Glove cuff and fingers wrap the handlebar.
+                bodyPart(new THREE.CylinderGeometry(0.12,0.14,0.16,16), suitRed,[side*0.76,2.69,1.38],[1,1,1],[Math.PI/2,0,0]);
+                for(let f=0;f<4;f++) bodyPart(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.025,0.09,3,6) : new THREE.SphereGeometry(0.045,10,8), gloveMat,[side*(0.68+f*0.045),2.63,1.58],[1,1.25,1]);
             }
-            // Helmet visor highlight and suit racing stripes.
-            addMesh(riderMesh, new THREE.BoxGeometry(0.055,0.82,0.045), paint, [0,3.25,-0.1]);
+            // Neck, head and a single correctly placed full-face helmet (not duplicated).
+            addLimb(riderMesh,[0,3.55,-0.02],[0,3.78,0.22],0.16,0.15,leather);
+            bodyPart(new THREE.SphereGeometry(0.46,36,28), helmetShell,[0,4.05,0.32],[0.92,1.08,0.98]);
+            bodyPart(new THREE.SphereGeometry(0.37,32,22), visor,[0,4.04,0.68],[0.91,0.72,0.48]);
+            bodyPart(new THREE.TorusGeometry(0.39,0.035,10,32), armor,[0,3.88,0.48],[1,1,1],[0.22,0,0]);
+            bodyPart(new THREE.BoxGeometry(0.16,0.08,0.05), suitRed,[0,4.45,0.22]);
+            // Suit seams, reflective shoulder piping and sponsor-style neutral panels.
+            for (const side of [-1,1]) {
+                bodyPart(new THREE.BoxGeometry(0.055,0.72,0.035), suitRed,[side*0.34,3.08,0.48],[1,1,1],[0.4,0,side*0.12]);
+                bodyPart(new THREE.SphereGeometry(0.12,16,12), alloy,[side*0.42,3.35,0.04],[1,0.7,0.55]);
+            }
             bike.add(riderMesh);
             bike.scale.set(0.95,0.95,0.95);
             return bike;
@@ -1126,6 +1170,19 @@
                 }
             }
 
+            // Track discipline: find nearest point on the racing line and penalize leaving the road.
+            let nearestTrackDistance = Infinity;
+            for (let i = 0; i < trackWaypoints.length; i += 2) {
+                const d = bikePosition.distanceTo(trackWaypoints[i]);
+                if (d < nearestTrackDistance) nearestTrackDistance = d;
+            }
+            const roadEdge = CONFIG.trackWidth * 0.5;
+            const isOffRoad = nearestTrackDistance > roadEdge - 0.8;
+            if (isOffRoad) {
+                currentSpeed *= Math.max(0.82, 1 - delta * 1.8);
+                if (nearestTrackDistance > roadEdge + 7) currentSpeed *= Math.max(0.72, 1 - delta * 2.5);
+            }
+
             // Steering & Leaning Physics
             const speedRatio = Math.abs(currentSpeed) / CONFIG.maxSpeed;
             const turnFactor = CONFIG.turnSpeed * (0.4 + 0.6 * (1.0 - speedRatio * 0.5));
@@ -1147,6 +1204,9 @@
             const moveStep = currentSpeed * delta;
             bikePosition.x += Math.sin(bikeRotation) * moveStep;
             bikePosition.z += Math.cos(bikeRotation) * moveStep;
+
+            // The rider and bike stay grounded on the mountain road; off-road is slower.
+            bikePosition.y = 0;
 
             // Apply Position & Orientation to Bike Mesh
             bikeGroup.position.copy(bikePosition);
@@ -1218,6 +1278,7 @@
             const nextCP = checkpoints[currentCheckpointIndex];
             const dist = bikePosition.distanceTo(nextCP.position);
 
+            // Checkpoints must be taken in sequence; missing one never advances the race.
             if (dist < CONFIG.checkpointRadius) {
                 nextCP.passed = true;
                 audio.playCheckpointSound();
@@ -1252,7 +1313,7 @@
             // Obstacle Blocks Collision
             for (let obs of obstacleMeshes) {
                 if (bikePosition.distanceTo(obs.position) < 2.2) {
-                    currentSpeed = -10.0; // Knockback
+                    currentSpeed = Math.min(currentSpeed * 0.28, 8); // Impact slows the bike without magically reversing it
                     audio.playCrashSound();
                     showNotification("CRASHED! -SPEED");
                     // Flash screen red effect
@@ -1326,8 +1387,14 @@
         function resetRaceState() {
             currentSpeed = 0;
             topSpeedReached = 0;
-            bikePosition.set(0, 0, 0);
-            bikeRotation = 0;
+            bikePosition.copy(trackCurve.getPointAt(0));
+            const startTangent = trackCurve.getTangentAt(0).normalize();
+            bikeRotation = Math.atan2(startTangent.x, startTangent.z);
+            bikeLeanAngle = 0;
+            if (bikeGroup) {
+                bikeGroup.position.copy(bikePosition);
+                bikeGroup.rotation.set(0, bikeRotation, 0);
+            }
             bikeLeanAngle = 0;
             currentCheckpointIndex = 0;
             nitroAmount = 100;
