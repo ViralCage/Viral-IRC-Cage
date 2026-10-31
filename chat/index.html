@@ -180,7 +180,7 @@ function renderTrivia(state){
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
-  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":state.answered+" answer(s) submitted. Type A, B, C or D to answer.");
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":"30 seconds to answer — type A, B, C or D. No joining needed; the answer reveals automatically.");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:lines.join("\n"),at:Date.now()});
