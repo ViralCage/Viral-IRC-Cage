@@ -72,7 +72,11 @@ export class ChatRoom {
     const uid=(url.searchParams.get("uid")||crypto.randomUUID()).slice(0,64);
     const pair=new WebSocketPair(),client=pair[0],server=pair[1];
     this.ctx.acceptWebSocket(server,[uid]);server.serializeAttachment({uid,name});await this.touch();
-    this.broadcast({type:"system",text:name+" joined the room."},server);this.broadcastPresence();
+    this.broadcast({type:"system",text:name+" joined the room."},server);
+    // Announce the bot as a visible participant to the joining player and the room.
+    const welcome={type:"message",uid:"vc-room-bot",name:"VC Room Bot",text:"Welcome to Viral Cage Chat. Type @VCBot to chat with me, or /help to see commands.",at:Date.now()};
+    try{server.send(JSON.stringify(welcome))}catch{}
+    this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
   async touch(){await this.state.setAlarm(Date.now()+ROOM_TTL_MS)}
