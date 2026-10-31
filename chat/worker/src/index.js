@@ -28,7 +28,7 @@ export default {
     const originAllowed = origin === CORS_ORIGIN || origin === "https://www.viralcage.com";
     if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed",{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
-    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling"]},200,origin);
+    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling","vc-room-guard"]},200,origin);
     if (url.pathname === "/voice" && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
       const id = env.VOICE_HUB.idFromName("global");
       return env.VOICE_HUB.get(id).fetch(request);
@@ -59,7 +59,7 @@ export default {
   }
 };
 export class ChatRoom {
-  constructor(ctx){this.ctx=ctx;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap()}
+  constructor(ctx){this.ctx=ctx;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap()}
   async fetch(request){
     const url=new URL(request.url);
     if(url.pathname==="/create"&&request.method==="POST"){
@@ -110,7 +110,31 @@ export class ChatRoom {
     }else return;
     const now=Date.now(),rate=this.rate.get(socket)||{start:now,count:0};
     if(now-rate.start>1000){rate.start=now;rate.count=0}rate.count++;this.rate.set(socket,rate);
-    if(rate.count>8){try{socket.send(JSON.stringify({type:"error",message:"Please slow down."}))}catch{};return}
+    if(rate.count>8){try{socket.send(JSON.stringify({type:"error",message:"VC Room Guard: message rate is too high. Please slow down."}))}catch{};return}
+    // VC Room Guard: lightweight, server-side spam and room-disruption monitoring.
+    const guard=this.guard.get(socket)||{events:[],recentText:"",repeat:0,lastTextAt:0,warnings:0,mutedUntil:0};
+    if(guard.mutedUntil>now){try{socket.send(JSON.stringify({type:"error",message:"VC Room Guard: you are temporarily muted for "+Math.ceil((guard.mutedUntil-now)/1000)+" more seconds."}))}catch{};return}
+    guard.events=guard.events.filter(t=>now-t<6000);guard.events.push(now);
+    const body=outgoing.type==="message"?String(outgoing.text||"").trim().toLowerCase():"";
+    if(body&&body===guard.recentText&&now-guard.lastTextAt<30000)guard.repeat++;else guard.repeat=body?1:0;
+    if(body){guard.recentText=body;guard.lastTextAt=now}
+    const links=(outgoing.type==="message"?(String(outgoing.text||"").match(/https?:\\/\\//gi)||[]).length:0);
+    let reason="";
+    if(guard.events.length>5)reason="message flooding";
+    else if(body&&guard.repeat>=3)reason="repeated messages";
+    else if(links>2)reason="excessive links";
+    if(reason){
+      guard.warnings++;
+      const duration=guard.warnings>=3?300000:guard.warnings===2?30000:0;
+      if(duration)guard.mutedUntil=now+duration;
+      this.guard.set(socket,guard);
+      const notice=duration?"temporarily muted for "+Math.round(duration/1000)+" seconds":"please stop "+reason+" or the bot will mute you";
+      const botText="VC Room Guard: "+(attachment.name||"A participant")+" was flagged for "+reason+"; "+notice+".";
+      this.broadcast({type:"system",text:botText,at:now});
+      try{socket.send(JSON.stringify({type:"error",message:"VC Room Guard: "+reason+" detected. "+notice+"."}))}catch{}
+      return;
+    }
+    this.guard.set(socket,guard);
     this.broadcast(outgoing);await this.touch();
   }
   async clearIfEmpty(except=null){
