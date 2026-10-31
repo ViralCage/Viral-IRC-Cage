@@ -104,7 +104,7 @@ export class ChatRoom {
     this.ctx.acceptWebSocket(server,[uid]);server.serializeAttachment({uid,name});await this.touch();
     this.broadcast({type:"system",text:name+" joined the room."},server);
     // Announce the bot as a visible participant to the joining player and the room.
-    const welcome={type:"message",uid:"vc-room-bot",name:"God",text:"Welcome to Viral Cage Chat. Mention God by name in your message and I’ll reply—no @ symbol needed. Type /help for commands.",at:Date.now()};
+    const welcome={type:"message",uid:"vc-room-bot",name:"God",text:"WELCOME TO VIRAL CAGE CHAT\nI’m God, your room welcome announcer. Chat freely with other players.\n\nROOM RULES\n1. Respect everyone. No bullying, harassment, hate speech or threats.\n2. No spam, flooding, repeated messages or disruptive behavior.\n3. No scams, phishing, suspicious links or malicious files.\n4. Keep messages appropriate for a public gaming room.\n5. Respect privacy. Do not share anyone’s personal information.\n6. Follow room safety notices and moderator instructions.\n\nUse /rules to see the rules again and /help for commands. Type !trivia to start trivia.",at:Date.now()};
     try{server.send(JSON.stringify(welcome))}catch{}
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
@@ -260,7 +260,7 @@ export class ChatRoom {
     const command=lower.split(/\s+/)[0];
     const commands={
       "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC Kingdom reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
-      "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
+      "/rules":"ROOM RULES: 1) Respect everyone; no bullying, harassment, hate speech or threats. 2) No spam, flooding or disruptive behavior. 3) No scams, phishing, suspicious links or malicious files. 4) Keep messages appropriate for a public gaming room. 5) Respect privacy; do not share personal information. 6) Follow room safety notices and moderator instructions.",
       "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC Kingdom reveals the answer and automatically starts the next question after 5 seconds.",
       "!trivia":"Starting a 30-second trivia question. Type A, B, C or D; no joining needed.",
       "!join":"Joining the live trivia game.",
