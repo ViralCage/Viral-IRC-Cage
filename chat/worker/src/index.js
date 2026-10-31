@@ -141,6 +141,11 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
+      if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&/^[a-d]$/i.test(text)){
+        await this.handleTrivia(socket,attachment,{action:"answer",choice:text.toUpperCase().charCodeAt(0)-65});
+        this.broadcast({type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text:"submitted an answer.",at:Date.now()});
+        await this.touch();return;
+      }
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
       const data=String(message.data||""),mime=String(message.mime||"application/octet-stream");
@@ -197,14 +202,14 @@ export class ChatRoom {
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
     const action=String(message.action||"");
     if(action==="start"){
-      if(this.trivia&&this.trivia.phase!=="finished"){socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Join the current game."}));return}
+      if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Type !join to join it."}))}catch{};return}
       const bank=this.triviaQuestions(),picked=[];
       while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
       this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false};
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom is hosting Live Trivia! Join the game and answer each question. Correct answers earn 10 points.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
-    if(!this.trivia||this.trivia.phase==="finished"){socket.send(JSON.stringify({type:"error",message:"No live trivia game. Ask VC Kingdom to start one with /trivia."}));return}
+    if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
     if(action==="join"){
       this.trivia.players[uid]=name;
       if(!this.trivia.scores[uid])this.trivia.scores[uid]={name,score:0};
@@ -229,7 +234,7 @@ export class ChatRoom {
         this.trivia.phase="finished";this.trivia.revealed=true;
         this.broadcast(this.triviaSnapshot());
         const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type /trivia to play another round.",at:Date.now()});return;
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
       this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";
       this.broadcast(this.triviaSnapshot());return;
@@ -243,15 +248,19 @@ export class ChatRoom {
     const commands={
       "/help":"Commands: /help, /rules, /quiz, !trivia, /riddle, /dice, /coin. Mention God by name in your message to get an AI reply—no @ symbol needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
-      "/quiz":"Use the Trivia button or type /trivia to start a live multiplayer trivia game hosted by VC Kingdom.",
-      "!trivia":"Starting a live trivia game hosted by VC Kingdom.",
+      "/quiz":"Type !trivia to start a text-based live quiz. Join with !join, answer by typing A, B, C or D, and type !next after the answer is revealed.",
+      "!trivia":"Starting a text-based live trivia game hosted by VC Kingdom.",
+      "!join":"Joining the live trivia game.",
+      "!next":"Moving to the next trivia question.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
       "/dice":"You rolled a "+(1+Math.floor(Math.random()*6))+".",
       "/coin":"The coin landed on "+(Math.random()<0.5?"heads":"tails")+"."
     };
     let reply=commands[command];
     if(command==="!trivia"){await this.handleTrivia(null,{uid:message.uid||"vc-room-bot",name:message.name||"Guest"},{action:"start"});return}
-    if(!reply&&!mentioned)return;
+    if(command==="!join"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"join"});return}
+    if(command==="!next"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"next"});return}
+    if(!reply&&!mentioned)return
     if(!reply){
       const now=Date.now();
       // Fail closed after Cloudflare reports that the free Workers AI allowance is exhausted.
