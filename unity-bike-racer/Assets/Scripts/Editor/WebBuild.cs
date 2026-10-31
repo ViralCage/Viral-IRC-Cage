@@ -11,8 +11,8 @@ public static class WebBuild
         string scenePath = "Assets/Scenes/BikeRacer.unity";
         if (!File.Exists(scenePath))
         {
-            EditorUtility.DisplayDialog("Bike Racer", "First run Viral Cage > Build Prototype Scene.", "OK");
-            return;
+            // Generate the prototype scene automatically for command-line/CI builds.
+            BikeRacerSceneBuilder.Build();
         }
 
         string output = Path.GetFullPath("../test-unity");
