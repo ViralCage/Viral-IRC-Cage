@@ -109,7 +109,7 @@ export class ChatRoom {
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
-  async touch(){if(await this.state.storage.getAlarm()===null)await this.state.setAlarm(Date.now()+60000)}
+  async touch(){if(await this.state.getAlarm()===null)await this.state.setAlarm(Date.now()+60000)}
   broadcast(payload,except=null){
     const data=JSON.stringify(payload);
     for(const socket of this.ctx.getWebSockets())if(socket!==except&&socket.readyState===WebSocket.OPEN){try{socket.send(data)}catch{}}
