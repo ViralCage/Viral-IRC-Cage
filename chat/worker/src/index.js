@@ -122,7 +122,7 @@ export class ChatRoom {
     const body=outgoing.type==="message"?String(outgoing.text||"").trim().toLowerCase():"";
     if(body&&body===guard.recentText&&now-guard.lastTextAt<30000)guard.repeat++;else guard.repeat=body?1:0;
     if(body){guard.recentText=body;guard.lastTextAt=now}
-    const links=(outgoing.type==="message"?(String(outgoing.text||"").match(/https?:\\/\\//gi)||[]).length:0);
+    const links=(outgoing.type==="message"?(String(outgoing.text||"").match(new RegExp("https?://","gi"))||[]).length:0);
     let reason="";
     if(guard.events.length>5)reason="message flooding";
     else if(body&&guard.repeat>=3)reason="repeated messages";
