@@ -321,7 +321,8 @@ function connect(code){
  socket.addEventListener("open",()=>{$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(["message","attachment","voice","emote","system","presence","typing","typing-clear"].includes(data.type)){$("messages").querySelector(".connection-notice")?.remove()}
-  if(data.type==="trivia-state"){renderTrivia(data)}\n  else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
+  if(data.type==="trivia-state"){renderTrivia(data)}
+  else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="emote"){showEmote(data);if(data.uid!==uid)playEmojiSound(data.emoji)}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
   else if(data.type==="presence")$("peerstatus").textContent="You are connected";
