@@ -215,7 +215,7 @@ export class ChatRoom {
       while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
       this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
       await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom is hosting Live Trivia! Join the game and answer each question. Correct answers earn 10 points.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
