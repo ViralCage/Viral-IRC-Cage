@@ -170,7 +170,9 @@ const GUARD_AVATAR="https://images.stockcake.com/public/d/f/b/dfbb7744-c5bd-4186
 const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
+let triviaCountdownTimer=null;
 function renderTrivia(state){
+ if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
  if(!state.active){addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
  if(state.phase==="finished"){
@@ -180,10 +182,20 @@ function renderTrivia(state){
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
-  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":"30 seconds to answer — type A, B, C or D. No joining needed; the answer reveals automatically.");
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":"Time remaining: 30 seconds");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:lines.join("\n"),at:Date.now()});
+ if(!state.revealed&&state.phase==="question"&&state.deadlineAt){
+  const bubble=$("messages").lastElementChild;
+  const messageText=bubble?.querySelector(".message-text");
+  const update=()=>{
+   const seconds=Math.max(0,Math.ceil((state.deadlineAt-Date.now())/1000));
+   if(messageText)messageText.textContent=messageText.textContent.replace(/Time remaining: \d+ seconds?/, "Time remaining: "+seconds+" second"+(seconds===1?"":"s"));
+   if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
+  };
+  update();triviaCountdownTimer=setInterval(update,250);
+ }
 }
 let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
 function playSound(kind){
