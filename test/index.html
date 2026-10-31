@@ -26,7 +26,8 @@
 <script>
 (()=>{
 const SUITS=["♣","♦","♥","♠"],NAMES=["You","Nova","Ace","Blaze"],COLORS={"♦":"red","♥":"red","♣":"","♠":""};
-let players=[],deck=[],round=1,trick=0,turn=0,lead=0,current=[],selectedBid=null,phase="bid",scores=[0,0,0,0],trickWins=[0,0,0,0],careerTricks=[0,0,0,0],roundBids=[0,0,0,0],history=[],busy=false;\nconst AI_AVATARS=["🦊","🦁","🐺"],AVATARS=["😎","🦅","🐯","🦊","🐼","🐉","👑","🎯","⚡","🦁","🐺","🐸"];let myProfile={name:"You",avatar:"😎"};try{const saved=JSON.parse(localStorage.getItem("vcCallBreakProfile")||"null");if(saved&&typeof saved.name==="string"&&typeof saved.avatar==="string")myProfile={name:saved.name.slice(0,18)||"You",avatar:saved.avatar}}catch(e){}
+let players=[],deck=[],round=1,trick=0,turn=0,lead=0,current=[],selectedBid=null,phase="bid",scores=[0,0,0,0],trickWins=[0,0,0,0],careerTricks=[0,0,0,0],roundBids=[0,0,0,0],history=[],busy=false;
+const AI_AVATARS=["🦊","🦁","🐺"],AVATARS=["😎","🦅","🐯","🦊","🐼","🐉","👑","🎯","⚡","🦁","🐺","🐸"];let myProfile={name:"You",avatar:"😎"};try{const saved=JSON.parse(localStorage.getItem("vcCallBreakProfile")||"null");if(saved&&typeof saved.name==="string"&&typeof saved.avatar==="string")myProfile={name:saved.name.slice(0,18)||"You",avatar:saved.avatar}}catch(e){}
 const $=id=>document.getElementById(id),rankName=n=>n===14?"A":n===13?"K":n===12?"Q":n===11?"J":String(n),cardText=c=>rankName(c.r)+c.s;
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeDeck(){let d=[];for(const s of SUITS)for(let r=2;r<=14;r++)d.push({s,r,id:s+r});return shuffle(d)}
@@ -58,7 +59,8 @@ function openProfile(){$("modalTitle").textContent="Your player profile";$("moda
 $("profileBtn").onclick=openProfile;
 $("profileName").addEventListener("input",updateProfilePreview);
 $("avatarGrid").addEventListener("click",e=>{const b=e.target.closest("[data-avatar]");if(!b)return;myProfile.avatar=b.dataset.avatar;document.querySelectorAll(".avatar-choice").forEach(x=>x.classList.toggle("selected",x===b));updateProfilePreview()});
-$("saveProfile").onclick=()=>{myProfile.name=$("profileName").value.trim().slice(0,18)||"You";try{localStorage.setItem("vcCallBreakProfile",JSON.stringify(myProfile))}catch(e){}if(players[0]){players[0].name=myProfile.name;players[0].avatar=myProfile.avatar;render();log("Player profile updated.")}$("overlay").classList.add("hidden");$("profileEditor").style.display="none"};\n$("rulesBtn").onclick=()=>showModal("Call Break rules","Four players receive 13 cards each. Spades are always trump. Bid 1–8 tricks before play. Follow the suit led when possible. If you can beat the highest card in the trick, you must do so. If void in the led suit, play a spade when you have one; overtrump when possible. Highest card of the led suit wins unless a spade is played; highest spade wins. Meeting your bid earns the bid plus 0.1 per extra trick; failing your bid loses the bid value.",[{label:"Got it",action:()=>{}}]);
+$("saveProfile").onclick=()=>{myProfile.name=$("profileName").value.trim().slice(0,18)||"You";try{localStorage.setItem("vcCallBreakProfile",JSON.stringify(myProfile))}catch(e){}if(players[0]){players[0].name=myProfile.name;players[0].avatar=myProfile.avatar;render();log("Player profile updated.")}$("overlay").classList.add("hidden");$("profileEditor").style.display="none"};
+$("rulesBtn").onclick=()=>showModal("Call Break rules","Four players receive 13 cards each. Spades are always trump. Bid 1–8 tricks before play. Follow the suit led when possible. If you can beat the highest card in the trick, you must do so. If void in the led suit, play a spade when you have one; overtrump when possible. Highest card of the led suit wins unless a spade is played; highest spade wins. Meeting your bid earns the bid plus 0.1 per extra trick; failing your bid loses the bid value.",[{label:"Got it",action:()=>{}}]);
 startGame();
 })();
 </script></body></html>
