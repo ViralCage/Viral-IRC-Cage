@@ -338,7 +338,7 @@ function addMessage(m){
   else if(mime.startsWith("image/")&&data.startsWith("data:image/")){const img=document.createElement("img");img.className="chatimage";img.src=data;img.alt=m.fileName||"Shared image";b.append(img)}
   else if(data.startsWith("data:")){const wrap=document.createElement("div");wrap.className="filecard";const a=document.createElement("a");a.href=data;a.download=safeName(m.fileName);a.textContent="↓ "+safeName(m.fileName);a.rel="noopener";const small=document.createElement("small");small.textContent=(m.size?Math.ceil(m.size/1024)+" KB":"Attachment")+" · download";a.append(small);wrap.append(a);b.append(wrap)}
  }else{const t=document.createElement("div");t.className="message-text";renderClickableText(t,m.text||"");b.append(t)}
- 
+  box.append(b);scrollMessages();
 }
 function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="emote")playEmojiSound(packet.emoji);else if(packet.type==="message"&&isEmojiOnlyMessage(packet.text))playEmojiSound(packet.text);else if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
