@@ -89,7 +89,7 @@ export default {
   }
 };
 export class ChatRoom {
-  constructor(ctx,env){this.ctx=ctx;this.env=env;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap();this.trivia=null}
+  constructor(ctx,env){this.ctx=ctx;this.env=env;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap();this.trivia=null;ctx.blockConcurrencyWhile(async()=>{this.trivia=await this.state.get("trivia")||null})}
   async fetch(request){
     const url=new URL(request.url);
     if(url.pathname==="/create"&&request.method==="POST"){
@@ -214,6 +214,7 @@ export class ChatRoom {
       const bank=this.triviaQuestions(),picked=[];
       while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
       this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
+      await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
@@ -232,8 +233,8 @@ export class ChatRoom {
       if(!Number.isInteger(choice)||choice<0||choice>3)return;
       this.trivia.answers[uid]=choice;
       if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
-      const total=Object.keys(this.trivia.players).length;
-      // Keep the full 30-second answer window, including solo games.
+      // Persist every answer and score so hibernation cannot reset the round.
+      await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());return;
     }
     if(action==="next"){
@@ -241,11 +242,13 @@ export class ChatRoom {
       this.trivia.index++;
       if(this.trivia.index>=this.trivia.total){
         this.trivia.phase="finished";this.trivia.revealed=true;
+        await this.state.put("trivia",this.trivia);
         this.broadcast(this.triviaSnapshot());
         const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
         this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
       this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+30000;
+      await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast(this.triviaSnapshot());return;
     }
@@ -321,6 +324,7 @@ export class ChatRoom {
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
       this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
+      await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Type !next for the next question.",at:Date.now()});
