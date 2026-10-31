@@ -246,7 +246,7 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, /riddle, /dice, /coin. Mention God by name in your message to get an AI reply—no @ symbol needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia answers: type A, B, C or D. Mention God by name in your message to get an AI reply—no @ symbol needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
       "/quiz":"Type !trivia to start a text-based live quiz. Join with !join, answer by typing A, B, C or D, and type !next after the answer is revealed.",
       "!trivia":"Starting a text-based live trivia game hosted by VC Kingdom.",
