@@ -1031,7 +1031,7 @@
                 bodyPart(new THREE.SphereGeometry(0.14,18,14), gloveMat,[side*0.76,2.68,1.5],[1.15,0.82,1.35]);
                 // Glove cuff and fingers wrap the handlebar.
                 bodyPart(new THREE.CylinderGeometry(0.12,0.14,0.16,16), suitRed,[side*0.76,2.69,1.38],[1,1,1],[Math.PI/2,0,0]);
-                for(let f=0;f<4;f++) bodyPart(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.025,0.09,3,6) : new THREE.SphereGeometry(0.045,10,8), gloveMat,[side*(0.68+f*0.045),2.63,1.58],[1,1.25,1]);
+                for(let f=0;f<4;f++) bodyPart(new THREE.SphereGeometry(0.045,12,10), gloveMat,[side*(0.68+f*0.045),2.63,1.58],[0.8,1.25,1.35]);
             }
             // Neck, head and a single correctly placed full-face helmet (not duplicated).
             addLimb(riderMesh,[0,3.55,-0.02],[0,3.78,0.22],0.16,0.15,leather);
