@@ -17,6 +17,21 @@ function json(data, status = 200, origin = CORS_ORIGIN) {
   return new Response(JSON.stringify(data), {status,headers:{"Content-Type":"application/json; charset=utf-8",...corsHeaders(origin)}});
 }
 function validRoomCode(value) { return /^\d{3,4}$/.test(String(value || "")); }
+
+// Deny common adult-content URLs. This is a denylist, not a complete content scanner.
+function containsAdultLink(text) {
+  const urls=String(text||"").match(/https?:\/\/[^\s<>"']+/gi)||[];
+  const domains=["pornhub.com","xvideos.com","xnxx.com","xhamster.com","redtube.com","youporn.com","youjizz.com","spankbang.com","brazzers.com","onlyfans.com","fansly.com","manyvids.com","hentaihaven.xxx","rule34.xxx"];
+  const terms=/\b(porn|pornography|hentai|xxx|nsfw|adult[-_ ]?content|sex[-_ ]?video)\b/i;
+  return urls.some(raw=>{let u;try{u=new URL(raw)}catch{return terms.test(raw)};const host=u.hostname.toLowerCase().replace(/^www\./,"");return domains.some(d=>host===d||host.endsWith("."+d))||terms.test(u.href)});
+}
+function blockedUpload(name,mime) {
+  const filename=String(name||"").toLowerCase();
+  const ext=(filename.match(/\.([a-z0-9]{1,10})$/)||[])[1]||"";
+  const blocked=new Set(["exe","dll","msi","com","scr","bat","cmd","ps1","psm1","sh","bash","zsh","js","mjs","cjs","vbs","vbe","hta","jar","apk","app","dmg","pkg","iso","img","html","htm","svg","docm","xlsm","pptm","zip","rar","7z","tar","gz","tgz"]);
+  const badMime=/^(application\/(x-msdownload|x-dosexec|x-executable|x-sh|javascript|x-javascript|java-archive|x-iso9660-image|zip|x-7z-compressed|x-rar-compressed)|text\/(html|javascript)|image\/svg\+xml)/i;
+  return blocked.has(ext)||badMime.test(String(mime||""));
+}
 function makeRoomCode(length) {
   const bytes = new Uint8Array(length);crypto.getRandomValues(bytes);
   return Array.from(bytes, byte => String(byte % 10)).join("");
@@ -100,12 +115,13 @@ export class ChatRoom {
       outgoing={type:"emote",uid:attachment.uid||"guest",name:attachment.name||"Guest",emoji,at:Date.now()};
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
+      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Chat Safety: adult-content links are not allowed. This message was blocked."}))}catch{};return}
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
       const data=String(message.data||""),mime=String(message.mime||"application/octet-stream");
       if(!data.startsWith("data:")||data.length>1100000||!/^data:[a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+;base64,/.test(data))return;
       if(message.type==="voice"&&!mime.startsWith("audio/"))return;
-      if(message.type==="attachment"&&(mime==="text/html"||mime==="image/svg+xml"||mime==="application/javascript"))return;
+      if(message.type==="attachment"&&blockedUpload(message.name,mime)){try{socket.send(JSON.stringify({type:"error",message:"VC Chat Safety: this file type is blocked because it can carry malware. Executables, scripts, macro-enabled files and archives are not allowed."}))}catch{};return}
       outgoing={type:message.type,uid:attachment.uid||"guest",name:attachment.name||"Guest",fileName:String(message.name||"Attachment").slice(0,100),mime,size:Math.max(0,Math.min(Number(message.size)||0,900000)),data,at:Date.now()};
     }else if(message.type==="callbreak"){
       const packet=message.packet||message;
