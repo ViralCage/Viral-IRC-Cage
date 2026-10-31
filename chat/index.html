@@ -134,13 +134,15 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 @media(max-width:520px){.trivia-choices{grid-template-columns:1fr}.trivia-panel{padding:12px}}
 .trivia-countdown[hidden]{display:none!important}
 .trivia-countdown{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;filter:drop-shadow(0 8px 28px #000b)}
-.trivia-countdown-ring{width:clamp(132px,22vw,190px);height:clamp(132px,22vw,190px);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:5px solid #43caff;background:radial-gradient(circle at 35% 25%,#263f77f2,#080f27f5 72%);box-shadow:0 0 0 8px #277bff24,0 0 34px #00cfff88,inset 0 0 28px #176bff55}
-.trivia-countdown-ring strong{font-size:clamp(52px,9vw,82px);line-height:1;font-weight:950;letter-spacing:-.06em;color:#fff;text-shadow:0 0 22px #00cfff}
-.trivia-countdown-ring span{font-size:11px;letter-spacing:.25em;font-weight:900;color:#a9eaff;margin-top:7px}
-.trivia-countdown-caption{font-size:11px;font-weight:900;letter-spacing:.2em;color:#d5e9ff;text-shadow:0 2px 8px #000}
-.trivia-countdown.urgent .trivia-countdown-ring{border-color:#ffb34d;box-shadow:0 0 0 8px #ff9b2525,0 0 36px #ff9b25aa,inset 0 0 28px #ff9b2544}
-.trivia-countdown.urgent .trivia-countdown-ring strong{color:#ffe1b0;text-shadow:0 0 22px #ff8b35}
-@media(max-width:520px){.trivia-countdown-ring{width:142px;height:142px}.trivia-countdown-ring strong{font-size:60px}}
+.trivia-countdown-ring{width:clamp(190px,30vw,250px);height:clamp(190px,30vw,250px);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid #43caff;background:radial-gradient(circle at 35% 25%,#263f77f2,#080f27f5 72%);box-shadow:0 0 0 12px #277bff24,0 0 48px #00cfffaa,inset 0 0 38px #176bff66}
+.trivia-countdown-ring strong{font-size:clamp(76px,12vw,112px);line-height:1;font-weight:950;letter-spacing:-.06em;color:#fff;text-shadow:0 0 28px #00cfff}
+.trivia-countdown-ring strong.tick-pulse{animation:vcTickPulse .22s ease-out}
+@keyframes vcTickPulse{0%{transform:scale(.78);filter:brightness(1.8)}100%{transform:scale(1);filter:brightness(1)}}
+.trivia-countdown-ring span{font-size:14px;letter-spacing:.3em;font-weight:950;color:#a9eaff;margin-top:10px}
+.trivia-countdown-caption{font-size:13px;font-weight:950;letter-spacing:.2em;color:#d5e9ff;text-shadow:0 2px 8px #000}
+.trivia-countdown.urgent .trivia-countdown-ring{border-color:#ffb34d;box-shadow:0 0 0 12px #ff9b2525,0 0 50px #ff9b25cc,inset 0 0 38px #ff9b2555}
+.trivia-countdown.urgent .trivia-countdown-ring strong{color:#ffe1b0;text-shadow:0 0 28px #ff8b35}
+@media(max-width:520px){.trivia-countdown-ring{width:190px;height:190px}.trivia-countdown-ring strong{font-size:82px}.trivia-countdown-ring span{font-size:12px}.trivia-countdown-caption{font-size:11px}}
 
 </style>
 </head>
@@ -159,7 +161,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
-<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">VC KINGDOM · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
+<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
@@ -189,12 +191,12 @@ function playTriviaTone(finalTone=false){
   if(!audioContext)audioContext=new AudioCtx();
   if(audioContext.state==="suspended")return;
   const now=audioContext.currentTime;
-  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:finalTone?880:660,t:0,d:.075}];
+  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:1180,t:0,d:.055},{f:860,t:.12,d:.065}];
   notes.forEach(note=>{
    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
    osc.type="sine";osc.frequency.setValueAtTime(note.f,now+note.t);
    gain.gain.setValueAtTime(.0001,now+note.t);
-   gain.gain.exponentialRampToValueAtTime(finalTone ? 0.075 : 0.025,now+note.t+.012);
+   gain.gain.exponentialRampToValueAtTime(finalTone ? 0.085 : 0.065,now+note.t+.012);
    gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
    osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
   });
@@ -226,6 +228,7 @@ function renderTrivia(state){
     overlay.classList.toggle("urgent",seconds<=10);
     if(seconds!==triviaLastBeep){
      triviaLastBeep=seconds;
+     if(number){number.classList.remove("tick-pulse");void number.offsetWidth;number.classList.add("tick-pulse")}
      if(seconds>0)playTriviaTone(false);else playTriviaTone(true);
     }
     if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
