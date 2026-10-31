@@ -141,9 +141,16 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
-      if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&/^[a-d]$/i.test(text)){
-        await this.handleTrivia(socket,attachment,{action:"answer",choice:text.toUpperCase().charCodeAt(0)-65});
-        this.broadcast({type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text:"submitted an answer.",at:Date.now()});
+      const triviaAnswer=text.match(/^(?:!answer\\s+)?([a-d])(?:[).])?$/i);
+      if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&triviaAnswer){
+        const choice=triviaAnswer[1].toUpperCase().charCodeAt(0)-65;
+        const uid=String(attachment.uid||"guest");
+        if(this.trivia.answers[uid]!==undefined){
+          try{socket.send(JSON.stringify({type:"error",message:"VC Kingdom: your answer is already locked for this question."}))}catch{}
+          return;
+        }
+        await this.handleTrivia(socket,attachment,{action:"answer",choice});
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:(attachment.name||"A player")+" locked in answer "+triviaAnswer[1].toUpperCase()+".",at:Date.now()});
         await this.touch();return;
       }
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
@@ -248,7 +255,7 @@ export class ChatRoom {
     const commands={
       "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia answers: type A, B, C or D. Mention God by name in your message to get an AI reply—no @ symbol needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
-      "/quiz":"Type !trivia to start a text-based live quiz. Join with !join, answer by typing A, B, C or D, and type !next after the answer is revealed.",
+      "/quiz":"Type !trivia to start a text-based live quiz. Join with !join, answer with A, B, C or D (or !answer A), and type !next after all players have answered.",
       "!trivia":"Starting a text-based live trivia game hosted by VC Kingdom.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
