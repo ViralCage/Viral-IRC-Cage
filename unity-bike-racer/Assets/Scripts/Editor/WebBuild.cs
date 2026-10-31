@@ -15,7 +15,7 @@ public static class WebBuild
             return;
         }
 
-        string output = Path.GetFullPath("../test-unity-build");
+        string output = Path.GetFullPath("../test-unity");
         Directory.CreateDirectory(output);
         BuildPlayerOptions options = new BuildPlayerOptions
         {
@@ -27,7 +27,7 @@ public static class WebBuild
 
         BuildReport report = BuildPipeline.BuildPlayer(options);
         if (report.summary.result == BuildResult.Succeeded)
-            EditorUtility.DisplayDialog("Bike Racer", "Web build created at:\n" + output, "OK");
+            EditorUtility.DisplayDialog("Bike Racer", "Web build created at:\n" + output + "\nCommit the generated files to GitHub to publish /test-unity/.", "OK");
         else
             EditorUtility.DisplayDialog("Bike Racer", "Web build failed. Check the Console and Build Report.", "OK");
     }
