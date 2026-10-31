@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#05091b">
+<title>VC GUARD · SMART WATCH</title>
+<style>
+:root{color-scheme:dark;--bg:#05091b;--panel:#0b1834;--line:#25488f;--muted:#9aadd5;--cyan:#62e7e0;--blue:#66b9ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#17265f,transparent 55%),var(--bg);color:#f5f7ff;font:15px/1.5 Inter,system-ui,sans-serif}.wrap{width:min(1000px,calc(100% - 28px));margin:32px auto}.panel{background:linear-gradient(145deg,#0b1834,#050d21);border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 18px 50px #0006}h1,h2{background:linear-gradient(100deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 12px}h1{font-size:clamp(27px,5vw,42px)}p,.muted{color:var(--muted)}label{display:block;color:#a8bdf0;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px}input{width:100%;min-height:46px;padding:12px;border-radius:10px;border:1px solid #29447f;background:#030a1b;color:#fff;margin-bottom:12px}button{min-height:44px;border:1px solid #4565c4;border-radius:10px;padding:10px 16px;background:linear-gradient(110deg,#8528ef,#145eff);color:white;font-weight:800;cursor:pointer}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.metric{padding:16px;border:1px solid #203e80;border-radius:12px;background:#08142d}.metric strong{display:block;font-size:26px;color:#fff}.metric span{color:var(--muted);font-size:12px}.alert{padding:11px 12px;border:1px solid #29477f;border-radius:10px;background:#08142d;margin:8px 0;overflow-wrap:anywhere}.critical{border-color:#a84b62;background:#271426}.warn{border-color:#9c793c;background:#251f17}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>div{flex:1;min-width:180px}.status{margin-top:10px;color:var(--cyan);font-size:13px}.hidden{display:none}.small{font-size:12px;color:var(--muted)}a{color:#8fd8ff}@media(max-width:520px){.wrap{margin:18px auto}.panel{padding:15px}}
+</style>
+</head>
+<body><main class="wrap">
+<h1>VC GUARD · SMART WATCH</h1>
+<p>Private security monitoring for Viral Cage Chat. This dashboard requires the administrator token configured in the Cloudflare Worker.</p>
+<section class="panel">
+<div class="row"><div><label for="room">Room code</label><input id="room" inputmode="numeric" maxlength="4" placeholder="3 or 4 digits"></div><div><label for="token">Admin token</label><input id="token" type="password" autocomplete="off" placeholder="Enter Worker secret"></div></div>
+<button id="load">Load security status</button><span class="status" id="status" role="status"></span>
+<p class="small">The token is used only for this request and is not saved by this page.</p>
+</section>
+<section id="results" class="hidden">
+<div class="grid">
+<div class="metric"><strong id="connected">—</strong><span>Connected users</span></div>
+<div class="metric"><strong id="joins">—</strong><span>Joins in the last minute</span></div>
+<div class="metric"><strong id="events">—</strong><span>Recent security events</span></div>
+<div class="metric"><strong id="scanner">—</strong><span>File scanner status</span></div>
+</div>
+<section class="panel"><h2>Room protection</h2><div id="lockdown" class="muted">—</div></section>
+<section class="panel"><h2>Recent security events</h2><div id="eventlist" class="muted">No events loaded.</div></section>
+</section>
+<section class="panel"><h2>Protection status</h2><p>SMART WATCH monitors suspicious joins, spam patterns, repeated messages, adult links, suspicious URL formatting and blocked file types. ClamAV file scanning is not active until a separate scanner service is installed and connected.</p><p class="small">Do not share the admin token. Keep this page private. Security logs store event type, time and limited context—not message contents or uploaded file data.</p></section>
+</main>
+<script>
+(()=>{'use strict';
+const API='https://viral-cage-chat.viralcage.workers.dev';
+const $=id=>document.getElementById(id);
+$('load').addEventListener('click',async()=>{
+ const room=$('room').value.replace(/\D/g,'').slice(0,4),token=$('token').value;
+ if(!/^\d{3,4}$/.test(room)||!token){$('status').textContent='Enter a valid room code and admin token.';return}
+ $('load').disabled=true;$('status').textContent='Loading…';
+ try{
+  const response=await fetch(API+'/guard/status?room='+encodeURIComponent(room),{headers:{Authorization:'Bearer '+token}});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||'Could not load security status.');
+  $('connected').textContent=data.connectedUsers??0;$('joins').textContent=data.recentJoins??0;$('events').textContent=(data.events||[]).length;
+  $('scanner').textContent=data.fileScanner==='active'?'Active':'Not connected';
+  $('lockdown').textContent=data.lockdownUntil>Date.now()?'Room lockdown active until '+new Date(data.lockdownUntil).toLocaleTimeString():'No active lockdown';
+  const list=$('eventlist');list.replaceChildren();
+  const events=Array.isArray(data.events)?data.events.slice().reverse():[];
+  if(!events.length){list.textContent='No security events recorded.'}
+  for(const event of events){
+   const item=document.createElement('div');item.className='alert'+(/lockdown|malware|blocked/i.test(event.type)?' critical':'');
+   const title=document.createElement('strong');title.textContent=String(event.type||'Security event').replace(/-/g,' ').toUpperCase();
+   const detail=document.createElement('div');detail.className='small';detail.textContent=[event.user||'',event.reason||'',event.fileName||'',event.joinCount?'joins: '+event.joinCount:'',event.warnings?'warnings: '+event.warnings:''].filter(Boolean).join(' · ');
+   const time=document.createElement('div');time.className='small';time.textContent=event.at?new Date(event.at).toLocaleString():'';
+   item.append(title,detail,time);list.append(item);
+  }
+  $('results').classList.remove('hidden');$('status').textContent='Security status loaded.';
+ }catch(error){$('status').textContent=error.message;$('results').classList.add('hidden')}
+ finally{$('load').disabled=false}
+});
+})();
+</script>
+</body></html>
