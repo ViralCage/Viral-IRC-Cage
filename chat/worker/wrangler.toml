@@ -17,3 +17,4 @@ class_name = "ChatVoiceHub"
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["ChatVoiceHub"]
+\n[ai]\nbinding = "AI"\n
