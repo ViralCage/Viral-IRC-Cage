@@ -109,7 +109,11 @@ export class ChatRoom {
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
-  async touch(){if(await this.state.getAlarm()===null)await this.state.setAlarm(Date.now()+60000)}
+  async touch(){
+    const now=Date.now();
+    await this.state.put("lastActivityAt",now);
+    await this.state.setAlarm(now+60000);
+  }
   broadcast(payload,except=null){
     const data=JSON.stringify(payload);
     for(const socket of this.ctx.getWebSockets())if(socket!==except&&socket.readyState===WebSocket.OPEN){try{socket.send(data)}catch{}}
@@ -220,7 +224,12 @@ export class ChatRoom {
   }
   async clearIfEmpty(except=null){
     const hasOtherOpenSockets=this.ctx.getWebSockets().some(ws=>ws!==except&&ws.readyState===WebSocket.OPEN);
-    if(!hasOtherOpenSockets){await this.state.deleteAll();return}
+    if(!hasOtherOpenSockets){
+      const now=Date.now();
+      await this.state.put("lastActivityAt",now);
+      await this.state.setAlarm(now+ROOM_TTL_MS);
+      return;
+    }
     await this.touch();
   }
   async webSocketClose(socket,code,reason){
@@ -229,7 +238,13 @@ export class ChatRoom {
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
   async alarm(){
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
-    if(!active){await this.state.deleteAll();return}
+    if(!active){
+      const lastActivity=await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
+      const expiresAt=lastActivity+ROOM_TTL_MS;
+      if(Date.now()>=expiresAt){await this.state.deleteAll();return}
+      await this.state.setAlarm(expiresAt);
+      return;
+    }
     const verses=[
       "“The Lord is my shepherd; I shall not want.” — Psalm 23:1 (KJV)\nनेपाली: “परमप्रभु मेरा गोठालो हुनुहुन्छ; मलाई कुनै कुराको अभाव हुनेछैन।” — भजनसंग्रह २३:१",
       "“Be strong and of a good courage; be not afraid.” — Joshua 1:9 (KJV)\nनेपाली: “बलियो र साहसी होऊ; नडराऊ।” — यहोशू १:९",
