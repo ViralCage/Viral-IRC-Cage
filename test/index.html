@@ -52,6 +52,27 @@
 @media(max-width:560px){.table{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto auto minmax(170px,1fr) auto auto;min-height:650px;gap:6px}.seat[data-player="2"],.seat[data-player="0"]{width:100%;max-width:none}.seat[data-player="1"],.seat[data-player="3"]{padding:7px 5px;min-height:68px}.seat[data-player="1"] .seat-top,.seat[data-player="3"] .seat-top{gap:5px}.seat[data-player="1"] .avatar,.seat[data-player="3"] .avatar{width:27px;height:27px;flex-basis:27px;font-size:15px}.seat[data-player="1"] .name,.seat[data-player="3"] .name{font-size:11px}.seat[data-player="1"] .role,.seat[data-player="3"] .role{display:none}.seat[data-player="1"] .meta,.seat[data-player="3"] .meta{margin-left:0;font-size:10px}.seat[data-player="1"] .bid,.seat[data-player="3"] .bid{font-size:10px}.trick-area{min-height:170px;padding:21px 4px 4px}.trick-cards .played,.trick-cards .empty{height:59px;width:min(100%,47px)}.trick-cards .played .rank{font-size:14px}.trick-cards .played .suit{font-size:17px}.hand-wrap{grid-row:5}}
 @media(prefers-reduced-motion:reduce){.played.fresh{animation:none}}
 
+
+/* Larger Call Break playing surface and readable cards */
+.table{min-height:850px;padding:34px 34px 28px;grid-template-rows:auto auto minmax(270px,1fr) auto auto}
+.seat{min-height:104px;padding:14px}
+.seat .avatar{width:44px;height:44px;flex-basis:44px;font-size:25px}
+.seat .meta,.seat .bid{font-size:13px}
+.seat .meta,.seat .bid{margin-left:53px}
+.trick-area{min-height:270px;max-width:700px}
+.trick-cards .played,.trick-cards .empty{width:min(100%,76px);height:108px}
+.trick-cards .played{padding:8px}
+.trick-cards .played .rank{font-size:22px}
+.trick-cards .played .suit{font-size:29px}
+.trick-cards .played small{font-size:11px}
+.hand-wrap{max-width:900px;padding:16px 18px 12px}
+.playing{width:clamp(56px,6vw,72px);height:108px;padding:7px 8px}
+.playing .rank{font-size:21px}
+.playing .suit{font-size:27px}
+.hand{gap:9px}
+@media(max-width:850px){.table{min-height:790px;padding:25px 20px 22px;grid-template-rows:auto auto minmax(235px,1fr) auto auto}.trick-area{min-height:235px}.trick-cards .played,.trick-cards .empty{height:88px;width:min(100%,66px)}}
+@media(max-width:560px){.table{min-height:690px;padding:13px 9px 14px;grid-template-rows:auto auto minmax(180px,1fr) auto auto}.seat{padding:8px;min-height:76px}.seat .avatar{width:29px;height:29px;flex-basis:29px;font-size:16px}.seat .meta,.seat .bid{font-size:10px;margin-left:0}.trick-area{min-height:180px}.trick-cards .played,.trick-cards .empty{height:64px;width:min(100%,49px)}.trick-cards .played{padding:5px}.trick-cards .played .rank{font-size:15px}.trick-cards .played .suit{font-size:18px}.trick-cards .played small{font-size:8px}.hand-wrap{padding:10px 6px 6px}.playing{width:clamp(42px,10.8vw,58px);height:83px;padding:5px}.playing .rank{font-size:17px}.playing .suit{font-size:21px}.hand{gap:5px}}
+
 </style></head><body>
 <div class="shell"><header class="top"><div class="brand"><img class="mark" src="/logo.png" alt="Viral Cage Play logo"><div><strong>VIRAL CAGE PLAY</strong><small>PLAY TOGETHER. THINK DIFFERENT.</small></div></div><div class="top-actions"><button class="btn" id="profileBtn">My profile</button><button class="btn" id="rulesBtn">Rules</button><button class="btn primary" id="newBtn">New game</button></div></header>
 <div class="heading"><h1>CALL BREAK</h1><p>Classic 4-player card game · Spades are trump</p></div><div class="layout"><main class="table"><div class="status"><span class="pill live" id="phase">BIDDING</span><div class="scoreline"><span>Round <b id="roundNo">1</b></span><span>Trick <b id="trickNo">0</b>/13</span><span>Trump <b>♠ Spades</b></span></div></div><div class="seats" id="seats"></div><section class="trick-area"><div class="trick-title" id="trickTitle">CURRENT TRICK</div><div class="trick-cards" id="trickCards"></div></section><div class="hand-wrap"><div class="hand-head"><strong>Your hand</strong><span id="handCount">13 cards</span></div><div class="hand" id="hand"></div><div class="hand-note" id="handNote">Place your bid to begin.</div></div></main>
