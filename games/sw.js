@@ -1,4 +1,4 @@
-const CACHE="vc-games-offline-v3";
+const CACHE="vc-games-offline-v4";
 const CORE=["/games/","/games/index.html","/assets/vc-play-header-logo-exact.svg?v=4","/assets/vc-play-crown-favicon.svg"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE.map(url=>new Request(url,{cache:"reload"})))).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith("vc-games-")&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
