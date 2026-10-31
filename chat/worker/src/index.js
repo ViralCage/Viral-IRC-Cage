@@ -94,7 +94,7 @@ export class ChatRoom {
     const url=new URL(request.url);
     if(url.pathname==="/create"&&request.method==="POST"){
       if(await this.state.get("created"))return new Response("exists",{status:409});
-      await this.state.put("created",true);await this.state.put("createdAt",Date.now());await this.state.setAlarm(Date.now()+ROOM_TTL_MS);return new Response("created",{status:201});
+      await this.state.put("created",true);await this.state.put("createdAt",Date.now());await this.state.setAlarm(Date.now()+60000);return new Response("created",{status:201});
     }
     if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return new Response("WebSocket upgrade required",{status:426});
     if(!await this.state.get("created"))return new Response("Room not found",{status:404});
@@ -109,7 +109,7 @@ export class ChatRoom {
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
-  async touch(){await this.state.setAlarm(Date.now()+ROOM_TTL_MS)}
+  async touch(){if(await this.state.storage.getAlarm()===null)await this.state.setAlarm(Date.now()+60000)}
   broadcast(payload,except=null){
     const data=JSON.stringify(payload);
     for(const socket of this.ctx.getWebSockets())if(socket!==except&&socket.readyState===WebSocket.OPEN){try{socket.send(data)}catch{}}
@@ -227,7 +227,30 @@ export class ChatRoom {
     const attachment=socket.deserializeAttachment()||{};this.broadcast({type:"system",text:(attachment.name||"A guest")+" left the room."});this.broadcastPresence();await this.clearIfEmpty(socket);
   }
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
-  async alarm(){if(this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN)){await this.touch();return}await this.state.deleteAll()}
+  async alarm(){
+    const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
+    if(!active){await this.state.deleteAll();return}
+    const verses=[
+      "“The Lord is my shepherd; I shall not want.” — Psalm 23:1 (KJV)",
+      "“Be strong and of a good courage; be not afraid.” — Joshua 1:9 (KJV)",
+      "“God is our refuge and strength, a very present help in trouble.” — Psalm 46:1 (KJV)",
+      "“Let all that ye do be done in charity.” — 1 Corinthians 16:14 (KJV)",
+      "“The Lord is good to all: and his tender mercies are over all his works.” — Psalm 145:9 (KJV)",
+      "“I can do all things through Christ which strengtheneth me.” — Philippians 4:13 (KJV)",
+      "“Be ye kind one to another, tenderhearted, forgiving one another.” — Ephesians 4:32 (KJV)",
+      "“For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.” — 2 Timothy 1:7 (KJV)",
+      "“Trust in the Lord with all thine heart.” — Proverbs 3:5 (KJV)",
+      "“The Lord is my light and my salvation; whom shall I fear?” — Psalm 27:1 (KJV)",
+      "“Rejoice evermore.” — 1 Thessalonians 5:16 (KJV)",
+      "“Above all these things put on charity, which is the bond of perfectness.” — Colossians 3:14 (KJV)"
+    ];
+    const previous=await this.state.get("lastBibleVerseIndex");
+    let index=Math.floor(Math.random()*verses.length);
+    if(verses.length>1&&index===previous)index=(index+1)%verses.length;
+    await this.state.put("lastBibleVerseIndex",index);
+    this.broadcast({type:"message",uid:"vc-room-bot",name:"God",text:"Bible verse: "+verses[index],at:Date.now()});
+    await this.state.setAlarm(Date.now()+60000);
+  }
 }
 
 /* Global Cloudflare Durable Object for WebRTC presence and signaling.
