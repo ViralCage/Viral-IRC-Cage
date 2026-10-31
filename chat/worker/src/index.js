@@ -94,7 +94,7 @@ export class ChatRoom {
     const url=new URL(request.url);
     if(url.pathname==="/create"&&request.method==="POST"){
       if(await this.state.get("created"))return new Response("exists",{status:409});
-      await this.state.put("created",true);await this.state.put("createdAt",Date.now());await this.state.put("lastActiveAt",Date.now());await this.state.setAlarm(Date.now()+60000);return new Response("created",{status:201});
+      await this.state.put("created",true);await this.state.put("createdAt",Date.now());await this.state.setAlarm(Date.now()+ROOM_TTL_MS);return new Response("created",{status:201});
     }
     if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return new Response("WebSocket upgrade required",{status:426});
     if(!await this.state.get("created"))return new Response("Room not found",{status:404});
@@ -104,12 +104,12 @@ export class ChatRoom {
     this.ctx.acceptWebSocket(server,[uid]);server.serializeAttachment({uid,name});await this.touch();
     this.broadcast({type:"system",text:name+" joined the room."},server);
     // Announce the bot as a visible participant to the joining player and the room.
-    const welcome={type:"message",uid:"vc-room-bot",name:"God",text:"Welcome to Viral Cage Chat. I’m God. Just send a message and I’ll reply. Type /help for commands.",at:Date.now()};
+    const welcome={type:"message",uid:"vc-room-bot",name:"God",text:"Welcome to Viral Cage Chat. Mention God by name in your message and I’ll reply—no @ symbol needed. Type /help for commands.",at:Date.now()};
     try{server.send(JSON.stringify(welcome))}catch{}
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
-  async touch(){const now=Date.now();await this.state.put("lastActiveAt",now);await this.state.setAlarm(now+60000)}
+  async touch(){await this.state.setAlarm(Date.now()+ROOM_TTL_MS)}
   broadcast(payload,except=null){
     const data=JSON.stringify(payload);
     for(const socket of this.ctx.getWebSockets())if(socket!==except&&socket.readyState===WebSocket.OPEN){try{socket.send(data)}catch{}}
@@ -176,10 +176,10 @@ export class ChatRoom {
   async maybeReplyAsBot(message){
     const text=String(message.text||"").trim();
     const lower=text.toLowerCase();
-    const mentioned=true;
+    const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, /riddle, /dice, /coin. Just send a message and God will reply—no @mention needed.",
+      "/help":"Commands: /help, /rules, /quiz, /riddle, /dice, /coin. Mention God by name in your message to get an AI reply—no @ symbol needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
       "/quiz":"Quick quiz: What is the largest planet in our solar system? Reply with your answer!",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
@@ -227,24 +227,7 @@ export class ChatRoom {
     const attachment=socket.deserializeAttachment()||{};this.broadcast({type:"system",text:(attachment.name||"A guest")+" left the room."});this.broadcastPresence();await this.clearIfEmpty(socket);
   }
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
-  async alarm(){
-    const now=Date.now();
-    const lastActive=await this.state.get("lastActiveAt")||await this.state.get("createdAt")||now;
-    if(now-lastActive>=ROOM_TTL_MS){await this.state.deleteAll();return}
-    const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
-    if(active){
-      const words=[
-        "God’s word for the room: Be kind to one another, and let respect guide every game.",
-        "A little patience and kindness can make someone’s day. Keep the room welcoming.",
-        "Play with courage, win with humility, and treat every player with respect.",
-        "Choose kindness in every conversation. A good community starts with you.",
-        "Stay hopeful, keep learning, and encourage the people playing beside you."
-      ];
-      const index=Math.floor(now/60000)%words.length;
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"God",text:words[index],at:now});
-    }
-    await this.state.setAlarm(now+60000);
-  }
+  async alarm(){if(this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN)){await this.touch();return}await this.state.deleteAll()}
 }
 
 /* Global Cloudflare Durable Object for WebRTC presence and signaling.
