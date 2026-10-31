@@ -1,787 +1,1263 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090d1b"><title>Call Break — Viral Cage Play</title>
-<style>
-:root{color-scheme:dark;--bg:#080d1b;--line:#263957;--cyan:#45d9ef;--muted:#9aabc4;--gold:#f4c96b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#25345b 0,transparent 52%),var(--bg);color:#eef4ff;font:15px/1.45 Inter,system-ui,Segoe UI,sans-serif;min-height:100vh}button{font:inherit;cursor:pointer}.shell{max-width:1180px;margin:auto;padding:22px 18px 38px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}.brand{display:flex;align-items:center;gap:12px}.mark{width:48px;height:48px;border-radius:50%;object-fit:cover;display:block;border:2px solid #6edff0;box-shadow:0 0 0 3px #7960ef44,0 8px 30px #3c8fff44;background:#101a30}.brand strong{letter-spacing:1.5px;font-size:15px}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:2px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #344765;background:#17243c;color:#eaf4ff;padding:9px 14px;border-radius:11px}.btn.primary{border:0;background:linear-gradient(100deg,#7657ff,#16bcd7);font-weight:750}.btn:disabled{opacity:.35;cursor:not-allowed}.heading{text-align:center;margin:12px 0 18px}.heading h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0;background:linear-gradient(90deg,#fff,#9e9aff,#6ce8f2);background-clip:text;color:transparent}.heading p{color:var(--muted);margin:8px 0 0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}.table{border:1px solid #2b3c5d;background:linear-gradient(145deg,#111b31ee,#0d1528ee);border-radius:22px;padding:16px;box-shadow:0 18px 60px #0005;min-width:0}.status{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.pill{border:1px solid #354967;border-radius:999px;padding:6px 11px;color:#bcd0ec;font-size:12px}.pill.live{border-color:#247e91;color:#72eaff;background:#10303b}.scoreline{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}.seats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seat{background:#121f37;border:1px solid #2c405f;border-radius:14px;padding:11px;min-height:82px}.seat.you{border-color:#4b78b5;background:linear-gradient(135deg,#172a49,#14243b)}.seat.active{box-shadow:0 0 0 1px var(--cyan),0 0 22px #20d8ed22}.seat .name{font-weight:750;display:flex;justify-content:space-between;gap:8px}.seat .meta{color:var(--muted);font-size:12px;margin-top:4px}.seat .bid{color:var(--gold);font-size:12px;margin-top:3px}.trick-area{margin:16px auto;background:radial-gradient(ellipse,#173b48 0,#112b3a 44%,#102338 72%,#101b30 100%);border:1px solid #2a5868;border-radius:20px;min-height:245px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}.trick-title{color:#a8c5d8;font-size:12px;letter-spacing:1.8px;text-transform:uppercase}.trick-cards{display:grid;grid-template-columns:repeat(4,minmax(55px,86px));gap:10px;align-items:center;justify-content:center;margin-top:13px;width:100%}.played{height:112px;border-radius:11px;background:#f7f8fc;color:#14213b;display:flex;flex-direction:column;justify-content:space-between;padding:7px 9px;box-shadow:0 8px 18px #0004;border:1px solid #d9dfeb}.played.red,.playing.red{color:#d93650}.played .rank{font-size:21px;font-weight:900}.played .suit{font-size:27px;align-self:flex-end;line-height:1}.played small{font-size:10px;color:#64748b}.empty{height:112px;border:1px dashed #547083;border-radius:11px;display:grid;place-items:center;color:#68879b;font-size:11px}.hand-wrap{margin-top:14px}.hand-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.hand-head strong{font-size:14px}.hand-head span{font-size:12px;color:var(--muted)}.hand{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;padding:8px 2px 4px}.playing{width:clamp(43px,5.4vw,60px);height:88px;border-radius:9px;border:1px solid #d4dbe8;background:linear-gradient(150deg,#fff,#e9eef7);color:#18243a;display:flex;flex-direction:column;justify-content:space-between;padding:5px 6px;box-shadow:0 5px 13px #0004;transition:transform .14s,border-color .14s}.playing:hover:not(:disabled){transform:translateY(-9px);border-color:#61dced}.playing:disabled{opacity:.38;cursor:not-allowed}.playing .rank{font-size:17px;font-weight:900;line-height:1}.playing .suit{font-size:21px;align-self:flex-end;line-height:1}.hand-note{min-height:20px;text-align:center;color:#9fb4d1;font-size:12px;margin-top:6px}.side{display:grid;gap:12px}.panel{border:1px solid #2a3c5c;background:#111a2e;border-radius:17px;padding:14px}.panel h3{font-size:13px;margin:0 0 10px;letter-spacing:.8px}.bid-options{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.bid-btn{border:1px solid #3b4d6b;background:#192844;border-radius:9px;padding:10px 0;color:#fff;font-weight:800}.bid-btn.selected{background:#5845b5;border-color:#a18cff}.hint{color:var(--muted);font-size:12px;margin:8px 0 0}.log{max-height:180px;overflow:auto;font-size:12px;color:#b7c7de}.log div{padding:5px 0;border-bottom:1px solid #263650}.round-score{width:100%;border-collapse:collapse;font-size:12px}.round-score th,.round-score td{text-align:left;padding:7px 3px;border-bottom:1px solid #293a55}.round-score th{color:#9fb4d1;font-weight:600}.overlay{position:fixed;inset:0;background:#050914d9;display:grid;place-items:center;padding:18px;z-index:5}.modal{width:min(430px,100%);background:#121e35;border:1px solid #405477;border-radius:20px;padding:23px;box-shadow:0 25px 90px #0009;text-align:center}.modal h2{margin:0 0 8px}.modal #bidPanel{margin-top:16px;text-align:left}.modal #bidPanel h3{text-align:center}.modal #bidPanel .hint{text-align:center}.modal p{color:#afbed4;font-size:13px}.modal-actions{display:flex;justify-content:center;gap:9px;margin-top:18px}.hidden{display:none!important}.profile-editor{display:none;text-align:left;margin-top:16px}.profile-editor label{display:block;color:#b9cbe2;font-size:12px;margin:0 0 6px}.profile-editor input{width:100%;padding:12px;border:1px solid #405477;border-radius:10px;background:#0b1528;color:#fff;font:inherit;outline:none}.profile-editor input:focus{border-color:#53ddec;box-shadow:0 0 0 3px #53ddec22}.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}.avatar-choice{height:45px;border:1px solid #405477;border-radius:11px;background:#1a2943;font-size:23px}.avatar-choice.selected{border-color:#56e4ee;background:#173c4a;box-shadow:0 0 0 2px #56e4ee44}.profile-preview{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #314967;border-radius:13px;background:#0b172a;margin-bottom:15px}.profile-preview .avatar{width:48px;height:48px;font-size:27px}.profile-preview strong{display:block}.profile-preview small{color:#9aabc4}.seat-top{display:flex;align-items:center;gap:9px}.avatar{width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#344b70,#17243b);border:1px solid #8ba9c8;font-size:20px}.seat.you .avatar{border-color:#65e8f2}.seat .name{flex:1;min-width:0}.seat .role{font-size:9px;letter-spacing:.7px;color:#9dc7d3;border:1px solid #416273;border-radius:99px;padding:2px 6px}.seat .meta{margin-left:45px}@media(max-width:850px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.side .panel:last-child{grid-column:1/-1}}@media(max-width:560px){.shell{padding:14px 10px 26px}.top{align-items:flex-start}.brand strong{font-size:12px}.top-actions .btn{padding:8px 10px;font-size:12px}.table{padding:10px;border-radius:16px}.seat{padding:9px;min-height:76px}.trick-area{min-height:205px;padding:12px}.trick-cards{gap:6px;grid-template-columns:repeat(4,minmax(48px,1fr))}.played,.empty{height:94px}.played{padding:6px}.played .rank{font-size:18px}.played .suit{font-size:23px}.side{grid-template-columns:1fr}.side .panel:last-child{grid-column:auto}.playing{width:clamp(39px,10.5vw,53px);height:78px}.hand{gap:5px}}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Turbo Bike Racer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+            background-color: #0b0f19;
+            color: #fff;
+        }
 
-/* Round casino-style table */
-.table{position:relative;isolation:isolate;overflow:hidden;min-height:650px;padding:28px 26px 24px;border:10px solid #62452f;border-radius:50% / 31%;background:radial-gradient(ellipse at 50% 48%,#1b755e 0%,#125443 48%,#0b382f 78%,#08271f 100%);box-shadow:inset 0 0 0 3px #b58a55,inset 0 0 55px #031d18,0 18px 55px #0008}
-.table:before{content:"";position:absolute;inset:9px;border:1px solid #d5b47a88;border-radius:50% / 31%;pointer-events:none;z-index:-1}
-.table:after{content:"";position:absolute;inset:22px;border:1px solid #c4a16a33;border-radius:50% / 31%;pointer-events:none;z-index:-1}
-.table>.status{position:relative;z-index:1}
-.seats{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:620px;margin:0 auto}
-.seat{background:linear-gradient(145deg,#101d30ed,#142a38e8);border:1px solid #8ba99b88;box-shadow:0 5px 15px #001b16aa;backdrop-filter:blur(8px)}
-.seat.you{background:linear-gradient(145deg,#1a3150f2,#122b3df2);border-color:#71d7e6}
-.seat.active{box-shadow:0 0 0 2px #52e6e7,0 0 24px #20d8ed66}
-.trick-area{z-index:1;min-height:230px;margin:18px auto 14px;max-width:600px;border:1px solid #83c6a477;border-radius:50% / 24%;background:radial-gradient(ellipse,#258267 0%,#17644f 54%,#104638 100%);box-shadow:inset 0 0 35px #062b22aa,0 8px 25px #001c17aa}
-.hand-wrap{position:relative;z-index:1;max-width:760px;margin:12px auto 0;padding:12px 14px 8px;border:1px solid #b3d2c044;border-radius:18px;background:#071f1bd9;box-shadow:0 7px 22px #001b16aa}
-.hand-head strong{color:#effff7}.hand-head span,.hand-note{color:#c2dfd2}
-@media(max-width:850px){.table{min-height:620px;border-radius:42% / 20%;padding:22px 18px 20px}}
-@media(max-width:560px){.table{min-height:0;border-width:7px;border-radius:34px;padding:13px 10px 14px;background:radial-gradient(ellipse at 50% 35%,#1b755e,#0b382f 85%)}.table:before,.table:after{border-radius:24px}.seats{gap:7px}.seat{min-height:76px;padding:8px}.trick-area{min-height:190px;border-radius:22px;margin:13px auto 10px}.hand-wrap{padding:10px 7px 6px}.status{margin-bottom:10px}}
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
 
+        /* Glassmorphism UI Panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
 
-/* Four-player round-table seating and sequential card throws */
-.table{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,1.2fr) minmax(0,1fr);grid-template-rows:auto auto minmax(205px,1fr) auto auto;gap:8px;min-height:720px}
-.table>.status{grid-column:1/-1;grid-row:1}
-.seats{display:contents}
-.seat[data-player="2"]{grid-column:2;grid-row:2;justify-self:center;width:min(100%,260px)}
-.seat[data-player="1"]{grid-column:1;grid-row:3;align-self:center;width:100%}
-.seat[data-player="3"]{grid-column:3;grid-row:3;align-self:center;width:100%}
-.seat[data-player="0"]{grid-column:2;grid-row:4;justify-self:center;width:min(100%,260px)}
-.trick-area{grid-column:2;grid-row:3;width:100%;height:100%;min-height:205px;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:4px;padding:24px 7px 7px;border-radius:50%}
-.trick-title{position:absolute;top:7px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1px}
-.trick-cards{display:grid;grid-column:1/-1;grid-row:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:4px;align-items:center;justify-items:center;width:100%;height:100%;margin:0}
-.trick-cards>:nth-child(1){grid-column:2;grid-row:3}
-.trick-cards>:nth-child(2){grid-column:1;grid-row:2}
-.trick-cards>:nth-child(3){grid-column:2;grid-row:1}
-.trick-cards>:nth-child(4){grid-column:3;grid-row:2}
-.trick-cards .played,.trick-cards .empty{width:min(100%,58px);height:76px;min-width:0}
-.trick-cards .played{padding:5px 6px}
-.trick-cards .played .rank{font-size:17px}
-.trick-cards .played .suit{font-size:21px}
-.hand-wrap{grid-column:1/-1;grid-row:5;width:100%;margin:0}
-.played.fresh{animation-duration:.42s;animation-timing-function:cubic-bezier(.2,.8,.25,1);animation-fill-mode:both}
-.played.from-bottom{animation-name:throwFromBottom}
-.played.from-left{animation-name:throwFromLeft}
-.played.from-top{animation-name:throwFromTop}
-.played.from-right{animation-name:throwFromRight}
-@keyframes throwFromBottom{from{transform:translateY(62px) scale(.65) rotate(9deg);opacity:0}to{transform:translate(0) scale(1) rotate(0);opacity:1}}
-@keyframes throwFromLeft{from{transform:translateX(-62px) scale(.65) rotate(-9deg);opacity:0}to{transform:translate(0) scale(1) rotate(0);opacity:1}}
-@keyframes throwFromTop{from{transform:translateY(-62px) scale(.65) rotate(-9deg);opacity:0}to{transform:translate(0) scale(1) rotate(0);opacity:1}}
-@keyframes throwFromRight{from{transform:translateX(62px) scale(.65) rotate(9deg);opacity:0}to{transform:translate(0) scale(1) rotate(0);opacity:1}}
-@media(max-width:850px){.table{min-height:700px;grid-template-columns:minmax(0,1fr) minmax(170px,1.1fr) minmax(0,1fr)}.trick-cards .played,.trick-cards .empty{height:70px}}
-@media(max-width:560px){.table{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto auto minmax(170px,1fr) auto auto;min-height:650px;gap:6px}.seat[data-player="2"],.seat[data-player="0"]{width:100%;max-width:none}.seat[data-player="1"],.seat[data-player="3"]{padding:7px 5px;min-height:68px}.seat[data-player="1"] .seat-top,.seat[data-player="3"] .seat-top{gap:5px}.seat[data-player="1"] .avatar,.seat[data-player="3"] .avatar{width:27px;height:27px;flex-basis:27px;font-size:15px}.seat[data-player="1"] .name,.seat[data-player="3"] .name{font-size:11px}.seat[data-player="1"] .role,.seat[data-player="3"] .role{display:none}.seat[data-player="1"] .meta,.seat[data-player="3"] .meta{margin-left:0;font-size:10px}.seat[data-player="1"] .bid,.seat[data-player="3"] .bid{font-size:10px}.trick-area{min-height:170px;padding:21px 4px 4px}.trick-cards .played,.trick-cards .empty{height:59px;width:min(100%,47px)}.trick-cards .played .rank{font-size:14px}.trick-cards .played .suit{font-size:17px}.hand-wrap{grid-row:5}}
-@media(prefers-reduced-motion:reduce){.played.fresh{animation:none}}
+        .glass-button {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(220, 38, 38, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            transition: all 0.2s ease-in-out;
+        }
 
+        .glass-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+        }
 
-/* Larger Call Break playing surface and readable cards */
-.table{min-height:850px;padding:34px 34px 28px;grid-template-rows:auto auto minmax(270px,1fr) auto auto}
-.seat{min-height:104px;padding:14px}
-.seat .avatar{width:44px;height:44px;flex-basis:44px;font-size:25px}
-.seat .meta,.seat .bid{font-size:13px}
-.seat .meta,.seat .bid{margin-left:53px}
-.trick-area{min-height:270px;max-width:700px}
-.trick-cards .played,.trick-cards .empty{width:min(100%,76px);height:108px}
-.trick-cards .played{padding:8px}
-.trick-cards .played .rank{font-size:22px}
-.trick-cards .played .suit{font-size:29px}
-.trick-cards .played small{font-size:11px}
-.hand-wrap{max-width:900px;padding:16px 18px 12px}
-.playing{width:clamp(56px,6vw,72px);height:108px;padding:7px 8px}
-.playing .rank{font-size:21px}
-.playing .suit{font-size:27px}
-.hand{gap:9px}
-@media(max-width:850px){.table{min-height:790px;padding:25px 20px 22px;grid-template-rows:auto auto minmax(235px,1fr) auto auto}.trick-area{min-height:235px}.trick-cards .played,.trick-cards .empty{height:88px;width:min(100%,66px)}}
-@media(max-width:560px){.table{min-height:690px;padding:13px 9px 14px;grid-template-rows:auto auto minmax(180px,1fr) auto auto}.seat{padding:8px;min-height:76px}.seat .avatar{width:29px;height:29px;flex-basis:29px;font-size:16px}.seat .meta,.seat .bid{font-size:10px;margin-left:0}.trick-area{min-height:180px}.trick-cards .played,.trick-cards .empty{height:64px;width:min(100%,49px)}.trick-cards .played{padding:5px}.trick-cards .played .rank{font-size:15px}.trick-cards .played .suit{font-size:18px}.trick-cards .played small{font-size:8px}.hand-wrap{padding:10px 6px 6px}.playing{width:clamp(42px,10.8vw,58px);height:83px;padding:5px}.playing .rank{font-size:17px}.playing .suit{font-size:21px}.hand{gap:5px}}
+        /* Speedometer Needle Arc */
+        .gauge-ring {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.1s ease-out;
+        }
 
+        /* On-Screen Touch Controls */
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            active-bg: rgba(239, 68, 68, 0.5);
+        }
+        
+        .touch-btn:active {
+            background: rgba(239, 68, 68, 0.6);
+            transform: scale(0.95);
+        }
 
-/* COMPLETE 3D LUXURY CASINO REDESIGN — presentation only; game logic unchanged */
-:root{
-  color-scheme:dark;
-  --bg:#070b0a;--line:#5f4a2c;--cyan:#6be2d0;--muted:#b6b09e;
-  --gold:#e9c77c;--gold-hi:#fff0bc;--felt:#0b6047;--felt-deep:#063b2e;
-}
-*{box-sizing:border-box}
-body{
-  min-height:100vh;color:#f8f1df;
-  background:
-    radial-gradient(ellipse at 50% 0%,#35422c 0%,transparent 34%),
-    radial-gradient(ellipse at 50% 55%,#15241d 0%,#080d0b 65%,#040706 100%);
-  font-family:Georgia,"Times New Roman",serif;
-  letter-spacing:.15px;
-}
-.shell{max-width:1540px;padding:26px 24px 54px}
-.top{padding:12px 16px;border:1px solid #b99a5a55;border-radius:18px;background:linear-gradient(120deg,#171a14eF,#0b100eeF);box-shadow:0 14px 35px #0008,inset 0 1px #fff1}
-.mark{border:2px solid #d5b36e;box-shadow:0 0 0 4px #d6b46c20,0 8px 24px #0009}
-.brand strong{font-family:Georgia,serif;font-size:16px;letter-spacing:2.8px;color:#f5dfaa}
-.brand small{color:#bba879;letter-spacing:2.4px}
-.top-actions .btn,.btn{
-  border:1px solid #9b7944;background:linear-gradient(180deg,#343125,#171a14);
-  color:#f7e9c8;border-radius:10px;box-shadow:inset 0 1px #fff2,0 4px 12px #0006;
-  transition:transform .18s,filter .18s,box-shadow .18s;
-}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.16);box-shadow:0 8px 20px #0008,inset 0 1px #fff3}
-.btn.primary{background:linear-gradient(135deg,#f5dfa1 0%,#bd914b 45%,#76522b 100%);border:1px solid #ffedb4;color:#1c170e;text-shadow:0 1px #fff5;font-weight:900;box-shadow:inset 0 1px #fff9,0 5px 16px #0008}
-.heading{margin:27px 0 24px}
-.heading h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,5vw,62px);letter-spacing:8px;background:linear-gradient(180deg,#fff8df 10%,#e6c77e 48%,#98703b 100%);background-clip:text;color:transparent;filter:drop-shadow(0 4px 5px #000b)}
-.heading p{color:#c4b58e;letter-spacing:1.3px;font-size:13px}
-.layout{grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:stretch}
-.table{
-  position:relative;isolation:isolate;overflow:visible;
-  min-height:900px;padding:38px 38px 30px;
-  border:12px solid transparent;border-radius:48% / 27%;
-  background:
-    linear-gradient(145deg,#0b6348,#073b2d 70%) padding-box,
-    linear-gradient(145deg,#fff0b5,#8b6433 18%,#e7c77c 34%,#624322 52%,#f1d995 75%,#674a29) border-box;
-  box-shadow:inset 0 0 0 3px #d8b96e, inset 0 0 0 8px #3d2b19,
-    inset 0 0 90px #001c13,0 28px 0 -9px #382819,0 37px 0 -10px #17110b,
-    0 48px 65px #000c;
-  transform:perspective(1500px) rotateX(2deg);
-}
-.table:before{
-  content:"";position:absolute;inset:12px;border:2px solid #d7b96c99;
-  border-radius:48% / 27%;pointer-events:none;z-index:-1;
-  box-shadow:inset 0 0 0 5px #092e2488,inset 0 0 0 6px #d6b46c44;
-}
-.table:after{
-  content:"";position:absolute;inset:25px;border:1px solid #e5ca8b55;
-  border-radius:48% / 27%;pointer-events:none;z-index:-1;
-  background:radial-gradient(ellipse at 50% 42%,#ffffff0a,transparent 65%);
-}
-.table>.status,.seats,.trick-area,.hand-wrap{z-index:1}
-.status{padding:0 12px 12px;border-bottom:1px solid #d8bd7955}
-.pill{border-color:#c5a56788;background:#0a2c23;color:#e6d5a9;box-shadow:inset 0 1px #fff1}
-.pill.live{background:linear-gradient(180deg,#174d39,#092c21);color:#d9f4d9;border-color:#9fc28b}
-.scoreline{color:#d4c39b}
-.seat{
-  border:1px solid #d5b77788!important;border-radius:15px!important;
-  background:linear-gradient(145deg,#25271eF2,#101812F4)!important;
-  box-shadow:0 10px 20px #00150f99,inset 0 1px #fff2,inset 0 -10px 18px #0004!important;
-  backdrop-filter:blur(8px);transform:translateZ(12px);
-}
-.seat.you{border-color:#f2d58c!important;background:linear-gradient(145deg,#4b3d25f5,#17251cf5)!important}
-.seat.active{outline:2px solid #f4d88d;box-shadow:0 0 0 4px #e5c06a33,0 0 30px #e6bd5b88,inset 0 1px #fff5!important;animation:seatGlow 1.5s ease-in-out infinite alternate}
-@keyframes seatGlow{from{filter:brightness(1)}to{filter:brightness(1.24)}}
-.avatar{background:radial-gradient(circle at 30% 25%,#fff0c7,#a37c43 48%,#302316 100%);border:1px solid #f4d99a;color:#21180d;box-shadow:0 3px 9px #0009,inset 0 1px #fff9}
-.seat .role{border-color:#b89a61;color:#ead39a;background:#1d251c}
-.seat .meta{color:#c4c0a9}
-.seat .bid{color:#f2d28a}
-.trick-area{
-  border:2px solid #d1b16c;border-radius:50%!important;
-  background:radial-gradient(ellipse at 48% 42%,#1a7958 0%,#0e563e 53%,#063324 100%);
-  box-shadow:inset 0 0 0 5px #063728,inset 0 0 0 6px #d9bb7777,
-    inset 0 0 55px #001b12,0 15px 25px #00170f99;
-  transform:translateZ(25px);
-}
-.trick-title{color:#f0d99e;text-shadow:0 2px 4px #001b12;font-weight:700}
-.played{
-  border:1px solid #e7d7b3!important;border-radius:9px!important;
-  background:linear-gradient(135deg,#fffef6 0%,#eee4cc 62%,#c9b995 100%)!important;
-  box-shadow:0 9px 0 -4px #9e8a68,0 14px 22px #00170f99,inset 0 1px #fff!important;
-  transform-style:preserve-3d;
-}
-.empty{border:1px dashed #d9c48b88;color:#d9c48b;background:#062d2288}
-.hand-wrap{
-  border:1px solid #d6b66e88;border-radius:17px;
-  background:linear-gradient(145deg,#091b15f5,#12271df5);
-  box-shadow:0 12px 25px #00160f99,inset 0 1px #fff2;
-}
-.hand-head strong{font-family:Georgia,serif;color:#f6e5b9;letter-spacing:.7px}
-.hand-head span,.hand-note{color:#d2c49f}
-.playing{
-  border:1px solid #e5d4aa;border-radius:10px;
-  background:linear-gradient(145deg,#fffef8 0%,#f0e8d6 58%,#cfc09e 100%);
-  box-shadow:0 7px 0 -3px #8c7958,0 12px 16px #00170f99,inset 0 1px #fff;
-  color:#191b17;transition:transform .2s,box-shadow .2s,filter .2s;
-}
-.playing:hover:not(:disabled){transform:translateY(-16px) rotate(-2deg);box-shadow:0 10px 0 -3px #8c7958,0 20px 24px #00170fcc,inset 0 1px #fff;filter:brightness(1.04)}
-.playing.red,.played.red{color:#a52a2a!important}
-.side{gap:15px}
-.panel{
-  border:1px solid #a9874e88;border-radius:15px;
-  background:linear-gradient(145deg,#20231b,#0d1510);
-  box-shadow:0 12px 28px #0008,inset 0 1px #fff2;
-  padding:17px;
-}
-.panel h3{font-family:Georgia,serif;color:#e8ce91;letter-spacing:1.6px}
-.round-score th{color:#d6c59e}.round-score td{color:#f1ead8;border-color:#54472f}
-.log{color:#d7cfb7}.log div{border-color:#493d2b}
-.modal{border:1px solid #d3b575;background:linear-gradient(145deg,#29281e,#101711);box-shadow:0 30px 100px #000e,inset 0 1px #fff2}
-.modal h2{font-family:Georgia,serif;color:#f1d99c}
-.modal p,.profile-editor label{color:#d2c4a1}
-.profile-editor input{background:#0b120e;border-color:#927546;color:#fff2d4}
-.profile-editor input:focus{border-color:#e8c77d;box-shadow:0 0 0 3px #e8c77d22}
-.profile-preview{background:#0b1710;border-color:#927546}
-.avatar-choice{background:linear-gradient(145deg,#29281e,#101711);border-color:#927546}
-.avatar-choice.selected{border-color:#f4d58a;background:#4a3b21;box-shadow:0 0 0 2px #e9c77c33}
-.bid-btn{background:linear-gradient(145deg,#343125,#171a14);border-color:#8c7043;color:#f8e8c2}
-.bid-btn.selected{background:linear-gradient(145deg,#f1d28c,#a77b3e);border-color:#fff0b6;color:#1c170e}
-.hint{color:#c7b994}
-@media(max-width:850px){
-  .layout{grid-template-columns:1fr}
-  .table{min-height:790px;transform:none}
-  .side{grid-template-columns:1fr 1fr}
-}
-@media(max-width:560px){
-  .shell{padding:10px 8px 28px}
-  .top{padding:9px;border-radius:13px}
-  .brand small{font-size:9px;letter-spacing:1.3px}
-  .brand strong{font-size:11px}
-  .mark{width:38px;height:38px}
-  .heading{margin:22px 0 17px}
-  .heading h1{font-size:37px;letter-spacing:4px}
-  .heading p{font-size:11px}
-  .table{min-height:690px;border-width:7px;border-radius:30px;padding:12px 8px 13px;transform:none}
-  .table:before,.table:after{border-radius:23px}
-  .seat{border-radius:11px!important}
-  .trick-area{border-radius:50%!important}
-  .hand-wrap{border-radius:12px}
-  .side{grid-template-columns:1fr}
-}
+        /* Pulse Animations */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 5px #ef4444); }
+            50% { opacity: 1; filter: drop-shadow(0 0 15px #ef4444); }
+        }
+        .pulse-boost {
+            animation: pulse-glow 1s infinite;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen overflow-hidden">
 
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container" class="w-full h-full absolute inset-0 z-0"></div>
 
-/* CURRENT TRICK — complete single-stage 3D redesign */
-.trick-area{
-  position:relative!important;
-  isolation:isolate;
-  width:min(100%,760px)!important;
-  max-width:760px!important;
-  min-height:340px!important;
-  height:340px!important;
-  margin:20px auto!important;
-  padding:42px 18px 18px!important;
-  display:block!important;
-  overflow:hidden!important;
-  border:0!important;
-  border-radius:30px!important;
-  background:
-    radial-gradient(ellipse at 50% 48%,#1b7655 0%,#10543e 48%,#082f25 100%)!important;
-  box-shadow:
-    inset 0 0 0 2px #e6ca8a,
-    inset 0 0 0 8px #092d22,
-    inset 0 0 0 9px #b58c4d99,
-    inset 0 0 65px #001b12,
-    0 18px 0 -8px #4a3420,
-    0 25px 32px #000a!important;
-  transform:perspective(1000px) rotateX(4deg);
-}
-.trick-area:before{
-  content:"";position:absolute;z-index:-1;inset:14px;
-  border:1px solid #e8d39a88;border-radius:22px;
-  box-shadow:inset 0 0 30px #001b1355;
-  pointer-events:none;
-}
-.trick-area:after{
-  content:"";position:absolute;z-index:-1;
-  width:230px;height:230px;left:50%;top:50%;
-  transform:translate(-50%,-42%);
-  border-radius:50%;
-  border:1px solid #f0d99b44;
-  box-shadow:0 0 0 9px #f0d99b0b,0 0 0 20px #f0d99b08,
-    inset 0 0 30px #d4b66a16;
-  pointer-events:none;
-}
-.trick-title{
-  position:absolute!important;z-index:2;top:14px!important;left:0;right:0;
-  text-align:center!important;
-  color:#f4dfa9!important;
-  font:700 11px/1.2 Georgia,serif!important;
-  letter-spacing:3px!important;
-  text-shadow:0 2px 5px #001b13;
-}
-.trick-title:before,.trick-title:after{
-  content:"";display:inline-block;width:clamp(18px,5vw,70px);
-  height:1px;vertical-align:middle;margin:0 12px;
-  background:linear-gradient(90deg,transparent,#e4c47c);
-}
-.trick-title:after{background:linear-gradient(90deg,#e4c47c,transparent)}
-.trick-cards{
-  position:absolute!important;inset:38px 20px 18px!important;
-  display:grid!important;
-  grid-template-columns:1fr 1fr 1fr!important;
-  grid-template-rows:1fr 1fr 1fr!important;
-  gap:0!important;width:auto!important;height:auto!important;
-  margin:0!important;align-items:center!important;justify-items:center!important;
-}
-.trick-cards>:nth-child(1){grid-column:2!important;grid-row:3!important}
-.trick-cards>:nth-child(2){grid-column:1!important;grid-row:2!important}
-.trick-cards>:nth-child(3){grid-column:2!important;grid-row:1!important}
-.trick-cards>:nth-child(4){grid-column:3!important;grid-row:2!important}
-.trick-cards .played,.trick-cards .empty{
-  position:relative;
-  width:clamp(66px,8vw,88px)!important;
-  height:clamp(96px,11vw,124px)!important;
-  min-width:0!important;
-  border-radius:11px!important;
-}
-.trick-cards .played{
-  display:flex!important;flex-direction:column!important;
-  justify-content:space-between!important;
-  padding:8px 9px!important;
-  border:1px solid #f5e9c9!important;
-  background:linear-gradient(145deg,#fffef8 0%,#f2ead8 56%,#c9b991 100%)!important;
-  color:#1c211b!important;
-  box-shadow:0 5px 0 #8b7652,0 10px 18px #00170fbb,
-    inset 0 1px 0 #fff,inset 0 -2px 5px #8a795333!important;
-}
-.trick-cards .played.red{color:#a92e32!important}
-.trick-cards .played .rank{font:900 24px/1 Georgia,serif!important}
-.trick-cards .played .rank small{
-  display:block;margin-top:5px;color:#796d55!important;
-  font:700 8px/1.1 system-ui,sans-serif!important;
-  letter-spacing:.5px;
-}
-.trick-cards .played .suit{font:30px/1 Georgia,serif!important;align-self:flex-end}
-.trick-cards .empty{
-  display:grid!important;place-items:center!important;
-  border:1px dashed #e4ce98a6!important;
-  background:linear-gradient(145deg,#082f25aa,#0b4534aa)!important;
-  color:#d9c795!important;
-  box-shadow:inset 0 0 18px #001b13aa!important;
-  font:700 9px/1.2 system-ui,sans-serif!important;
-  letter-spacing:1px!important;text-transform:uppercase;
-}
-.trick-cards .played.fresh{animation-duration:.5s!important}
-@keyframes throwFromBottom{
-  from{transform:translateY(90px) translateZ(80px) rotate(12deg) scale(.65);opacity:0}
-  to{transform:translateY(0) translateZ(0) rotate(0) scale(1);opacity:1}
-}
-@keyframes throwFromLeft{
-  from{transform:translateX(-90px) translateZ(80px) rotate(-12deg) scale(.65);opacity:0}
-  to{transform:translateX(0) translateZ(0) rotate(0) scale(1);opacity:1}
-}
-@keyframes throwFromTop{
-  from{transform:translateY(-90px) translateZ(80px) rotate(-12deg) scale(.65);opacity:0}
-  to{transform:translateY(0) translateZ(0) rotate(0) scale(1);opacity:1}
-}
-@keyframes throwFromRight{
-  from{transform:translateX(90px) translateZ(80px) rotate(12deg) scale(.65);opacity:0}
-  to{transform:translateX(0) translateZ(0) rotate(0) scale(1);opacity:1}
-}
-@media(max-width:850px){
-  .trick-area{min-height:300px!important;height:300px!important;transform:none}
-  .trick-cards .played,.trick-cards .empty{width:72px!important;height:104px!important}
-}
-@media(max-width:560px){
-  .trick-area{height:240px!important;min-height:240px!important;margin:12px auto!important;padding:34px 8px 8px!important;border-radius:20px!important}
-  .trick-area:before{inset:8px;border-radius:14px}
-  .trick-area:after{width:145px;height:145px}
-  .trick-title{top:11px!important;font-size:9px!important;letter-spacing:2px!important}
-  .trick-title:before,.trick-title:after{margin:0 6px;width:18px}
-  .trick-cards{inset:31px 8px 8px!important}
-  .trick-cards .played,.trick-cards .empty{width:clamp(48px,14vw,62px)!important;height:clamp(70px,19vw,88px)!important;border-radius:8px!important}
-  .trick-cards .played{padding:5px!important}
-  .trick-cards .played .rank{font-size:17px!important}
-  .trick-cards .played .rank small{font-size:6px!important;margin-top:3px}
-  .trick-cards .played .suit{font-size:21px!important}
-  .trick-cards .empty{font-size:7px!important;letter-spacing:.4px!important}
-}
-@media(prefers-reduced-motion:reduce){
-  .trick-cards .played.fresh{animation:none!important}
-}
+    <!-- HUD OVERLAY (TOP & BOTTOM BARS) -->
+    <div id="hud-overlay" class="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-4 md:p-6 hidden">
+        
+        <!-- TOP HEADER HUD -->
+        <div class="w-full flex justify-between items-start gap-4">
+            
+            <!-- Left Info: Lap Time & Checkpoint -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col gap-2 min-w-[160px] md:min-w-[200px]">
+                <div class="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
+                    <span><i class="fa-solid me-1 fa-stopwatch text-red-500"></i> TIME</span>
+                    <span id="lap-count-text" class="text-xs text-cyan-400">LAP 1/1</span>
+                </div>
+                <div id="time-display" class="font-orbitron text-2xl md:text-3xl font-black text-white tracking-widest">
+                    00:00.00
+                </div>
+                
+                <div class="w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden mt-1 border border-white/10">
+                    <div id="track-progress-bar" class="bg-gradient-to-r from-cyan-500 to-blue-600 h-full w-0 transition-all duration-200"></div>
+                </div>
+                <div class="flex justify-between text-[10px] font-bold text-gray-400">
+                    <span>START</span>
+                    <span id="checkpoint-text" class="text-cyan-400 font-bold">CP: 0/12</span>
+                    <span>FINISH</span>
+                </div>
+            </div>
 
+            <!-- Center Mini Map / Notification Area -->
+            <div class="flex flex-col items-center">
+                <div id="notification-banner" class="opacity-0 transition-all duration-300 font-orbitron text-lg md:text-2xl font-black text-yellow-400 bg-black/60 px-6 py-2 rounded-full border border-yellow-500/40 backdrop-blur-md shadow-lg shadow-yellow-500/20">
+                    BOOST READY!
+                </div>
+            </div>
 
-/* FULL TABLE REDESIGN — complete oval casino table, seating, centre and hand zone */
-body{
-  background:
-    radial-gradient(ellipse at 50% 8%,#38432c 0%,#18221a 34%,transparent 65%),
-    radial-gradient(ellipse at 50% 100%,#17120d 0%,#070907 70%);
-  color:#fff4d8;
-}
-.shell{max-width:1680px;padding:24px clamp(10px,2vw,30px) 48px}
-.top{
-  border:1px solid #c9a76588;border-radius:16px;
-  background:linear-gradient(115deg,#211d14f5,#0c100cf5);
-  box-shadow:0 10px 30px #0009,inset 0 1px #fff3;
-}
-.layout{grid-template-columns:minmax(0,1fr) 290px;gap:24px;align-items:center}
-.table{
-  display:grid!important;
-  grid-template-columns:minmax(100px,1fr) minmax(250px,1.45fr) minmax(100px,1fr)!important;
-  grid-template-rows:auto auto minmax(250px,1fr) auto auto!important;
-  gap:12px!important;
-  position:relative;isolation:isolate;overflow:visible;
-  width:100%;min-height:920px!important;
-  padding:42px 46px 34px!important;
-  border:18px solid transparent!important;
-  border-radius:50% / 31%!important;
-  background:
-    linear-gradient(145deg,#12664d 0%,#0b503c 36%,#073c2e 72%,#0a4937 100%) padding-box,
-    linear-gradient(135deg,#fff0bd 0%,#8d6531 12%,#e8c77e 25%,#4e351c 39%,#d9b56c 53%,#694b28 68%,#f3d994 83%,#76532b 100%) border-box!important;
-  box-shadow:
-    inset 0 0 0 3px #e6cc8b,
-    inset 0 0 0 9px #422e1a,
-    inset 0 0 0 11px #d0ad69aa,
-    inset 0 0 95px #001c14,
-    0 16px 0 -6px #61472b,
-    0 24px 0 -8px #24190f,
-    0 38px 62px #000d!important;
-  transform:perspective(1600px) rotateX(2deg);
-}
-.table:before{
-  content:"";position:absolute;inset:13px;z-index:-1;pointer-events:none;
-  border:2px solid #f1d99c99;border-radius:50% / 31%;
-  box-shadow:inset 0 0 0 5px #063c2d88,inset 0 0 0 6px #d9b66b55;
-}
-.table:after{
-  content:"";position:absolute;inset:27px;z-index:-1;pointer-events:none;
-  border:1px solid #f0d89a55;border-radius:50% / 31%;
-  background:radial-gradient(ellipse at 50% 45%,#ffffff0b,transparent 68%);
-}
-.table>.status{grid-column:1/-1;grid-row:1;position:relative;z-index:2;margin:0 5% 4px;padding:0 14px 13px;border-bottom:1px solid #e4c77c77}
-.status .pill{padding:8px 15px;border:1px solid #d9b96eaa;background:linear-gradient(#174b39,#082d22);color:#f2dfad;box-shadow:inset 0 1px #fff3}
-.status .pill.live{background:linear-gradient(#356c42,#153c28);border-color:#d2d99a;color:#f1f7d7}
-.scoreline{color:#e3d2a9;gap:18px}
-.seats{display:contents!important}
-.seat{
-  position:relative;z-index:2;min-height:112px!important;padding:14px 16px!important;
-  border:1px solid #d9bd7d!important;border-radius:17px!important;
-  background:linear-gradient(145deg,#29291ff5,#111b15f5)!important;
-  box-shadow:0 12px 22px #00190fbb,inset 0 1px #fff3,inset 0 -9px 16px #0006!important;
-  backdrop-filter:blur(9px);transform:none!important;
-}
-.seat:before{
-  content:"";position:absolute;inset:5px;border:1px solid #f1dca044;border-radius:12px;pointer-events:none
-}
-.seat.you{border:2px solid #f3d58e!important;background:linear-gradient(145deg,#54452a,#1b2c20)!important}
-.seat.active{outline:2px solid #ffedb0;box-shadow:0 0 0 5px #e6bd6433,0 0 32px #f1c96b99,inset 0 1px #fff6!important}
-.seat .avatar{width:48px;height:48px;flex-basis:48px;border:2px solid #c7a766;background:linear-gradient(145deg,#4d4934,#18241a);box-shadow:0 4px 10px #0008}
-.seat .name{color:#fff1cf;font-family:Georgia,serif;font-size:15px}
-.seat .role{color:#f1d99b;border-color:#9f814c}
-.seat .meta,.seat .bid{color:#d3c5a3;font-size:12px}
-.seat[data-player="2"]{grid-column:2;grid-row:2;justify-self:center;width:min(100%,290px)}
-.seat[data-player="1"]{grid-column:1;grid-row:3;align-self:center;width:100%}
-.seat[data-player="3"]{grid-column:3;grid-row:3;align-self:center;width:100%}
-.seat[data-player="0"]{grid-column:2;grid-row:4;justify-self:center;width:min(100%,290px)}
-.trick-area{
-  grid-column:2;grid-row:3;z-index:1;position:relative;
-  width:100%;height:100%;min-height:290px!important;margin:0!important;
-  border:3px solid #d6b36b!important;border-radius:50%!important;
-  background:
-    radial-gradient(ellipse at 50% 38%,#1c795b 0%,#10583f 54%,#073b2c 100%)!important;
-  box-shadow:inset 0 0 0 5px #073425,inset 0 0 0 7px #c6a35e88,
-    inset 0 0 45px #001c12,0 10px 0 -4px #4a3520,0 17px 25px #00190fbb!important;
-  transform:perspective(900px) rotateX(5deg);
-}
-.trick-area:before{inset:13px!important;border:1px solid #ead49a99!important;border-radius:50%!important}
-.trick-area:after{width:190px!important;height:190px!important;border-color:#e5c77c55!important}
-.trick-title{top:15px!important;color:#f5dfaa!important;letter-spacing:3px!important}
-.trick-cards{inset:42px 20px 18px!important}
-.trick-cards .played,.trick-cards .empty{width:clamp(68px,7vw,88px)!important;height:clamp(100px,10vw,125px)!important;border-radius:11px!important}
-.hand-wrap{
-  grid-column:1/-1;grid-row:5;z-index:2;position:relative;
-  width:min(100%,1040px);max-width:none!important;margin:0 auto!important;
-  padding:17px 22px 13px!important;border:2px solid #c9a562!important;border-radius:20px!important;
-  background:linear-gradient(145deg,#17251cF5,#091a13F5)!important;
-  box-shadow:0 10px 0 -4px #4b351f,0 17px 26px #00180fbb,inset 0 1px #fff2!important;
-}
-.hand-wrap:before{content:"";position:absolute;inset:5px;border:1px solid #e8d49a55;border-radius:14px;pointer-events:none}
-.hand-head{position:relative;color:#f7e8c2}
-.hand-head strong{font:700 16px Georgia,serif;letter-spacing:1px}
-.hand-head span,.hand-note{color:#d9c9a4}
-.hand{position:relative;gap:clamp(3px,.7vw,10px)}
-.playing{
-  width:clamp(55px,5.4vw,75px)!important;height:108px!important;
-  border:1px solid #fff5d9!important;border-radius:9px!important;
-  background:linear-gradient(145deg,#fffef8,#eee5d1 72%,#c8b995)!important;
-  color:#1d211b!important;box-shadow:0 5px 0 #89734f,0 10px 15px #0009,inset 0 1px #fff!important;
-}
-.playing.red{color:#ae2e32!important}
-.playing:hover:not(:disabled){transform:translateY(-13px) scale(1.04)!important;box-shadow:0 8px 0 #89734f,0 18px 22px #000b!important}
-.side{gap:16px}
-.panel{
-  border:1px solid #c7a362!important;border-radius:16px!important;
-  background:linear-gradient(145deg,#28271e,#101711)!important;
-  box-shadow:0 10px 25px #0009,inset 0 1px #fff2!important;
-  padding:17px!important;
-}
-.panel h3{font:700 13px Georgia,serif;letter-spacing:2px;color:#ecd59d}
-.round-score th{color:#d4bd8a}
-.round-score td{color:#f8efd9}
-.log{color:#d8c9a7}
-.log div{border-color:#59482d}
-@media(max-width:1100px){
-  .layout{grid-template-columns:1fr;align-items:start}
-  .side{grid-template-columns:1fr 1fr}
-  .side .panel:last-child{grid-column:1/-1}
-  .table{min-height:850px!important}
-}
-@media(max-width:700px){
-  .shell{padding:12px 7px 28px}
-  .top{padding:9px;gap:8px}
-  .brand strong{font-size:11px;letter-spacing:1.4px}
-  .brand small{font-size:8px;letter-spacing:1px}
-  .mark{width:38px;height:38px}
-  .top-actions{gap:5px}
-  .top-actions .btn{padding:7px 8px;font-size:11px}
-  .heading{margin:16px 0}
-  .heading h1{font-size:clamp(27px,8vw,42px);letter-spacing:4px}
-  .layout{gap:13px}
-  .table{
-    min-height:0!important;padding:25px 12px 17px!important;
-    border-width:9px!important;border-radius:42px!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1.12fr) minmax(0,1fr)!important;
-    grid-template-rows:auto auto 190px auto auto!important;gap:7px!important;
-    transform:none!important;
-  }
-  .table:before,.table:after{border-radius:30px!important}
-  .table>.status{margin:0 0 2px;padding:0 2px 9px;flex-wrap:wrap}
-  .scoreline{gap:8px;font-size:10px}
-  .seat{min-height:76px!important;padding:8px 6px!important;border-radius:11px!important}
-  .seat .avatar{width:30px;height:30px;flex-basis:30px;font-size:16px}
-  .seat .name{font-size:11px}
-  .seat .role{display:none}
-  .seat .meta,.seat .bid{font-size:9px;margin-left:0}
-  .seat[data-player="2"]{width:100%;max-width:none}
-  .seat[data-player="0"]{width:100%;max-width:none}
-  .trick-area{min-height:190px!important;height:190px!important;border-radius:50%!important;transform:none!important}
-  .trick-area:after{width:115px!important;height:115px!important}
-  .trick-title{top:10px!important;font-size:8px!important;letter-spacing:1.5px!important}
-  .trick-title:before,.trick-title:after{width:12px!important;margin:0 4px!important}
-  .trick-cards{inset:30px 5px 7px!important}
-  .trick-cards .played,.trick-cards .empty{width:clamp(43px,13vw,57px)!important;height:clamp(64px,18vw,78px)!important;border-radius:7px!important}
-  .trick-cards .played{padding:4px!important}
-  .trick-cards .played .rank{font-size:15px!important}
-  .trick-cards .played .suit{font-size:19px!important}
-  .hand-wrap{grid-row:5;padding:11px 5px 7px!important;border-radius:14px!important}
-  .hand-head strong{font-size:12px}
-  .playing{width:clamp(35px,8.6vw,51px)!important;height:76px!important;padding:4px!important}
-  .playing .rank{font-size:15px!important}
-  .playing .suit{font-size:18px!important}
-  .hand{gap:3px!important}
-  .side{grid-template-columns:1fr}
-  .side .panel:last-child{grid-column:auto}
-}
-@media(max-width:390px){
-  .table{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr) minmax(0,1fr)!important;padding-left:7px!important;padding-right:7px!important}
-  .seat[data-player="1"],.seat[data-player="3"]{padding:6px 3px!important}
-  .seat[data-player="1"] .avatar,.seat[data-player="3"] .avatar{width:25px;height:25px;flex-basis:25px}
-  .trick-area{height:170px!important;min-height:170px!important}
-  .playing{width:clamp(32px,8vw,40px)!important;height:68px!important}
-}
+            <!-- Right Info: Leader Position / Score -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col items-end min-w-[140px]">
+                <div class="text-xs font-bold text-gray-400 tracking-wider mb-1">
+                    <i class="fa-solid fa-trophy text-amber-400 me-1"></i> POSITION
+                </div>
+                <div class="font-orbitron text-3xl md:text-4xl font-black text-amber-400">
+                    1<span class="text-lg text-white">/1</span>
+                </div>
+            </div>
+        </div>
 
+        <!-- BOTTOM HUD: Speedometer & Nitro Bar -->
+        <div class="w-full flex justify-between items-end">
+            
+            <!-- Nitro Boost Gauge -->
+            <div class="glass-panel p-4 rounded-2xl w-48 md:w-64 flex flex-col gap-2">
+                <div class="flex justify-between items-center text-xs font-bold font-orbitron">
+                    <span class="text-cyan-400 flex items-center gap-1">
+                        <i class="fa-solid fa-bolt text-yellow-400 animate-bounce"></i> NITRO BOOST
+                    </span>
+                    <span id="nitro-percent" class="text-yellow-400">100%</span>
+                </div>
+                <div class="w-full bg-gray-900/90 rounded-full h-4 p-0.5 border border-cyan-500/30">
+                    <div id="nitro-bar" class="bg-gradient-to-r from-yellow-500 via-amber-400 to-cyan-400 h-full rounded-full w-full transition-all duration-100 shadow-[0_0_12px_rgba(34,211,238,0.6)]"></div>
+                </div>
+                <div class="text-[10px] text-gray-400 font-semibold text-center">PRESS <span class="bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">SHIFT</span> OR <span class="bg-white/20 px-1.5 py-0.5 rounded text-white font-mono">BOOST BUTTON</span></div>
+            </div>
 
-/* CLASSIC SIMPLE CALL BREAK TABLE — clean felt, restrained borders, no casino ornament */
-:root{
-  --bg:#111916;--line:#355247;--cyan:#8bd2bd;--muted:#b5c3ba;--gold:#d8c58e;
-}
-body{
-  background:linear-gradient(180deg,#17231d 0%,#101713 55%,#0b100d 100%)!important;
-  color:#edf4ee!important;font-family:Inter,system-ui,Segoe UI,sans-serif!important;
-  letter-spacing:0!important;
-}
-.shell{max-width:1440px!important;padding:20px 20px 40px!important}
-.top{
-  border:1px solid #34483d!important;border-radius:12px!important;
-  background:#18231d!important;box-shadow:0 5px 18px #0003!important;
-}
-.mark{border:1px solid #6c9b83!important;box-shadow:none!important}
-.brand strong{font:700 15px Inter,system-ui,sans-serif!important;letter-spacing:1.4px!important;color:#edf4ee!important}
-.brand small{color:#aabbb0!important;letter-spacing:1.5px!important}
-.btn,.top-actions .btn{
-  border:1px solid #496153!important;border-radius:8px!important;
-  background:#25352b!important;color:#edf4ee!important;
-  box-shadow:none!important;text-shadow:none!important;
-}
-.btn:hover{transform:translateY(-1px)!important;filter:brightness(1.12)!important;box-shadow:none!important}
-.btn.primary{
-  border:1px solid #91b6a0!important;background:#426d53!important;
-  color:#fff!important;font-weight:700!important;box-shadow:none!important;
-}
-.heading{margin:20px 0 18px!important}
-.heading h1{
-  font:700 clamp(30px,4vw,42px) Inter,system-ui,sans-serif!important;
-  letter-spacing:3px!important;color:#f0f5ef!important;
-  background:none!important;filter:none!important;
-}
-.heading p{color:#b2c0b6!important;letter-spacing:.3px!important}
-.layout{grid-template-columns:minmax(0,1fr) 280px!important;gap:18px!important;align-items:start!important}
-.table{
-  display:grid!important;
-  grid-template-columns:minmax(105px,1fr) minmax(230px,1.35fr) minmax(105px,1fr)!important;
-  grid-template-rows:auto auto minmax(235px,1fr) auto auto!important;
-  gap:10px!important;min-height:780px!important;width:100%;
-  padding:24px!important;overflow:hidden!important;isolation:isolate;
-  border:1px solid #496858!important;border-radius:22px!important;
-  background:
-    radial-gradient(ellipse at 50% 42%,#286548 0%,#20583d 52%,#194a34 100%)!important;
-  box-shadow:0 12px 28px #0005,inset 0 0 0 5px #173f2d,inset 0 0 0 6px #6a8b70!important;
-  transform:none!important;
-}
-.table:before,.table:after{
-  content:none!important;display:none!important;
-}
-.table>.status{
-  grid-column:1/-1!important;grid-row:1!important;
-  position:relative!important;margin:0 0 2px!important;padding:0 4px 11px!important;
-  border-bottom:1px solid #c0d4c044!important;z-index:1;
-}
-.status .pill{
-  border:1px solid #72927c!important;border-radius:20px!important;
-  background:#183d2b!important;color:#e1eee3!important;box-shadow:none!important;
-}
-.status .pill.live{background:#2b6844!important;border-color:#9ac5a3!important;color:#fff!important}
-.scoreline{color:#d6e2d8!important;gap:14px!important}
-.seats{display:contents!important}
-.seat{
-  z-index:1!important;min-height:92px!important;padding:11px 13px!important;
-  border:1px solid #688875!important;border-radius:12px!important;
-  background:#172b20ee!important;box-shadow:0 4px 12px #00180d66!important;
-  backdrop-filter:none!important;transform:none!important;
-}
-.seat:before{content:none!important}
-.seat.you{border:1px solid #b5d3b8!important;background:#203c2a!important}
-.seat.active{
-  outline:2px solid #b8d9bd!important;
-  box-shadow:0 0 0 3px #b8d9bd30,0 0 16px #b8d9bd44!important;
-}
-.seat .avatar{
-  width:40px!important;height:40px!important;flex-basis:40px!important;
-  border:1px solid #71927c!important;background:#304b38!important;
-  box-shadow:none!important;
-}
-.seat .name{font:700 14px Inter,system-ui,sans-serif!important;color:#f0f5ef!important}
-.seat .role{color:#c6d9c8!important;border-color:#66836d!important}
-.seat .meta,.seat .bid{color:#c1d0c4!important;font-size:11px!important}
-.seat[data-player="2"]{grid-column:2!important;grid-row:2!important;justify-self:center!important;width:min(100%,270px)!important}
-.seat[data-player="1"]{grid-column:1!important;grid-row:3!important;align-self:center!important;width:100%!important}
-.seat[data-player="3"]{grid-column:3!important;grid-row:3!important;align-self:center!important;width:100%!important}
-.seat[data-player="0"]{grid-column:2!important;grid-row:4!important;justify-self:center!important;width:min(100%,270px)!important}
-.trick-area{
-  grid-column:2!important;grid-row:3!important;z-index:1!important;
-  width:100%!important;height:100%!important;min-height:235px!important;margin:0!important;
-  border:1px solid #7da38a!important;border-radius:18px!important;
-  background:radial-gradient(ellipse at center,#2b704c 0%,#205b3d 70%,#194a34 100%)!important;
-  box-shadow:inset 0 0 0 4px #17452f,inset 0 0 22px #092c1b!important;
-  transform:none!important;
-}
-.trick-area:before,.trick-area:after{content:none!important;display:none!important}
-.trick-title{
-  top:12px!important;color:#d8e8d9!important;
-  font:700 10px Inter,system-ui,sans-serif!important;
-  letter-spacing:1.8px!important;text-shadow:none!important;
-}
-.trick-title:before,.trick-title:after{content:none!important}
-.trick-cards{inset:34px 12px 12px!important}
-.trick-cards .played,.trick-cards .empty{
-  width:clamp(62px,6.5vw,78px)!important;
-  height:clamp(90px,9vw,108px)!important;border-radius:8px!important;
-}
-.trick-cards .played{
-  padding:7px!important;border:1px solid #d8dfe0!important;
-  background:linear-gradient(145deg,#fff,#edf0ed)!important;color:#17251c!important;
-  box-shadow:0 3px 8px #00180d66!important;
-}
-.trick-cards .played.red{color:#c3373e!important}
-.trick-cards .played .rank{font:800 21px Georgia,serif!important}
-.trick-cards .played .rank small{color:#68766c!important}
-.trick-cards .played .suit{font:26px Georgia,serif!important}
-.trick-cards .empty{
-  border:1px dashed #a4c1a8!important;border-radius:8px!important;
-  background:#173f2c66!important;color:#c3d8c6!important;
-  box-shadow:none!important;font:600 9px Inter,system-ui,sans-serif!important;
-  letter-spacing:.7px!important;
-}
-.hand-wrap{
-  grid-column:1/-1!important;grid-row:5!important;z-index:1!important;
-  width:100%!important;max-width:900px!important;margin:0 auto!important;
-  padding:13px 15px 9px!important;border:1px solid #64816c!important;
-  border-radius:13px!important;background:#14291eee!important;
-  box-shadow:0 4px 12px #00180d66!important;
-}
-.hand-wrap:before{content:none!important}
-.hand-head strong{font:700 14px Inter,system-ui,sans-serif!important;color:#f0f5ef!important}
-.hand-head span,.hand-note{color:#c1d1c4!important}
-.hand{gap:clamp(3px,.6vw,8px)!important}
-.playing{
-  width:clamp(52px,5.2vw,68px)!important;height:100px!important;
-  border:1px solid #d4dbd6!important;border-radius:7px!important;
-  background:linear-gradient(145deg,#fff,#eef1ed)!important;color:#17251c!important;
-  box-shadow:0 3px 8px #00180d66!important;
-}
-.playing.red{color:#c3373e!important}
-.playing:hover:not(:disabled){transform:translateY(-7px)!important;box-shadow:0 7px 12px #00180d77!important}
-.side{gap:12px!important}
-.panel{
-  border:1px solid #405a49!important;border-radius:12px!important;
-  background:#18251d!important;box-shadow:0 5px 14px #0004!important;
-  padding:14px!important;
-}
-.panel h3{font:700 12px Inter,system-ui,sans-serif!important;letter-spacing:1px!important;color:#dce8dc!important}
-.round-score th{color:#aebfb1!important}
-.round-score td{color:#edf4ee!important}
-.round-score th,.round-score td{border-bottom:1px solid #344b3a!important}
-.log{color:#c7d3c9!important}
-.log div{border-color:#344b3a!important}
-.modal{border:1px solid #587260!important;border-radius:16px!important;background:#19271e!important;box-shadow:0 18px 55px #000a!important}
-@media(max-width:1100px){
-  .layout{grid-template-columns:1fr!important}
-  .side{grid-template-columns:1fr 1fr!important}
-  .side .panel:last-child{grid-column:1/-1!important}
-  .table{min-height:740px!important}
-}
-@media(max-width:700px){
-  .shell{padding:12px 7px 25px!important}
-  .top{padding:9px!important}
-  .layout{gap:12px!important}
-  .table{
-    min-height:0!important;padding:13px 8px!important;border-width:1px!important;
-    border-radius:16px!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1.08fr) minmax(0,1fr)!important;
-    grid-template-rows:auto auto 180px auto auto!important;gap:7px!important;
-  }
-  .table>.status{flex-wrap:wrap!important}
-  .scoreline{font-size:10px!important;gap:7px!important}
-  .seat{min-height:72px!important;padding:7px 5px!important;border-radius:9px!important}
-  .seat .avatar{width:28px!important;height:28px!important;flex-basis:28px!important;font-size:15px!important}
-  .seat .name{font-size:10px!important}
-  .seat .role{display:none!important}
-  .seat .meta,.seat .bid{font-size:9px!important;margin-left:0!important}
-  .seat[data-player="2"],.seat[data-player="0"]{width:100%!important;max-width:none!important}
-  .trick-area{height:180px!important;min-height:180px!important;border-radius:13px!important}
-  .trick-title{top:9px!important;font-size:8px!important;letter-spacing:1px!important}
-  .trick-cards{inset:28px 4px 5px!important}
-  .trick-cards .played,.trick-cards .empty{width:clamp(42px,12.5vw,55px)!important;height:clamp(62px,17vw,75px)!important}
-  .trick-cards .played{padding:4px!important}
-  .trick-cards .played .rank{font-size:14px!important}
-  .trick-cards .played .suit{font-size:18px!important}
-  .hand-wrap{padding:10px 5px 6px!important;border-radius:10px!important}
-  .playing{width:clamp(34px,8.4vw,49px)!important;height:73px!important;padding:4px!important}
-  .playing .rank{font-size:15px!important}
-  .playing .suit{font-size:18px!important}
-  .hand{gap:3px!important}
-  .side{grid-template-columns:1fr!important}
-  .side .panel:last-child{grid-column:auto!important}
-}
-@media(max-width:390px){
-  .table{grid-template-rows:auto auto 165px auto auto!important}
-  .trick-area{height:165px!important;min-height:165px!important}
-  .seat[data-player="1"],.seat[data-player="3"]{padding:5px 3px!important}
-  .playing{width:clamp(31px,7.9vw,38px)!important;height:67px!important}
-}
+            <!-- Speedometer Center / Right -->
+            <div class="glass-panel p-4 rounded-3xl flex items-center gap-4 relative overflow-hidden">
+                <!-- SVG Speedometer Dial -->
+                <div class="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" class="text-gray-800" stroke-width="8" stroke="currentColor" fill="transparent" />
+                        <circle id="speed-ring" cx="50" cy="50" r="45" class="text-red-500 gauge-ring" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="283" stroke-linecap="round" stroke="currentColor" fill="transparent" />
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <span id="speed-text" class="font-orbitron text-3xl md:text-4xl font-black text-white leading-none">0</span>
+                        <span class="text-[10px] md:text-xs font-bold text-gray-400 tracking-widest mt-1">KM/H</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</style></head><body>
-<div class="shell"><header class="top"><div class="brand"><img class="mark" src="/logo.png" alt="Viral Cage Play logo"><div><strong>VIRAL CAGE PLAY</strong><small>PLAY TOGETHER. THINK DIFFERENT.</small></div></div><div class="top-actions"><button class="btn" id="profileBtn">My profile</button><button class="btn" id="rulesBtn">Rules</button><button class="btn primary" id="newBtn">New game</button></div></header>
-<div class="heading"><h1>CALL BREAK</h1><p>Classic 4-player card game · Spades are trump</p></div><div class="layout"><main class="table"><div class="status"><span class="pill live" id="phase">BIDDING</span><div class="scoreline"><span>Round <b id="roundNo">1</b></span><span>Trick <b id="trickNo">0</b>/13</span><span>Trump <b>♠ Spades</b></span></div></div><div class="seats" id="seats"></div><section class="trick-area"><div class="trick-title" id="trickTitle">CURRENT TRICK</div><div class="trick-cards" id="trickCards"></div></section><div class="hand-wrap"><div class="hand-head"><strong>Your hand</strong><span id="handCount">13 cards</span></div><div class="hand" id="hand"></div><div class="hand-note" id="handNote">Place your bid to begin.</div></div></main>
-<aside class="side"><section class="panel"><h3>ROUND SCORE</h3><table class="round-score"><thead><tr><th>Player</th><th>Bid</th><th>Won</th><th>Score</th></tr></thead><tbody id="scoreRows"></tbody></table></section><section class="panel"><h3>GAME LOG</h3><div class="log" id="log"><div>Welcome. Choose your bid to start.</div></div></section></aside></div></div>
-<div class="overlay hidden" id="overlay"><div class="modal"><h2 id="modalTitle">Call Break</h2><p id="modalText"></p><section class="profile-editor" id="profileEditor"><div class="profile-preview"><div class="avatar" id="profilePreviewAvatar">😎</div><div><strong id="profilePreviewName">You</strong><small>PLAYER PROFILE</small></div></div><label for="profileName">Nickname</label><input id="profileName" maxlength="18" autocomplete="nickname" placeholder="Enter your nickname"><label style="margin-top:15px">Choose your avatar</label><div class="avatar-grid" id="avatarGrid"></div><button class="btn primary" id="saveProfile" style="width:100%;margin-top:17px">Save profile</button></section><section class="panel" id="bidPanel"><h3>YOUR BID · 1–8</h3><div class="bid-options" id="bidOptions"></div><p class="hint">Predict how many tricks you will win this round.</p><button class="btn primary" id="confirmBid" style="width:100%;margin-top:10px" disabled>Confirm bid</button></section><div class="modal-actions" id="modalActions"></div></div></div>
-<script>
-(()=>{
-const SUITS=["♣","♦","♥","♠"],NAMES=["You","Nova","Ace","Blaze"],COLORS={"♦":"red","♥":"red","♣":"","♠":""};
-let players=[],deck=[],round=1,trick=0,turn=0,lead=0,current=[],selectedBid=null,phase="bid",scores=[0,0,0,0],trickWins=[0,0,0,0],careerTricks=[0,0,0,0],roundBids=[0,0,0,0],history=[],busy=false;
-const AI_AVATARS=["🦊","🦁","🐺"],AVATARS=["😎","🦅","🐯","🦊","🐼","🐉","👑","🎯","⚡","🦁","🐺","🐸"];let myProfile={name:"You",avatar:"😎"};try{const saved=JSON.parse(localStorage.getItem("vcCallBreakProfile")||"null");if(saved&&typeof saved.name==="string"&&typeof saved.avatar==="string")myProfile={name:saved.name.slice(0,18)||"You",avatar:saved.avatar}}catch(e){}
-const $=id=>document.getElementById(id),rankName=n=>n===14?"A":n===13?"K":n===12?"Q":n===11?"J":String(n),cardText=c=>rankName(c.r)+c.s;
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function makeDeck(){let d=[];for(const s of SUITS)for(let r=2;r<=14;r++)d.push({s,r,id:s+r});return shuffle(d)}
-function log(msg){history.unshift(msg);$("log").innerHTML=history.slice(0,18).map(x=>"<div>"+x+"</div>").join("")}
-function startGame(){players=NAMES.map((name,i)=>({name:i===0?myProfile.name:name,avatar:i===0?myProfile.avatar:AI_AVATARS[i-1],hand:[],bid:0,won:0}));deck=makeDeck();for(let i=0;i<52;i++)players[i%4].hand.push(deck[i]);players.forEach(p=>p.hand.sort((a,b)=>SUITS.indexOf(a.s)-SUITS.indexOf(b.s)||a.r-b.r));trick=0;turn=0;lead=(round-1)%4;current=[];trickWins=[0,0,0,0];roundBids=[0,0,0,0];selectedBid=null;phase="bid";busy=false;history=[];for(let i=1;i<4;i++)roundBids[i]=aiBid(players[i].hand);log("Cards dealt. Bidding starts.");render()}
-function aiBid(hand){let power=0;for(const c of hand){if(c.s==="♠")power+=c.r>=13?1.25:c.r>=11?.85:c.r>=9?.45:.12;else if(c.r===14)power+=.95;else if(c.r===13)power+=.48;else if(c.r===12)power+=.2}return Math.max(1,Math.min(8,Math.round(power)))}
-function beats(a,b,leadSuit){if(a.s==="♠"&&b.s!=="♠")return true;if(a.s!=="♠"&&b.s==="♠")return false;if(a.s===b.s)return a.r>b.r;return a.s===leadSuit&&b.s!==leadSuit}
-function highestPlay(plays){let best=plays[0];for(const p of plays.slice(1))if(beats(p.card,best.card,plays[0].card.s))best=p;return best}
-function highestTrump(plays){const t=plays.filter(p=>p.card.s==="♠");return t.length?t.reduce((a,b)=>a.card.r>b.card.r?a:b):null}
-function validCards(hand,plays){if(!plays.length)return hand.slice();const leadSuit=plays[0].card.s,follow=hand.filter(c=>c.s===leadSuit);let candidates=follow.length?follow:hand.slice();const highest=highestPlay(plays),canBeat=candidates.filter(c=>beats(c,highest.card,leadSuit));if(canBeat.length)candidates=canBeat;else if(!follow.length){const trumps=candidates.filter(c=>c.s==="♠");if(trumps.length){const ht=highestTrump(plays);if(ht){const over=trumps.filter(c=>c.r>ht.card.r);candidates=over.length?over:trumps}else candidates=trumps}}return candidates}
-function aiChoose(hand,plays){const legal=validCards(hand,plays);if(!plays.length){const nonTrump=legal.filter(c=>c.s!=="♠");return(nonTrump.length?nonTrump:legal).slice().sort((a,b)=>a.r-b.r)[0]}const high=highestPlay(plays),winning=legal.filter(c=>beats(c,high.card,plays[0].card.s));if(winning.length){const nonTrump=winning.filter(c=>c.s!=="♠").sort((a,b)=>a.r-b.r);return nonTrump[0]||winning.slice().sort((a,b)=>a.r-b.r)[0]}return legal.slice().sort((a,b)=>a.r-b.r)[0]}
-function render(){$("roundNo").textContent=round;$("trickNo").textContent=trick;$("phase").textContent=phase==="bid"?"BIDDING":phase==="play"?"PLAYING":"ROUND COMPLETE";$("phase").className="pill "+(phase==="play"?"live":"");$("seats").innerHTML=players.map((p,i)=>'<div class="seat '+(i===0?"you ":"")+(phase==="play"&&turn===i?"active":"")+'" data-player="'+i+'"><div class="seat-top"><div class="avatar">'+p.avatar+'</div><div class="name"><span>'+p.name+'</span><span class="role">'+(i===0?"YOU":"AI BOT")+'</span></div></div><div class="meta">'+(i===0?p.hand.length+" cards":"Cards: "+p.hand.length)+' · Tricks won: '+careerTricks[i]+'</div><div class="bid">'+(roundBids[i]?"Bid "+roundBids[i]+" · Won "+trickWins[i]:"Bid pending")+' · Score: '+scores[i].toFixed(1)+'</div></div>').join("");
-$("trickCards").innerHTML=Array.from({length:4},(_,i)=>{const p=current.find(x=>x.player===i);return p?'<div class="played '+COLORS[p.card.s]+(p===current[current.length-1]?' fresh from-'+(["bottom","left","top","right"][i]):"")+'"><div class="rank">'+rankName(p.card.r)+'<small>'+(p.player===0?"YOU":players[i].name)+'</small></div><div class="suit">'+p.card.s+'</div></div>':'<div class="empty">'+NAMES[i]+'</div>'}).join("");
-$("handCount").textContent=players[0].hand.length+" cards";$("hand").innerHTML=players[0].hand.map(c=>'<button class="playing '+COLORS[c.s]+'" data-card="'+c.id+'" '+(phase!=="play"||turn!==0||busy?"disabled":"")+'><span class="rank">'+rankName(c.r)+'</span><span class="suit">'+c.s+'</span></button>').join("");
-$("handNote").textContent=phase==="bid"?"Choose your bid to begin.":phase==="play"?(turn===0?"Your turn — play a legal card.":players[turn].name+" is thinking…"):"Round finished. Start the next round.";
-$("bidPanel").classList.toggle("hidden",phase!=="bid"||turn!==0);if(phase==="bid"){$("modalTitle").textContent="Place your bid";$("modalText").textContent="Choose how many tricks you expect to win (1–8).";$("modalActions").innerHTML="";$("overlay").classList.remove("hidden")}else if(phase==="play"){$("overlay").classList.add("hidden")}$("scoreRows").innerHTML=players.map((p,i)=>'<tr><td>'+p.name+'</td><td>'+(roundBids[i]||"—")+'</td><td>'+trickWins[i]+'</td><td>'+scores[i].toFixed(1)+'</td></tr>').join("");$("bidOptions").innerHTML=Array.from({length:8},(_,i)=>'<button class="bid-btn '+(selectedBid===i+1?"selected":"")+'" data-bid="'+(i+1)+'">'+(i+1)+'</button>').join("");$("confirmBid").disabled=selectedBid===null}
-function beginPlay(){phase="play";turn=lead;log("Bids locked: "+players.map((p,i)=>p.name+" "+roundBids[i]).join(" · "));render();if(turn!==0)runAI()}
-function playCard(player,card){if(phase!=="play"||turn!==player||busy)return;const legal=validCards(players[player].hand,current);if(!legal.some(c=>c.id===card.id)){$("handNote").textContent="Illegal card. Follow suit and beat the current high card when possible.";return}const idx=players[player].hand.findIndex(c=>c.id===card.id);players[player].hand.splice(idx,1);current.push({player,card});log(players[player].name+" played "+cardText(card)+".");if(current.length===4){busy=true;render();setTimeout(resolveTrick,900)}else{turn=(turn+1)%4;render();if(turn!==0)runAI()}}
-function runAI(){if(phase!=="play"||turn===0||busy)return;busy=true;render();setTimeout(()=>{busy=false;const p=players[turn],c=aiChoose(p.hand,current);playCard(turn,c)},520)}
-function resolveTrick(){const winner=highestPlay(current).player;trickWins[winner]++;careerTricks[winner]++;log(players[winner].name+" won trick "+(trick+1)+".");trick++;current=[];lead=winner;turn=winner;busy=false;if(trick===13){finishRound();return}render();if(turn!==0)runAI()}
-function finishRound(){phase="done";players.forEach((p,i)=>{const bid=roundBids[i],won=trickWins[i];scores[i]+=won>=bid?bid+(won-bid)*.1:-bid});log("Round "+round+" complete. Scores updated.");render();$("handNote").textContent="Round complete — review the scores.";showModal("Round "+round+" complete",players.map((p,i)=>p.name+": bid "+roundBids[i]+", won "+trickWins[i]+", score "+scores[i].toFixed(1)).join(" · "),[{label:"Next round",action:()=>{round++;startGame()}},{label:"Restart",action:()=>{round=1;scores=[0,0,0,0];startGame()}}])}
-function showModal(title,body,actions){$("profileEditor").style.display="none";$("bidPanel").classList.remove("hidden");$("modalTitle").textContent=title;$("modalText").textContent=body;$("modalActions").innerHTML="";actions.forEach(a=>{const b=document.createElement("button");b.className="btn primary";b.textContent=a.label;b.onclick=()=>{$("overlay").classList.add("hidden");a.action()};$("modalActions").appendChild(b)});$("overlay").classList.remove("hidden")}
-$("bidOptions").addEventListener("click",e=>{const b=e.target.closest("[data-bid]");if(!b)return;selectedBid=Number(b.dataset.bid);render()});
-$("confirmBid").onclick=()=>{if(selectedBid===null)return;roundBids[0]=selectedBid;selectedBid=null;beginPlay()};
-$("hand").addEventListener("click",e=>{const b=e.target.closest("[data-card]");if(!b)return;const c=players[0].hand.find(x=>x.id===b.dataset.card);if(c)playCard(0,c)});
-$("newBtn").onclick=()=>showModal("Start a new game?","The current round will be replaced.",[{label:"Cancel",action:()=>{}},{label:"Start new",action:()=>{round=1;scores=[0,0,0,0];startGame()}}]);
-function updateProfilePreview(){$("profilePreviewAvatar").textContent=myProfile.avatar;$("profilePreviewName").textContent=$("profileName").value.trim().slice(0,18)||"You";}
-function openProfile(){$("modalTitle").textContent="Your player profile";$("modalText").textContent="Choose a nickname and an avatar for your player."; $("bidPanel").classList.add("hidden");$("profileEditor").style.display="block";$("profileName").value=myProfile.name;$("avatarGrid").innerHTML=AVATARS.map(a=>'<button type="button" class="avatar-choice '+(a===myProfile.avatar?"selected":"")+'" data-avatar="'+a+'" aria-label="Choose avatar '+a+'">'+a+'</button>').join("");updateProfilePreview();$("modalActions").innerHTML='<button class="btn" id="cancelProfile">Cancel</button>';$("overlay").classList.remove("hidden");$("cancelProfile").onclick=()=>{$("overlay").classList.add("hidden");$("profileEditor").style.display="none";render()};}
-$("profileBtn").onclick=openProfile;
-$("profileName").addEventListener("input",updateProfilePreview);
-$("avatarGrid").addEventListener("click",e=>{const b=e.target.closest("[data-avatar]");if(!b)return;myProfile.avatar=b.dataset.avatar;document.querySelectorAll(".avatar-choice").forEach(x=>x.classList.toggle("selected",x===b));updateProfilePreview()});
-$("saveProfile").onclick=()=>{myProfile.name=$("profileName").value.trim().slice(0,18)||"You";try{localStorage.setItem("vcCallBreakProfile",JSON.stringify(myProfile))}catch(e){}if(players[0]){players[0].name=myProfile.name;players[0].avatar=myProfile.avatar;render();log("Player profile updated.")}$("overlay").classList.add("hidden");$("profileEditor").style.display="none"};
-$("rulesBtn").onclick=()=>showModal("Call Break rules","Four players receive 13 cards each. Spades are always trump. Bid 1–8 tricks before play. Follow the suit led when possible. If you can beat the highest card in the trick, you must do so. If void in the led suit, play a spade when you have one; overtrump when possible. Highest card of the led suit wins unless a spade is played; highest spade wins. Meeting your bid earns the bid plus 0.1 per extra trick; failing your bid loses the bid value.",[{label:"Got it",action:()=>{}}]);
-startGame();
-})();
-</script></body></html>
+    <!-- TOUCH CONTROLS OVERLAY (VISIBLE ON TOUCH/MOBILE) -->
+    <div id="touch-controls" class="absolute inset-0 z-20 pointer-events-none flex justify-between p-6 items-end hidden">
+        <!-- Steering Left/Right -->
+        <div class="flex gap-4 pointer-events-auto">
+            <button id="btn-left" class="touch-btn w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-white active:bg-red-500/50">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button id="btn-right" class="touch-btn w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-white active:bg-red-500/50">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Throttle, Brake, Boost -->
+        <div class="flex gap-3 pointer-events-auto items-end">
+            <button id="btn-brake" class="touch-btn w-14 h-14 rounded-2xl flex items-center justify-center text-xl text-red-400 font-bold active:bg-red-600/60">
+                <i class="fa-solid fa-ban"></i>
+            </button>
+            <button id="btn-boost" class="touch-btn w-16 h-16 rounded-2xl flex items-center justify-center text-2xl text-yellow-400 font-bold active:bg-yellow-500/60 pulse-boost">
+                <i class="fa-solid fa-bolt"></i>
+            </button>
+            <button id="btn-gas" class="touch-btn w-20 h-20 rounded-2xl flex items-center justify-center text-3xl text-green-400 font-bold active:bg-green-600/60">
+                <i class="fa-solid fa-gauge-high"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- START / MENU OVERLAY -->
+    <div id="start-menu" class="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 md:p-8 text-center border border-white/20 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-block px-4 py-1.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 font-bold text-xs tracking-widest mb-4">
+                <i class="fa-solid fa-motorcycle me-2"></i> 3D HIGH-SPEED RACING
+            </div>
+
+            <h1 class="font-orbitron text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-red-500 italic tracking-wider mb-2">
+                TURBO RACER 3D
+            </h1>
+            <p class="text-gray-300 text-sm md:text-base mb-6 font-medium">
+                Conquer the circuit! Drift around bends, hit speed boosts, collect checkpoints, and beat the clock.
+            </p>
+
+            <!-- Instructions Box -->
+            <div class="bg-slate-900/80 rounded-2xl p-4 mb-6 text-left border border-white/10 text-xs md:text-sm text-gray-300 space-y-2">
+                <div class="font-bold text-cyan-400 font-orbitron uppercase text-xs mb-1">Controls Guide</div>
+                <div class="flex justify-between items-center">
+                    <span>Accelerate / Steer</span>
+                    <span class="font-mono text-white bg-white/10 px-2 py-0.5 rounded">W A S D / Arrow Keys</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Brake / Reverse</span>
+                    <span class="font-mono text-white bg-white/10 px-2 py-0.5 rounded">S / Down Arrow</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Nitro Boost</span>
+                    <span class="font-mono text-white bg-white/10 px-2 py-0.5 rounded">Shift Key</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Camera View</span>
+                    <span class="font-mono text-white bg-white/10 px-2 py-0.5 rounded">C Key</span>
+                </div>
+            </div>
+
+            <!-- Audio Toggle & Start Button -->
+            <div class="flex flex-col gap-3">
+                <button id="start-btn" class="glass-button w-full py-4 rounded-2xl font-orbitron font-black text-xl tracking-wider text-white flex items-center justify-center gap-3 group">
+                    <span>START RACE</span>
+                    <i class="fa-solid fa-play group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER / RESULTS OVERLAY -->
+    <div id="game-over-menu" class="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 md:p-8 text-center border border-white/20 shadow-2xl">
+            <div class="text-5xl mb-3 text-yellow-400">
+                <i class="fa-solid fa-trophy animate-bounce"></i>
+            </div>
+            <h2 class="font-orbitron text-3xl font-black text-white mb-1">RACE FINISHED!</h2>
+            <p class="text-gray-400 text-xs tracking-widest uppercase mb-6">Circuit Completed</p>
+
+            <div class="bg-slate-900/90 rounded-2xl p-4 mb-6 space-y-3 font-orbitron">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs">TOTAL TIME</span>
+                    <span id="final-time" class="text-2xl font-bold text-cyan-400">00:00.00</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-white/10 pt-2">
+                    <span class="text-gray-400 text-xs">TOP SPEED</span>
+                    <span id="final-top-speed" class="text-xl font-bold text-yellow-400">0 KM/H</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-white/10 pt-2">
+                    <span class="text-gray-400 text-xs">CHECKPOINTS</span>
+                    <span id="final-checkpoints" class="text-xl font-bold text-green-400">12/12</span>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="glass-button w-full py-4 rounded-2xl font-orbitron font-black text-lg text-white flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>RACE AGAIN</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * 3D MOTORCYCLE / BIKE RACER GAME ENGINE
+         * Built with Three.js & Web Audio API
+         */
+
+        // --- AUDIO SYNTHESIZER ---
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.engineOsc = null;
+                this.engineGain = null;
+                this.initialized = false;
+            }
+
+            init() {
+                if (this.initialized) return;
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+
+                    // Engine Continuous Sound
+                    this.engineOsc = this.ctx.createOscillator();
+                    this.engineGain = this.ctx.createGain();
+                    
+                    this.engineOsc.type = 'sawtooth';
+                    this.engineOsc.frequency.setValueAtTime(60, this.ctx.currentTime);
+                    
+                    // Filter for throatier engine sound
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(400, this.ctx.currentTime);
+
+                    this.engineOsc.connect(filter);
+                    filter.connect(this.engineGain);
+                    this.engineGain.connect(this.ctx.destination);
+                    
+                    this.engineGain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+                    this.engineOsc.start();
+                    this.initialized = true;
+                } catch(e) {
+                    console.log("Web Audio not supported or blocked");
+                }
+            }
+
+            updateEngine(speedRatio, isAccelerating) {
+                if (!this.initialized || !this.ctx) return;
+                const baseFreq = 50;
+                const maxFreq = 220;
+                const targetFreq = baseFreq + (speedRatio * (maxFreq - baseFreq)) + (isAccelerating ? 20 : 0);
+                this.engineOsc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.05);
+                const targetGain = 0.03 + (speedRatio * 0.07);
+                this.engineGain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.05);
+            }
+
+            playBoostSound() {
+                if (!this.initialized || !this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.4);
+                
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+
+            playCheckpointSound() {
+                if (!this.initialized || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            }
+
+            playCrashSound() {
+                if (!this.initialized || !this.ctx) return;
+                // Noise buffer crash sound
+                const bufferSize = this.ctx.sampleRate * 0.3;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.3);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            }
+        }
+
+        const audio = new SoundEngine();
+
+        // --- GAME PARAMETERS & STATE ---
+        const CONFIG = {
+            maxSpeed: 75.0,
+            boostSpeed: 110.0,
+            acceleration: 35.0,
+            braking: 45.0,
+            friction: 12.0,
+            turnSpeed: 2.2,
+            trackWidth: 16.0,
+            checkpointRadius: 10.0
+        };
+
+        let scene, camera, renderer;
+        let bikeGroup, frontWheelGroup, rearWheelGroup, handlebarsGroup, riderMesh;
+        let clock = new THREE.Clock();
+        
+        // Input state
+        const keys = { forward: false, backward: false, left: false, right: false, boost: false };
+        
+        // Physics state
+        let currentSpeed = 0;
+        let topSpeedReached = 0;
+        let bikePosition = new THREE.Vector3(0, 0, 0);
+        let bikeRotation = 0; // Y axis angle
+        let bikeLeanAngle = 0; // Visual Z roll angle
+        let cameraMode = 0; // 0: 3rd person chase, 1: Close hood
+        
+        // Race status
+        let isRacing = false;
+        let raceStartTime = 0;
+        let totalRaceTime = 0;
+        let currentCheckpointIndex = 0;
+        let nitroAmount = 100.0;
+        
+        // Track & Objects
+        let trackWaypoints = [];
+        let trackCurve = null;
+        let checkpoints = [];
+        let boostPads = [];
+        let obstacleMeshes = [];
+        let particleSystem = null;
+
+        // --- INITIALIZATION ---
+        function initEngine() {
+            const container = document.getElementById('canvas-container');
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+            scene.fog = new THREE.FogExp2(0x0f172a, 0.0035);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            setupLights();
+
+            // Build Track Curves & Environment
+            generateTrackWaypoints();
+            buildTerrainAndTrack();
+            buildEnvironmentDecorations();
+
+            // Create Bike & Rider
+            bikeGroup = createBikeModel();
+            scene.add(bikeGroup);
+
+            // Particle Trails
+            createBoostParticles();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            setupInputListeners();
+
+            // Hide touch controls on non-touch devices if desired
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                document.getElementById('touch-controls').classList.remove('hidden');
+            }
+
+            // Render loop
+            animate();
+        }
+
+        // --- LIGHTING SETUP ---
+        function setupLights() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+            sunLight.position.set(100, 150, 50);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            sunLight.shadow.camera.near = 0.5;
+            sunLight.shadow.camera.far = 400;
+            const d = 120;
+            sunLight.shadow.camera.left = -d;
+            sunLight.shadow.camera.right = d;
+            sunLight.shadow.camera.top = d;
+            sunLight.shadow.camera.bottom = -d;
+            scene.add(sunLight);
+
+            // Subtle rim light
+            const hemiLight = new THREE.HemisphereLight(0x38bdf8, 0x1e293b, 0.5);
+            scene.add(hemiLight);
+        }
+
+        // --- TRACK & WAYPOINTS ---
+        function generateTrackWaypoints() {
+            // High speed racing circuit control points
+            const points = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(30, 0, -120),
+                new THREE.Vector3(120, 0, -220),
+                new THREE.Vector3(250, 0, -200),
+                new THREE.Vector3(320, 0, -80),
+                new THREE.Vector3(280, 0, 100),
+                new THREE.Vector3(180, 0, 160),
+                new THREE.Vector3(90, 0, 80),
+                new THREE.Vector3(0, 0, 180),
+                new THREE.Vector3(-120, 0, 240),
+                new THREE.Vector3(-260, 0, 160),
+                new THREE.Vector3(-280, 0, -60),
+                new THREE.Vector3(-180, 0, -160)
+            ];
+
+            trackCurve = new THREE.CatmullRomCurve3(points, true, 'centripetal', 0.5);
+            trackWaypoints = trackCurve.getPoints(200);
+        }
+
+        // --- BUILD TERRAIN & ROAD TRACK ---
+        function buildTerrainAndTrack() {
+            // Ground Mesh
+            const groundGeo = new THREE.PlaneGeometry(1200, 1200, 64, 64);
+            groundGeo.rotateX(-Math.PI / 2);
+            
+            // Subtle height variations for ground
+            const posAttr = groundGeo.attributes.position;
+            for (let i = 0; i < posAttr.count; i++) {
+                const vx = posAttr.getX(i);
+                const vz = posAttr.getZ(i);
+                // Keep center track area flatter
+                const distFromCenter = Math.sqrt(vx*vx + vz*vz);
+                if (distFromCenter > 150) {
+                    const noise = Math.sin(vx * 0.015) * Math.cos(vz * 0.015) * 12.0;
+                    posAttr.setY(i, noise);
+                }
+            }
+            groundGeo.computeVertexNormals();
+
+            const groundMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.position.y = -0.2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Extrude Road Geometry along Curve
+            const roadShape = new THREE.Shape();
+            const w = CONFIG.trackWidth / 2;
+            roadShape.moveTo(-w, 0);
+            roadShape.lineTo(w, 0);
+            roadShape.lineTo(w, -0.4);
+            roadShape.lineTo(-w, -0.4);
+            roadShape.closePath();
+
+            const extrudeSettings = {
+                steps: 300,
+                bevelEnabled: false,
+                extrudePath: trackCurve
+            };
+
+            const roadGeo = new THREE.ExtrudeGeometry(roadShape, extrudeSettings);
+            const roadMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                roughness: 0.5,
+                metalness: 0.2
+            });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.receiveShadow = true;
+            scene.add(road);
+
+            // Red/White Curb Lines along Track Edges
+            buildTrackCurbs();
+            
+            // Build Checkpoint Arches and Boost Pads
+            buildCheckpointsAndPads();
+        }
+
+        // --- BUILD CURBS & TRACK ACCENTS ---
+        function buildTrackCurbs() {
+            const samples = 200;
+            const points = trackCurve.getSpacedPoints(samples);
+
+            const curbMatRed = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
+            const curbMatWhite = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+            const curbGeo = new THREE.BoxGeometry(0.8, 0.3, 2.5);
+
+            for (let i = 0; i < samples; i++) {
+                const pt = points[i];
+                const tangent = trackCurve.getTangentAt(i / samples).normalize();
+                const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
+
+                // Left curb
+                const leftPos = pt.clone().add(normal.clone().multiplyScalar(CONFIG.trackWidth / 2 + 0.4));
+                const leftCurb = new THREE.Mesh(curbGeo, i % 2 === 0 ? curbMatRed : curbMatWhite);
+                leftCurb.position.copy(leftPos);
+                leftCurb.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), tangent);
+                scene.add(leftCurb);
+
+                // Right curb
+                const rightPos = pt.clone().sub(normal.clone().multiplyScalar(CONFIG.trackWidth / 2 + 0.4));
+                const rightCurb = new THREE.Mesh(curbGeo, i % 2 === 0 ? curbMatRed : curbMatWhite);
+                rightCurb.position.copy(rightPos);
+                rightCurb.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), tangent);
+                scene.add(rightCurb);
+            }
+        }
+
+        // --- BUILD CHECKPOINTS AND BOOST PADS ---
+        function buildCheckpointsAndPads() {
+            const numCP = 12;
+            checkpoints = [];
+            boostPads = [];
+
+            for (let i = 0; i < numCP; i++) {
+                const u = i / numCP;
+                const pt = trackCurve.getPointAt(u);
+                const tangent = trackCurve.getTangentAt(u).normalize();
+
+                // ARCHWAY GROUP
+                const archGroup = new THREE.Group();
+                archGroup.position.copy(pt);
+                archGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), tangent);
+
+                // Pillars
+                const pillarGeo = new THREE.CylinderGeometry(0.6, 0.8, 8, 8);
+                const pillarMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.2 });
+
+                const leftPillar = new THREE.Mesh(pillarGeo, pillarMat);
+                leftPillar.position.set(-CONFIG.trackWidth / 2 - 1, 4, 0);
+                archGroup.add(leftPillar);
+
+                const rightPillar = new THREE.Mesh(pillarGeo, pillarMat);
+                rightPillar.position.set(CONFIG.trackWidth / 2 + 1, 4, 0);
+                archGroup.add(rightPillar);
+
+                // Overhead Glowing Banner
+                const bannerGeo = new THREE.BoxGeometry(CONFIG.trackWidth + 3, 1.5, 0.8);
+                const isFinish = (i === 0);
+                const bannerMat = new THREE.MeshStandardMaterial({
+                    color: isFinish ? 0xef4444 : 0x06b6d4,
+                    emissive: isFinish ? 0xef4444 : 0x06b6d4,
+                    emissiveIntensity: 0.6,
+                    roughness: 0.3
+                });
+                const banner = new THREE.Mesh(bannerGeo, bannerMat);
+                banner.position.set(0, 8, 0);
+                archGroup.add(banner);
+
+                scene.add(archGroup);
+
+                checkpoints.push({
+                    position: pt.clone(),
+                    index: i,
+                    passed: false,
+                    archMesh: banner
+                });
+
+                // Place Boost Pad every 2 checkpoints
+                if (i % 2 === 1) {
+                    const padGeo = new THREE.PlaneGeometry(6, 8);
+                    padGeo.rotateX(-Math.PI / 2);
+                    const padMat = new THREE.MeshBasicMaterial({
+                        color: 0xfacc15,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    const pad = new THREE.Mesh(padGeo, padMat);
+                    pad.position.copy(pt).add(new THREE.Vector3(0, 0.05, 0));
+                    pad.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(0,1,0));
+                    pad.lookAt(pt.clone().add(tangent));
+                    scene.add(pad);
+
+                    boostPads.push({
+                        position: pt.clone(),
+                        active: true,
+                        mesh: pad
+                    });
+                }
+            }
+        }
+
+        // --- ENVIRONMENT DECORATIONS (TREES, OBSTACLES, MOUNTAINS) ---
+        function buildEnvironmentDecorations() {
+            // Low-poly Pine Trees
+            const trunkGeo = new THREE.CylinderGeometry(0.3, 0.5, 3, 6);
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
+            const leavesGeo = new THREE.ConeGeometry(3, 7, 6);
+            const leavesMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 });
+
+            const treeTemplate = new THREE.Group();
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 1.5;
+            treeTemplate.add(trunk);
+            const leaves = new THREE.Mesh(leavesGeo, leavesMat);
+            leaves.position.y = 5;
+            leaves.castShadow = true;
+            treeTemplate.add(leaves);
+
+            // Scatter Trees
+            for (let i = 0; i < 160; i++) {
+                const rx = (Math.random() - 0.5) * 800;
+                const rz = (Math.random() - 0.5) * 800;
+
+                // Check distance to track to avoid blocking road
+                const pos = new THREE.Vector3(rx, 0, rz);
+                let tooClose = false;
+                for (let step = 0; step < 50; step++) {
+                    const trackPt = trackWaypoints[Math.floor(step * (trackWaypoints.length / 50))];
+                    if (pos.distanceTo(trackPt) < CONFIG.trackWidth + 8) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+
+                if (!tooClose) {
+                    const tree = treeTemplate.clone();
+                    tree.position.set(rx, 0, rz);
+                    const scale = 0.7 + Math.random() * 0.6;
+                    tree.scale.set(scale, scale, scale);
+                    scene.add(tree);
+                }
+            }
+
+            // Track Obstacle Blocks
+            const obstacleGeo = new THREE.BoxGeometry(2, 2, 2);
+            const obstacleMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4 });
+            
+            for (let i = 0; i < 8; i++) {
+                const u = (i + 0.5) / 8;
+                const pt = trackCurve.getPointAt(u);
+                const tangent = trackCurve.getTangentAt(u).normalize();
+                const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
+
+                // Offset left or right on track
+                const offset = (Math.random() - 0.5) * (CONFIG.trackWidth - 4);
+                const obsPos = pt.clone().add(normal.multiplyScalar(offset));
+                obsPos.y = 1.0;
+
+                const obstacle = new THREE.Mesh(obstacleGeo, obstacleMat);
+                obstacle.position.copy(obsPos);
+                obstacle.castShadow = true;
+                scene.add(obstacle);
+                obstacleMeshes.push(obstacle);
+            }
+        }
+
+        // --- LOW-POLY BICYCLE & RIDER CREATION ---
+        function createBikeModel() {
+            const bike = new THREE.Group();
+
+            // Materials
+            const frameMat = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.7, roughness: 0.2 }); // Neon Red
+            const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+            const riderMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.5 }); // Blue suit
+            const helmetMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.5, roughness: 0.2 }); // Yellow Helmet
+
+            // --- WHEELS ---
+            const wheelGeo = new THREE.TorusGeometry(1.0, 0.18, 12, 24);
+            const spokeGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.9, 6);
+
+            // Front Wheel Group
+            frontWheelGroup = new THREE.Group();
+            const frontTire = new THREE.Mesh(wheelGeo, tireMat);
+            frontTire.castShadow = true;
+            frontWheelGroup.add(frontTire);
+            for (let a = 0; a < 4; a++) {
+                const spoke = new THREE.Mesh(spokeGeo, chromeMat);
+                spoke.rotation.z = (Math.PI / 4) * a;
+                frontWheelGroup.add(spoke);
+            }
+            frontWheelGroup.position.set(0, 1.0, 1.8);
+            bike.add(frontWheelGroup);
+
+            // Rear Wheel Group
+            rearWheelGroup = new THREE.Group();
+            const rearTire = new THREE.Mesh(wheelGeo, tireMat);
+            rearTire.castShadow = true;
+            rearWheelGroup.add(rearTire);
+            for (let a = 0; a < 4; a++) {
+                const spoke = new THREE.Mesh(spokeGeo, chromeMat);
+                spoke.rotation.z = (Math.PI / 4) * a;
+                rearWheelGroup.add(spoke);
+            }
+            rearWheelGroup.position.set(0, 1.0, -1.8);
+            bike.add(rearWheelGroup);
+
+            // --- FRAME TUBING ---
+            const tubeGeo = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
+            
+            // Main Bottom Bar
+            const bar1 = new THREE.Mesh(tubeGeo, frameMat);
+            bar1.scale.set(1, 2.5, 1);
+            bar1.rotation.x = Math.PI / 3;
+            bar1.position.set(0, 1.3, 0.5);
+            bike.add(bar1);
+
+            // Top Crossbar
+            const bar2 = new THREE.Mesh(tubeGeo, frameMat);
+            bar2.scale.set(1, 2.4, 1);
+            bar2.rotation.x = Math.PI / 2.2;
+            bar2.position.set(0, 2.0, 0.2);
+            bike.add(bar2);
+
+            // Seat Post Tube
+            const bar3 = new THREE.Mesh(tubeGeo, frameMat);
+            bar3.scale.set(1, 1.8, 1);
+            bar3.position.set(0, 1.8, -0.8);
+            bike.add(bar3);
+
+            // Seat Saddle
+            const seatGeo = new THREE.BoxGeometry(0.7, 0.2, 1.2);
+            const seatMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+            const seat = new THREE.Mesh(seatGeo, seatMat);
+            seat.position.set(0, 2.7, -0.9);
+            bike.add(seat);
+
+            // Handlebars & Fork
+            handlebarsGroup = new THREE.Group();
+            const forkGeo = new THREE.CylinderGeometry(0.08, 0.08, 2.2, 8);
+            const fork = new THREE.Mesh(forkGeo, chromeMat);
+            fork.position.set(0, 1.8, 1.7);
+            fork.rotation.x = -0.2;
+            handlebarsGroup.add(fork);
+
+            const handleGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.8, 8);
+            handleGeo.rotateZ(Math.PI / 2);
+            const handle = new THREE.Mesh(handleGeo, chromeMat);
+            handle.position.set(0, 2.8, 1.5);
+            handlebarsGroup.add(handle);
+
+            // Front Headlight
+            const lightGeo = new THREE.CylinderGeometry(0.25, 0.2, 0.4, 12);
+            lightGeo.rotateX(Math.PI / 2);
+            const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.8 });
+            const light = new THREE.Mesh(lightGeo, lightMat);
+            light.position.set(0, 2.5, 1.8);
+            handlebarsGroup.add(light);
+
+            bike.add(handlebarsGroup);
+
+            // --- LOW POLY RIDER MODEL ---
+            riderMesh = new THREE.Group();
+            
+            // Rider Torso
+            const torsoGeo = new THREE.BoxGeometry(0.9, 1.3, 0.6);
+            const torso = new THREE.Mesh(torsoGeo, riderMat);
+            torso.position.set(0, 3.4, -0.6);
+            torso.rotation.x = 0.4; // Leaning forward racing stance
+            riderMesh.add(torso);
+
+            // Helmet / Head
+            const headGeo = new THREE.SphereGeometry(0.45, 12, 12);
+            const head = new THREE.Mesh(headGeo, helmetMat);
+            head.position.set(0, 4.3, -0.2);
+            riderMesh.add(head);
+
+            // Arms angled to handlebars
+            const armGeo = new THREE.CylinderGeometry(0.12, 0.12, 1.4, 8);
+            
+            const leftArm = new THREE.Mesh(armGeo, riderMat);
+            leftArm.position.set(-0.55, 3.3, 0.4);
+            leftArm.rotation.set(0.8, 0, -0.3);
+            riderMesh.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeo, riderMat);
+            rightArm.position.set(0.55, 3.3, 0.4);
+            rightArm.rotation.set(0.8, 0, 0.3);
+            riderMesh.add(rightArm);
+
+            bike.add(riderMesh);
+
+            bike.scale.set(0.9, 0.9, 0.9);
+            return bike;
+        }
+
+        // --- BOOST PARTICLES ENGINE ---
+        function createBoostParticles() {
+            const particleCount = 60;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const scales = new Float32Array(particleCount);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 1.5;
+                positions[i * 3 + 1] = Math.random() * 1.5;
+                positions[i * 3 + 2] = -Math.random() * 4;
+                scales[i] = Math.random();
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const mat = new THREE.PointsMaterial({
+                color: 0x38bdf8,
+                size: 0.6,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            particleSystem = new THREE.Points(geo, mat);
+            particleSystem.visible = false;
+            scene.add(particleSystem);
+        }
+
+        function updateBoostParticles() {
+            if (!particleSystem) return;
+            if (keys.boost && nitroAmount > 0 && currentSpeed > 5) {
+                particleSystem.visible = true;
+                const pos = bikeGroup.position.clone();
+                const backOffset = new THREE.Vector3(0, 0.8, -1.5).applyAxisAngle(new THREE.Vector3(0, 1, 0), bikeRotation);
+                particleSystem.position.copy(pos.add(backOffset));
+                particleSystem.rotation.y = bikeRotation;
+            } else {
+                particleSystem.visible = false;
+            }
+        }
+
+        // --- INPUT EVENT LISTENERS ---
+        function setupInputListeners() {
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
+                if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = true;
+                if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+                if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
+                if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.boost = true;
+                if (e.code === 'KeyC') toggleCameraMode();
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
+                if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = false;
+                if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+                if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
+                if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.boost = false;
+            });
+
+            // Touch UI Listeners for Mobile
+            const bindTouch = (id, keyName) => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+                btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+                btn.addEventListener('mousedown', () => { keys[keyName] = true; });
+                btn.addEventListener('mouseup', () => { keys[keyName] = false; });
+            };
+
+            bindTouch('btn-gas', 'forward');
+            bindTouch('btn-brake', 'backward');
+            bindTouch('btn-left', 'left');
+            bindTouch('btn-right', 'right');
+            bindTouch('btn-boost', 'boost');
+
+            // UI Buttons
+            document.getElementById('start-btn').addEventListener('click', startRace);
+            document.getElementById('restart-btn').addEventListener('click', restartRace);
+        }
+
+        function toggleCameraMode() {
+            cameraMode = (cameraMode + 1) % 2;
+        }
+
+        // --- GAME LOGIC & PHYSICS UPDATE ---
+        function updatePhysics(delta) {
+            if (!isRacing) return;
+
+            // Determine Target Max Speed & Acceleration
+            let effectiveMaxSpeed = CONFIG.maxSpeed;
+            let currentAccel = CONFIG.acceleration;
+
+            // Nitro Boost logic
+            if (keys.boost && nitroAmount > 0) {
+                effectiveMaxSpeed = CONFIG.boostSpeed;
+                currentAccel *= 1.8;
+                nitroAmount = Math.max(0, nitroAmount - delta * 35.0);
+                audio.playBoostSound();
+            } else {
+                // Regenerate nitro slowly
+                nitroAmount = Math.min(100.0, nitroAmount + delta * 5.0);
+            }
+
+            // Handle Acceleration & Braking
+            if (keys.forward) {
+                currentSpeed += currentAccel * delta;
+                if (currentSpeed > effectiveMaxSpeed) currentSpeed = effectiveMaxSpeed;
+            } else if (keys.backward) {
+                currentSpeed -= CONFIG.braking * delta;
+                if (currentSpeed < -15.0) currentSpeed = -15.0; // Reverse limit
+            } else {
+                // Apply Friction
+                if (currentSpeed > 0) {
+                    currentSpeed = Math.max(0, currentSpeed - CONFIG.friction * delta);
+                } else if (currentSpeed < 0) {
+                    currentSpeed = Math.min(0, currentSpeed + CONFIG.friction * delta);
+                }
+            }
+
+            // Steering & Leaning Physics
+            const speedRatio = Math.abs(currentSpeed) / CONFIG.maxSpeed;
+            const turnFactor = CONFIG.turnSpeed * (0.4 + 0.6 * (1.0 - speedRatio * 0.5));
+
+            let targetLean = 0;
+            if (keys.left) {
+                bikeRotation += turnFactor * delta;
+                targetLean = 0.45 * Math.min(1.0, speedRatio + 0.2);
+            }
+            if (keys.right) {
+                bikeRotation -= turnFactor * delta;
+                targetLean = -0.45 * Math.min(1.0, speedRatio + 0.2);
+            }
+
+            // Smooth Interpolated Visual Lean Angle
+            bikeLeanAngle = THREE.MathUtils.lerp(bikeLeanAngle, targetLean, delta * 8.0);
+
+            // Update Position Vector
+            const moveStep = currentSpeed * delta;
+            bikePosition.x += Math.sin(bikeRotation) * moveStep;
+            bikePosition.z += Math.cos(bikeRotation) * moveStep;
+
+            // Apply Position & Orientation to Bike Mesh
+            bikeGroup.position.copy(bikePosition);
+            bikeGroup.rotation.y = bikeRotation;
+            bikeGroup.rotation.z = bikeLeanAngle; // Leaning roll animation
+
+            // Wheel Rotation Animation
+            const wheelRotSpeed = (currentSpeed / 1.0) * delta;
+            if (frontWheelGroup && rearWheelGroup) {
+                frontWheelGroup.rotation.x += wheelRotSpeed;
+                rearWheelGroup.rotation.x += wheelRotSpeed;
+            }
+            if (handlebarsGroup) {
+                handlebarsGroup.rotation.y = THREE.MathUtils.lerp(handlebarsGroup.rotation.y, (keys.left ? 0.2 : 0) + (keys.right ? -0.2 : 0), delta * 10);
+            }
+
+            // Track Speed Stats
+            if (currentSpeed > topSpeedReached) topSpeedReached = currentSpeed;
+
+            // Check Collision with Obstacles & Boost Pads
+            checkCollisions();
+            checkCheckpoints();
+
+            // Sound update
+            audio.updateEngine(speedRatio, keys.forward);
+
+            // Camera Tracking Update
+            updateCamera(delta);
+        }
+
+        // --- CAMERA CONTROLLER ---
+        function updateCamera(delta) {
+            if (!bikeGroup) return;
+
+            if (cameraMode === 0) {
+                // 3rd Person Follow Camera
+                const offsetDistance = 11.0 + (currentSpeed * 0.05); // Dynamic distance on acceleration
+                const offsetHeight = 4.8;
+                
+                const relativeCameraOffset = new THREE.Vector3(0, offsetHeight, -offsetDistance);
+                const cameraTargetPosition = relativeCameraOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), bikeRotation).add(bikePosition);
+
+                // Smooth dampening camera movement
+                camera.position.lerp(cameraTargetPosition, delta * 7.0);
+                
+                const lookAtTarget = bikePosition.clone().add(new THREE.Vector3(0, 2.2, 0));
+                camera.lookAt(lookAtTarget);
+
+                // Dynamic FOV Speed Warp Effect
+                const targetFOV = 60 + (currentSpeed / CONFIG.boostSpeed) * 18;
+                camera.fov = THREE.MathUtils.lerp(camera.fov, targetFOV, delta * 5.0);
+                camera.updateProjectionMatrix();
+
+            } else {
+                // First Person / Cockpit Cam
+                const relativeCameraOffset = new THREE.Vector3(0, 3.6, 0.4);
+                const cameraTargetPosition = relativeCameraOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), bikeRotation).add(bikePosition);
+                camera.position.copy(cameraTargetPosition);
+
+                const lookAtTarget = bikePosition.clone().add(new THREE.Vector3(Math.sin(bikeRotation) * 20, 3.2, Math.cos(bikeRotation) * 20));
+                camera.lookAt(lookAtTarget);
+            }
+        }
+
+        // --- CHECKPOINTS & BOOST COLLISION ---
+        function checkCheckpoints() {
+            if (checkpoints.length === 0) return;
+
+            const nextCP = checkpoints[currentCheckpointIndex];
+            const dist = bikePosition.distanceTo(nextCP.position);
+
+            if (dist < CONFIG.checkpointRadius) {
+                nextCP.passed = true;
+                audio.playCheckpointSound();
+                showNotification(`CHECKPOINT ${currentCheckpointIndex + 1}!`);
+
+                // Highlight archway banner
+                if (nextCP.archMesh) {
+                    nextCP.archMesh.material.emissiveIntensity = 1.5;
+                    setTimeout(() => { if (nextCP.archMesh) nextCP.archMesh.material.emissiveIntensity = 0.6; }, 400);
+                }
+
+                currentCheckpointIndex = (currentCheckpointIndex + 1);
+
+                // Finish Circuit Check
+                if (currentCheckpointIndex >= checkpoints.length) {
+                    finishRace();
+                }
+            }
+        }
+
+        function checkCollisions() {
+            // Boost Pads Trigger
+            for (let pad of boostPads) {
+                if (bikePosition.distanceTo(pad.position) < 4.5) {
+                    currentSpeed = CONFIG.boostSpeed;
+                    nitroAmount = Math.min(100, nitroAmount + 40);
+                    audio.playBoostSound();
+                    showNotification("PAD BOOST! +NITRO");
+                }
+            }
+
+            // Obstacle Blocks Collision
+            for (let obs of obstacleMeshes) {
+                if (bikePosition.distanceTo(obs.position) < 2.2) {
+                    currentSpeed = -10.0; // Knockback
+                    audio.playCrashSound();
+                    showNotification("CRASHED! -SPEED");
+                    // Flash screen red effect
+                    const hud = document.getElementById('hud-overlay');
+                    hud.classList.add('bg-red-900/30');
+                    setTimeout(() => hud.classList.remove('bg-red-900/30'), 250);
+                }
+            }
+        }
+
+        // --- UI & HUD UPDATES ---
+        function updateHUD() {
+            if (!isRacing) return;
+
+            // Speedometer Gauge
+            const speedKmh = Math.max(0, Math.round(currentSpeed * 2.2));
+            document.getElementById('speed-text').innerText = speedKmh;
+
+            const speedRatio = Math.min(1.0, Math.max(0, currentSpeed / CONFIG.boostSpeed));
+            const dashOffset = 283 - (speedRatio * 283 * 0.75); // 75% arc gauge
+            document.getElementById('speed-ring').style.strokeDashoffset = dashOffset;
+
+            // Lap Time Update
+            const elapsed = (clock.getElapsedTime() - raceStartTime);
+            totalRaceTime = elapsed;
+            const mins = Math.floor(elapsed / 60);
+            const secs = Math.floor(elapsed % 60);
+            const ms = Math.floor((elapsed % 1) * 100);
+            document.getElementById('time-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+
+            // Nitro Bar Update
+            const nitroBar = document.getElementById('nitro-bar');
+            nitroBar.style.width = `${nitroAmount}%`;
+            document.getElementById('nitro-percent').innerText = `${Math.round(nitroAmount)}%`;
+
+            // Track Progress Bar & CP Counter
+            const progress = (currentCheckpointIndex / checkpoints.length) * 100;
+            document.getElementById('track-progress-bar').style.width = `${progress}%`;
+            document.getElementById('checkpoint-text').innerText = `CP: ${currentCheckpointIndex}/${checkpoints.length}`;
+        }
+
+        function showNotification(text) {
+            const banner = document.getElementById('notification-banner');
+            banner.innerText = text;
+            banner.classList.remove('opacity-0');
+            banner.classList.add('opacity-100');
+            setTimeout(() => {
+                banner.classList.remove('opacity-100');
+                banner.classList.add('opacity-0');
+            }, 1200);
+        }
+
+        // --- RACE STATE CONTROL ---
+        function startRace() {
+            audio.init();
+            document.getElementById('start-menu').classList.add('hidden');
+            document.getElementById('hud-overlay').classList.remove('hidden');
+
+            resetRaceState();
+            isRacing = true;
+            raceStartTime = clock.getElapsedTime();
+            showNotification("GO! RACE!");
+        }
+
+        function restartRace() {
+            document.getElementById('game-over-menu').classList.add('hidden');
+            startRace();
+        }
+
+        function resetRaceState() {
+            currentSpeed = 0;
+            topSpeedReached = 0;
+            bikePosition.set(0, 0, 0);
+            bikeRotation = 0;
+            bikeLeanAngle = 0;
+            currentCheckpointIndex = 0;
+            nitroAmount = 100;
+
+            checkpoints.forEach(cp => cp.passed = false);
+        }
+
+        function finishRace() {
+            isRacing = false;
+            document.getElementById('hud-overlay').classList.add('hidden');
+            document.getElementById('game-over-menu').classList.remove('hidden');
+
+            // Format Final Time
+            const mins = Math.floor(totalRaceTime / 60);
+            const secs = Math.floor(totalRaceTime % 60);
+            const ms = Math.floor((totalRaceTime % 1) * 100);
+            document.getElementById('final-time').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+
+            document.getElementById('final-top-speed').innerText = `${Math.round(topSpeedReached * 2.2)} KM/H`;
+            document.getElementById('final-checkpoints').innerText = `${checkpoints.length}/${checkpoints.length}`;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- MAIN RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            
+            updatePhysics(delta);
+            updateBoostParticles();
+            updateHUD();
+
+            renderer.render(scene, camera);
+        }
+
+        // Window load initialization
+        window.onload = function() {
+            initEngine();
+        };
+    </script>
+</body>
+</html>
