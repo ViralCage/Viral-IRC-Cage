@@ -147,11 +147,11 @@ export class ChatRoom {
         const choice=triviaAnswer[1].toUpperCase().charCodeAt(0)-65;
         const uid=String(attachment.uid||"guest");
         if(this.trivia.answers[uid]!==undefined){
-          try{socket.send(JSON.stringify({type:"error",message:"VC Kingdom: your answer is already locked for this question."}))}catch{}
+          try{socket.send(JSON.stringify({type:"error",message:"VC God: your answer is already locked for this question."}))}catch{}
           return;
         }
         await this.handleTrivia(socket,attachment,{action:"answer",choice});
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:(attachment.name||"A player")+" locked in answer "+triviaAnswer[1].toUpperCase()+".",at:Date.now()});
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:(attachment.name||"A player")+" locked in answer "+triviaAnswer[1].toUpperCase()+".",at:Date.now()});
         await this.touch();return;
       }
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
@@ -202,9 +202,9 @@ export class ChatRoom {
   }
   triviaSnapshot(){
     const game=this.trivia;
-    if(!game)return {type:"trivia-state",active:false,host:"VC Kingdom"};
+    if(!game)return {type:"trivia-state",active:false,host:"VC God"};
     const revealed=game.revealed;
-    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,autoNextAt:game.autoNextAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
+    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,autoNextAt:game.autoNextAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC God"};
   }
   async handleTrivia(socket,attachment,message){
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
@@ -216,7 +216,7 @@ export class ChatRoom {
       this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
       await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"VC God Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
@@ -245,7 +245,7 @@ export class ChatRoom {
         await this.state.put("trivia",this.trivia);
         this.broadcast(this.triviaSnapshot());
         const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
       this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+30000;
       await this.state.put("trivia",this.trivia);
@@ -259,9 +259,9 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC Kingdom reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
-      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC Kingdom reveals the answer and automatically starts the next question after 5 seconds.",
+      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 5 seconds.",
       "!trivia":"Starting a 30-second trivia question. Type A, B, C or D; no joining needed.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
@@ -328,12 +328,12 @@ export class ChatRoom {
       await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 5 seconds.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 5 seconds.",at:Date.now()});
       await this.state.setAlarm(this.trivia.autoNextAt);
     }
     if(this.trivia&&this.trivia.phase==="revealed"&&this.trivia.autoNextAt&&Date.now()>=this.trivia.autoNextAt){
       delete this.trivia.autoNextAt;
-      await this.handleTrivia(null,{uid:"vc-room-bot",name:"VC Kingdom"},{action:"next"});
+      await this.handleTrivia(null,{uid:"vc-room-bot",name:"VC God"},{action:"next"});
     }
     if(!active){
       const inactiveSince=await this.state.get("inactiveSinceAt")||await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
