@@ -204,7 +204,7 @@ export class ChatRoom {
     const game=this.trivia;
     if(!game)return {type:"trivia-state",active:false,host:"VC Kingdom"};
     const revealed=game.revealed;
-    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
+    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,autoNextAt:game.autoNextAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
   }
   async handleTrivia(socket,attachment,message){
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
@@ -324,12 +324,11 @@ export class ChatRoom {
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
       this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
+      this.trivia.autoNextAt=Date.now()+5000;
       await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 5 seconds.",at:Date.now()});
-      this.trivia.autoNextAt=Date.now()+5000;
-      await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.autoNextAt);
     }
     if(this.trivia&&this.trivia.phase==="revealed"&&this.trivia.autoNextAt&&Date.now()>=this.trivia.autoNextAt){
