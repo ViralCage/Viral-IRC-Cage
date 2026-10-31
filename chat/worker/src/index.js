@@ -231,18 +231,18 @@ export class ChatRoom {
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
     if(!active){await this.state.deleteAll();return}
     const verses=[
-      "“The Lord is my shepherd; I shall not want.” — Psalm 23:1 (KJV)",
-      "“Be strong and of a good courage; be not afraid.” — Joshua 1:9 (KJV)",
-      "“God is our refuge and strength, a very present help in trouble.” — Psalm 46:1 (KJV)",
-      "“Let all that ye do be done in charity.” — 1 Corinthians 16:14 (KJV)",
-      "“The Lord is good to all: and his tender mercies are over all his works.” — Psalm 145:9 (KJV)",
-      "“I can do all things through Christ which strengtheneth me.” — Philippians 4:13 (KJV)",
-      "“Be ye kind one to another, tenderhearted, forgiving one another.” — Ephesians 4:32 (KJV)",
-      "“For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.” — 2 Timothy 1:7 (KJV)",
-      "“Trust in the Lord with all thine heart.” — Proverbs 3:5 (KJV)",
-      "“The Lord is my light and my salvation; whom shall I fear?” — Psalm 27:1 (KJV)",
-      "“Rejoice evermore.” — 1 Thessalonians 5:16 (KJV)",
-      "“Above all these things put on charity, which is the bond of perfectness.” — Colossians 3:14 (KJV)"
+      "“The Lord is my shepherd; I shall not want.” — Psalm 23:1 (KJV)\nनेपाली: “परमप्रभु मेरा गोठालो हुनुहुन्छ; मलाई कुनै कुराको अभाव हुनेछैन।” — भजनसंग्रह २३:१",
+      "“Be strong and of a good courage; be not afraid.” — Joshua 1:9 (KJV)\nनेपाली: “बलियो र साहसी होऊ; नडराऊ।” — यहोशू १:९",
+      "“God is our refuge and strength, a very present help in trouble.” — Psalm 46:1 (KJV)\nनेपाली: “परमेश्वर हाम्रो शरणस्थान र बल हुनुहुन्छ, सङ्कष्टमा सधैँ पाइने सहायता।” — भजनसंग्रह ४६:१",
+      "“Let all that ye do be done in charity.” — 1 Corinthians 16:14 (KJV)\nनेपाली: “तिमीहरूले गर्ने सबै कुरा प्रेममा गर।” — १ कोरिन्थी १६:१४",
+      "“The Lord is good to all: and his tender mercies are over all his works.” — Psalm 145:9 (KJV)\nनेपाली: “परमप्रभु सबैका निम्ति भला हुनुहुन्छ; उहाँका करुणा उहाँका सबै सृष्टिमाथि छन्।” — भजनसंग्रह १४५:९",
+      "“I can do all things through Christ which strengtheneth me.” — Philippians 4:13 (KJV)\nनेपाली: “मलाई शक्ति दिनुहुने ख्रीष्टद्वारा म सबै कुरा गर्न सक्छु।” — फिलिप्पी ४:१३",
+      "“Be ye kind one to another, tenderhearted, forgiving one another.” — Ephesians 4:32 (KJV)\nनेपाली: “एक-अर्काप्रति दयालु र कोमल हृदयका होओ, अनि एक-अर्कालाई क्षमा गर।” — एफिसी ४:३२",
+      "“For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.” — 2 Timothy 1:7 (KJV)\nनेपाली: “परमेश्वरले हामीलाई डरको आत्मा होइन, तर शक्ति, प्रेम र आत्मसंयमको आत्मा दिनुभएको छ।” — २ तिमोथी १:७",
+      "“Trust in the Lord with all thine heart.” — Proverbs 3:5 (KJV)\nनेपाली: “आफ्नो सम्पूर्ण हृदयले परमप्रभुमाथि भरोसा राख।” — हितोपदेश ३:५",
+      "“The Lord is my light and my salvation; whom shall I fear?” — Psalm 27:1 (KJV)\nनेपाली: “परमप्रभु मेरो ज्योति र मेरो उद्धार हुनुहुन्छ; म कससँग डराउने?” — भजनसंग्रह २७:१",
+      "“Rejoice evermore.” — 1 Thessalonians 5:16 (KJV)\nनेपाली: “सधैँ आनन्दित रहो।” — १ थेसलोनिकी ५:१६",
+      "“Above all these things put on charity, which is the bond of perfectness.” — Colossians 3:14 (KJV)\nनेपाली: “यी सबैभन्दा माथि प्रेम धारण गर, जसले सबैलाई पूर्ण एकतामा बाँध्छ।” — कलस्सी ३:१४"
     ];
     const previous=await this.state.get("lastBibleVerseIndex");
     let index=Math.floor(Math.random()*verses.length);
