@@ -194,7 +194,7 @@ function playTriviaTone(finalTone=false){
    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
    osc.type="sine";osc.frequency.setValueAtTime(note.f,now+note.t);
    gain.gain.setValueAtTime(.0001,now+note.t);
-   gain.gain.exponentialRampToValueAtTime(finalTone?.075:.025,now+note.t+.012);
+   gain.gain.exponentialRampToValueAtTime(finalTone ? 0.075 : 0.025,now+note.t+.012);
    gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
    osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
   });
