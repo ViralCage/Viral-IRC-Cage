@@ -113,7 +113,8 @@ export class ChatRoom {
     const now=Date.now();
     await this.state.put("lastActivityAt",now);
     await this.state.delete("inactiveSinceAt");
-    await this.state.setAlarm(now+60000);
+    const triviaDeadline=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed?this.trivia.deadlineAt:0;
+    await this.state.setAlarm(triviaDeadline?Math.min(now+60000,triviaDeadline):now+60000);
   }
   broadcast(payload,except=null){
     const data=JSON.stringify(payload);
