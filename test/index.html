@@ -73,6 +73,151 @@
 @media(max-width:850px){.table{min-height:790px;padding:25px 20px 22px;grid-template-rows:auto auto minmax(235px,1fr) auto auto}.trick-area{min-height:235px}.trick-cards .played,.trick-cards .empty{height:88px;width:min(100%,66px)}}
 @media(max-width:560px){.table{min-height:690px;padding:13px 9px 14px;grid-template-rows:auto auto minmax(180px,1fr) auto auto}.seat{padding:8px;min-height:76px}.seat .avatar{width:29px;height:29px;flex-basis:29px;font-size:16px}.seat .meta,.seat .bid{font-size:10px;margin-left:0}.trick-area{min-height:180px}.trick-cards .played,.trick-cards .empty{height:64px;width:min(100%,49px)}.trick-cards .played{padding:5px}.trick-cards .played .rank{font-size:15px}.trick-cards .played .suit{font-size:18px}.trick-cards .played small{font-size:8px}.hand-wrap{padding:10px 6px 6px}.playing{width:clamp(42px,10.8vw,58px);height:83px;padding:5px}.playing .rank{font-size:17px}.playing .suit{font-size:21px}.hand{gap:5px}}
 
+
+/* COMPLETE 3D LUXURY CASINO REDESIGN — presentation only; game logic unchanged */
+:root{
+  color-scheme:dark;
+  --bg:#070b0a;--line:#5f4a2c;--cyan:#6be2d0;--muted:#b6b09e;
+  --gold:#e9c77c;--gold-hi:#fff0bc;--felt:#0b6047;--felt-deep:#063b2e;
+}
+*{box-sizing:border-box}
+body{
+  min-height:100vh;color:#f8f1df;
+  background:
+    radial-gradient(ellipse at 50% 0%,#35422c 0%,transparent 34%),
+    radial-gradient(ellipse at 50% 55%,#15241d 0%,#080d0b 65%,#040706 100%);
+  font-family:Georgia,"Times New Roman",serif;
+  letter-spacing:.15px;
+}
+.shell{max-width:1540px;padding:26px 24px 54px}
+.top{padding:12px 16px;border:1px solid #b99a5a55;border-radius:18px;background:linear-gradient(120deg,#171a14eF,#0b100eeF);box-shadow:0 14px 35px #0008,inset 0 1px #fff1}
+.mark{border:2px solid #d5b36e;box-shadow:0 0 0 4px #d6b46c20,0 8px 24px #0009}
+.brand strong{font-family:Georgia,serif;font-size:16px;letter-spacing:2.8px;color:#f5dfaa}
+.brand small{color:#bba879;letter-spacing:2.4px}
+.top-actions .btn,.btn{
+  border:1px solid #9b7944;background:linear-gradient(180deg,#343125,#171a14);
+  color:#f7e9c8;border-radius:10px;box-shadow:inset 0 1px #fff2,0 4px 12px #0006;
+  transition:transform .18s,filter .18s,box-shadow .18s;
+}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.16);box-shadow:0 8px 20px #0008,inset 0 1px #fff3}
+.btn.primary{background:linear-gradient(135deg,#f5dfa1 0%,#bd914b 45%,#76522b 100%);border:1px solid #ffedb4;color:#1c170e;text-shadow:0 1px #fff5;font-weight:900;box-shadow:inset 0 1px #fff9,0 5px 16px #0008}
+.heading{margin:27px 0 24px}
+.heading h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,5vw,62px);letter-spacing:8px;background:linear-gradient(180deg,#fff8df 10%,#e6c77e 48%,#98703b 100%);background-clip:text;color:transparent;filter:drop-shadow(0 4px 5px #000b)}
+.heading p{color:#c4b58e;letter-spacing:1.3px;font-size:13px}
+.layout{grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:stretch}
+.table{
+  position:relative;isolation:isolate;overflow:visible;
+  min-height:900px;padding:38px 38px 30px;
+  border:12px solid transparent;border-radius:48% / 27%;
+  background:
+    linear-gradient(145deg,#0b6348,#073b2d 70%) padding-box,
+    linear-gradient(145deg,#fff0b5,#8b6433 18%,#e7c77c 34%,#624322 52%,#f1d995 75%,#674a29) border-box;
+  box-shadow:inset 0 0 0 3px #d8b96e, inset 0 0 0 8px #3d2b19,
+    inset 0 0 90px #001c13,0 28px 0 -9px #382819,0 37px 0 -10px #17110b,
+    0 48px 65px #000c;
+  transform:perspective(1500px) rotateX(2deg);
+}
+.table:before{
+  content:"";position:absolute;inset:12px;border:2px solid #d7b96c99;
+  border-radius:48% / 27%;pointer-events:none;z-index:-1;
+  box-shadow:inset 0 0 0 5px #092e2488,inset 0 0 0 6px #d6b46c44;
+}
+.table:after{
+  content:"";position:absolute;inset:25px;border:1px solid #e5ca8b55;
+  border-radius:48% / 27%;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse at 50% 42%,#ffffff0a,transparent 65%);
+}
+.table>.status,.seats,.trick-area,.hand-wrap{z-index:1}
+.status{padding:0 12px 12px;border-bottom:1px solid #d8bd7955}
+.pill{border-color:#c5a56788;background:#0a2c23;color:#e6d5a9;box-shadow:inset 0 1px #fff1}
+.pill.live{background:linear-gradient(180deg,#174d39,#092c21);color:#d9f4d9;border-color:#9fc28b}
+.scoreline{color:#d4c39b}
+.seat{
+  border:1px solid #d5b77788!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#25271eF2,#101812F4)!important;
+  box-shadow:0 10px 20px #00150f99,inset 0 1px #fff2,inset 0 -10px 18px #0004!important;
+  backdrop-filter:blur(8px);transform:translateZ(12px);
+}
+.seat.you{border-color:#f2d58c!important;background:linear-gradient(145deg,#4b3d25f5,#17251cf5)!important}
+.seat.active{outline:2px solid #f4d88d;box-shadow:0 0 0 4px #e5c06a33,0 0 30px #e6bd5b88,inset 0 1px #fff5!important;animation:seatGlow 1.5s ease-in-out infinite alternate}
+@keyframes seatGlow{from{filter:brightness(1)}to{filter:brightness(1.24)}}
+.avatar{background:radial-gradient(circle at 30% 25%,#fff0c7,#a37c43 48%,#302316 100%);border:1px solid #f4d99a;color:#21180d;box-shadow:0 3px 9px #0009,inset 0 1px #fff9}
+.seat .role{border-color:#b89a61;color:#ead39a;background:#1d251c}
+.seat .meta{color:#c4c0a9}
+.seat .bid{color:#f2d28a}
+.trick-area{
+  border:2px solid #d1b16c;border-radius:50%!important;
+  background:radial-gradient(ellipse at 48% 42%,#1a7958 0%,#0e563e 53%,#063324 100%);
+  box-shadow:inset 0 0 0 5px #063728,inset 0 0 0 6px #d9bb7777,
+    inset 0 0 55px #001b12,0 15px 25px #00170f99;
+  transform:translateZ(25px);
+}
+.trick-title{color:#f0d99e;text-shadow:0 2px 4px #001b12;font-weight:700}
+.played{
+  border:1px solid #e7d7b3!important;border-radius:9px!important;
+  background:linear-gradient(135deg,#fffef6 0%,#eee4cc 62%,#c9b995 100%)!important;
+  box-shadow:0 9px 0 -4px #9e8a68,0 14px 22px #00170f99,inset 0 1px #fff!important;
+  transform-style:preserve-3d;
+}
+.empty{border:1px dashed #d9c48b88;color:#d9c48b;background:#062d2288}
+.hand-wrap{
+  border:1px solid #d6b66e88;border-radius:17px;
+  background:linear-gradient(145deg,#091b15f5,#12271df5);
+  box-shadow:0 12px 25px #00160f99,inset 0 1px #fff2;
+}
+.hand-head strong{font-family:Georgia,serif;color:#f6e5b9;letter-spacing:.7px}
+.hand-head span,.hand-note{color:#d2c49f}
+.playing{
+  border:1px solid #e5d4aa;border-radius:10px;
+  background:linear-gradient(145deg,#fffef8 0%,#f0e8d6 58%,#cfc09e 100%);
+  box-shadow:0 7px 0 -3px #8c7958,0 12px 16px #00170f99,inset 0 1px #fff;
+  color:#191b17;transition:transform .2s,box-shadow .2s,filter .2s;
+}
+.playing:hover:not(:disabled){transform:translateY(-16px) rotate(-2deg);box-shadow:0 10px 0 -3px #8c7958,0 20px 24px #00170fcc,inset 0 1px #fff;filter:brightness(1.04)}
+.playing.red,.played.red{color:#a52a2a!important}
+.side{gap:15px}
+.panel{
+  border:1px solid #a9874e88;border-radius:15px;
+  background:linear-gradient(145deg,#20231b,#0d1510);
+  box-shadow:0 12px 28px #0008,inset 0 1px #fff2;
+  padding:17px;
+}
+.panel h3{font-family:Georgia,serif;color:#e8ce91;letter-spacing:1.6px}
+.round-score th{color:#d6c59e}.round-score td{color:#f1ead8;border-color:#54472f}
+.log{color:#d7cfb7}.log div{border-color:#493d2b}
+.modal{border:1px solid #d3b575;background:linear-gradient(145deg,#29281e,#101711);box-shadow:0 30px 100px #000e,inset 0 1px #fff2}
+.modal h2{font-family:Georgia,serif;color:#f1d99c}
+.modal p,.profile-editor label{color:#d2c4a1}
+.profile-editor input{background:#0b120e;border-color:#927546;color:#fff2d4}
+.profile-editor input:focus{border-color:#e8c77d;box-shadow:0 0 0 3px #e8c77d22}
+.profile-preview{background:#0b1710;border-color:#927546}
+.avatar-choice{background:linear-gradient(145deg,#29281e,#101711);border-color:#927546}
+.avatar-choice.selected{border-color:#f4d58a;background:#4a3b21;box-shadow:0 0 0 2px #e9c77c33}
+.bid-btn{background:linear-gradient(145deg,#343125,#171a14);border-color:#8c7043;color:#f8e8c2}
+.bid-btn.selected{background:linear-gradient(145deg,#f1d28c,#a77b3e);border-color:#fff0b6;color:#1c170e}
+.hint{color:#c7b994}
+@media(max-width:850px){
+  .layout{grid-template-columns:1fr}
+  .table{min-height:790px;transform:none}
+  .side{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .shell{padding:10px 8px 28px}
+  .top{padding:9px;border-radius:13px}
+  .brand small{font-size:9px;letter-spacing:1.3px}
+  .brand strong{font-size:11px}
+  .mark{width:38px;height:38px}
+  .heading{margin:22px 0 17px}
+  .heading h1{font-size:37px;letter-spacing:4px}
+  .heading p{font-size:11px}
+  .table{min-height:690px;border-width:7px;border-radius:30px;padding:12px 8px 13px;transform:none}
+  .table:before,.table:after{border-radius:23px}
+  .seat{border-radius:11px!important}
+  .trick-area{border-radius:50%!important}
+  .hand-wrap{border-radius:12px}
+  .side{grid-template-columns:1fr}
+}
+
 </style></head><body>
 <div class="shell"><header class="top"><div class="brand"><img class="mark" src="/logo.png" alt="Viral Cage Play logo"><div><strong>VIRAL CAGE PLAY</strong><small>PLAY TOGETHER. THINK DIFFERENT.</small></div></div><div class="top-actions"><button class="btn" id="profileBtn">My profile</button><button class="btn" id="rulesBtn">Rules</button><button class="btn primary" id="newBtn">New game</button></div></header>
 <div class="heading"><h1>CALL BREAK</h1><p>Classic 4-player card game · Spades are trump</p></div><div class="layout"><main class="table"><div class="status"><span class="pill live" id="phase">BIDDING</span><div class="scoreline"><span>Round <b id="roundNo">1</b></span><span>Trick <b id="trickNo">0</b>/13</span><span>Trump <b>♠ Spades</b></span></div></div><div class="seats" id="seats"></div><section class="trick-area"><div class="trick-title" id="trickTitle">CURRENT TRICK</div><div class="trick-cards" id="trickCards"></div></section><div class="hand-wrap"><div class="hand-head"><strong>Your hand</strong><span id="handCount">13 cards</span></div><div class="hand" id="hand"></div><div class="hand-note" id="handNote">Place your bid to begin.</div></div></main>
