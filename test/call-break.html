@@ -57,7 +57,7 @@ main{max-width:1200px;margin:auto;padding:22px 18px 40px}.heading{display:flex;j
 </main>
 <script>
 const suits=['♣','♦','♥','♠'], names=['You','Player 2','Player 3','Player 4'], positions=[0,1,2,3], suitOrder={'♣':0,'♦':1,'♥':2,'♠':3};
-let hands=[],bids=[0,0,0,0],tricks=[0,0,0,0],scores=[0,0,0,0],current=0,lead=0,trick=[],round=1,phase='bid',locked=false;
+let hands=[],bids=[0,0,0,0],tricks=[0,0,0,0],scores=[0,0,0,0],current=0,lead=0,trick=[],round=0,phase='bid',locked=false;
 const $=id=>document.getElementById(id);
 function deck(){let d=[];for(const s of suits)for(let v=2;v<=14;v++)d.push({s,v});return d.sort(()=>Math.random()-.5)}
 function cardName(c){return (c.v===14?'A':c.v===13?'K':c.v===12?'Q':c.v===11?'J':c.v)+c.s}
