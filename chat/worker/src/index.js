@@ -259,9 +259,9 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC Kingdom reveals the answer automatically; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC Kingdom reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
-      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC Kingdom reveals the answer, then type !next.",
+      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC Kingdom reveals the answer and automatically starts the next question after 5 seconds.",
       "!trivia":"Starting a 30-second trivia question. Type A, B, C or D; no joining needed.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
@@ -327,7 +327,14 @@ export class ChatRoom {
       await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Type !next for the next question.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 5 seconds.",at:Date.now()});
+      this.trivia.autoNextAt=Date.now()+5000;
+      await this.state.put("trivia",this.trivia);
+      await this.state.setAlarm(this.trivia.autoNextAt);
+    }
+    if(this.trivia&&this.trivia.phase==="revealed"&&this.trivia.autoNextAt&&Date.now()>=this.trivia.autoNextAt){
+      delete this.trivia.autoNextAt;
+      await this.handleTrivia(null,{uid:"vc-room-bot",name:"VC Kingdom"},{action:"next"});
     }
     if(!active){
       const inactiveSince=await this.state.get("inactiveSinceAt")||await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
