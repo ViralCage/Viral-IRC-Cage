@@ -42,7 +42,7 @@ input:focus{border-color:#8c58ff;box-shadow:0 0 0 3px #7c4dff26}
 .invite{padding:11px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#07122a;border-bottom:1px solid #1a3675;color:#b7c9f1;font-size:12px}
 .inviteurl{overflow-wrap:anywhere;flex:1;min-width:160px;color:#e0eaff}.invite button{padding:7px 11px;min-height:36px;font-size:12px}
 .qrpanel{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#061027;border-bottom:1px solid #1a3675}.qrpanel[hidden]{display:none}.qrpanel img{width:150px;height:150px;padding:7px;background:white;border-radius:9px}.qrnote{color:#a9bce8;font-size:12px}.qrnote strong{display:block;color:#fff;font-size:14px}
-.chathead{position:relative}.searchbox{position:absolute;z-index:30;right:14px;top:calc(100% + 6px);display:flex;align-items:center;gap:8px;width:min(420px,calc(100vw - 48px));padding:7px 10px;border:1px solid #4565c4;border-radius:12px;background:#07132b;color:#8fb4ff;box-shadow:0 14px 38px #000b}.searchbox[hidden]{display:none}.searchbox span{font-size:22px}.searchbox input{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;min-height:38px;padding:7px 2px;font-size:13px}.search-toggle{font-size:23px;line-height:1;transition:background .18s,border-color .18s,transform .18s}.search-toggle:hover{background:#203b70;border-color:#80a5ff;transform:translateY(-1px)}.search-close{min-width:34px;min-height:34px;padding:2px 8px;background:#142747;border:1px solid #36518a;border-radius:8px;font-size:22px;line-height:1}.search-close:hover{background:#263f70}.messages{padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:300px;max-height:58vh;background:radial-gradient(ellipse at 50% 0,#12255270,transparent 70%)}
+.chathead{position:relative}.searchbox{position:absolute;z-index:30;right:14px;top:calc(100% + 6px);display:flex;align-items:center;gap:8px;width:min(420px,calc(100vw - 48px));padding:7px 10px;border:1px solid #4565c4;border-radius:12px;background:#07132b;color:#8fb4ff;box-shadow:0 14px 38px #000b}.searchbox[hidden]{display:none}.searchbox span{font-size:22px}.searchbox input{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;min-height:38px;padding:7px 2px;font-size:13px}.search-toggle{font-size:23px;line-height:1;transition:background .18s,border-color .18s,transform .18s}.search-toggle:hover{background:#203b70;border-color:#80a5ff;transform:translateY(-1px)}.search-close{min-width:34px;min-height:34px;padding:2px 8px;background:#142747;border:1px solid #36518a;border-radius:8px;font-size:22px;line-height:1}.search-close:hover{background:#263f70}.messages{position:relative;padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:300px;max-height:58vh;background:radial-gradient(ellipse at 50% 0,#12255270,transparent 70%)}
 .empty{margin:auto;text-align:center;color:#9aadd5}.bubble{white-space:pre-line;max-width:min(78%,600px);padding:11px 14px;border:1px solid #29477f;border-radius:16px;background:linear-gradient(145deg,#122346,#0b1730);overflow-wrap:anywhere;box-shadow:0 5px 16px #0004}
 .bubble.mine{align-self:flex-end;background:linear-gradient(135deg,#5621a8,#124f9c);border-color:#6956d9}.bubble.system{align-self:center;max-width:95%;padding:5px 12px;color:#9eb4e7;background:#08132b;border-color:#172d5d;font-size:12px;text-align:center}
 .who{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:850;color:#d1ddff;margin-bottom:7px}.chat-avatar{width:34px;height:34px;flex:0 0 34px;object-fit:cover;border-radius:50%;border:2px solid #d6b76a;box-shadow:0 0 12px #d6b76a55;background:#111}.bubble.kingdom-message{border-color:#b8944d;background:linear-gradient(145deg,#302746,#111a35);box-shadow:0 0 20px #d6b76a20}.bubble.guard-system{border-color:#9b8149;background:linear-gradient(120deg,#25243a,#101a30);box-shadow:0 0 18px #d6b76a18}.bubble.system .system-head{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;color:#f0d99e;font-weight:900;letter-spacing:.06em}.when{font-size:10px;color:#c2d0ee;text-align:right;margin-top:5px}.bubble a.chat-link{color:#8fd8ff;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere;cursor:pointer}.bubble.mine a.chat-link{color:#d9f3ff}.bubble a.chat-link:hover{color:#fff}
@@ -132,6 +132,16 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 .trivia-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .trivia-actions button{padding:8px 12px;min-height:38px;font-size:12px}
 @media(max-width:520px){.trivia-choices{grid-template-columns:1fr}.trivia-panel{padding:12px}}
+.trivia-countdown[hidden]{display:none!important}
+.trivia-countdown{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;filter:drop-shadow(0 8px 28px #000b)}
+.trivia-countdown-ring{width:clamp(132px,22vw,190px);height:clamp(132px,22vw,190px);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:5px solid #43caff;background:radial-gradient(circle at 35% 25%,#263f77f2,#080f27f5 72%);box-shadow:0 0 0 8px #277bff24,0 0 34px #00cfff88,inset 0 0 28px #176bff55}
+.trivia-countdown-ring strong{font-size:clamp(52px,9vw,82px);line-height:1;font-weight:950;letter-spacing:-.06em;color:#fff;text-shadow:0 0 22px #00cfff}
+.trivia-countdown-ring span{font-size:11px;letter-spacing:.25em;font-weight:900;color:#a9eaff;margin-top:7px}
+.trivia-countdown-caption{font-size:11px;font-weight:900;letter-spacing:.2em;color:#d5e9ff;text-shadow:0 2px 8px #000}
+.trivia-countdown.urgent .trivia-countdown-ring{border-color:#ffb34d;box-shadow:0 0 0 8px #ff9b2525,0 0 36px #ff9b25aa,inset 0 0 28px #ff9b2544}
+.trivia-countdown.urgent .trivia-countdown-ring strong{color:#ffe1b0;text-shadow:0 0 22px #ff8b35}
+@media(max-width:520px){.trivia-countdown-ring{width:142px;height:142px}.trivia-countdown-ring strong{font-size:60px}}
+
 </style>
 </head>
 <body>
@@ -149,7 +159,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
-<div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div>
+<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">VC KINGDOM · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
@@ -171,9 +181,29 @@ const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
 let triviaCountdownTimer=null;
+let triviaLastBeep=-1;
+function playTriviaTone(finalTone=false){
+ if(!soundEnabled)return;
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  if(!audioContext)audioContext=new AudioCtx();
+  if(audioContext.state==="suspended")return;
+  const now=audioContext.currentTime;
+  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:finalTone?880:660,t:0,d:.075}];
+  notes.forEach(note=>{
+   const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+   osc.type="sine";osc.frequency.setValueAtTime(note.f,now+note.t);
+   gain.gain.setValueAtTime(.0001,now+note.t);
+   gain.gain.exponentialRampToValueAtTime(finalTone?.075:.025,now+note.t+.012);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
+   osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
+  });
+ }catch{}
+}
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
- if(!state.active){addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
+ const overlay=$("triviaCountdownOverlay");
+ if(!state.active){if(overlay)overlay.hidden=true;addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
  if(state.phase==="finished"){
   lines.push("TRIVIA COMPLETE · FINAL SCOREBOARD");
@@ -182,22 +212,31 @@ function renderTrivia(state){
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
-  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":"Time remaining: 30 seconds");
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Type !next for the next question.":"30-second countdown is running. Type A, B, C or D.");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:lines.join("\n"),at:Date.now()});
- if(!state.revealed&&state.phase==="question"&&state.deadlineAt){
-  const bubble=$("messages").lastElementChild;
-  const messageText=bubble?.querySelector(".message-text");
-  const update=()=>{
-   const seconds=Math.max(0,Math.ceil((state.deadlineAt-Date.now())/1000));
-   if(messageText)messageText.textContent=messageText.textContent.replace(/Time remaining: \d+ seconds?/, "Time remaining: "+seconds+" second"+(seconds===1?"":"s"));
-   if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
-  };
-  update();triviaCountdownTimer=setInterval(update,250);
+ if(overlay){
+  const number=$("triviaCountdownNumber");
+  if(!state.revealed&&state.phase==="question"&&state.deadlineAt){
+   overlay.hidden=false;triviaLastBeep=-1;
+   const update=()=>{
+    const seconds=Math.max(0,Math.ceil((state.deadlineAt-Date.now())/1000));
+    if(number)number.textContent=String(seconds);
+    overlay.classList.toggle("urgent",seconds<=10);
+    if(seconds!==triviaLastBeep){
+     triviaLastBeep=seconds;
+     if(seconds>0)playTriviaTone(false);else playTriviaTone(true);
+    }
+    if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
+   };
+   update();triviaCountdownTimer=setInterval(update,200);
+  }else overlay.hidden=true;
  }
 }
 let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
+document.addEventListener("pointerdown",()=>{if(soundEnabled&&audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{passive:true});
+document.addEventListener("keydown",()=>{if(soundEnabled){try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{})}}catch{}}},{passive:true});
 function playSound(kind){
  if(!soundEnabled)return;
  try{
