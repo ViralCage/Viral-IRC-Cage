@@ -8,7 +8,7 @@ function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": allowed ? origin : CORS_ORIGIN,
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin"
   };
@@ -40,6 +40,19 @@ function containsAdultLink(text) {
   }
   return adultSignals.test(value);
 }
+function extractSuspiciousLinks(text){
+  const urls=String(text||"").match(/https?:\/\/[^\s<>"\u0000-\u001f]+/gi)||[];
+  const flagged=[];
+  for(const raw of urls){
+    try{
+      const u=new URL(raw);
+      const host=u.hostname.toLowerCase();
+      const isIp=/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host)||host.includes(":");
+      if(u.username||u.password||isIp||host.startsWith("xn--")||host.split(".").some(part=>part.startsWith("xn--")))flagged.push(host);
+    }catch{}
+  }
+  return flagged;
+}
 function blockedUpload(name,mime) {
   const filename=String(name||"").toLowerCase();
   const ext=(filename.match(/\.([a-z0-9]{1,10})$/)||[])[1]||"";
@@ -58,7 +71,16 @@ export default {
     const originAllowed = origin === CORS_ORIGIN || origin === "https://www.viralcage.com";
     if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed",{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
-    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling","vc-room-guard","vc-ai-room-bot"]},200,origin);
+    if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling","vc-room-guard","vc-smart-watch","raid-detection","guard-event-log","vc-ai-room-bot"]},200,origin);
+    if (url.pathname === "/guard/status" && request.method === "GET") {
+      if (!env.GUARD_ADMIN_TOKEN) return json({error:"Guard dashboard is not configured. Set the GUARD_ADMIN_TOKEN Worker secret."},503,origin);
+      if (request.headers.get("Authorization") !== "Bearer " + env.GUARD_ADMIN_TOKEN) return json({error:"Unauthorized."},401,origin);
+      const room = url.searchParams.get("room") || "";
+      if (!validRoomCode(room)) return json({error:"A valid room code is required."},400,origin);
+      const id = env.CHAT_ROOMS.idFromName(room);
+      const result = await env.CHAT_ROOMS.get(id).fetch("https://room.internal/guard/status");
+      return json(await result.json(),result.status,origin);
+    }
     if (url.pathname === "/voice" && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
       const id = env.VOICE_HUB.idFromName("global");
       return env.VOICE_HUB.get(id).fetch(request);
@@ -92,12 +114,29 @@ export class ChatRoom {
   constructor(ctx,env){this.ctx=ctx;this.env=env;this.state=ctx.storage;this.rate=new WeakMap();this.typing=new WeakMap();this.guard=new WeakMap()}
   async fetch(request){
     const url=new URL(request.url);
+    if(url.pathname==="/guard/status"&&request.method==="GET"){
+      const events=await this.state.get("guardEvents")||[];
+      const joins=await this.state.get("joinTimes")||[];
+      const lockdownUntil=await this.state.get("lockdownUntil")||0;
+      return new Response(JSON.stringify({ok:true,roomActive:!!(await this.state.get("created")),connectedUsers:this.ctx.getWebSockets().filter(ws=>ws.readyState===WebSocket.OPEN).length,recentJoins:joins.filter(t=>Date.now()-t<60000).length,lockdownUntil,events:events.slice(-30),scannedFiles:0,fileScanner:"not-configured"}),{status:200,headers:{"Content-Type":"application/json; charset=utf-8"}});
+    }
     if(url.pathname==="/create"&&request.method==="POST"){
       if(await this.state.get("created"))return new Response("exists",{status:409});
       await this.state.put("created",true);await this.state.put("createdAt",Date.now());await this.state.setAlarm(Date.now()+60000);return new Response("created",{status:201});
     }
     if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return new Response("WebSocket upgrade required",{status:426});
     if(!await this.state.get("created"))return new Response("Room not found",{status:404});
+    const now=Date.now();
+    const lockdownUntil=await this.state.get("lockdownUntil")||0;
+    if(lockdownUntil>now)return new Response("VC GUARD SMART WATCH: this room is temporarily locked because of a suspected join raid.",{status:429});
+    const joinTimes=(await this.state.get("joinTimes")||[]).filter(t=>now-t<20000);
+    joinTimes.push(now);await this.state.put("joinTimes",joinTimes);
+    if(joinTimes.length>12){
+      const until=now+60000;await this.state.put("lockdownUntil",until);
+      await this.recordGuardEvent("room-lockdown",{reason:"possible join raid",joinCount:joinTimes.length});
+      this.broadcast({type:"system",text:"VC GUARD SMART WATCH: possible join raid detected. New joins are paused for 60 seconds while existing members remain connected.",at:now});
+      return new Response("VC GUARD SMART WATCH: room temporarily locked. Try again in 60 seconds.",{status:429});
+    }
     const name=(url.searchParams.get("name")||"Guest").trim().slice(0,24)||"Guest";
     const uid=(url.searchParams.get("uid")||crypto.randomUUID()).slice(0,64);
     const pair=new WebSocketPair(),client=pair[0],server=pair[1];
@@ -108,6 +147,11 @@ export class ChatRoom {
     try{server.send(JSON.stringify(welcome))}catch{}
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
+  }
+  async recordGuardEvent(type,details={}){
+    const events=await this.state.get("guardEvents")||[];
+    events.push({type,at:Date.now(),...details});
+    await this.state.put("guardEvents",events.slice(-100));
   }
   async touch(){if(await this.state.getAlarm()===null)await this.state.setAlarm(Date.now()+60000)}
   broadcast(payload,except=null){
@@ -130,13 +174,13 @@ export class ChatRoom {
       outgoing={type:"emote",uid:attachment.uid||"guest",name:attachment.name||"Guest",emoji,at:Date.now()};
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
-      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
+      if(containsAdultLink(text)){await this.recordGuardEvent("blocked-adult-link",{user:attachment.name||"Guest"});try{socket.send(JSON.stringify({type:"error",message:"VC GUARD: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
       const data=String(message.data||""),mime=String(message.mime||"application/octet-stream");
       if(!data.startsWith("data:")||data.length>1100000||!/^data:[a-zA-Z0-9.+-]+\/[a-zA-Z0-9.+-]+;base64,/.test(data))return;
       if(message.type==="voice"&&!mime.startsWith("audio/"))return;
-      if(message.type==="attachment"&&blockedUpload(message.name,mime)){try{socket.send(JSON.stringify({type:"error",message:"VC Chat Safety: this file type is blocked because it can carry malware. Executables, scripts, macro-enabled files and archives are not allowed."}))}catch{};return}
+      if(message.type==="attachment"&&blockedUpload(message.name,mime)){await this.recordGuardEvent("blocked-file-type",{user:attachment.name||"Guest",fileName:String(message.name||"").slice(0,100),mime});try{socket.send(JSON.stringify({type:"error",message:"VC GUARD: this file type is blocked because it can carry malware. Executables, scripts, macro-enabled files and archives are not allowed."}))}catch{};return}
       outgoing={type:message.type,uid:attachment.uid||"guest",name:attachment.name||"Guest",fileName:String(message.name||"Attachment").slice(0,100),mime,size:Math.max(0,Math.min(Number(message.size)||0,900000)),data,at:Date.now()};
     }else if(message.type==="callbreak"){
       const packet=message.packet||message;
@@ -163,6 +207,7 @@ export class ChatRoom {
       const duration=guard.warnings>=3?300000:guard.warnings===2?30000:0;
       if(duration)guard.mutedUntil=now+duration;
       this.guard.set(socket,guard);
+      await this.recordGuardEvent("moderation-flag",{user:attachment.name||"Guest",reason,warnings:guard.warnings,muted:!!duration});
       const notice=duration?"temporarily muted for "+Math.round(duration/1000)+" seconds":"please stop "+reason+" or the bot will mute you";
       const botText="VC Guardian: "+(attachment.name||"A participant")+" was flagged for "+reason+"; "+notice+".";
       this.broadcast({type:"system",text:botText,at:now});
@@ -170,6 +215,10 @@ export class ChatRoom {
       return;
     }
     this.guard.set(socket,guard);
+    if(outgoing.type==="message"){
+      const suspicious=extractSuspiciousLinks(outgoing.text||"");
+      if(suspicious.length){await this.recordGuardEvent("suspicious-link",{user:attachment.name||"Guest",count:suspicious.length});this.broadcast({type:"system",text:"VC GUARD SMART WATCH: a potentially deceptive link was flagged. Do not open links from unknown senders.",at:now});}
+    }
     this.broadcast(outgoing);await this.touch();
     if(outgoing.type==="message") await this.maybeReplyAsBot(outgoing);
   }
