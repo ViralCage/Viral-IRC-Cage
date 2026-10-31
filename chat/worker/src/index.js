@@ -18,12 +18,27 @@ function json(data, status = 200, origin = CORS_ORIGIN) {
 }
 function validRoomCode(value) { return /^\d{3,4}$/.test(String(value || "")); }
 
-// Deny common adult-content URLs. This is a denylist, not a complete content scanner.
+// VC Guard blocks messages containing known adult domains or adult-content URL signals.
 function containsAdultLink(text) {
-  const urls=String(text||"").match(/https?:\/\/[^\s<>"']+/gi)||[];
-  const domains=["pornhub.com","xvideos.com","xnxx.com","xhamster.com","redtube.com","youporn.com","youjizz.com","spankbang.com","brazzers.com","onlyfans.com","fansly.com","manyvids.com","hentaihaven.xxx","rule34.xxx"];
-  const terms=/\b(porn|pornography|hentai|xxx|nsfw|adult[-_ ]?content|sex[-_ ]?video)\b/i;
-  return urls.some(raw=>{let u;try{u=new URL(raw)}catch{return terms.test(raw)};const host=u.hostname.toLowerCase().replace(/^www\./,"");return domains.some(d=>host===d||host.endsWith("."+d))||terms.test(u.href)});
+  const value=String(text||"");
+  const knownAdultDomains=[
+    "pornhub.com","xvideos.com","xnxx.com","xhamster.com","redtube.com","youporn.com","youjizz.com",
+    "spankbang.com","brazzers.com","onlyfans.com","fansly.com","manyvids.com","hentaihaven.xxx",
+    "rule34.xxx","porn.com","tube8.com","tnaflix.com","eporner.com","beeg.com","empflix.com",
+    "4tube.com","drtuber.com","porntrex.com","hqporner.com","xozilla.com","javhd.com","javmost.com",
+    "nhentai.net","e-hentai.org","gelbooru.com","danbooru.donmai.us","rule34.paheal.net"
+  ];
+  const adultSignals=/\b(porn|porno|pornography|hentai|xxx|nsfw|onlyfans|fansly|adult[-_ ]?(content|video|site)|sex[-_ ]?(video|tube|cam)|nude[-_ ]?(video|photo|gallery))\b/i;
+  const candidates=value.match(/(?:https?:\/\/|www\.)[^\s<>"']+|\b(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"']*)?/gi)||[];
+  for(const raw of candidates){
+    const cleaned=raw.replace(/[),.!?;:]+$/,"");
+    let parsed;
+    try{parsed=new URL(/^https?:\/\//i.test(cleaned)?cleaned:"https://"+cleaned)}catch{if(adultSignals.test(cleaned))return true;continue}
+    const host=parsed.hostname.toLowerCase().replace(/^www\./,"").replace(/\.$/,"");
+    if(knownAdultDomains.some(domain=>host===domain||host.endsWith("."+domain)))return true;
+    if(adultSignals.test(host)||adultSignals.test(parsed.pathname+" "+parsed.search))return true;
+  }
+  return adultSignals.test(value);
 }
 function blockedUpload(name,mime) {
   const filename=String(name||"").toLowerCase();
@@ -115,7 +130,7 @@ export class ChatRoom {
       outgoing={type:"emote",uid:attachment.uid||"guest",name:attachment.name||"Guest",emoji,at:Date.now()};
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
-      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Chat Safety: adult-content links are not allowed. This message was blocked."}))}catch{};return}
+      if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guard: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
     }else if(message.type==="attachment"||message.type==="voice"){
       const data=String(message.data||""),mime=String(message.mime||"application/octet-stream");
