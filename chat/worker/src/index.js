@@ -141,7 +141,7 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
-      const triviaAnswer=text.match(/^(?:!answer\\s+)?([a-d])(?:[).])?$/i);
+      const triviaAnswer=text.match(/^(?:!answer\s+)?([a-d])(?:[).])?$/i);
       if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&triviaAnswer){
         const choice=triviaAnswer[1].toUpperCase().charCodeAt(0)-65;
         const uid=String(attachment.uid||"guest");
@@ -203,7 +203,7 @@ export class ChatRoom {
     const game=this.trivia;
     if(!game)return {type:"trivia-state",active:false,host:"VC Kingdom"};
     const revealed=game.revealed;
-    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
+    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC Kingdom"};
   }
   async handleTrivia(socket,attachment,message){
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
@@ -212,7 +212,8 @@ export class ChatRoom {
       if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Type !join to join it."}))}catch{};return}
       const bank=this.triviaQuestions(),picked=[];
       while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
-      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false};
+      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
+      await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"VC Kingdom is hosting Live Trivia! Join the game and answer each question. Correct answers earn 10 points.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
@@ -231,7 +232,7 @@ export class ChatRoom {
       this.trivia.answers[uid]=choice;
       if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
       const total=Object.keys(this.trivia.players).length;
-      if(Object.keys(this.trivia.answers).length>=total)this.trivia.revealed=true;
+      // Keep the full 30-second answer window, including solo games.
       this.broadcast(this.triviaSnapshot());return;
     }
     if(action==="next"){
@@ -243,7 +244,8 @@ export class ChatRoom {
         const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
         this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
-      this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";
+      this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+30000;
+      await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast(this.triviaSnapshot());return;
     }
   }
@@ -253,10 +255,10 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia answers: type A, B, C or D. Mention God by name in your message to get an AI reply—no @ symbol needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC Kingdom reveals the answer automatically; no joining needed.",
       "/rules":"Room rules: be respectful, no spam, no harassment, and avoid suspicious links. The Room Guard may warn or temporarily mute disruptive users.",
-      "/quiz":"Type !trivia to start a text-based live quiz. Join with !join, answer with A, B, C or D (or !answer A), and type !next after all players have answered.",
-      "!trivia":"Starting a text-based live trivia game hosted by VC Kingdom.",
+      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC Kingdom reveals the answer, then type !next.",
+      "!trivia":"Starting a 30-second trivia question. Type A, B, C or D; no joining needed.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
@@ -316,6 +318,12 @@ export class ChatRoom {
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
   async alarm(){
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
+    if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
+      this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
+      this.broadcast(this.triviaSnapshot());
+      const answer=this.trivia.question.choices[this.trivia.question.a];
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC Kingdom",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Type !next for the next question.",at:Date.now()});
+    }
     if(!active){
       const inactiveSince=await this.state.get("inactiveSinceAt")||await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
       const expiresAt=inactiveSince+ROOM_TTL_MS;
