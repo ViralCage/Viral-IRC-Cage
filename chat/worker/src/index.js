@@ -112,6 +112,7 @@ export class ChatRoom {
   async touch(){
     const now=Date.now();
     await this.state.put("lastActivityAt",now);
+    await this.state.delete("inactiveSinceAt");
     await this.state.setAlarm(now+60000);
   }
   broadcast(payload,except=null){
@@ -226,7 +227,9 @@ export class ChatRoom {
     const hasOtherOpenSockets=this.ctx.getWebSockets().some(ws=>ws!==except&&ws.readyState===WebSocket.OPEN);
     if(!hasOtherOpenSockets){
       const now=Date.now();
+      // Start the 24-hour retention window only after the final participant leaves.
       await this.state.put("lastActivityAt",now);
+      await this.state.put("inactiveSinceAt",now);
       await this.state.setAlarm(now+ROOM_TTL_MS);
       return;
     }
@@ -239,9 +242,14 @@ export class ChatRoom {
   async alarm(){
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
     if(!active){
-      const lastActivity=await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
-      const expiresAt=lastActivity+ROOM_TTL_MS;
-      if(Date.now()>=expiresAt){await this.state.deleteAll();return}
+      const inactiveSince=await this.state.get("inactiveSinceAt")||await this.state.get("lastActivityAt")||await this.state.get("createdAt")||Date.now();
+      const expiresAt=inactiveSince+ROOM_TTL_MS;
+      if(Date.now()>=expiresAt){
+        // Purge every persisted room value, including message history, Base64 payloads,
+        // bot context, moderation state, and room metadata.
+        await this.state.deleteAll();
+        return;
+      }
       await this.state.setAlarm(expiresAt);
       return;
     }
