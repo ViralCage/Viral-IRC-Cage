@@ -103,6 +103,10 @@ export class ChatRoom {
       if(message.type==="voice"&&!mime.startsWith("audio/"))return;
       if(message.type==="attachment"&&(mime==="text/html"||mime==="image/svg+xml"||mime==="application/javascript"))return;
       outgoing={type:message.type,uid:attachment.uid||"guest",name:attachment.name||"Guest",fileName:String(message.name||"Attachment").slice(0,100),mime,size:Math.max(0,Math.min(Number(message.size)||0,900000)),data,at:Date.now()};
+    }else if(message.type==="callbreak"){
+      const packet=message.packet||message;
+      if(JSON.stringify(packet).length>90000)return;
+      outgoing={type:"callbreak",uid:attachment.uid||"guest",name:attachment.name||"Guest",packet,at:Date.now()};
     }else return;
     const now=Date.now(),rate=this.rate.get(socket)||{start:now,count:0};
     if(now-rate.start>1000){rate.start=now;rate.count=0}rate.count++;this.rate.set(socket,rate);
