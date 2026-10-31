@@ -219,12 +219,18 @@ function renderTrivia(state){
  addMessage({uid:"vc-room-bot",name:"VC Kingdom",text:lines.join("\n"),at:Date.now()});
  if(overlay){
   const number=$("triviaCountdownNumber");
-  if(!state.revealed&&state.phase==="question"&&state.deadlineAt){
+  const label=overlay.querySelector(".trivia-countdown-ring span");
+  const caption=overlay.querySelector(".trivia-countdown-caption");
+  const target=state.revealed?state.autoNextAt:state.deadlineAt;
+  const running=(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
+  if(running&&target){
    overlay.hidden=false;triviaLastBeep=-1;
+   if(label)label.textContent=state.revealed?"NEXT":"SECONDS";
+   if(caption)caption.textContent=state.revealed?"NEXT QUESTION STARTING":"TICK · TICK · TIME LEFT";
    const update=()=>{
-    const seconds=Math.max(0,Math.ceil((state.deadlineAt-Date.now())/1000));
+    const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
-    overlay.classList.toggle("urgent",seconds<=10);
+    overlay.classList.toggle("urgent",!state.revealed&&seconds<=10);
     if(seconds!==triviaLastBeep){
      triviaLastBeep=seconds;
      if(number){number.classList.remove("tick-pulse");void number.offsetWidth;number.classList.add("tick-pulse")}
