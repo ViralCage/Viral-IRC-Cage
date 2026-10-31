@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -409,6 +410,7 @@
 
         let scene, camera, renderer;
         let bikeGroup, frontWheelGroup, rearWheelGroup, handlebarsGroup, riderMesh;
+        let bikeAnimationMixer = null;
         let clock = new THREE.Clock();
         
         // Input state
@@ -879,7 +881,7 @@
         }
 
         // --- DETAILED SPORT MOTORCYCLE & RIDER ---
-        function createBikeModel() {
+        function createProceduralBikeModel() {
             const bike = new THREE.Group();
             const paint = new THREE.MeshPhysicalMaterial({ color: 0xd71920, metalness: 0.72, roughness: 0.24, clearcoat: 1, clearcoatRoughness: 0.12 });
             const darkPaint = new THREE.MeshPhysicalMaterial({ color: 0x111827, metalness: 0.55, roughness: 0.28, clearcoat: 0.8 });
@@ -1046,6 +1048,63 @@
             }
             bike.add(riderMesh);
             bike.scale.set(0.95,0.95,0.95);
+            return bike;
+        }
+
+
+        // Load a smooth, textured CC0 sportbike GLB. Keep the existing rider as a
+        // temporary fallback until the external model has loaded successfully.
+        function createBikeModel() {
+            const bike = createProceduralBikeModel();
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                'https://cdn.3dassets.dev/assets/15424/v1/model.glb',
+                (gltf) => {
+                    // Remove the procedural motorcycle parts, retaining only the rider.
+                    const rider = riderMesh;
+                    bike.clear();
+                    frontWheelGroup = null;
+                    rearWheelGroup = null;
+                    handlebarsGroup = null;
+
+                    const model = gltf.scene;
+                    model.traverse((node) => {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                            if (node.material) {
+                                const mats = Array.isArray(node.material) ? node.material : [node.material];
+                                mats.forEach((mat) => {
+                                    if ('envMapIntensity' in mat) mat.envMapIntensity = 1.0;
+                                });
+                            }
+                        }
+                    });
+                    // The source asset is metre-scale, +Y up and +Z forward.
+                    model.scale.setScalar(1.0);
+                    model.position.set(0, 0, 0);
+                    bike.add(model);
+
+                    // Fit the helmeted rider to the real motorcycle's seat and controls.
+                    if (rider) {
+                        rider.scale.setScalar(0.45);
+                        rider.position.set(0, 0, 0);
+                        bike.add(rider);
+                    }
+
+                    if (gltf.animations && gltf.animations.length) {
+                        bikeAnimationMixer = new THREE.AnimationMixer(model);
+                        const wheelClip = gltf.animations.find((clip) => /wheel-roll/i.test(clip.name));
+                        const steerClip = gltf.animations.find((clip) => /steer/i.test(clip.name));
+                        const clip = wheelClip || steerClip || gltf.animations[0];
+                        bikeAnimationMixer.clipAction(clip).play();
+                    }
+                },
+                undefined,
+                (error) => {
+                    console.error('Sportbike GLB failed to load; using procedural fallback.', error);
+                }
+            );
             return bike;
         }
 
@@ -1429,6 +1488,7 @@
             requestAnimationFrame(animate);
 
             const delta = clock.getDelta();
+            if (bikeAnimationMixer) bikeAnimationMixer.update(delta);
             
             updatePhysics(delta);
             updateBoostParticles();
