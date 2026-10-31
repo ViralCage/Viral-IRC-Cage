@@ -262,7 +262,7 @@ function connect(code){
   else if(data.type==="presence")$("peerstatus").textContent="You are connected";
   else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
   else if(data.type==="typing-clear")$("typing").textContent="";
-  else if(data.type==="callbreak"){if(data.uid!==uid){const packet=data.packet||{};if(packet.players)CB.players=packet.players;if(packet.host)CB.host=packet.host;if(packet.snapshot&&CB.host===data.uid)CB.state=packet.snapshot;if(packet.action&&CB.host===uid)cbApply(packet.action);if(packet.snapshot&&data.uid===CB.host)CB.state=packet.snapshot;cbRender()}}
+  else if(data.type==="callbreak"){if(data.uid!==uid){const packet=data.packet||{};if(packet.players)CB.players=packet.players;if(packet.host&&(!CB.host||CB.host===data.uid))CB.host=packet.host;if(packet.snapshot&&CB.host===data.uid)CB.state=packet.snapshot;if(packet.action&&CB.host===uid)cbApply(packet.action);if(packet.snapshot&&data.uid===CB.host)CB.state=packet.snapshot;cbRender()}}
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
  });
  socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
