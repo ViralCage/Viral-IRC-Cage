@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Call Break — Viral Cage Play Test</title>
+<style>
+:root{--bg:#080d19;--panel:#111b2d;--line:#263650;--cyan:#55d8ee;--purple:#8b75ff;--felt:#14563f;--felt2:#0b392d;--gold:#f3ca72;--muted:#9eacc2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 20%,#18233b 0,#080d19 65%);color:#f4f7ff;font:15px Inter,system-ui,Arial;min-height:100vh}
+header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #26334b;background:#090f1d}
+.brand{font-weight:900;letter-spacing:2px;font-size:17px}.brand span{background:linear-gradient(90deg,#a18aff,#51d8ed);color:transparent;background-clip:text}
+.tag{color:#91a2bd;font-size:11px;letter-spacing:1.7px;margin-top:3px}.topright{display:flex;gap:10px;align-items:center}.pill{border:1px solid #334563;border-radius:20px;padding:7px 12px;color:#b7c6dc;font-size:12px}
+button{cursor:pointer;border:1px solid #3b5274;background:linear-gradient(135deg,#24385a,#17243c);color:white;padding:10px 15px;border-radius:10px;font-weight:700}button.primary{background:linear-gradient(110deg,#7259e8,#268eae);border:0}button:disabled{opacity:.35;cursor:not-allowed}
+main{max-width:1200px;margin:auto;padding:22px 18px 40px}.heading{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:16px}.heading h1{font-size:25px;margin:0}.heading p{color:var(--muted);margin:5px 0 0;font-size:13px}
+.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.tablewrap{position:relative;min-height:690px;border:1px solid #30445d;border-radius:22px;background:linear-gradient(145deg,#111b2d,#0c1423);padding:15px;overflow:hidden}
+.table{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(76%,680px);height:420px;border-radius:50%;border:12px solid #4b382d;box-shadow:inset 0 0 0 3px #b48c5d,0 18px 55px #0009;background:radial-gradient(ellipse at 50% 42%,#237b59 0,#14583f 55%,#0a382b 100%);display:flex;align-items:center;justify-content:center}
+.table:before{content:"";position:absolute;inset:12px;border:1px solid #a4d3ad55;border-radius:50%}
+.center{position:relative;text-align:center;z-index:2}.center .round{color:#d2ebd8;font-size:11px;letter-spacing:2px}.center .trump{font-size:26px;font-weight:900;margin:6px}.center .status{font-size:12px;color:#d5eadb}
+.seat{position:absolute;z-index:5;min-width:140px;text-align:center}.seat.top{top:12px;left:50%;transform:translateX(-50%)}.seat.left{left:12px;top:50%;transform:translateY(-50%)}.seat.right{right:12px;top:50%;transform:translateY(-50%)}.seat.bottom{bottom:14px;left:50%;transform:translateX(-50%)}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;margin:auto auto 5px;background:linear-gradient(135deg,#8d72ff,#2d9fba);font-weight:900;border:2px solid #b9c7ff;box-shadow:0 0 18px #6e8fff44}.seatname{font-size:12px;font-weight:800}.seatmeta{font-size:10px;color:#b8c8d9;margin-top:3px}.seat.active .avatar{border-color:var(--gold);box-shadow:0 0 0 4px #f3ca7230,0 0 22px #f3ca7280}
+.trickslot{position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;min-width:65px;min-height:90px}.slot-n{top:24%;left:50%;transform:translateX(-50%)}.slot-s{bottom:22%;left:50%;transform:translateX(-50%)}.slot-w{left:28%;top:50%;transform:translateY(-50%)}.slot-e{right:28%;top:50%;transform:translateY(-50%)}
+.played{width:58px;height:82px;background:#fff;border-radius:7px;color:#151a23;box-shadow:0 5px 14px #0007;display:flex;flex-direction:column;justify-content:space-between;padding:6px;font-weight:900;text-align:left;animation:deal .22s ease-out}.played.red{color:#d52f47}.played .big{font-size:24px;align-self:center;margin:auto}.played small{font-size:11px}
+@keyframes deal{from{opacity:0;transform:translateY(8px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+.sidebar{display:flex;flex-direction:column;gap:12px}.panel{background:linear-gradient(145deg,#141f33,#0e1728);border:1px solid #293b57;border-radius:16px;padding:15px}.panel h3{margin:0 0 12px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#b9c8dd}.scoreline{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #26364c;font-size:12px}.scoreline:last-child{border:0}.scoreline b{color:#fff}.hint{font-size:12px;line-height:1.5;color:#aebbd0}.bidbuttons{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.bidbuttons button{padding:9px 0;border-radius:8px}
+.handpanel{margin-top:15px;border:1px solid #30445d;background:linear-gradient(145deg,#121e31,#0d1626);border-radius:18px;padding:14px}.handtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.handtop strong{font-size:13px;letter-spacing:1px}.handtop span{font-size:11px;color:var(--muted)}
+.hand{display:flex;justify-content:center;gap:0;min-height:118px;padding:5px 0 3px;overflow-x:auto}.card{flex:0 0 62px;height:94px;border:1px solid #cbd1dc;border-radius:8px;background:linear-gradient(145deg,#fff,#e9edf3);color:#151a23;margin-left:-8px;box-shadow:0 4px 12px #0006;display:flex;flex-direction:column;justify-content:space-between;padding:6px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}.card:first-child{margin-left:0}.card.red{color:#d52f47}.card .rank{font-weight:900;font-size:15px}.card .suit{font-size:24px;align-self:center}.card:hover{transform:translateY(-12px);z-index:4;box-shadow:0 10px 20px #0008}.card:disabled{cursor:not-allowed;opacity:.6}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.message{min-height:35px;padding:9px 12px;border-radius:10px;background:#17253a;color:#d3e1f3;font-size:12px;margin-top:10px}
+.modal{position:absolute;inset:0;background:#050a13d9;z-index:10;display:flex;align-items:center;justify-content:center;padding:18px}.modalbox{width:min(430px,100%);background:#121e32;border:1px solid #53698a;border-radius:18px;padding:22px;box-shadow:0 20px 70px #000b}.modalbox h2{margin:0 0 8px}.modalbox p{color:#aebbd0;font-size:13px}.modalbox .actions{margin-top:18px}
+@media(max-width:850px){.gamegrid{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.tablewrap{min-height:610px}.table{width:82%;height:350px}.seat.left{left:4px}.seat.right{right:4px}.slot-w{left:23%}.slot-e{right:23%}}
+@media(max-width:560px){header{padding:0 12px;height:58px}.brand{font-size:14px}.topright .pill{display:none}main{padding:15px 10px}.heading h1{font-size:21px}.tablewrap{min-height:530px;padding:8px}.table{width:90%;height:280px;border-width:8px}.seat{min-width:90px}.seat.top{top:8px}.seat.bottom{bottom:7px}.seat.left{left:0}.seat.right{right:0}.avatar{width:34px;height:34px;font-size:12px}.seatname{font-size:10px}.seatmeta{font-size:9px}.slot-n{top:27%}.slot-s{bottom:24%}.slot-w{left:21%}.slot-e{right:21%}.played{width:44px;height:65px;padding:4px}.played .big{font-size:19px}.sidebar{grid-template-columns:1fr}.card{flex-basis:49px;height:78px;padding:5px;margin-left:-11px}.card .suit{font-size:19px}.hand{justify-content:flex-start;padding-left:5px}.handtop{align-items:flex-start;gap:8px;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div><div class="brand"><span>VIRAL CAGE PLAY</span></div><div class="tag">CALL BREAK · TEST TABLE</div></div><div class="topright"><span class="pill">4 SEATS · LOCAL PREVIEW</span><button onclick="location.href='/test/'">Back to Test</button></div></header>
+<main>
+<div class="heading"><div><h1>Call Break</h1><p>Classic four-player card game · Spades are trump · 13 tricks per round</p></div><button class="primary" id="newGame">New deal</button></div>
+<div class="gamegrid">
+<section>
+<div class="tablewrap">
+<div class="table"><div class="center"><div class="round" id="roundLabel">ROUND 1</div><div class="trump">♠ SPADES</div><div class="status" id="tableStatus">Place your bid to begin</div></div></div>
+<div class="seat top" id="seat1"><div class="avatar">AI</div><div class="seatname">Player 2</div><div class="seatmeta">Waiting to bid</div></div>
+<div class="seat left" id="seat2"><div class="avatar">AI</div><div class="seatname">Player 3</div><div class="seatmeta">Waiting to bid</div></div>
+<div class="seat right" id="seat3"><div class="avatar">AI</div><div class="seatname">Player 4</div><div class="seatmeta">Waiting to bid</div></div>
+<div class="seat bottom" id="seat0"><div class="avatar">YOU</div><div class="seatname">You</div><div class="seatmeta">Your turn</div></div>
+<div class="trickslot slot-n" id="play1"></div><div class="trickslot slot-w" id="play2"></div><div class="trickslot slot-e" id="play3"></div><div class="trickslot slot-s" id="play0"></div>
+<div class="modal" id="bidModal"><div class="modalbox"><h2>Your bid</h2><p>How many tricks do you think you can win this round?</p><div class="bidbuttons" id="bidButtons"></div><div class="message">Other players will bid automatically. Spades are always trump.</div></div></div>
+</div>
+<div class="handpanel"><div class="handtop"><strong>YOUR HAND</strong><span id="handCount">13 cards</span></div><div class="hand" id="hand"></div><div class="message" id="message">Choose your bid to start the round.</div></div>
+</section>
+<aside class="sidebar">
+<div class="panel"><h3>Round score</h3><div id="scores"></div></div>
+<div class="panel"><h3>Table status</h3><div class="scoreline"><span>Players</span><b>4 / 4</b></div><div class="scoreline"><span>Human seats</span><b>1</b></div><div class="scoreline"><span>AI seats</span><b>3</b></div><div class="scoreline"><span>Tricks played</span><b id="tricksPlayed">0 / 13</b></div></div>
+<div class="panel"><h3>Rules preview</h3><div class="hint">• Follow the suit led whenever possible.<br>• If you cannot follow suit, play a spade if you have one.<br>• A higher card of the led suit wins, unless trumped.<br>• Highest spade wins the trick.<br>• Make at least your bid to score positively.</div></div>
+<div class="panel"><h3>Test controls</h3><div class="actions"><button id="sortRank">Sort by rank</button><button id="sortSuit">Sort by suit</button></div><div class="hint" style="margin-top:10px">This preview uses local AI seats. It does not create or modify Firebase rooms.</div></div>
+</aside>
+</div>
+</main>
+<script>
+const suits=['♣','♦','♥','♠'], names=['You','Player 2','Player 3','Player 4'], positions=[0,1,2,3], suitOrder={'♣':0,'♦':1,'♥':2,'♠':3};
+let hands=[],bids=[0,0,0,0],tricks=[0,0,0,0],scores=[0,0,0,0],current=0,lead=0,trick=[],round=1,phase='bid',locked=false;
+const $=id=>document.getElementById(id);
+function deck(){let d=[];for(const s of suits)for(let v=2;v<=14;v++)d.push({s,v});return d.sort(()=>Math.random()-.5)}
+function cardName(c){return (c.v===14?'A':c.v===13?'K':c.v===12?'Q':c.v===11?'J':c.v)+c.s}
+function val(c){return c.v}
+function deal(){const d=deck();hands=[[],[],[],[]];for(let i=0;i<52;i++)hands[i%4].push(d[i]);hands.forEach(h=>h.sort((a,b)=>suitOrder[a.s]-suitOrder[b.s]||a.v-b.v));}
+function renderScores(){ $('scores').innerHTML=names.map((n,i)=>'<div class="scoreline"><span>'+n+' · bid '+(bids[i]||'—')+'</span><b>'+scores[i].toFixed(1)+' pts</b></div>').join('');}
+function renderSeats(){for(let i=0;i<4;i++){const el=$('seat'+i);el.classList.toggle('active',phase==='play'&&current===i);el.querySelector('.seatmeta').textContent=phase==='bid'?(bids[i]?'Bid '+bids[i]:'Bidding…'):(i===current?'Playing now':tricks[i]+' tricks won');}}
+function renderHand(){const h=$('hand');h.innerHTML='';hands[0].forEach((c,i)=>{const b=document.createElement('button');b.className='card '+('♦♥'.includes(c.s)?'red':'');b.innerHTML='<span class="rank">'+cardName(c)+'</span><span class="suit">'+c.s+'</span><span class="rank">'+cardName(c)+'</span>';b.disabled=phase!=='play'||current!==0||!legalCards(0).some(x=>x===i);b.onclick=()=>play(0,i);h.appendChild(b)});$('handCount').textContent=hands[0].length+' cards';}
+function legalCards(p){const h=hands[p];if(!trick.length)return h.map((_,i)=>i);const led=trick[0].card.s;let ids=h.map((c,i)=>c.s===led?i:-1).filter(i=>i>=0);if(!ids.length){const sp=h.map((c,i)=>c.s==='♠'?i:-1).filter(i=>i>=0);if(sp.length)ids=sp;else ids=h.map((_,i)=>i)}const currentWinner=winnerIndex(false);if(currentWinner>=0&&trick[currentWinner].card.s==='♠'){const high=trick[currentWinner].card.v;const better=ids.filter(i=>h[i].s==='♠'&&h[i].v>high);if(better.length)ids=better;}else if(currentWinner>=0&&trick[currentWinner].card.s===led){const high=trick[currentWinner].card.v;const better=ids.filter(i=>h[i].s===led&&h[i].v>high);if(better.length)ids=better;}return ids;}
+function winnerIndex(final=true){if(!trick.length)return -1;let best=0;for(let i=1;i<trick.length;i++){const a=trick[i].card,b=trick[best].card;if(a.s==='♠'&&b.s!=='♠'||a.s===b.s&&a.v>b.v)best=i;}return best;}
+function play(p,index){if(phase!=='play'||p!==current||locked)return;const allowed=legalCards(p);if(!allowed.includes(index))return;const card=hands[p].splice(index,1)[0];trick.push({p,card});$('play'+p).innerHTML='<div class="played '+('♦♥'.includes(card.s)?'red':'')+'"><small>'+cardName(card)+'</small><span class="big">'+card.s+'</span></div>';$('message').textContent=names[p]+' played '+cardName(card);current=(current+1)%4;renderSeats();renderHand();if(trick.length===4){locked=true;setTimeout(resolveTrick,850)}else if(current!==0){setTimeout(aiTurn,550)}else{$('tableStatus').textContent='Your turn · choose a card'}}
+function aiTurn(){if(phase!=='play'||current===0||locked)return;const opts=legalCards(current);let pick=opts[0];const h=hands[current];const winning=winnerIndex();const winningCard=winning>=0?trick[winning].card:null;const canWin=opts.filter(i=>{const c=h[i];return !winningCard||(c.s==='♠'&&winningCard.s!=='♠')||(c.s===winningCard.s&&c.v>winningCard.v)});const need=bids[current]-tricks[current];if(need>0&&canWin.length)pick=canWin.sort((a,b)=>h[a].v-h[b].v)[0];else pick=opts.slice().sort((a,b)=>h[a].v-h[b].v)[0];play(current,pick)}
+function resolveTrick(){const w=trick[winnerIndex()].p;tricks[w]++;$('message').textContent=names[w]+' wins the trick with '+cardName(trick.find(x=>x.p===w).card);$('tricksPlayed').textContent=(13-hands[0].length)+' / 13';trick=[];for(let i=0;i<4;i++)$('play'+i).innerHTML='';lead=w;current=w;locked=false;renderSeats();renderHand();if(hands.every(h=>h.length===0)){finishRound();return}$('tableStatus').textContent=names[current]+' leads';if(current!==0)setTimeout(aiTurn,500);else $('message').textContent='Your lead. Choose any card.'}
+function finishRound(){phase='score';for(let i=0;i<4;i++){scores[i]+=tricks[i]>=bids[i]?bids[i]+(tricks[i]-bids[i])*.1:-bids[i];}renderScores();$('tableStatus').textContent='Round '+round+' complete';$('message').textContent='Round complete. Start a new deal to play again.';$('newGame').textContent='Next round';renderSeats();renderHand()}
+function startRound(){round++;if(round===1)round=1;tricks=[0,0,0,0];bids=[0,0,0,0];trick=[];for(let i=0;i<4;i++)$('play'+i).innerHTML='';deal();phase='bid';current=0;lead=0;$('roundLabel').textContent='ROUND '+round;$('tableStatus').textContent='Place your bid to begin';$('tricksPlayed').textContent='0 / 13';$('newGame').textContent='New deal';$('bidModal').style.display='flex';$('bidButtons').innerHTML='';for(let n=1;n<=7;n++){const b=document.createElement('button');b.textContent=n;b.onclick=()=>placeBid(n);$('bidButtons').appendChild(b)}renderScores();renderSeats();renderHand();$('message').textContent='Choose your bid to start the round.'}
+function placeBid(n){bids[0]=n;for(let i=1;i<4;i++){const sp=hands[i].filter(c=>c.s==='♠').length;const high=hands[i].filter(c=>c.v>=12).length;bids[i]=Math.max(1,Math.min(7,Math.round(1+sp*.55+high*.28+(Math.random()-.5))))}phase='play';$('bidModal').style.display='none';$('tableStatus').textContent='Bids locked · You lead';$('message').textContent='Your bid: '+n+'. You lead the first trick.';renderScores();renderSeats();renderHand()}
+$('newGame').onclick=()=>{if(phase==='score'){startRound()}else if(confirm('Start a fresh deal? Current hand will be lost.')){round=1;scores=[0,0,0,0];startRound()}};
+$('sortRank').onclick=()=>{hands[0].sort((a,b)=>a.v-b.v);renderHand()};
+$('sortSuit').onclick=()=>{hands[0].sort((a,b)=>suitOrder[a.s]-suitOrder[b.s]||a.v-b.v);renderHand()};
+startRound();
+</script>
+</body>
+</html>
