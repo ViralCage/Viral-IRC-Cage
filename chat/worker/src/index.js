@@ -441,7 +441,7 @@ export class PrivateP2PRoom {
     if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return new Response("WebSocket upgrade required", {status:426});
     const url = new URL(request.url);
     const uid = String(url.searchParams.get("uid") || "").slice(0,64);
-    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\\x00-\\x1f]/g,"").trim().slice(0,24) || "Guest";
+    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\x00-\x1f]/g,"").trim().slice(0,24) || "Guest";
     if (!/^[a-f0-9]{32}$/i.test(uid)) return new Response("Invalid private identity", {status:400});
     const existing = this.ctx.getWebSockets().filter(ws => ws.readyState === WebSocket.OPEN);
     if (existing.length >= 2 || existing.some(ws => (ws.deserializeAttachment() || {}).uid === uid)) {
