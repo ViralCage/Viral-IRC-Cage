@@ -126,12 +126,31 @@ export class ChatRoom {
     const data=JSON.stringify(payload);
     for(const socket of this.ctx.getWebSockets())if(socket!==except&&socket.readyState===WebSocket.OPEN){try{socket.send(data)}catch{}}
   }
-  broadcastPresence(){this.broadcast({type:"presence",online:this.ctx.getWebSockets().length})}
+  broadcastPresence(){
+    const members=this.ctx.getWebSockets().filter(ws=>ws.readyState===WebSocket.OPEN).map(ws=>{const a=ws.deserializeAttachment()||{};return {uid:String(a.uid||""),name:String(a.name||"Guest").slice(0,24)}}).filter(p=>p.uid);
+    this.broadcast({type:"presence",online:members.length,members});
+  }
   async webSocketMessage(socket,raw){
     if(typeof raw!=="string"||raw.length>MAX_PACKET_LENGTH){try{socket.send(JSON.stringify({type:"error",message:"File or message is too large."}))}catch{};return}
     let message;try{message=JSON.parse(raw)}catch{return}
     if(!message||typeof message.type!=="string")return;
     const attachment=socket.deserializeAttachment()||{};
+    // P2P invitations carry only a room token and peer IDs; private content never enters this room.
+    if(message.type==="p2p-invite"){
+      const targetUid=String(message.targetUid||"").slice(0,64),roomCode=String(message.roomCode||"").toUpperCase();
+      if(!targetUid||targetUid===String(attachment.uid||"")||!/^[A-F0-9]{12}$/.test(roomCode))return;
+      const target=this.ctx.getWebSockets().find(ws=>{const a=ws.deserializeAttachment()||{};return String(a.uid||"")===targetUid&&ws.readyState===WebSocket.OPEN});
+      if(!target){try{socket.send(JSON.stringify({type:"p2p-invite-error",message:"That user is no longer in this room."}))}catch{};return}
+      try{target.send(JSON.stringify({type:"p2p-invite",from:String(attachment.uid||""),name:String(attachment.name||"Guest").slice(0,24),roomCode}))}catch{}
+      return;
+    }
+    if(message.type==="p2p-response"){
+      const targetUid=String(message.targetUid||"").slice(0,64),roomCode=String(message.roomCode||"").toUpperCase();
+      if(!targetUid||!/^[A-F0-9]{12}$/.test(roomCode))return;
+      const target=this.ctx.getWebSockets().find(ws=>{const a=ws.deserializeAttachment()||{};return String(a.uid||"")===targetUid&&ws.readyState===WebSocket.OPEN});
+      if(target)try{target.send(JSON.stringify({type:"p2p-response",from:String(attachment.uid||""),name:String(attachment.name||"Guest").slice(0,24),roomCode,accepted:message.accepted===true}))}catch{}
+      return;
+    }
     if(message.type==="typing"||message.type==="typing-clear"){
       const now=Date.now(),last=this.typing.get(socket)||0;if(now-last<700)return;this.typing.set(socket,now);
       this.broadcast({type:message.type,name:attachment.name||"A guest"},socket);return;
