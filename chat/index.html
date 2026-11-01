@@ -24,7 +24,7 @@ header:after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;bac
 h1{font-size:clamp(34px,5vw,52px);line-height:1.04;letter-spacing:-.055em;margin:13px 0 12px;font-weight:900}h1 span{background:linear-gradient(100deg,#b58aff,#66b9ff 65%,#62e7e0);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* Consistent blue-to-cyan gradient for every page heading */
 h1,h2,h3,h4,h5,h6,.eyebrow,.roomtitle{background:linear-gradient(100deg,#66b9ff 0%,#62e7e0 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.intro p{color:#bdcbed;margin:0;max-width:590px;font-size:15px;line-height:1.7}.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.feature-pills span{border:1px solid #4965a04f;background:#172b50a8;border-radius:99px;padding:6px 10px;color:#c7d8ff;font-size:11px;font-weight:700}
+.intro p{color:#bdcbed;margin:0;max-width:590px;font-size:15px;line-height:1.7}.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.feature-pills span,.feature-pills a{border:1px solid #4965a04f;background:#172b50a8;border-radius:99px;padding:6px 10px;color:#c7d8ff;font-size:11px;font-weight:700;text-decoration:none}.feature-pills a{border-color:#4389c9;background:linear-gradient(100deg,#123b70,#075b78);color:#bff7ff}.feature-pills a:hover{border-color:#70eaff;filter:brightness(1.15)}
 .hero-mark{position:relative;flex:0 0 190px;width:190px;height:190px;display:grid;place-items:center}.hero-core{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:28px;transform:rotate(-8deg);background:linear-gradient(145deg,#8c42ff,#176eff 70%,#13c9db);box-shadow:0 0 55px #397aff80,inset 0 1px #ffffff80}.hero-core span{font-size:30px;font-weight:950;letter-spacing:-.08em;color:white;transform:rotate(8deg);text-shadow:0 2px 12px #08122c80}.hero-core i{position:absolute;width:8px;height:8px;right:13px;top:13px;border-radius:50%;background:#78fff0;box-shadow:0 0 12px #78fff0}.hero-orbit{position:absolute;border:1px solid #83a8ff45;border-radius:50%;transform:rotate(-25deg)}.orbit-one{width:150px;height:150px}.orbit-two{width:188px;height:100px;transform:rotate(45deg);border-color:#9c7aff55}.hero-spark{position:absolute;color:#a8c8ff;text-shadow:0 0 14px #6f8fff;font-size:22px}.spark-one{right:12px;top:24px}.spark-two{left:13px;bottom:25px}
 @keyframes vcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes vcGlow{0%,100%{box-shadow:0 0 0 0 #42e7c000}50%{box-shadow:0 0 0 5px #42e7c018}}@keyframes vcEnter{from{opacity:0;transform:translateY(7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}.hero-core{animation:vcFloat 5s ease-in-out infinite}.intro{transition:border-color .25s,box-shadow .25s}.intro:hover{border-color:#5275d4;box-shadow:0 22px 65px #0008,0 0 32px #356bff22}.card{backdrop-filter:blur(14px)}.chat.is-connected .roomtitle:after{content:"";display:inline-block;width:7px;height:7px;margin:0 0 2px 9px;border-radius:50%;background:#48e5bb;box-shadow:0 0 12px #48e5bb;animation:vcGlow 2s infinite}.bubble:not(.system){animation:vcEnter .22s ease-out both}.chathead{background:linear-gradient(100deg,#111f49,#0b1731 55%,#14214b)}.headactions button,.composer button,.quick-reactions button{transition:transform .16s,filter .16s,border-color .16s}.headactions button:hover,.composer button:hover,.quick-reactions button:hover{transform:translateY(-1px);border-color:#819aff}@media(prefers-reduced-motion:reduce){.hero-core,.chat.is-connected .roomtitle:after,.bubble:not(.system){animation:none}}
 .card{background:linear-gradient(145deg,#0b1834f5,#050d21f5);border:1px solid #1b3b82;border-radius:20px;overflow:hidden;box-shadow:0 18px 60px #0008,0 0 30px #1649ff15}
@@ -311,6 +311,8 @@ function playEmojiSound(value){
 function isEmojiOnlyMessage(value){return Object.keys({"😂":1,"🤣":1,"😭":1,"😢":1,"😡":1,"😍":1,"👏":1,"👍":1,"😮":1}).includes(String(value||"").trim().replace(/\uFE0F/g,""))}
 document.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
 $("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
+const memberStyle=document.createElement("style");memberStyle.textContent=".vc-room-members{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#07132b;border-bottom:1px solid #1a3675}.vc-members-label{font-size:10px;font-weight:900;letter-spacing:.12em;color:#91a9dc}.vc-member-profile{min-height:34px;padding:6px 12px;border-radius:999px;background:linear-gradient(110deg,#123b70,#075b78);border:1px solid #4389c9;color:#c9f7ff;font-size:12px;font-weight:800}.vc-members-empty{font-size:12px;color:#91a9dc}";
+document.head.append(memberStyle);
 const GUEST_SESSION_MS=7*24*60*60*1000;
 const GUEST_SESSION_KEY="vcChatGuestSession";
 let guestSession=null;
@@ -323,7 +325,35 @@ $("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
-function showRoom(){ $("setup").hidden=true;$("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;const link=new URL("/chat/","https://viralcage.com");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href; }
+function ensureMemberBar(){
+ let bar=$("roomMembers");if(bar)return bar;
+ bar=document.createElement("div");bar.id="roomMembers";bar.className="vc-room-members";
+ const invite=$("chat").querySelector(".invite");invite?.after(bar);
+ return bar;
+}
+function renderRoomMembers(members){
+ const bar=ensureMemberBar();bar.replaceChildren();
+ const label=document.createElement("span");label.className="vc-members-label";label.textContent="ROOM MEMBERS";bar.append(label);
+ (members||[]).filter(p=>p&&p.uid&&p.uid!==uid).forEach(p=>{
+  const b=document.createElement("button");b.type="button";b.className="vc-member-profile";b.textContent=p.name||"Guest";b.title="Start a private P2P chat with "+(p.name||"Guest");
+  b.addEventListener("click",()=>startP2PInvite(p));bar.append(b);
+ });
+ if(!(members||[]).some(p=>p&&p.uid&&p.uid!==uid)){const empty=document.createElement("span");empty.className="vc-members-empty";empty.textContent="Only you are here right now";bar.append(empty)}
+}
+function makePrivateCode(){const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase()}
+function startP2PInvite(peer){
+ if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Reconnect to the room first.";return}
+ const roomCode=makePrivateCode();
+ try{socket.send(JSON.stringify({type:"p2p-invite",targetUid:peer.uid,roomCode}));pendingP2P.set(peer.uid,{roomCode,name:peer.name||"Guest"});$("peerstatus").textContent="Private chat invitation sent to "+(peer.name||"Guest")+". Waiting for acceptance…"}
+ catch{$("peerstatus").textContent="Could not send the private invitation."}
+}
+const pendingP2P=new Map();
+function sendP2PResponse(targetUid,roomCode,accepted){
+ if(socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:"p2p-response",targetUid,roomCode,accepted}));
+}
+function openPrivateP2P(roomCode){window.dispatchEvent(new CustomEvent("vc-private-open",{detail:{room:roomCode}}))}
+
+function showRoom(){ $("setup").hidden=true;$("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;ensureMemberBar();const link=new URL("/chat/","https://viralcage.com");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href; }
 function addSystem(text){const b=document.createElement("div");b.className="bubble system guard-system";const head=document.createElement("div");head.className="system-head";const avatar=document.createElement("img");avatar.className="chat-avatar";avatar.src=GUARD_AVATAR;avatar.alt="VC Guardian — Archangel Michael";avatar.loading="lazy";const label=document.createElement("span");label.textContent="VC GUARDIAN";head.append(avatar,label);const message=document.createElement("div");message.textContent=text;b.append(head,message);$("messages").append(b);scrollMessages()}
 function scrollMessages(){$("messages").scrollTop=$("messages").scrollHeight}
 function renderClickableText(container,value){const text=String(value||"");const urlPattern=/https?:\/\/[^\s<>"\u0000-\u001f]+/gi;let last=0,match;while((match=urlPattern.exec(text))!==null){if(match.index>last)container.append(document.createTextNode(text.slice(last,match.index)));const raw=match[0];let url=raw;while(/[),.!?;:\]]$/.test(url))url=url.slice(0,-1);const trailing=raw.slice(url.length);try{const parsed=new URL(url);if(parsed.protocol==="http:"||parsed.protocol==="https:"){const link=document.createElement("a");link.href=parsed.href;link.textContent=url;link.target="_blank";link.rel="noopener noreferrer nofollow";link.className="chat-link";container.append(link)}else container.append(document.createTextNode(url))}catch{container.append(document.createTextNode(url))}if(trailing)container.append(document.createTextNode(trailing));last=match.index+raw.length}if(last<text.length)container.append(document.createTextNode(text.slice(last)))}
@@ -350,11 +380,25 @@ function connect(code){
  socket.addEventListener("open",()=>{$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(["message","attachment","voice","emote","system","presence","typing","typing-clear"].includes(data.type)){$("messages").querySelector(".connection-notice")?.remove()}
-  if(data.type==="trivia-state"){renderTrivia(data)}
+  if(data.type==="presence"){ $("peerstatus").textContent="You are connected";renderRoomMembers(data.members||[]); }
+  else if(data.type==="p2p-invite"){
+   const accept=window.confirm((data.name||"A room member")+" wants to start a private end-to-end encrypted P2P chat. Accept?");
+   sendP2PResponse(data.from,data.roomCode,accept);
+   if(accept){$("peerstatus").textContent="Opening private P2P chat…";openPrivateP2P(data.roomCode)}
+   else $("peerstatus").textContent="Private invitation declined.";
+  }
+  else if(data.type==="p2p-response"){
+   const pending=pendingP2P.get(data.from);if(!pending||pending.roomCode!==data.roomCode)return;
+   pendingP2P.delete(data.from);
+   if(data.accepted){$("peerstatus").textContent=(data.name||pending.name)+" accepted. Opening private P2P…";openPrivateP2P(data.roomCode)}
+   else $("peerstatus").textContent=(data.name||pending.name)+" declined the private chat.";
+  }
+  else if(data.type==="p2p-invite-error")$("peerstatus").textContent=data.message||"Private invitation failed.";
+  else if(data.type==="trivia-state"){renderTrivia(data)}
   else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="emote"){showEmote(data);if(data.uid!==uid)playEmojiSound(data.emoji)}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
-  else if(data.type==="presence")$("peerstatus").textContent="You are connected";
+
   else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
   else if(data.type==="typing-clear")$("typing").textContent="";
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
@@ -475,4 +519,5 @@ window.addEventListener("pagehide",stopCamera);
 </script>
 
 <script src="/chat/voice.js?v=f861db42d823918e" defer></script>
+<script defer src="/chat/private-p2p.js?v=1"></script>
 </body></html>
