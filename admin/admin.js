@@ -436,8 +436,10 @@ function watchRoom(roomId){
  const code=roomCodesById[activeSpectatorRoomId]||'';
  $('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(code||'LOOKING UP…')+'</strong>'+(code?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(code)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">Live updates · Room ID: '+esc(roomId)+'</div>';
  $('spectator-data').textContent='Loading live room…';
- $('room-editor-id').value=String(roomId);
- $('room-editor-status').textContent='ROOM SELECTED · '+roomId;
+ const roomEditorId=$('room-editor-id');
+  if(roomEditorId)roomEditorId.value=String(roomId);
+ const roomEditorStatus=$('room-editor-status');
+  if(roomEditorStatus)roomEditorStatus.textContent='ROOM SELECTED · '+roomId;
 
  // Compare the game's Firebase write timestamp with the time this admin
  // browser receives the snapshot. This isolates delivery delay from rendering.
@@ -454,7 +456,8 @@ function watchRoom(roomId){
   updateFreezeMatchControl(value);
   updateAdminCommandControls(value);
   const gameType=value.activeGameType||'baghchal';
-  if(document.activeElement!==$('room-editor-json'))$('room-editor-json').value=JSON.stringify(value,null,2);
+  const roomEditorJson=$('room-editor-json');
+   if(roomEditorJson&&document.activeElement!==roomEditorJson)roomEditorJson.value=JSON.stringify(value,null,2);
   // BaghChal board updates are watched directly at /game below. This keeps
   // unrelated room/presence changes from rebuilding the detailed SVG board.
   if(gameType!=='baghchal'){
