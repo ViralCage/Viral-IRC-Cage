@@ -59,6 +59,12 @@ export default {
     if (request.headers.get("Origin") && !originAllowed) return new Response("Origin not allowed",{status:403});
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:corsHeaders(origin)});
     if (url.pathname === "/health" && request.method === "GET") return json({ok:true,service:"viral-cage-chat",transport:"websocket",features:["text","emoji","attachments","camera-photos","voice-messages","typing","presence","webrtc-voice","webrtc-video","cloudflare-signaling","vc-room-guard","vc-ai-room-bot"]},200,origin);
+    if (url.pathname.startsWith("/p2p/") && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
+      const code = url.pathname.slice(5).toUpperCase();
+      if (!/^[A-F0-9]{12}$/.test(code)) return new Response("Invalid private room code", {status:400});
+      const id = env.P2P_ROOMS.idFromName("private:" + code);
+      return env.P2P_ROOMS.get(id).fetch(request);
+    }
     if (url.pathname === "/voice" && request.headers.get("Upgrade")?.toLowerCase() === "websocket") {
       const id = env.VOICE_HUB.idFromName("global");
       return env.VOICE_HUB.get(id).fetch(request);
@@ -425,4 +431,53 @@ export class ChatVoiceHub {
   }
   webSocketClose() { this.broadcastDirectory(); }
   webSocketError(socket) { try { socket.close(1011,"Signaling connection error"); } catch {} this.broadcastDirectory(); }
+}
+
+
+/* Private-room signaling only. Chat content and files never pass through this object. */
+export class PrivateP2PRoom {
+  constructor(ctx) { this.ctx = ctx; }
+  async fetch(request) {
+    if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return new Response("WebSocket upgrade required", {status:426});
+    const url = new URL(request.url);
+    const uid = String(url.searchParams.get("uid") || "").slice(0,64);
+    const name = String(url.searchParams.get("name") || "Guest").replace(/[<>\\x00-\\x1f]/g,"").trim().slice(0,24) || "Guest";
+    if (!/^[a-f0-9]{32}$/i.test(uid)) return new Response("Invalid private identity", {status:400});
+    const existing = this.ctx.getWebSockets().filter(ws => ws.readyState === WebSocket.OPEN);
+    if (existing.length >= 2 || existing.some(ws => (ws.deserializeAttachment() || {}).uid === uid)) {
+      return new Response("Private room is full or this device is already connected", {status:409});
+    }
+    const pair = new WebSocketPair(), client = pair[0], server = pair[1];
+    this.ctx.acceptWebSocket(server, [uid]);
+    server.serializeAttachment({uid,name});
+    server.send(JSON.stringify({type:"peers",peers:existing.map(ws => { const a=ws.deserializeAttachment()||{}; return {uid:a.uid,name:a.name||"Guest"}; })}));
+    for (const ws of existing) {
+      try { ws.send(JSON.stringify({type:"peer-joined",peer:{uid,name}})); } catch {}
+    }
+    return new Response(null,{status:101,webSocket:client});
+  }
+  webSocketMessage(socket, raw) {
+    if (typeof raw !== "string" || raw.length > 150000) return;
+    let msg; try { msg = JSON.parse(raw); } catch { return; }
+    if (!msg || !["hello","offer","answer","ice","leave"].includes(msg.type)) return;
+    const sender = socket.deserializeAttachment() || {};
+    if (!sender.uid) return;
+    if (msg.type === "leave") { try { socket.close(1000,"Peer left private room"); } catch {} return; }
+    const payload = msg.payload == null ? null : msg.payload;
+    if (msg.type === "hello" && (!payload || typeof payload.publicKey !== "string" || payload.publicKey.length > 256)) return;
+    const packet = JSON.stringify({type:msg.type,from:sender.uid,name:sender.name||"Guest",payload});
+    for (const ws of this.ctx.getWebSockets()) {
+      if (ws !== socket && ws.readyState === WebSocket.OPEN) { try { ws.send(packet); } catch {} }
+    }
+  }
+  webSocketClose(socket) {
+    const a = socket.deserializeAttachment() || {};
+    for (const ws of this.ctx.getWebSockets()) if (ws.readyState === WebSocket.OPEN) {
+      try { ws.send(JSON.stringify({type:"peer-left",uid:a.uid||""})); } catch {}
+    }
+  }
+  webSocketError(socket) {
+    try { socket.close(1011,"Private signaling error"); } catch {}
+    this.webSocketClose(socket);
+  }
 }
