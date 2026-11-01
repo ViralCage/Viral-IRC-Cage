@@ -272,6 +272,7 @@ function renderSpectatorGame(room){
  const shortRoomCode=roomCodesById[activeSpectatorRoomId]||'';
  $('spectator-meta').innerHTML='<div class="spectator-room-code"><span>ROOM CODE</span><strong>'+esc(shortRoomCode||'CODE UNAVAILABLE')+'</strong>'+(shortRoomCode?'<button type="button" class="copy-room-code-button" data-copy-room="'+esc(shortRoomCode)+'">Copy code</button>':'')+'</div><div class="spectator-room-details">'+esc(meta)+(playerLabels.length?' · Players: '+playerLabels.join(' vs '):' · Player names unavailable')+' · Room ID: '+esc(activeSpectatorRoomId)+(data.winner?' · Winner: '+esc(data.winner):'')+'</div>';
  $('spectator-data').innerHTML='<div class="spectator-tv-layout">'+seatCard(seats[0],0)+'<main class="spectator-board-face">'+board+'</main>'+seatCard(seats[1],1)+'</div>';
+}
 
 function loadRoomEditor(){
  const roomId=$('room-editor-id').value.trim();
