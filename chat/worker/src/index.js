@@ -345,7 +345,7 @@ export class ChatRoom {
         return;
       }
       // Keep a running trivia game on its own alarm schedule. This prevents the
-      // room's idle-expiry alarm from replacing the 30-second question / 5-second
+      // room's idle-expiry alarm from replacing the 45-second question / 5-second
       // auto-next timer when only one player remains or the last player briefly disconnects.
       const triviaTimerAt=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed
         ? this.trivia.deadlineAt
