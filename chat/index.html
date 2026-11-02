@@ -330,10 +330,10 @@ function renderRoomMembers(members){
 }
 function makePrivateCode(){const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase()}
 function startP2PInvite(peer){
- if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Reconnect to the room first.";return}
+ if(!socket||socket.readyState!==WebSocket.OPEN){publishP2PStatus("Reconnect to the room first.");return}
  const roomCode=makePrivateCode();
- try{socket.send(JSON.stringify({type:"p2p-invite",targetUid:peer.uid,roomCode}));pendingP2P.set(peer.uid,{roomCode,name:peer.name||"Guest"});$("peerstatus").textContent="Private chat invitation sent to "+(peer.name||"Guest")+". Waiting for acceptance…"}
- catch{$("peerstatus").textContent="Could not send the private invitation."}
+ try{socket.send(JSON.stringify({type:"p2p-invite",targetUid:peer.uid,roomCode}));pendingP2P.set(peer.uid,{roomCode,name:peer.name||"Guest"});publishP2PStatus("Cloudflare invite sent to "+(peer.name||"Guest")+". Waiting for acceptance…")}
+ catch{publishP2PStatus("Could not send the private invitation. Check the Cloudflare chat connection.")}
 }
 window.addEventListener("vc-p2p-invite",event=>{const peer=event.detail?.peer;if(peer)startP2PInvite(peer)});
 const pendingP2P=new Map();
@@ -341,6 +341,11 @@ function sendP2PResponse(targetUid,roomCode,accepted){
  if(socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:"p2p-response",targetUid,roomCode,accepted}));
 }
 function openPrivateP2P(roomCode){window.dispatchEvent(new CustomEvent("vc-private-open",{detail:{room:roomCode}}))}
+function publishP2PStatus(text){
+ const message=String(text||"");
+ $("peerstatus").textContent=message;window.vcP2PStatus=message;
+ window.dispatchEvent(new CustomEvent("vc-p2p-status-update",{detail:{text:message}}));
+}
 
 function showRoom(){ $("setup").hidden=true;$("setup").style.display="none";$("chat").style.display="grid";$("activecode").textContent=roomCode;const link=new URL("/chat/","https://viralcage.com");link.searchParams.set("room",roomCode);$("inviteurl").textContent=link.href; }
 function addSystem(text){const b=document.createElement("div");b.className="bubble system guard-system";const head=document.createElement("div");head.className="system-head";const avatar=document.createElement("img");avatar.className="chat-avatar";avatar.src=GUARD_AVATAR;avatar.alt="VC Guardian — Archangel Michael";avatar.loading="lazy";const label=document.createElement("span");label.textContent="VC GUARDIAN";head.append(avatar,label);const message=document.createElement("div");message.textContent=text;b.append(head,message);$("messages").append(b);scrollMessages()}
@@ -366,7 +371,7 @@ function connect(code){
   const roomUrl=new URL(location.href);roomUrl.searchParams.set("room",roomCode);history.replaceState({},"",roomUrl.pathname+roomUrl.search+roomUrl.hash);
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
- socket.addEventListener("open",()=>{$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
+ socket.addEventListener("open",()=>{publishP2PStatus("Cloudflare signaling connected. Choose a room member for a private chat.");$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(["message","attachment","voice","emote","system","presence","typing","typing-clear"].includes(data.type)){$("messages").querySelector(".connection-notice")?.remove()}
   if(data.type==="trivia-state"){renderTrivia(data)}
@@ -375,24 +380,25 @@ function connect(code){
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
   else if(data.type==="presence"){$("peerstatus").textContent="You are connected";renderRoomMembers(data.members||[])}
   else if(data.type==="p2p-invite"){
+   publishP2PStatus("Private chat invite received from "+(data.name||"a room member")+".");
    const accept=window.confirm((data.name||"A room member")+" wants to start a private end-to-end encrypted P2P chat. Accept?");
    sendP2PResponse(data.from,data.roomCode,accept);
-   if(accept){$("peerstatus").textContent="Opening private P2P chat…";openPrivateP2P(data.roomCode)}
-   else $("peerstatus").textContent="Private invitation declined.";
+   if(accept){publishP2PStatus("Invite accepted. Opening encrypted P2P chat…");openPrivateP2P(data.roomCode)}
+   else publishP2PStatus("Private invitation declined.");
   }
   else if(data.type==="p2p-response"){
    const pending=pendingP2P.get(data.from);if(!pending||pending.roomCode!==data.roomCode)return;
    pendingP2P.delete(data.from);
-   if(data.accepted){$("peerstatus").textContent=(data.name||pending.name)+" accepted. Opening private P2P…";openPrivateP2P(data.roomCode)}
-   else $("peerstatus").textContent=(data.name||pending.name)+" declined the private chat.";
+   if(data.accepted){publishP2PStatus((data.name||pending.name)+" accepted. Opening encrypted P2P chat…");openPrivateP2P(data.roomCode)}
+   else publishP2PStatus((data.name||pending.name)+" declined the private chat.");
   }
-  else if(data.type==="p2p-invite-error")$("peerstatus").textContent=data.message||"Private invitation failed.";
+  else if(data.type==="p2p-invite-error")publishP2PStatus(data.message||"Private invitation failed.");
   else if(data.type==="typing")$("typing").textContent=data.name+" is typing…";
   else if(data.type==="typing-clear")$("typing").textContent="";
   else if(data.type==="error")$("peerstatus").textContent=data.message||"Chat error";
  });
- socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
- socket.addEventListener("error",()=>{$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
+ socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");publishP2PStatus("Cloudflare chat connection closed: "+(event.reason||"Disconnected"));$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
+ socket.addEventListener("error",()=>{publishP2PStatus("Cloudflare chat connection error. Check the Worker deployment.");$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
 }
 async function createRoom(){ $("create").disabled=true;$("join").disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");connect(data.room)}catch(error){status("Could not create room: "+error.message)}finally{$("create").disabled=false;$("join").disabled=false}}
 $("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
@@ -506,6 +512,6 @@ window.addEventListener("pagehide",stopCamera);
 })();
 </script>
 
-<script src="/chat/voice.js?v=room-members-20261102" defer></script>
+<script src="/chat/voice.js?v=p2p-status-20261102" defer></script>
 <script defer src="/chat/private-p2p.js?v=1"></script>
 </body></html>
