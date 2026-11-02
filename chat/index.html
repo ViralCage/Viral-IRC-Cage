@@ -161,7 +161,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
-<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
+<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">45</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
@@ -213,7 +213,7 @@ function renderTrivia(state){
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
-  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Next question starts automatically in 5 seconds.":"30-second countdown is running. Type A, B, C or D.");
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Next question starts automatically in 5 seconds.":"45-second countdown is running. Type A, B, C or D.");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
