@@ -113,7 +113,11 @@ export class ChatRoom {
     const now=Date.now();
     await this.state.put("lastActivityAt",now);
     await this.state.delete("inactiveSinceAt");
-    const triviaDeadline=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed?this.trivia.deadlineAt:0;
+    const triviaDeadline=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed
+      ? this.trivia.deadlineAt
+      : this.trivia&&this.trivia.phase==="revealed"
+        ? this.trivia.autoNextAt
+        : 0;
     await this.state.setAlarm(triviaDeadline?Math.min(now+60000,triviaDeadline):now+60000);
   }
   broadcast(payload,except=null){
@@ -213,10 +217,10 @@ export class ChatRoom {
       if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Type !join to join it."}))}catch{};return}
       const bank=this.triviaQuestions(),picked=[];
       while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
-      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+45000};
+      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
       await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"VC God Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 45 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"VC God Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
@@ -247,7 +251,7 @@ export class ChatRoom {
         const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
         this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
-      this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+45000;
+      this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+30000;
       await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast(this.triviaSnapshot());return;
@@ -259,9 +263,9 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 45 seconds. VC God reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 5 seconds; no joining needed.",
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
-      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 45 seconds; VC God reveals the answer and automatically starts the next question after 5 seconds.",
+      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 5 seconds.",
       "!trivia":"Starting a 45-second trivia question. Type A, B, C or D; no joining needed.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
@@ -345,7 +349,7 @@ export class ChatRoom {
         return;
       }
       // Keep a running trivia game on its own alarm schedule. This prevents the
-      // room's idle-expiry alarm from replacing the 45-second question / 5-second
+      // room's idle-expiry alarm from replacing the 30-second question / 5-second
       // auto-next timer when only one player remains or the last player briefly disconnects.
       const triviaTimerAt=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed
         ? this.trivia.deadlineAt
