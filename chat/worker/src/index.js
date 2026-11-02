@@ -106,6 +106,8 @@ export class ChatRoom {
     // Announce the bot as a visible participant to the joining player and the room.
     const welcome={type:"message",uid:"vc-room-bot",name:"God",text:"WELCOME TO VIRAL CAGE CHAT\nI’m God, your room welcome announcer. Chat freely with other players.\n\nROOM RULES\n1. Respect everyone. No bullying, harassment, hate speech or threats.\n2. No spam, flooding, repeated messages or disruptive behavior.\n3. No scams, phishing, suspicious links or malicious files.\n4. Keep messages appropriate for a public gaming room.\n5. Respect privacy. Never share passwords, addresses, phone numbers or other sensitive information.\n6. Follow room safety notices and moderator instructions.\n\nVC GUARDIAN — SAFETY MONITOR\nVC Guardian automatically checks chat activity for message flooding, repeated messages, excessive links and blocked adult-content links. It also blocks risky file types and can issue warnings or temporary mutes. This is automated protection, not a live human moderator.\n\nMESSAGE PRIVACY\nThis is a public room, not a private or end-to-end encrypted chat. Messages, reactions and shared files are sent to people connected to this room through the chat server. Only share what you are comfortable showing room participants. Do not post sensitive personal information.\n\nUse /rules to see this information again, /help for commands, or !trivia to start trivia.",at:Date.now()};
     try{server.send(JSON.stringify(welcome))}catch{}
+    // Send the current game state to guests who join after trivia has already started.
+    if(this.trivia)try{server.send(JSON.stringify(this.triviaSnapshot()))}catch{}
     this.broadcastPresence();
     return new Response(null,{status:101,webSocket:client});
   }
