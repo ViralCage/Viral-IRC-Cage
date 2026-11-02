@@ -213,7 +213,7 @@ function renderTrivia(state){
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
-  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Next question starts automatically in 5 seconds.":"30-second countdown is running. Type A, B, C or D.");
+  lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Next question starts in 1 minute.":"30-second countdown is running. Type A, B, C or D.");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
@@ -226,7 +226,7 @@ function renderTrivia(state){
   if(running&&target){
    overlay.hidden=false;triviaLastBeep=-1;
    if(label)label.textContent=state.revealed?"NEXT":"SECONDS";
-   if(caption)caption.textContent=state.revealed?"NEXT QUESTION STARTING":"TICK · TICK · TIME LEFT";
+   if(caption)caption.textContent=state.revealed?"NEXT QUESTION IN":"TICK · TICK · TIME LEFT";
    const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
