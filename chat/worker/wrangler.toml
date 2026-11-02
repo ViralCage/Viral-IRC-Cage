@@ -20,3 +20,11 @@ new_sqlite_classes = ["ChatVoiceHub"]
 
 [ai]
 binding = "AI"
+
+[[durable_objects.bindings]]
+name = "P2P_ROOMS"
+class_name = "PrivateP2PRoom"
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["PrivateP2PRoom"]
