@@ -202,12 +202,16 @@ function playTriviaTone(finalTone=false){
   });
  }catch{}
 }
+let triviaReadAloud=false,triviaLastSpoken="";
+function speakTrivia(text){if(!triviaReadAloud||!("speechSynthesis" in window)||!text)return;window.speechSynthesis.cancel();const parts=String(text).split("\n").filter(Boolean);const speakNext=()=>{if(!triviaReadAloud||!parts.length)return;const utterance=new SpeechSynthesisUtterance(parts.shift());utterance.lang=/नेपाली:/.test(utterance.text)?"ne-NP":"en-CA";utterance.rate=0.92;utterance.onend=speakNext;window.speechSynthesis.speak(utterance)};speakNext()}
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
  const overlay=$("triviaCountdownOverlay");
  if(!state.active){if(overlay)overlay.hidden=true;addMessage({uid:"vc-room-bot",name:"VC God",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
- if(state.phase==="finished"){
+ if(state.phase==="stopped"){
+  lines.push("TRIVIA STOPPED · Type !trivia to start again.");
+ }else if(state.phase==="finished"){
   lines.push("TRIVIA COMPLETE · FINAL SCOREBOARD");
   (state.scoreboard||[]).forEach((p,i)=>lines.push((i+1)+". "+p.name+" — "+p.score+" points"));
  }else if(state.phase==="voting"){
@@ -225,6 +229,11 @@ function renderTrivia(state){
   if(!state.revealed)lines.push("नेपाली: ३० सेकेन्डभित्र A, B, C वा D मध्ये सही उत्तर लेख्नुहोस्।");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
+ if(state.active&&state.phase==="question"){
+  const speechKey=state.round+":"+state.question+":"+(state.revealed?"answer":"question");
+  if(speechKey!==triviaLastSpoken){triviaLastSpoken=speechKey;if(!state.revealed)speakTrivia("Question "+state.round+". "+state.question+"\n"+(state.choices||[]).map((choice,i)=>String.fromCharCode(65+i)+". "+choice).join("\n")+"\nनेपाली: प्रश्न ध्यान दिएर सुन्नुहोस्। सही उत्तर A, B, C वा D मध्ये छान्नुहोस्।");else speakTrivia("Correct answer. "+String.fromCharCode(65+state.correctIndex)+". "+state.choices[state.correctIndex]+".\nनेपाली: सही उत्तर "+String.fromCharCode(65+state.correctIndex)+" हो।");}
+ }
+ if(state.phase==="stopped"||state.phase==="finished"){if("speechSynthesis" in window)window.speechSynthesis.cancel();triviaLastSpoken="";}
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
  let votePanel=$("triviaVotePanel");
  if(state.phase==="voting"){
@@ -233,6 +242,11 @@ function renderTrivia(state){
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
   ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"].forEach(category=>{const b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=category+" · "+(state.voteCounts?.[category]||0);b.addEventListener("click",()=>sendPacket({type:"trivia",action:"vote",category}));buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
+ if(state.active&&state.phase!=="finished"&&state.phase!=="stopped"){
+  let reader=$("triviaReaderControls");if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
+  reader.hidden=false;reader.innerHTML="<button type=\"button\" class=\"trivia-vote-button\" id=\"triviaReadToggle\">"+(triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud")+"</button><span class=\"trivia-vote-hint\">Type !stop to stop trivia.</span>";
+  $("triviaReadToggle").addEventListener("click",()=>{triviaReadAloud=!triviaReadAloud;if(!triviaReadAloud&&"speechSynthesis" in window)window.speechSynthesis.cancel();else{triviaLastSpoken="";speakTrivia(state.phase==="question"?(state.question+"\n"+(state.choices||[]).map((x,i)=>String.fromCharCode(65+i)+". "+x).join("\n")+"\nनेपाली: प्रश्नको उत्तर A, B, C वा D मध्ये छान्नुहोस्।"):"Category voting is open for one minute. नेपाली: एक मिनेटभित्र आफ्नो category छान्नुहोस्।")}reader.querySelector("button").textContent=triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud"});
+ }else{const reader=$("triviaReaderControls");if(reader)reader.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
   const label=overlay.querySelector(".trivia-countdown-ring span");
