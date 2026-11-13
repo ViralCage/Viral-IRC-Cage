@@ -183,7 +183,7 @@ const WS_BASE=API_BASE.replace(/^https:/,"wss:").replace(/^http:/,"ws:");
 const $=id=>document.getElementById(id);
 let socket=null,roomCode="",cameraStream=null,recorder=null,voiceChunks=[],typingTimer=null,typingActive=false;
 let triviaCountdownTimer=null;
-let triviaLastBeep=-1;
+let triviaLastBeep=-1,triviaCountdownTarget=0;
 function playTriviaTone(finalTone=false){
  if(!soundEnabled)return;
  try{
@@ -191,7 +191,7 @@ function playTriviaTone(finalTone=false){
   if(!audioContext)audioContext=new AudioCtx();
   if(audioContext.state==="suspended")return;
   const now=audioContext.currentTime;
-  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:1180,t:0,d:.055},{f:860,t:.12,d:.065}];
+  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:finalTone?1175:((triviaLastBeep%2)?1050:820),t:0,d:.075}];
   notes.forEach(note=>{
    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
    osc.type="sine";osc.frequency.setValueAtTime(note.f,now+note.t);
@@ -254,7 +254,8 @@ function renderTrivia(state){
   const target=state.revealed?state.autoNextAt:state.deadlineAt;
   const running=(state.phase==="voting"&&state.deadlineAt)||(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
   if(running&&target){
-   overlay.hidden=false;triviaLastBeep=-1;
+   overlay.hidden=false;
+   if(triviaCountdownTarget!==target){triviaCountdownTarget=target;triviaLastBeep=-1}
    if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
    if(caption)caption.textContent=state.phase==="voting"?"CATEGORY VOTE ENDS IN":state.revealed?"NEXT QUESTION IN":"TICK · TICK · TIME LEFT";
    const update=()=>{
@@ -269,7 +270,7 @@ function renderTrivia(state){
     if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
    };
    update();triviaCountdownTimer=setInterval(update,200);
-  }else overlay.hidden=true;
+  }else{overlay.hidden=true;triviaCountdownTarget=0;triviaLastBeep=-1}
  }
 }
 let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
