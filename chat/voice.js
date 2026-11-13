@@ -41,8 +41,9 @@ function renderRoomMembers(members){
   row.append(dot,label,invite);roomList.append(row);
  }
 }
-window.addEventListener("vc-room-members-update",event=>renderRoomMembers(event.detail?.members||[]));
+window.addEventListener("vc-room-members-update",event=>{const members=event.detail?.members||[];renderRoomMembers(members);if(members.length)openOnlinePanel()});
 renderRoomMembers(window.vcRoomMembers||[]);
+if((window.vcRoomMembers||[]).length)openOnlinePanel();
 function render(peers){const others=peers.filter(p=>p.uid!==uid);count.textContent=others.length+" player"+(others.length===1?"":"s")+" online";onlineToggle.textContent="Online · "+others.length;list.replaceChildren();if(!others.length){const e=document.createElement("div");e.className="vc-vempty";e.textContent="No other players online yet.";list.append(e);return}for(const p of others){const row=document.createElement("div");row.className="vc-vpeer";const dot=document.createElement("span");dot.className="vc-vonline";const label=document.createElement("span");label.className="vc-vname";label.textContent=p.name||"Guest";const audio=document.createElement("button");audio.type="button";audio.textContent="Voice";audio.addEventListener("click",()=>startCall(p,false));const video=document.createElement("button");video.type="button";video.textContent="Video";video.className="vc-ghost";video.addEventListener("click",()=>startCall(p,true));row.append(dot,label,audio,video);list.append(row)}}
 function showCall(title,status){$("vcVoiceCallName").textContent=title;$("vcVoiceCallStatus").textContent=status;callBox.hidden=false}
 function stopCallRing(){stopRinging()}
