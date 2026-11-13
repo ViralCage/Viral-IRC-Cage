@@ -377,14 +377,14 @@ function connect(code){
   const roomUrl=new URL(location.href);roomUrl.searchParams.set("room",roomCode);history.replaceState({},"",roomUrl.pathname+roomUrl.search+roomUrl.hash);
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
  socket=new WebSocket(WS_BASE+"/rooms/"+roomCode+"?name="+encodeURIComponent(name)+"&uid="+encodeURIComponent(uid));
- socket.addEventListener("open",()=>{publishP2PStatus("Cloudflare signaling connected. Choose a room member for a private chat.");$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
+ socket.addEventListener("open",()=>{publishP2PStatus("Chat room connected. Checking for other room members…");$("peerstatus").textContent="You are connected · waiting for others";$("messages").innerHTML='<div class="empty connection-notice">You are connected</div>';$("chat").classList.add("is-connected");playSound("connect");$("message").focus()});
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(["message","attachment","voice","emote","system","presence","typing","typing-clear"].includes(data.type)){$("messages").querySelector(".connection-notice")?.remove()}
   if(data.type==="trivia-state"){renderTrivia(data)}
   else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="emote"){showEmote(data);if(data.uid!==uid)playEmojiSound(data.emoji)}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
-  else if(data.type==="presence"){$("peerstatus").textContent="You are connected";renderRoomMembers(data.members||[])}
+  else if(data.type==="presence"){$("peerstatus").textContent="You are connected";const members=(data.members||[]).filter(peer=>peer&&peer.uid&&peer.uid!==uid);renderRoomMembers(members);if(!pendingP2P.size)publishP2PStatus(members.length?members.length+" other room member"+(members.length===1?" is":"s are")+" online. Select Private chat beside their name.":"Cloudflare room connected. No other members are here yet. Ask someone to join this same room.")}
   else if(data.type==="p2p-invite"){
    publishP2PStatus("Private chat invite received from "+(data.name||"a room member")+".");
    const accept=window.confirm((data.name||"A room member")+" wants to start a private end-to-end encrypted P2P chat. Accept?");
