@@ -272,6 +272,53 @@ export class ChatRoom {
       {category:"Space",q:"What is the largest planet in our solar system?",choices:["Earth","Saturn","Jupiter","Neptune"],a:2},
       {category:"Space",q:"What do astronauts wear in space?",choices:["Diving suit","Space suit","Flight jacket","Lab coat"],a:1}
     ];
+    bank.push(
+      {id:"extra:science:1",category:"Science",q:"Which organ pumps blood around the body?",choices:["Lungs","Heart","Brain","Liver"],a:1},
+      {id:"extra:science:2",category:"Science",q:"What is the boiling point of water at sea level?",choices:["50°C","75°C","100°C","150°C"],a:2},
+      {id:"extra:science:3",category:"Science",q:"Which vitamin can the body make from sunlight?",choices:["Vitamin A","Vitamin C","Vitamin D","Vitamin K"],a:2},
+      {id:"extra:science:4",category:"Science",q:"What is the hardest natural substance?",choices:["Gold","Iron","Diamond","Quartz"],a:2},
+      {id:"extra:science:5",category:"Science",q:"How many bones are in a typical adult human body?",choices:["106","206","306","406"],a:1},
+      {id:"extra:sports:6",category:"Sports",q:"How long is a standard outdoor soccer match?",choices:["60 minutes","75 minutes","90 minutes","120 minutes"],a:2},
+      {id:"extra:sports:7",category:"Sports",q:"Which country hosted the first modern Olympic Games in 1896?",choices:["France","Greece","Italy","United Kingdom"],a:1},
+      {id:"extra:sports:8",category:"Sports",q:"How many strikes make an out in baseball?",choices:["2","3","4","5"],a:1},
+      {id:"extra:sports:9",category:"Sports",q:"Which sport is Canada's national summer sport?",choices:["Basketball","Ice hockey","Soccer","Lacrosse"],a:3},
+      {id:"extra:sports:10",category:"Sports",q:"In golf, what is one stroke under par called?",choices:["Eagle","Birdie","Bogey","Albatross"],a:1},
+      {id:"extra:general-knowledge:11",category:"General Knowledge",q:"How many continents are commonly recognized?",choices:["5","6","7","8"],a:2},
+      {id:"extra:general-knowledge:12",category:"General Knowledge",q:"Which instrument has black and white keys?",choices:["Violin","Piano","Flute","Drum"],a:1},
+      {id:"extra:general-knowledge:13",category:"General Knowledge",q:"What is the currency of Japan?",choices:["Won","Yuan","Yen","Baht"],a:2},
+      {id:"extra:general-knowledge:14",category:"General Knowledge",q:"Which animal is known as the ship of the desert?",choices:["Horse","Camel","Donkey","Elephant"],a:1},
+      {id:"extra:general-knowledge:15",category:"General Knowledge",q:"How many minutes are in one hour?",choices:["30","45","60","90"],a:2},
+      {id:"extra:history:16",category:"History",q:"Who was the first president of the United States?",choices:["Abraham Lincoln","George Washington","John Adams","Thomas Jefferson"],a:1},
+      {id:"extra:history:17",category:"History",q:"The ancient city of Rome is in which country?",choices:["Greece","Spain","Italy","Turkey"],a:2},
+      {id:"extra:history:18",category:"History",q:"Which ship famously sank in 1912?",choices:["Mayflower","Titanic","Santa Maria","Endeavour"],a:1},
+      {id:"extra:history:19",category:"History",q:"Who was known as the Maid of Orléans?",choices:["Cleopatra","Joan of Arc","Queen Victoria","Marie Curie"],a:1},
+      {id:"extra:history:20",category:"History",q:"The Renaissance began in which country?",choices:["France","Italy","Germany","England"],a:1},
+      {id:"extra:geography:21",category:"Geography",q:"What is the capital of Australia?",choices:["Sydney","Melbourne","Canberra","Perth"],a:2},
+      {id:"extra:geography:22",category:"Geography",q:"Which river flows through Egypt?",choices:["Amazon","Nile","Danube","Thames"],a:1},
+      {id:"extra:geography:23",category:"Geography",q:"Mount Everest is part of which mountain range?",choices:["Andes","Alps","Himalayas","Rockies"],a:2},
+      {id:"extra:geography:24",category:"Geography",q:"Which continent is the Sahara Desert in?",choices:["Asia","Africa","Australia","South America"],a:1},
+      {id:"extra:geography:25",category:"Geography",q:"What is the smallest continent by land area?",choices:["Europe","Antarctica","Australia","South America"],a:2},
+      {id:"extra:technology:26",category:"Technology",q:"What does the letter W stand for in Wi-Fi?",choices:["Wireless","Wide","Web","Wave"],a:0},
+      {id:"extra:technology:27",category:"Technology",q:"Which device is used to move a pointer on a computer?",choices:["Printer","Mouse","Speaker","Scanner"],a:1},
+      {id:"extra:technology:28",category:"Technology",q:"What does GPS help you determine?",choices:["Blood type","Location","Temperature only","Weight"],a:1},
+      {id:"extra:technology:29",category:"Technology",q:"Which of these is an internet browser?",choices:["Excel","Chrome","Photoshop","Windows"],a:1},
+      {id:"extra:technology:30",category:"Technology",q:"What does AI stand for?",choices:["Automatic Internet","Artificial Intelligence","Advanced Input","Applied Information"],a:1},
+      {id:"extra:bible:31",category:"Bible",q:"Who led the Israelites out of Egypt?",choices:["David","Moses","Noah","Peter"],a:1},
+      {id:"extra:bible:32",category:"Bible",q:"What was the first book of the Bible?",choices:["Exodus","Psalms","Genesis","Matthew"],a:2},
+      {id:"extra:bible:33",category:"Bible",q:"Who was swallowed by a great fish?",choices:["Jonah","Paul","Joseph","Elijah"],a:0},
+      {id:"extra:bible:34",category:"Bible",q:"How many disciples did Jesus choose?",choices:["10","11","12","13"],a:2},
+      {id:"extra:bible:35",category:"Bible",q:"Who betrayed Jesus?",choices:["John","Judas Iscariot","Thomas","Andrew"],a:1},
+      {id:"extra:nature:36",category:"Nature",q:"What is the largest land animal?",choices:["Rhinoceros","African elephant","Giraffe","Polar bear"],a:1},
+      {id:"extra:nature:37",category:"Nature",q:"Which part of a tree takes in water from the soil?",choices:["Bark","Roots","Fruit","Branches"],a:1},
+      {id:"extra:nature:38",category:"Nature",q:"What is the process by which plants make food called?",choices:["Respiration","Photosynthesis","Digestion","Evaporation"],a:1},
+      {id:"extra:nature:39",category:"Nature",q:"Which animal is famous for changing its colour?",choices:["Chameleon","Rabbit","Wolf","Deer"],a:0},
+      {id:"extra:nature:40",category:"Nature",q:"What do caterpillars turn into?",choices:["Beetles","Butterflies or moths","Spiders","Ants"],a:1},
+      {id:"extra:space:41",category:"Space",q:"How many planets are in our solar system?",choices:["7","8","9","10"],a:1},
+      {id:"extra:space:42",category:"Space",q:"What is Earth's natural satellite?",choices:["Mars","The Moon","The Sun","Venus"],a:1},
+      {id:"extra:space:43",category:"Space",q:"Which star is closest to Earth?",choices:["Sirius","Polaris","The Sun","Vega"],a:2},
+      {id:"extra:space:44",category:"Space",q:"What is the path of a planet around a star called?",choices:["Axis","Orbit","Crater","Galaxy"],a:1},
+      {id:"extra:space:45",category:"Space",q:"Which planet is famous for its large rings?",choices:["Mars","Saturn","Mercury","Venus"],a:1}
+    );
     const addChoices=answer=>[answer,answer+3,Math.max(0,answer-2),answer+7].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
     const addQuestion=(q,answer,id)=>{const values=addChoices(answer);while(values.length<4)values.push(answer+values.length+9);for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}bank.push({id,category:"Math",q,choices:values.map(String),a:values.indexOf(answer)})};
     for(let a=10;a<=99;a++)for(let b=10;b<=99;b++){addQuestion("What is "+a+" + "+b+"?",a+b,"add:"+a+":"+b);if(a>=b)addQuestion("What is "+a+" - "+b+"?",a-b,"sub:"+a+":"+b)}
@@ -291,7 +338,7 @@ export class ChatRoom {
     await this.state.put("triviaSeenQuestionIds",seen);
     this.trivia={category,index:0,total:picked.length,questions:picked,question:picked[0],players:{[starterUid]:starterName},scores:{[starterUid]:{name:starterName,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
     await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
-    this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Category selected: "+category+". Trivia starts now! Type A, B, C or D within 30 seconds. Correct answers earn 10 points.",at:Date.now()});this.broadcast(this.triviaSnapshot());
+    this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Category selected: "+category+". Trivia starts now! You will get 10 questions. नेपाली: अब १० वटा प्रश्न आउँछन्। हरेक प्रश्नको उत्तर A, B, C वा D लेख्नुहोस्। सही उत्तरका लागि १० अंक पाइन्छ।",at:Date.now()});this.broadcast(this.triviaSnapshot());
   }
   async handleTrivia(socket,attachment,message){
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest"),action=String(message.action||"");
