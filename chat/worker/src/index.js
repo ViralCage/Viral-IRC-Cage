@@ -229,7 +229,38 @@ export class ChatRoom {
   }
 
   triviaQuestions(){
-    return [{"category":"Science","q":"Which planet is known as the Red Planet?","choices":["Venus","Mars","Jupiter","Mercury"],"a":1},{"category":"Geography","q":"What is the capital of Japan?","choices":["Seoul","Beijing","Tokyo","Bangkok"],"a":2},{"category":"General Knowledge","q":"How many sides does a hexagon have?","choices":["5","6","7","8"],"a":1},{"category":"Science","q":"What gas do plants absorb from the atmosphere?","choices":["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],"a":2},{"category":"History","q":"Which ancient civilization built the pyramids at Giza?","choices":["Romans","Egyptians","Greeks","Persians"],"a":1},{"category":"Sports","q":"How many players are on the field for one soccer team?","choices":["9","10","11","12"],"a":2},{"category":"Geography","q":"Which is the largest ocean on Earth?","choices":["Atlantic","Indian","Arctic","Pacific"],"a":3},{"category":"Science","q":"What is H2O commonly known as?","choices":["Salt","Water","Oxygen","Hydrogen"],"a":1},{"category":"Technology","q":"What does CPU stand for?","choices":["Central Processing Unit","Computer Power Utility","Core Program Upload","Central Print Unit"],"a":0},{"category":"Animals","q":"What is the fastest land animal?","choices":["Lion","Cheetah","Horse","Leopard"],"a":1},{"category":"General Knowledge","q":"How many days are in a leap year?","choices":["364","365","366","367"],"a":2},{"category":"Geography","q":"Which country is home to the city of Kathmandu?","choices":["India","Bhutan","Nepal","Bangladesh"],"a":2},{"category":"Science","q":"Which part of a plant usually absorbs water?","choices":["Leaves","Roots","Flowers","Stem"],"a":1},{"category":"Sports","q":"In tennis, what word means a score of zero?","choices":["Nil","Love","Blank","Duck"],"a":1},{"category":"History","q":"Who was the first person to walk on the Moon?","choices":["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],"a":2}];
+    const bank=[
+      {category:"Science",q:"Which planet is known as the Red Planet?",choices:["Venus","Mars","Jupiter","Mercury"],a:1},
+      {category:"Geography",q:"What is the capital of Japan?",choices:["Seoul","Beijing","Tokyo","Bangkok"],a:2},
+      {category:"General Knowledge",q:"How many sides does a hexagon have?",choices:["5","6","7","8"],a:1},
+      {category:"Science",q:"What gas do plants absorb from the atmosphere?",choices:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],a:2},
+      {category:"History",q:"Which ancient civilization built the pyramids at Giza?",choices:["Romans","Egyptians","Greeks","Persians"],a:1},
+      {category:"Sports",q:"How many players are on the field for one soccer team?",choices:["9","10","11","12"],a:2},
+      {category:"Geography",q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
+      {category:"Science",q:"What is H2O commonly known as?",choices:["Salt","Water","Oxygen","Hydrogen"],a:1},
+      {category:"Technology",q:"What does CPU stand for?",choices:["Central Processing Unit","Computer Power Utility","Core Program Upload","Central Print Unit"],a:0},
+      {category:"Animals",q:"What is the fastest land animal?",choices:["Lion","Cheetah","Horse","Leopard"],a:1},
+      {category:"General Knowledge",q:"How many days are in a leap year?",choices:["364","365","366","367"],a:2},
+      {category:"Geography",q:"Which country is home to the city of Kathmandu?",choices:["India","Bhutan","Nepal","Bangladesh"],a:2},
+      {category:"Science",q:"Which part of a plant usually absorbs water?",choices:["Leaves","Roots","Flowers","Stem"],a:1},
+      {category:"Sports",q:"In tennis, what word means a score of zero?",choices:["Nil","Love","Blank","Duck"],a:1},
+      {category:"History",q:"Who was the first person to walk on the Moon?",choices:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],a:2}
+    ];
+    // A large offline question pool: thousands of distinct arithmetic questions.
+    // This keeps trivia working even when the Workers AI free quota is unavailable.
+    const addChoices=(answer)=>[answer,answer+3,Math.max(0,answer-2),answer+7].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
+    const addQuestion=(category,q,answer,id)=>{
+      const values=addChoices(answer);
+      while(values.length<4)values.push(answer+values.length+9);
+      for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}
+      bank.push({id,category,q,choices:values.map(String),a:values.indexOf(answer)});
+    };
+    for(let a=10;a<=99;a++)for(let b=10;b<=99;b++){
+      addQuestion("Math", "What is "+a+" + "+b+"?", a+b,"add:"+a+":"+b);
+      if(a>=b)addQuestion("Math","What is "+a+" - "+b+"?",a-b,"sub:"+a+":"+b);
+    }
+    for(let a=2;a<=20;a++)for(let b=2;b<=20;b++)addQuestion("Math","What is "+a+" × "+b+"?",a*b,"mul:"+a+":"+b);
+    return bank;
   }
   triviaSnapshot(){
     const game=this.trivia;
@@ -242,8 +273,18 @@ export class ChatRoom {
     const action=String(message.action||"");
     if(action==="start"){
       if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Type !join to join it."}))}catch{};return}
-      const bank=this.triviaQuestions(),picked=[];
-      while(picked.length<10&&bank.length){const n=Math.floor(Math.random()*bank.length);picked.push(bank.splice(n,1)[0])}
+      const bank=this.triviaQuestions();
+      let seen=await this.state.get("triviaSeenQuestionIds")||[];
+      const keyOf=q=>String(q.id||("base:"+q.q));
+      let available=bank.filter(q=>!seen.includes(keyOf(q)));
+      // Only recycle the room's question history after the entire pool is exhausted.
+      if(available.length<10){seen=[];available=bank.slice()}
+      const picked=[];
+      while(picked.length<10&&available.length){
+        const n=Math.floor(Math.random()*available.length),q=available.splice(n,1)[0];
+        picked.push(q);seen.push(keyOf(q));
+      }
+      await this.state.put("triviaSeenQuestionIds",seen);
       this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
       await this.state.put("trivia",this.trivia);
       await this.state.setAlarm(this.trivia.deadlineAt);
@@ -351,6 +392,24 @@ export class ChatRoom {
     const attachment=socket.deserializeAttachment()||{};this.broadcast({type:"system",text:(attachment.name||"A guest")+" left the room."});this.broadcastPresence();await this.clearIfEmpty(socket);
   }
   async webSocketError(socket){try{socket.close(1011,"Connection error")}catch{};this.broadcastPresence();await this.clearIfEmpty(socket)}
+  async randomGodMessage(){
+    const openers=["Remember","Today","Keep believing","Never forget","Let this remind you","Choose today","Walk forward knowing","Hold on to this truth","A gentle reminder","Keep your heart open"];
+    const subjects=["faith","hope","kindness","courage","patience","gratitude","forgiveness","honesty","compassion","humility"];
+    const verbs=["grows","shines","becomes stronger","opens doors","brings peace","guides your steps","builds trust","changes hearts","lights the way","makes room for grace"];
+    const actions=["choose","practice","share","protect","carry","show","live with","return to","hold on to","lead with"];
+    const moments=["in difficult moments","when nobody is watching","with a sincere heart","one day at a time","even when life feels heavy","without expecting praise","through small daily actions","when others need hope","with patience and humility","in every conversation"];
+    const endings=["God sees the good you do","small acts can change a life","peace begins within","your next step still matters","love is stronger than fear","grace can meet you where you are","goodness is never wasted","you can begin again","a gentle heart has great strength","light can follow a hard season"];
+    const recent=await this.state.get("recentGodMessages")||[];
+    let result="";
+    for(let attempt=0;attempt<40;attempt++){
+      const pick=a=>a[Math.floor(Math.random()*a.length)];
+      result=pick(openers)+", "+pick(subjects)+" "+pick(verbs)+" when you "+pick(actions)+" "+pick(moments)+"; "+pick(endings)+".";
+      if(!recent.includes(result))break;
+    }
+    const next=[...recent,result].slice(-500);
+    await this.state.put("recentGodMessages",next);
+    return result;
+  }
   async alarm(){
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
@@ -400,11 +459,18 @@ export class ChatRoom {
       "“Rejoice evermore.” — 1 Thessalonians 5:16 (KJV)\nनेपाली: “सधैँ आनन्दित रहो।” — १ थेसलोनिकी ५:१६",
       "“Above all these things put on charity, which is the bond of perfectness.” — Colossians 3:14 (KJV)\nनेपाली: “यी सबैभन्दा माथि प्रेम धारण गर, जसले सबैलाई पूर्ण एकतामा बाँध्छ।” — कलस्सी ३:१४"
     ];
-    const previous=await this.state.get("lastBibleVerseIndex");
-    let index=Math.floor(Math.random()*verses.length);
-    if(verses.length>1&&index===previous)index=(index+1)%verses.length;
-    await this.state.put("lastBibleVerseIndex",index);
-    this.broadcast({type:"message",uid:"vc-room-bot",name:"God",text:"Bible verse: "+verses[index],at:Date.now()});
+    let seenVerses=await this.state.get("seenBibleVerseIndexes")||[];
+    let availableVerses=verses.map((_,i)=>i).filter(i=>!seenVerses.includes(i));
+    if(!availableVerses.length){seenVerses=[];availableVerses=verses.map((_,i)=>i)}
+    const index=availableVerses[Math.floor(Math.random()*availableVerses.length)];
+    seenVerses.push(index);
+    await this.state.put("seenBibleVerseIndexes",seenVerses);
+    const tick=(await this.state.get("godContentTick")||0)+1;
+    await this.state.put("godContentTick",tick);
+    const text=tick%2===0
+      ? "God's word: "+verses[index]
+      : "A word from VC God: "+await this.randomGodMessage();
+    this.broadcast({type:"message",uid:"vc-room-bot",name:"God",text,at:Date.now()});
     await this.state.setAlarm(Date.now()+60000);
   }
 }
