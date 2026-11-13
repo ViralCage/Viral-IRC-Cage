@@ -478,7 +478,8 @@ export class ChatRoom {
       ? "God's word: "+verses[index]
       : "A word from VC God: "+await this.randomGodMessage();
     this.broadcast({type:"message",uid:"vc-room-bot",name:"God",text,at:Date.now()});
-    await this.state.setAlarm(Date.now()+60000);
+    const triviaWake=this.trivia&&(this.trivia.phase==="voting"||this.trivia.phase==="question"&&!this.trivia.revealed)?this.trivia.deadlineAt:this.trivia&&this.trivia.phase==="revealed"?this.trivia.autoNextAt:0;
+    await this.state.setAlarm(triviaWake?Math.min(Date.now()+60000,triviaWake):Date.now()+60000);
   }
 }
 
