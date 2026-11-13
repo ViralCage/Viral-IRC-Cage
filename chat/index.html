@@ -209,6 +209,12 @@ function renderTrivia(state){
  if(state.phase==="finished"){
   lines.push("TRIVIA COMPLETE · FINAL SCOREBOARD");
   (state.scoreboard||[]).forEach((p,i)=>lines.push((i+1)+". "+p.name+" — "+p.score+" points"));
+ }else if(state.phase==="voting"){
+  lines.push("TRIVIA CATEGORY VOTE · 20 SECONDS");
+  lines.push("Vote in chat: !vote science / sports / math / general / history / geography / technology / bible / nature / space");
+  const names=["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"];
+  names.forEach(name=>lines.push(name+": "+(state.voteCounts?.[name]||0)+" vote(s)"));
+  lines.push("One vote per person. You can change your vote before the timer ends. Ties are decided randomly.");
  }else{
   lines.push("LIVE TRIVIA · QUESTION "+state.round+"/"+state.total+" · "+state.category);
   lines.push(state.question);
@@ -222,11 +228,11 @@ function renderTrivia(state){
   const label=overlay.querySelector(".trivia-countdown-ring span");
   const caption=overlay.querySelector(".trivia-countdown-caption");
   const target=state.revealed?state.autoNextAt:state.deadlineAt;
-  const running=(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
+  const running=(state.phase==="voting"&&state.deadlineAt)||(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
   if(running&&target){
    overlay.hidden=false;triviaLastBeep=-1;
-   if(label)label.textContent=state.revealed?"NEXT":"SECONDS";
-   if(caption)caption.textContent=state.revealed?"NEXT QUESTION IN":"TICK · TICK · TIME LEFT";
+   if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
+   if(caption)caption.textContent=state.phase==="voting"?"CATEGORY VOTE ENDS IN":state.revealed?"NEXT QUESTION IN":"TICK · TICK · TIME LEFT";
    const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
