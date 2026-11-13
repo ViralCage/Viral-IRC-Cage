@@ -171,7 +171,7 @@ export class ChatRoom {
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
       const categoryVote=text.trim();
       if(this.trivia&&this.trivia.phase==="voting"&&this.triviaCategories().some(category=>category.toLowerCase()===categoryVote.toLowerCase())){await this.handleTrivia(socket,attachment,{action:"vote",category:categoryVote});await this.touch();return;}
-      const voteCommand=text.match(/^!vote\\s+(.+)$/i);
+      const voteCommand=text.match(/^!vote\s+(.+)$/i);
       if(this.trivia&&this.trivia.phase==="voting"&&voteCommand){await this.handleTrivia(socket,attachment,{action:"vote",category:voteCommand[1].trim()});await this.touch();return;}
       const triviaAnswer=text.match(/^(?:!answer\s+)?([a-d])(?:[).])?$/i);
       if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&triviaAnswer){
