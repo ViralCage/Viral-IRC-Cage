@@ -116,6 +116,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 }
 
 .trivia-toggle{background:linear-gradient(110deg,#8b35ff,#176bff)!important;border-color:#5b8cff!important}
+.trivia-vote-panel{padding:12px 14px;background:linear-gradient(145deg,#101d40,#07132b);border-top:1px solid #29477f}.trivia-vote-panel[hidden]{display:none}.trivia-vote-heading{font-weight:900;color:#dce8ff;margin-bottom:9px}.trivia-vote-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.trivia-vote-button{padding:8px 5px;min-height:40px;font-size:12px;background:#10264b;border-color:#4265a6}.trivia-vote-hint{font-size:11px;color:#9eb4e7;margin-top:8px}@media(max-width:520px){.trivia-vote-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .trivia-panel{padding:15px 18px;background:linear-gradient(145deg,#101d40,#07132b);border-bottom:1px solid #29477f}
 .trivia-panel[hidden]{display:none}
 .trivia-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -210,8 +211,8 @@ function renderTrivia(state){
   lines.push("TRIVIA COMPLETE · FINAL SCOREBOARD");
   (state.scoreboard||[]).forEach((p,i)=>lines.push((i+1)+". "+p.name+" — "+p.score+" points"));
  }else if(state.phase==="voting"){
-  lines.push("TRIVIA CATEGORY VOTE · 20 SECONDS");
-  lines.push("Vote in chat: !vote science / sports / math / general / history / geography / technology / bible / nature / space");
+  lines.push("TRIVIA CATEGORY VOTE · 1 MINUTE");
+  lines.push("Tap a category below or type its name in chat. You can change your vote until the timer ends.");
   const names=["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"];
   names.forEach(name=>lines.push(name+": "+(state.voteCounts?.[name]||0)+" vote(s)"));
   lines.push("One vote per person. You can change your vote before the timer ends. Ties are decided randomly.");
@@ -223,6 +224,13 @@ function renderTrivia(state){
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
+ let votePanel=$("triviaVotePanel");
+ if(state.phase==="voting"){
+  if(!votePanel){votePanel=document.createElement("div");votePanel.id="triviaVotePanel";votePanel.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(votePanel,form)}
+  votePanel.hidden=false;votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose a category</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">Or type the category name in the chat box.</div>";
+  const buttons=votePanel.querySelector(".trivia-vote-buttons");
+  ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"].forEach(category=>{const b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=category+" · "+(state.voteCounts?.[category]||0);b.addEventListener("click",()=>sendPacket({type:"trivia",action:"vote",category}));buttons.append(b)});
+ }else if(votePanel){votePanel.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
   const label=overlay.querySelector(".trivia-countdown-ring span");
