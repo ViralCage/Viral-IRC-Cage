@@ -229,7 +229,7 @@ function renderTrivia(state){
   if(!state.revealed)lines.push("नेपाली: ३० सेकेन्डभित्र A, B, C वा D मध्ये सही उत्तर लेख्नुहोस्।");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
- if(state.active&&state.phase==="question"){
+ if(state.active&&(state.phase==="question"||state.phase==="revealed")){
   const speechKey=state.round+":"+state.question+":"+(state.revealed?"answer":"question");
   if(speechKey!==triviaLastSpoken){triviaLastSpoken=speechKey;if(!state.revealed)speakTrivia("Question "+state.round+". "+state.question+"\n"+(state.choices||[]).map((choice,i)=>String.fromCharCode(65+i)+". "+choice).join("\n")+"\nनेपाली: प्रश्न ध्यान दिएर सुन्नुहोस्। सही उत्तर A, B, C वा D मध्ये छान्नुहोस्।");else speakTrivia("Correct answer. "+String.fromCharCode(65+state.correctIndex)+". "+state.choices[state.correctIndex]+".\nनेपाली: सही उत्तर "+String.fromCharCode(65+state.correctIndex)+" हो।");}
  }
@@ -245,7 +245,7 @@ function renderTrivia(state){
  if(state.active&&state.phase!=="finished"&&state.phase!=="stopped"){
   let reader=$("triviaReaderControls");if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
   reader.hidden=false;reader.innerHTML="<button type=\"button\" class=\"trivia-vote-button\" id=\"triviaReadToggle\">"+(triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud")+"</button><span class=\"trivia-vote-hint\">Type !stop to stop trivia.</span>";
-  $("triviaReadToggle").addEventListener("click",()=>{triviaReadAloud=!triviaReadAloud;if(!triviaReadAloud&&"speechSynthesis" in window)window.speechSynthesis.cancel();else{triviaLastSpoken="";speakTrivia(state.phase==="question"?(state.question+"\n"+(state.choices||[]).map((x,i)=>String.fromCharCode(65+i)+". "+x).join("\n")+"\nनेपाली: प्रश्नको उत्तर A, B, C वा D मध्ये छान्नुहोस्।"):"Category voting is open for one minute. नेपाली: एक मिनेटभित्र आफ्नो category छान्नुहोस्।")}reader.querySelector("button").textContent=triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud"});
+  $("triviaReadToggle").addEventListener("click",()=>{triviaReadAloud=!triviaReadAloud;if(!triviaReadAloud&&"speechSynthesis" in window)window.speechSynthesis.cancel();else{triviaLastSpoken=state.round+":"+state.question+":"+(state.revealed?"answer":"question");speakTrivia(state.phase==="question"?(state.question+"\n"+(state.choices||[]).map((x,i)=>String.fromCharCode(65+i)+". "+x).join("\n")+"\nनेपाली: प्रश्नको उत्तर A, B, C वा D मध्ये छान्नुहोस्।"):"Category voting is open for one minute. नेपाली: एक मिनेटभित्र आफ्नो category छान्नुहोस्।")}reader.querySelector("button").textContent=triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud"});
  }else{const reader=$("triviaReaderControls");if(reader)reader.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
