@@ -169,7 +169,7 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
-      const voteCommand=text.match(/^!vote\\s+(.+)$/i);
+      const voteCommand=text.match(/^!vote\s+(.+)$/i);
       if(this.trivia&&this.trivia.phase==="voting"&&voteCommand){
         await this.handleTrivia(socket,attachment,{action:"vote",category:voteCommand[1].trim()});
         this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:(attachment.name||"A player")+" voted for "+voteCommand[1].trim()+".",at:Date.now()});await this.touch();return;
@@ -346,7 +346,7 @@ export class ChatRoom {
     };
     let reply=commands[command];
     if(command==="!trivia"){await this.handleTrivia(null,{uid:message.uid||"vc-room-bot",name:message.name||"Guest"},{action:"start"});return}
-    if(command==="!vote"){const category=text.replace(/^!vote\\s*/i,"");await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"vote",category});return}
+    if(command==="!vote"){const category=text.replace(/^!vote\s*/i,"");await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"vote",category});return}
     if(command==="!join"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"join"});return}
     if(command==="!next"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"next"});return}
     if(!reply&&!mentioned)return
