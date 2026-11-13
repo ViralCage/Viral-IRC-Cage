@@ -169,11 +169,10 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
-      const voteCommand=text.match(/^!vote\s+(.+)$/i);
-      if(this.trivia&&this.trivia.phase==="voting"&&voteCommand){
-        await this.handleTrivia(socket,attachment,{action:"vote",category:voteCommand[1].trim()});
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:(attachment.name||"A player")+" voted for "+voteCommand[1].trim()+".",at:Date.now()});await this.touch();return;
-      }
+      const categoryVote=text.trim();
+      if(this.trivia&&this.trivia.phase==="voting"&&this.triviaCategories().some(category=>category.toLowerCase()===categoryVote.toLowerCase())){await this.handleTrivia(socket,attachment,{action:"vote",category:categoryVote});await this.touch();return;}
+      const voteCommand=text.match(/^!vote\\s+(.+)$/i);
+      if(this.trivia&&this.trivia.phase==="voting"&&voteCommand){await this.handleTrivia(socket,attachment,{action:"vote",category:voteCommand[1].trim()});await this.touch();return;}
       const triviaAnswer=text.match(/^(?:!answer\s+)?([a-d])(?:[).])?$/i);
       if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&triviaAnswer){
         const choice=triviaAnswer[1].toUpperCase().charCodeAt(0)-65;
@@ -298,9 +297,9 @@ export class ChatRoom {
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest"),action=String(message.action||"");
     if(action==="start"){
       if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
-      this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+20000,index:0,total:0};
+      this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+60000,index:0,total:0};
       await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 20 seconds. Vote in chat with !vote science, !vote sports, !vote math, !vote general, !vote history, !vote geography, !vote technology, !vote bible, !vote nature or !vote space. One vote per person; voting again changes your vote.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 1 minute. Tap a category button or type its name in chat: Science, Sports, Math, General Knowledge, History, Geography, Technology, Bible, Nature or Space. One vote per person; you can change your vote before time runs out.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
     if(action==="vote"){
@@ -339,10 +338,10 @@ export class ChatRoom {
     if(!mentioned&&!isGreeting&&!isQuestion&&!lower.startsWith("/")){autoCount++;if(autoCount>=6){autoCount=0;periodic=true}await this.state.put("vcAiMessageCount",autoCount)}
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !vote category, !join, !next, /riddle, /dice, /coin. Vote with !vote science, sports, math, general, history, geography, technology, bible, nature or space. Then answer A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 1 minute; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, /riddle, /dice, /coin. During the 1-minute category vote, tap a category or type its name (for example Science or Sports). Then answer A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 1 minute; no joining needed.",
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
       "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 1 minute.",
-      "!trivia":"Starting a 20-second category vote. Type !vote science, sports, math, general, history, geography, technology, bible, nature or space.",
+      "!trivia":"Starting a 1-minute category vote. Tap a category button or type its name, such as Science or Sports.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
