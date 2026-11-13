@@ -361,7 +361,7 @@ function showEmote(data){const box=$("messages"),burst=document.createElement("d
 function addMessage(m){
  const box=$("messages"),empty=box.querySelector(".empty");if(empty)empty.remove();
  const b=document.createElement("div");b.className="bubble"+(m.uid===uid?" mine":"");
- const who=document.createElement("div");who.className="who";const isGod=m.uid==="vc-room-bot"||m.name==="VC God"||m.name==="VC God";if(isGod){b.classList.add("god-message");const avatar=document.createElement("img");avatar.className="chat-avatar";avatar.src=GOD_AVATAR;avatar.alt="VC God — VC God avatar";avatar.loading="lazy";who.append(avatar);const label=document.createElement("span");label.textContent="VC GOD";who.append(label)}else who.textContent=m.name||"Guest";b.append(who);
+ const who=document.createElement("div");who.className="who";const isBot=m.uid==="vc-room-bot"||m.name==="VC God"||m.name==="VC AI";if(isBot){b.classList.add("god-message");const avatar=document.createElement("img");avatar.className="chat-avatar";avatar.src=GOD_AVATAR;avatar.alt=(m.name==="VC AI"?"VC AI":"VC God")+" avatar";avatar.loading="lazy";who.append(avatar);const label=document.createElement("span");label.textContent=m.name==="VC AI"?"VC AI":"VC GOD";who.append(label)}else who.textContent=m.name||"Guest";b.append(who);
  if(m.type==="attachment"||m.type==="voice"){
   const data=String(m.data||"");const mime=String(m.mime||"application/octet-stream");
   if(m.type==="voice"&&data.startsWith("data:audio/")){const audio=document.createElement("audio");audio.controls=true;audio.preload="none";audio.src=data;b.append(audio);const note=document.createElement("div");note.textContent="Voice message";note.style.cssText="font-size:11px;color:#c6d5f5";b.append(note)}
