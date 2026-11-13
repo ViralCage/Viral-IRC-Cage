@@ -319,6 +319,15 @@ export class ChatRoom {
       {id:"extra:space:44",category:"Space",q:"What is the path of a planet around a star called?",choices:["Axis","Orbit","Crater","Galaxy"],a:1},
       {id:"extra:space:45",category:"Space",q:"Which planet is famous for its large rings?",choices:["Mars","Saturn","Mercury","Venus"],a:1}
     );
+    bank.push(
+      {id:"extra-final:general-knowledge",category:"General Knowledge",q:"Which planet do we live on?",choices:["Mars","Earth","Venus","Jupiter"],a:1},
+      {id:"extra-final:history",category:"History",q:"Which empire was ruled by Julius Caesar?",choices:["Roman","Mongol","Ottoman","Aztec"],a:0},
+      {id:"extra-final:geography",category:"Geography",q:"Which country has the city of Paris?",choices:["Spain","France","Belgium","Austria"],a:1},
+      {id:"extra-final:technology",category:"Technology",q:"What is a smartphone primarily used for?",choices:["Making calls and using apps","Cooking food","Measuring rain","Printing money"],a:0},
+      {id:"extra-final:bible",category:"Bible",q:"Who was the mother of Jesus?",choices:["Martha","Mary","Ruth","Esther"],a:1},
+      {id:"extra-final:nature",category:"Nature",q:"What gas do humans need to breathe to survive?",choices:["Carbon dioxide","Oxygen","Helium","Methane"],a:1},
+      {id:"extra-final:space",category:"Space",q:"What causes day and night on Earth?",choices:["Earth's rotation","The Moon's orbit","The Sun moving around Earth","Ocean tides"],a:0}
+    );
     const addChoices=answer=>[answer,answer+3,Math.max(0,answer-2),answer+7].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
     const addQuestion=(q,answer,id)=>{const values=addChoices(answer);while(values.length<4)values.push(answer+values.length+9);for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}bank.push({id,category:"Math",q,choices:values.map(String),a:values.indexOf(answer)})};
     for(let a=10;a<=99;a++)for(let b=10;b<=99;b++){addQuestion("What is "+a+" + "+b+"?",a+b,"add:"+a+":"+b);if(a>=b)addQuestion("What is "+a+" - "+b+"?",a-b,"sub:"+a+":"+b)}
