@@ -169,6 +169,7 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
+      if(/^!stop$/i.test(text)){await this.handleTrivia(socket,attachment,{action:"stop"});await this.touch();return;}
       const categoryVote=text.trim();
       if(this.trivia&&this.trivia.phase==="voting"&&this.triviaCategories().some(category=>category.toLowerCase()===categoryVote.toLowerCase())){await this.handleTrivia(socket,attachment,{action:"vote",category:categoryVote});await this.touch();return;}
       const voteCommand=text.match(/^!vote\s+(.+)$/i);
@@ -351,6 +352,12 @@ export class ChatRoom {
   }
   async handleTrivia(socket,attachment,message){
     const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest"),action=String(message.action||"");
+    if(action==="stop"){
+      if(!this.trivia||this.trivia.phase==="finished"||this.trivia.phase==="stopped"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"There is no active trivia to stop."}))}catch{};return}
+      this.trivia.phase="stopped";this.trivia.revealed=true;delete this.trivia.deadlineAt;delete this.trivia.autoNextAt;
+      await this.state.put("trivia",this.trivia);await this.state.deleteAlarm();this.broadcast(this.triviaSnapshot());
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia stopped by "+name+". Type !trivia to start a new round. नेपाली: ट्रिभिया रोकियो। नयाँ खेल सुरु गर्न !trivia लेख्नुहोस्।",at:Date.now()});return;
+    }
     if(action==="start"){
       if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
       this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+60000,index:0,total:0};
@@ -398,6 +405,7 @@ export class ChatRoom {
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
       "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 1 minute.",
       "!trivia":"Starting a 1-minute category vote. Tap a category button or type its name, such as Science or Sports.",
+      "!stop":"Stopping the live trivia game.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
@@ -406,6 +414,7 @@ export class ChatRoom {
     };
     let reply=commands[command];
     if(command==="!trivia"){await this.handleTrivia(null,{uid:message.uid||"vc-room-bot",name:message.name||"Guest"},{action:"start"});return}
+    if(command==="!stop"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"stop"});return}
     if(command==="!vote"){const category=text.replace(/^!vote\s*/i,"");await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"vote",category});return}
     if(command==="!join"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"join"});return}
     if(command==="!next"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"next"});return}
