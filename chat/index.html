@@ -168,7 +168,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <div class="emojiTray" id="emojiTray" hidden></div>
 <div class="quick-reactions" id="quickReactions"><span>Quick react</span></div>
 <form class="composer" id="sendform">
-<div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><button type="button" class="iconbtn" id="dictate" title="Speak to type a message" aria-label="Speak to type a message">🎤</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
+<div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><select id="speechLang" aria-label="Voice typing language" title="Voice typing language" style="width:76px;min-width:76px;padding:5px;font-size:10px"><option value="en-CA">EN</option><option value="ne-NP">नेपाली</option><option value="hi-IN">हिन्दी</option></select><button type="button" class="iconbtn" id="dictate" title="Speak to type a message" aria-label="Speak to type a message">🎤</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
 <input id="fileInput" type="file" style="display:none" aria-hidden="true"><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off" aria-label="Message">
 <button id="send">Send</button>
 </form></section>
@@ -439,7 +439,7 @@ $("dictate").addEventListener("click",()=>{
  if(!SpeechRecognition){$("peerstatus").textContent="Voice typing is not supported in this browser. Use the latest Chrome or Edge, or type your message.";return}
  if(speechListening&&speechRecognition){speechRecognition.stop();return}
  try{
-  speechRecognition=new SpeechRecognition();speechRecognition.lang="en-CA";speechRecognition.continuous=true;speechRecognition.interimResults=true;
+  speechRecognition=new SpeechRecognition();speechRecognition.lang=$("speechLang").value||"en-CA";speechRecognition.continuous=true;speechRecognition.interimResults=true;
   let finalText="";
   speechRecognition.onstart=()=>{speechListening=true;button.classList.add("is-listening");button.textContent="⏹";button.title="Stop voice typing";$("peerstatus").textContent="Listening… speak clearly. Your words will appear in the message box."};
   speechRecognition.onresult=event=>{let interim="";for(let i=event.resultIndex;i<event.results.length;i++){const phrase=event.results[i][0].transcript;if(event.results[i].isFinal)finalText+=phrase+" ";else interim+=phrase}
