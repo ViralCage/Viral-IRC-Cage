@@ -213,6 +213,7 @@ function renderTrivia(state){
  }else if(state.phase==="voting"){
   lines.push("TRIVIA CATEGORY VOTE · 1 MINUTE");
   lines.push("Tap a category below or type its name in chat. You can change your vote until the timer ends.");
+  lines.push("नेपाली: तलको बटन थिचेर वा category को नाम लेखेर भोट दिनुहोस्। १ मिनेटभित्र आफ्नो भोट परिवर्तन गर्न सक्नुहुन्छ।");
   const names=["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"];
   names.forEach(name=>lines.push(name+": "+(state.voteCounts?.[name]||0)+" vote(s)"));
   lines.push("One vote per person. You can change your vote before the timer ends. Ties are decided randomly.");
@@ -221,6 +222,7 @@ function renderTrivia(state){
   lines.push(state.question);
   (state.choices||[]).forEach((choice,i)=>lines.push(String.fromCharCode(65+i)+") "+choice));
   lines.push(state.revealed?"Correct answer: "+String.fromCharCode(65+state.correctIndex)+") "+state.choices[state.correctIndex]+". Next question starts in 1 minute.":"30-second countdown is running. Type A, B, C or D.");
+  if(!state.revealed)lines.push("नेपाली: ३० सेकेन्डभित्र A, B, C वा D मध्ये सही उत्तर लेख्नुहोस्।");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
