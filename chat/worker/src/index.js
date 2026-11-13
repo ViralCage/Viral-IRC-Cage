@@ -278,7 +278,7 @@ export class ChatRoom {
       const keyOf=q=>String(q.id||("base:"+q.q));
       let available=bank.filter(q=>!seen.includes(keyOf(q)));
       // Only recycle the room's question history after the entire pool is exhausted.
-      if(available.length<10){seen=[];available=bank.slice()}
+      if(available.length===0){seen=[];available=bank.slice()}
       const picked=[];
       while(picked.length<10&&available.length){
         const n=Math.floor(Math.random()*available.length),q=available.splice(n,1)[0];
