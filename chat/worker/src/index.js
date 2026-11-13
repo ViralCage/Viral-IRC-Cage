@@ -121,11 +121,7 @@ export class ChatRoom {
     const now=Date.now();
     await this.state.put("lastActivityAt",now);
     await this.state.delete("inactiveSinceAt");
-    const triviaDeadline=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed
-      ? this.trivia.deadlineAt
-      : this.trivia&&this.trivia.phase==="revealed"
-        ? this.trivia.autoNextAt
-        : 0;
+    const triviaDeadline=this.trivia&&(this.trivia.phase==="voting"||this.trivia.phase==="question"&&!this.trivia.revealed)?this.trivia.deadlineAt:this.trivia&&this.trivia.phase==="revealed"?this.trivia.autoNextAt:0;
     await this.state.setAlarm(triviaDeadline?Math.min(now+60000,triviaDeadline):now+60000);
   }
   broadcast(payload,except=null){
@@ -173,6 +169,11 @@ export class ChatRoom {
     }else if(message.type==="message"){
       const text=String(message.text||"").trim();if(!text||text.length>MAX_MESSAGE_LENGTH)return;
       if(containsAdultLink(text)){try{socket.send(JSON.stringify({type:"error",message:"VC Guardian: adult-content links are blocked. Remove the link and try again."}))}catch{};return}
+      const voteCommand=text.match(/^!vote\\s+(.+)$/i);
+      if(this.trivia&&this.trivia.phase==="voting"&&voteCommand){
+        await this.handleTrivia(socket,attachment,{action:"vote",category:voteCommand[1].trim()});
+        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:(attachment.name||"A player")+" voted for "+voteCommand[1].trim()+".",at:Date.now()});await this.touch();return;
+      }
       const triviaAnswer=text.match(/^(?:!answer\s+)?([a-d])(?:[).])?$/i);
       if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&triviaAnswer){
         const choice=triviaAnswer[1].toUpperCase().charCodeAt(0)-65;
@@ -228,101 +229,103 @@ export class ChatRoom {
     if(outgoing.type==="message") await this.maybeReplyAsBot(outgoing);
   }
 
+  triviaCategories(){return ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"]}
   triviaQuestions(){
     const bank=[
       {category:"Science",q:"Which planet is known as the Red Planet?",choices:["Venus","Mars","Jupiter","Mercury"],a:1},
-      {category:"Geography",q:"What is the capital of Japan?",choices:["Seoul","Beijing","Tokyo","Bangkok"],a:2},
-      {category:"General Knowledge",q:"How many sides does a hexagon have?",choices:["5","6","7","8"],a:1},
       {category:"Science",q:"What gas do plants absorb from the atmosphere?",choices:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],a:2},
-      {category:"History",q:"Which ancient civilization built the pyramids at Giza?",choices:["Romans","Egyptians","Greeks","Persians"],a:1},
-      {category:"Sports",q:"How many players are on the field for one soccer team?",choices:["9","10","11","12"],a:2},
-      {category:"Geography",q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
       {category:"Science",q:"What is H2O commonly known as?",choices:["Salt","Water","Oxygen","Hydrogen"],a:1},
-      {category:"Technology",q:"What does CPU stand for?",choices:["Central Processing Unit","Computer Power Utility","Core Program Upload","Central Print Unit"],a:0},
-      {category:"Animals",q:"What is the fastest land animal?",choices:["Lion","Cheetah","Horse","Leopard"],a:1},
-      {category:"General Knowledge",q:"How many days are in a leap year?",choices:["364","365","366","367"],a:2},
-      {category:"Geography",q:"Which country is home to the city of Kathmandu?",choices:["India","Bhutan","Nepal","Bangladesh"],a:2},
       {category:"Science",q:"Which part of a plant usually absorbs water?",choices:["Leaves","Roots","Flowers","Stem"],a:1},
+      {category:"Science",q:"What force keeps planets in orbit around the Sun?",choices:["Magnetism","Gravity","Friction","Electricity"],a:1},
+      {category:"Science",q:"What is the centre of an atom called?",choices:["Electron","Nucleus","Cell","Molecule"],a:1},
+      {category:"Sports",q:"How many players are on the field for one soccer team?",choices:["9","10","11","12"],a:2},
       {category:"Sports",q:"In tennis, what word means a score of zero?",choices:["Nil","Love","Blank","Duck"],a:1},
-      {category:"History",q:"Who was the first person to walk on the Moon?",choices:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],a:2}
+      {category:"Sports",q:"How many rings are on the Olympic flag?",choices:["4","5","6","7"],a:1},
+      {category:"Sports",q:"Which sport uses a puck?",choices:["Cricket","Hockey","Rugby","Tennis"],a:1},
+      {category:"Sports",q:"How many points is a basketball free throw worth?",choices:["1","2","3","4"],a:0},
+      {category:"Sports",q:"Wimbledon is associated with which sport?",choices:["Golf","Tennis","Football","Swimming"],a:1},
+      {category:"General Knowledge",q:"How many sides does a hexagon have?",choices:["5","6","7","8"],a:1},
+      {category:"General Knowledge",q:"How many days are in a leap year?",choices:["364","365","366","367"],a:2},
+      {category:"General Knowledge",q:"What is the largest mammal?",choices:["African elephant","Blue whale","Giraffe","Hippopotamus"],a:1},
+      {category:"General Knowledge",q:"Which language has the most native speakers worldwide?",choices:["English","Spanish","Mandarin Chinese","Hindi"],a:2},
+      {category:"History",q:"Which ancient civilization built the pyramids at Giza?",choices:["Romans","Egyptians","Greeks","Persians"],a:1},
+      {category:"History",q:"Who was the first person to walk on the Moon?",choices:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],a:2},
+      {category:"History",q:"The Great Wall is located in which country?",choices:["India","China","Japan","Mongolia"],a:1},
+      {category:"History",q:"In which year did World War II end?",choices:["1943","1944","1945","1946"],a:2},
+      {category:"Geography",q:"What is the capital of Japan?",choices:["Seoul","Beijing","Tokyo","Bangkok"],a:2},
+      {category:"Geography",q:"Which is the largest ocean on Earth?",choices:["Atlantic","Indian","Arctic","Pacific"],a:3},
+      {category:"Geography",q:"Which country is home to Kathmandu?",choices:["India","Bhutan","Nepal","Bangladesh"],a:2},
+      {category:"Geography",q:"What is the largest country by land area?",choices:["Canada","China","Russia","United States"],a:2},
+      {category:"Technology",q:"What does CPU stand for?",choices:["Central Processing Unit","Computer Power Utility","Core Program Upload","Central Print Unit"],a:0},
+      {category:"Technology",q:"What does WWW stand for?",choices:["World Wide Web","Web World Wire","Wide World Window","World Web Watch"],a:0},
+      {category:"Technology",q:"Which company created the Android operating system?",choices:["Apple","Google","Microsoft","IBM"],a:1},
+      {category:"Technology",q:"What does USB stand for?",choices:["Universal Serial Bus","United System Board","User Storage Base","Universal Signal Box"],a:0},
+      {category:"Bible",q:"Who built the ark?",choices:["Moses","Noah","Abraham","David"],a:1},
+      {category:"Bible",q:"Who defeated Goliath?",choices:["Saul","Solomon","David","Samson"],a:2},
+      {category:"Bible",q:"In which town was Jesus born?",choices:["Nazareth","Bethlehem","Jerusalem","Capernaum"],a:1},
+      {category:"Bible",q:"How many days and nights did it rain during the flood?",choices:["7","12","40","50"],a:2},
+      {category:"Nature",q:"What is the fastest land animal?",choices:["Lion","Cheetah","Horse","Leopard"],a:1},
+      {category:"Nature",q:"What do bees collect from flowers?",choices:["Nectar","Sand","Bark","Dew only"],a:0},
+      {category:"Nature",q:"What is a baby frog called?",choices:["Cub","Tadpole","Calf","Chick"],a:1},
+      {category:"Nature",q:"Which tree produces acorns?",choices:["Pine","Oak","Maple","Birch"],a:1},
+      {category:"Space",q:"Which planet is closest to the Sun?",choices:["Venus","Earth","Mercury","Mars"],a:2},
+      {category:"Space",q:"What is the name of our galaxy?",choices:["Andromeda","Milky Way","Whirlpool","Sombrero"],a:1},
+      {category:"Space",q:"What is the largest planet in our solar system?",choices:["Earth","Saturn","Jupiter","Neptune"],a:2},
+      {category:"Space",q:"What do astronauts wear in space?",choices:["Diving suit","Space suit","Flight jacket","Lab coat"],a:1}
     ];
-    // A large offline question pool: thousands of distinct arithmetic questions.
-    // This keeps trivia working even when the Workers AI free quota is unavailable.
-    const addChoices=(answer)=>[answer,answer+3,Math.max(0,answer-2),answer+7].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
-    const addQuestion=(category,q,answer,id)=>{
-      const values=addChoices(answer);
-      while(values.length<4)values.push(answer+values.length+9);
-      for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}
-      bank.push({id,category,q,choices:values.map(String),a:values.indexOf(answer)});
-    };
-    for(let a=10;a<=99;a++)for(let b=10;b<=99;b++){
-      addQuestion("Math", "What is "+a+" + "+b+"?", a+b,"add:"+a+":"+b);
-      if(a>=b)addQuestion("Math","What is "+a+" - "+b+"?",a-b,"sub:"+a+":"+b);
-    }
-    for(let a=2;a<=20;a++)for(let b=2;b<=20;b++)addQuestion("Math","What is "+a+" × "+b+"?",a*b,"mul:"+a+":"+b);
+    const addChoices=answer=>[answer,answer+3,Math.max(0,answer-2),answer+7].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
+    const addQuestion=(q,answer,id)=>{const values=addChoices(answer);while(values.length<4)values.push(answer+values.length+9);for(let i=values.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}bank.push({id,category:"Math",q,choices:values.map(String),a:values.indexOf(answer)})};
+    for(let a=10;a<=99;a++)for(let b=10;b<=99;b++){addQuestion("What is "+a+" + "+b+"?",a+b,"add:"+a+":"+b);if(a>=b)addQuestion("What is "+a+" - "+b+"?",a-b,"sub:"+a+":"+b)}
+    for(let a=2;a<=20;a++)for(let b=2;b<=20;b++)addQuestion("What is "+a+" × "+b+"?",a*b,"mul:"+a+":"+b);
     return bank;
   }
   triviaSnapshot(){
-    const game=this.trivia;
-    if(!game)return {type:"trivia-state",active:false,host:"VC God"};
-    const revealed=game.revealed;
-    return {type:"trivia-state",active:true,phase:game.phase,round:game.index+1,total:game.total,category:game.question.category,question:game.question.q,choices:game.question.choices,correctIndex:revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,autoNextAt:game.autoNextAt||null,answered:Object.keys(game.answers).length,players:Object.keys(game.players).length,scoreboard:Object.entries(game.scores).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),myAnswer:null,host:"VC God"};
+    const game=this.trivia;if(!game)return {type:"trivia-state",active:false,host:"VC God"};
+    const votes=game.votes||{},voteCounts={};for(const category of this.triviaCategories())voteCounts[category]=Object.values(votes).filter(v=>v===category).length;
+    return {type:"trivia-state",active:true,phase:game.phase,round:game.index==null?0:game.index+1,total:game.total||10,category:game.category||"Voting",question:game.question?.q||"",choices:game.question?.choices||[],correctIndex:game.revealed?game.question.a:null,deadlineAt:game.deadlineAt||null,autoNextAt:game.autoNextAt||null,answered:Object.keys(game.answers||{}).length,players:Object.keys(game.players||{}).length,voteCounts,scoreboard:Object.entries(game.scores||{}).map(([uid,p])=>({uid,name:p.name,score:p.score})).sort((a,b)=>b.score-a.score),host:"VC God"};
+  }
+  async beginTrivia(category,starterUid,starterName){
+    const bank=this.triviaQuestions().filter(q=>q.category===category);let seen=await this.state.get("triviaSeenQuestionIds")||[];
+    const keyOf=q=>String(q.id||("base:"+q.category+":"+q.q));let available=bank.filter(q=>!seen.includes(keyOf(q)));
+    if(available.length<Math.min(10,bank.length)){seen=seen.filter(id=>!bank.some(q=>keyOf(q)===id));available=bank.filter(q=>!seen.includes(keyOf(q)))}
+    const picked=[];while(picked.length<10&&available.length){const n=Math.floor(Math.random()*available.length),q=available.splice(n,1)[0];picked.push(q);seen.push(keyOf(q))}
+    await this.state.put("triviaSeenQuestionIds",seen);
+    this.trivia={category,index:0,total:picked.length,questions:picked,question:picked[0],players:{[starterUid]:starterName},scores:{[starterUid]:{name:starterName,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
+    await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
+    this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Category selected: "+category+". Trivia starts now! Type A, B, C or D within 30 seconds. Correct answers earn 10 points.",at:Date.now()});this.broadcast(this.triviaSnapshot());
   }
   async handleTrivia(socket,attachment,message){
-    const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest");
-    const action=String(message.action||"");
+    const uid=String(attachment.uid||"guest"),name=String(attachment.name||"Guest"),action=String(message.action||"");
     if(action==="start"){
-      if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia game is already running. Type !join to join it."}))}catch{};return}
-      const bank=this.triviaQuestions();
-      let seen=await this.state.get("triviaSeenQuestionIds")||[];
-      const keyOf=q=>String(q.id||("base:"+q.q));
-      let available=bank.filter(q=>!seen.includes(keyOf(q)));
-      // Only recycle the room's question history after the entire pool is exhausted.
-      if(available.length===0){seen=[];available=bank.slice()}
-      const picked=[];
-      while(picked.length<10&&available.length){
-        const n=Math.floor(Math.random()*available.length),q=available.splice(n,1)[0];
-        picked.push(q);seen.push(keyOf(q));
-      }
-      await this.state.put("triviaSeenQuestionIds",seen);
-      this.trivia={index:0,total:picked.length,questions:picked,question:picked[0],players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
-      await this.state.put("trivia",this.trivia);
-      await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"VC God Trivia is live! No joining needed. Everyone can answer by typing A, B, C or D within 30 seconds. Correct answers earn 10 points; the answer is revealed automatically.",at:Date.now()});
-      this.broadcast(this.triviaSnapshot());return;
+      if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
+      this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+20000,index:0,total:0};
+      await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 20 seconds. Vote in chat with !vote science, !vote sports, !vote math, !vote general, !vote history, !vote geography, !vote technology, !vote bible, !vote nature or !vote space. One vote per person; voting again changes your vote.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
-    if(action==="join"){
-      this.trivia.players[uid]=name;
-      if(!this.trivia.scores[uid])this.trivia.scores[uid]={name,score:0};
-      this.broadcast(this.triviaSnapshot());return;
+    if(action==="vote"){
+      if(this.trivia.phase!=="voting")return;
+      const aliases={"science":"Science","sports":"Sports","sport":"Sports","math":"Math","mathematics":"Math","general":"General Knowledge","general knowledge":"General Knowledge","history":"History","geography":"Geography","technology":"Technology","tech":"Technology","bible":"Bible","nature":"Nature","space":"Space"};
+      const category=aliases[String(message.category||"").toLowerCase()];if(!category)return;
+      this.trivia.votes=this.trivia.votes||{};this.trivia.votes[uid]=category;this.trivia.players[uid]=name;if(!this.trivia.scores[uid])this.trivia.scores[uid]={name,score:0};
+      await this.state.put("trivia",this.trivia);this.broadcast(this.triviaSnapshot());return;
     }
+    if(action==="join"){this.trivia.players[uid]=name;if(!this.trivia.scores[uid])this.trivia.scores[uid]={name,score:0};await this.state.put("trivia",this.trivia);this.broadcast(this.triviaSnapshot());return}
     if(action==="answer"){
       if(this.trivia.phase!=="question"||this.trivia.revealed)return;
       if(!this.trivia.players[uid]){this.trivia.players[uid]=name;this.trivia.scores[uid]={name,score:0}}
-      if(this.trivia.answers[uid]!==undefined)return;
-      const choice=Number(message.choice);
-      if(!Number.isInteger(choice)||choice<0||choice>3)return;
-      this.trivia.answers[uid]=choice;
-      if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
-      // Persist every answer and score so hibernation cannot reset the round.
-      await this.state.put("trivia",this.trivia);
-      this.broadcast(this.triviaSnapshot());return;
+      if(this.trivia.answers[uid]!==undefined)return;const choice=Number(message.choice);if(!Number.isInteger(choice)||choice<0||choice>3)return;
+      this.trivia.answers[uid]=choice;if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
+      await this.state.put("trivia",this.trivia);this.broadcast(this.triviaSnapshot());return;
     }
     if(action==="next"){
-      if(this.trivia.phase!=="revealed"&&!this.trivia.revealed)return;
-      this.trivia.index++;
+      if(this.trivia.phase!=="revealed"&&!this.trivia.revealed)return;this.trivia.index++;
       if(this.trivia.index>=this.trivia.total){
-        this.trivia.phase="finished";this.trivia.revealed=true;
-        await this.state.put("trivia",this.trivia);
-        this.broadcast(this.triviaSnapshot());
-        const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
+        this.trivia.phase="finished";this.trivia.revealed=true;await this.state.put("trivia",this.trivia);this.broadcast(this.triviaSnapshot());
+        const winner=Object.values(this.trivia.scores).sort((a,b)=>b.score-a.score)[0];this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia finished! Winner: "+(winner?.name||"No one")+" with "+(winner?.score||0)+" points. Type !trivia to play another round.",at:Date.now()});return;
       }
       this.trivia.question=this.trivia.questions[this.trivia.index];this.trivia.answers={};this.trivia.revealed=false;this.trivia.phase="question";this.trivia.deadlineAt=Date.now()+30000;
-      await this.state.put("trivia",this.trivia);
-      await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast(this.triviaSnapshot());return;
+      await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);this.broadcast(this.triviaSnapshot());return;
     }
   }
   async maybeReplyAsBot(message){
@@ -331,10 +334,10 @@ export class ChatRoom {
     const mentioned=/\bgod\b/i.test(text);
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, !join, !next, /riddle, /dice, /coin. Trivia: type A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 1 minute; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, !vote category, !join, !next, /riddle, /dice, /coin. Vote with !vote science, sports, math, general, history, geography, technology, bible, nature or space. Then answer A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 1 minute; no joining needed.",
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
       "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 1 minute.",
-      "!trivia":"Starting a 45-second trivia question. Type A, B, C or D; no joining needed.",
+      "!trivia":"Starting a 20-second category vote. Type !vote science, sports, math, general, history, geography, technology, bible, nature or space.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
       "/riddle":"Riddle: I have keys but no locks, space but no room. What am I?",
@@ -343,6 +346,7 @@ export class ChatRoom {
     };
     let reply=commands[command];
     if(command==="!trivia"){await this.handleTrivia(null,{uid:message.uid||"vc-room-bot",name:message.name||"Guest"},{action:"start"});return}
+    if(command==="!vote"){const category=text.replace(/^!vote\\s*/i,"");await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"vote",category});return}
     if(command==="!join"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"join"});return}
     if(command==="!next"){await this.handleTrivia(null,{uid:message.uid||"guest",name:message.name||"Guest"},{action:"next"});return}
     if(!reply&&!mentioned)return
@@ -412,6 +416,13 @@ export class ChatRoom {
   }
   async alarm(){
     const active=this.ctx.getWebSockets().some(ws=>ws.readyState===WebSocket.OPEN);
+    if(this.trivia&&this.trivia.phase==="voting"&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
+      const counts={};for(const category of this.triviaCategories())counts[category]=0;
+      for(const category of Object.values(this.trivia.votes||{}))if(counts[category]!==undefined)counts[category]++;
+      const highest=Math.max(0,...Object.values(counts)),tied=this.triviaCategories().filter(category=>counts[category]===highest);
+      const winner=tied[Math.floor(Math.random()*tied.length)]||"Science",starter=Object.entries(this.trivia.players||{})[0]||["vc-room-bot","VC God"];
+      await this.beginTrivia(winner,starter[0],starter[1]);
+    }
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
       this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
       this.trivia.autoNextAt=Date.now()+60000;
@@ -437,11 +448,7 @@ export class ChatRoom {
       // Keep a running trivia game on its own alarm schedule. This prevents the
       // room's idle-expiry alarm from replacing the 30-second question / 1-minute
       // auto-next timer when only one player remains or the last player briefly disconnects.
-      const triviaTimerAt=this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed
-        ? this.trivia.deadlineAt
-        : this.trivia&&this.trivia.phase==="revealed"
-          ? this.trivia.autoNextAt
-          : 0;
+      const triviaTimerAt=this.trivia&&(this.trivia.phase==="voting"||this.trivia.phase==="question"&&!this.trivia.revealed)?this.trivia.deadlineAt:this.trivia&&this.trivia.phase==="revealed"?this.trivia.autoNextAt:0;
       await this.state.setAlarm(triviaTimerAt?Math.min(expiresAt,triviaTimerAt):expiresAt);
       return;
     }
