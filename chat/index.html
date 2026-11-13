@@ -38,6 +38,7 @@ input:focus{border-color:#8c58ff;box-shadow:0 0 0 3px #7c4dff26}
 .roomtitle{font-weight:900;letter-spacing:.1em}.substatus{color:#9bb2e7;font-size:12px;margin:0 4px 0 0;padding:7px 10px;border:1px solid #29477f;border-radius:999px;background:#091a38;white-space:nowrap;align-self:center}
 /* Keep connection confirmation inside the chat conversation only; hide duplicate header status. */
 .substatus{display:none!important}
+.room-online{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 17px;background:#08142d;border-bottom:1px solid #1a3675;color:#b9cafa;font-size:12px}.room-online strong{font-size:10px;letter-spacing:.12em;color:#8faeea}.room-online-count{color:#55e5c2;font-weight:800}.room-online-list{display:flex;gap:7px;flex-wrap:wrap}.room-online-user{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #29477f;border-radius:999px;background:#0d2043;color:#e6efff}.room-online-user:before{content:"";width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-empty{color:#91a6d0}
 .headactions{display:flex;gap:8px;flex-wrap:wrap}.headactions button{padding:9px 12px;font-size:12px;min-height:40px}
 .invite{padding:11px 17px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#07122a;border-bottom:1px solid #1a3675;color:#b7c9f1;font-size:12px}
 .inviteurl{overflow-wrap:anywhere;flex:1;min-width:160px;color:#e0eaff}.invite button{padding:7px 11px;min-height:36px;font-size:12px}
@@ -159,6 +160,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <section class="card chat" id="chat">
 <div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
 <div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
+<div class="room-online" id="roomOnline" aria-live="polite"><strong>ONLINE IN THIS ROOM</strong><span class="room-online-count" id="roomOnlineCount">0</span><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div>
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
@@ -355,8 +357,12 @@ const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
 function renderRoomMembers(members){
- const roomMembers=(members||[]).filter(p=>p&&p.uid&&p.uid!==uid);
+ const allMembers=Array.from(new Map((members||[]).filter(p=>p&&p.uid).map(p=>[String(p.uid),{uid:String(p.uid),name:String(p.name||"Guest").slice(0,24)}])).values());
+ const roomMembers=allMembers.filter(p=>p.uid!==uid);
  window.vcRoomMembers=roomMembers;
+ const list=$("roomOnlineList"),count=$("roomOnlineCount");
+ if(count)count.textContent=String(allMembers.length);
+ if(list){list.replaceChildren();if(!allMembers.length){const empty=document.createElement("span");empty.className="room-online-empty";empty.textContent="No users are currently in this room.";list.append(empty)}else allMembers.forEach(peer=>{const item=document.createElement("span");item.className="room-online-user";item.textContent=peer.name+(peer.uid===uid?" (You)":"");list.append(item)})}
  window.dispatchEvent(new CustomEvent("vc-room-members-update",{detail:{members:roomMembers}}));
 }
 function makePrivateCode(){const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase()}
