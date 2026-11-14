@@ -72,8 +72,9 @@ export default {
     if (url.pathname === "/rooms" && request.method === "POST") {
       let body={};try{body=await request.json()}catch{return json({error:"Invalid request body."},400,origin)}
       if(body.action!=="create")return json({error:"Unsupported room action."},400,origin);
-      // Prefer 4-digit codes to reduce collisions as the room directory grows.
-      for(const [length,attempts] of [[4,120],[3,40]]){
+      // Room codes are exactly 3 digits.
+      for(let attempt=0;attempt<160;attempt++){
+        const length=3;
         for(let attempt=0;attempt<attempts;attempt++){
           const code=makeRoomCode(length),id=env.CHAT_ROOMS.idFromName(code),stub=env.CHAT_ROOMS.get(id);
           let result;
@@ -85,7 +86,7 @@ export default {
       }
       return json({error:"Room codes are temporarily busy. Please try again."},503,origin);
     }
-    const match=url.pathname.match(/^\/rooms\/(\d{3,4})$/);
+    const match=url.pathname.match(/^\/rooms\/(\d{3})$/);
     if(match&&request.method==="POST"){
       const id=env.CHAT_ROOMS.idFromName(match[1]);
       const stub=env.CHAT_ROOMS.get(id);
