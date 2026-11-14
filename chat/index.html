@@ -479,7 +479,7 @@ function connect(code){
  socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");publishP2PStatus("Cloudflare chat connection closed: "+(event.reason||"Disconnected"));$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
  socket.addEventListener("error",()=>{publishP2PStatus("Cloudflare chat connection error. Check the Worker deployment.");$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
 }
-async function createRoom(){ $("create").disabled=true;$("join").disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create"})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Room creation failed.");connect(data.room)}catch(error){status("Could not create room: "+error.message)}finally{$("create").disabled=false;$("join").disabled=false}}
+async function createRoom(){const create=$("create"),join=$("join");create.disabled=true;join.disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({action:"create"})});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}if(!response.ok)throw new Error(data.error||("Chat server returned HTTP "+response.status+(raw?" · "+raw.slice(0,160):"")));const code=clean(data.room);if(!/^\\d{3,4}$/.test(code))throw new Error("The server did not return a valid room code. Please try again.");$("roomcode").value=code;status("Room "+code+" created. Connecting…");connect(code)}catch(error){status("Could not create room: "+(error.name==="TypeError"?"Cannot reach the chat server. Check your connection or Worker deployment.":error.message||"Unknown error"))}finally{create.disabled=false;join.disabled=false}}
 $("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
 $("sendform").addEventListener("submit",e=>{e.preventDefault();const text=$("message").value.trim();if(!text)return;if(sendPacket({type:"message",text})){$("message").value="";$("message").dispatchEvent(new Event("input",{bubbles:true}));sendTyping(false)}});
 function sendTyping(active){if(typingActive===active)return;typingActive=active;sendPacket({type:active?"typing":"typing-clear"})}
@@ -608,6 +608,4 @@ window.addEventListener("pagehide",stopCamera);
 })();
 </script>
 
-<script src="/chat/voice.js?v=room-roster-20261113" defer></script>
-<script defer src="/chat/private-p2p.js?v=20261102"></script>
 </body></html>
