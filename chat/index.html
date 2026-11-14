@@ -147,6 +147,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 @media(max-width:520px){.trivia-countdown-ring{width:190px;height:190px}.trivia-countdown-ring strong{font-size:82px}.trivia-countdown-ring span{font-size:12px}.trivia-countdown-caption{font-size:11px}}
 
 .room-online{position:relative;padding:8px 17px;background:#08142d;border-bottom:1px solid #1a3675}.room-online-toggle{display:inline-flex;align-items:center;gap:9px;min-height:34px;padding:6px 11px!important;font-size:12px!important}.room-online-dot{width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-panel{position:absolute;z-index:20;top:calc(100% + 5px);left:16px;min-width:220px;max-width:min(360px,calc(100vw - 32px));padding:12px;background:#0b1935;border:1px solid #31518c;border-radius:12px;box-shadow:0 12px 32px #0009}.room-online-panel[hidden]{display:none}.room-online-panel strong{display:block;margin-bottom:9px;font-size:10px;letter-spacing:.12em;color:#8faeea}.room-online-count{color:#55e5c2;font-weight:800}.room-online-list{display:flex;gap:7px;flex-wrap:wrap}.room-online-user{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #29477f;border-radius:999px;background:#0d2043;color:#e6efff}.room-online-user:before{content:"";width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-empty{color:#91a6d0;font-size:12px}
+ .trivia-quick-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 14px;background:#09172f;border-top:1px solid #29477f}.trivia-quick-controls button{min-height:38px;padding:8px 14px;font-weight:800}.trivia-quick-controls button[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -170,6 +171,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
+<div class="trivia-quick-controls" id="triviaQuickControls"><button type="button" id="startTriviaButton">Start Trivia</button><button type="button" id="stopTriviaButton" class="ghost" hidden>Stop Trivia</button><span class="trivia-desc">One click to start a category vote</span></div>
 <div class="quick-reactions" id="quickReactions"><span>Quick react</span></div>
 <form class="composer" id="sendform">
 <div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><button type="button" class="iconbtn" id="dictate" title="Speak to type a message" aria-label="Speak to type a message">🎤</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
@@ -247,6 +249,10 @@ async function enableTriviaVoice(){
  const hint=$("triviaVoiceHint");if(hint)hint.textContent=enabling?"Voice announcements and live countdown tick sounds are enabled.":"Tap to enable voice announcements and countdown tick sounds.";
 }
 function renderTrivia(state){
+ const startTriviaButton=$("startTriviaButton"),stopTriviaButton=$("stopTriviaButton");
+ const triviaRunning=!!state.active&&!["stopped","finished"].includes(state.phase);
+ if(startTriviaButton)startTriviaButton.hidden=triviaRunning;
+ if(stopTriviaButton)stopTriviaButton.hidden=!triviaRunning;
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
  let overlay=$("triviaCountdownOverlay");
  // The socket-open handler clears the messages container; recreate the timer if that removed it.
@@ -498,6 +504,8 @@ function connect(code){
 async function createRoom(){const create=$("create"),join=$("join");create.disabled=true;join.disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({action:"create"})});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}if(!response.ok)throw new Error(data.error||("Chat server returned HTTP "+response.status+(raw?" · "+raw.slice(0,160):"")));const code=clean(data.room??data.roomCode??data.code??data.room_code);if(!/^\d{3}$/.test(code))throw new Error("Chat server response was not a room code (HTTP "+response.status+"): "+raw.slice(0,180));$("roomcode").value=code;status("Room "+code+" created. Connecting…");connect(code)}catch(error){status("Could not create room: "+(error.name==="TypeError"?"Cannot reach the chat server. Check your connection or Worker deployment.":error.message||"Unknown error"))}finally{create.disabled=false;join.disabled=false}}
 $("create").__vcCreateBound=true;$("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
 $("sendform").addEventListener("submit",e=>{e.preventDefault();const text=$("message").value.trim();if(!text)return;if(sendPacket({type:"message",text})){$("message").value="";$("message").dispatchEvent(new Event("input",{bubbles:true}));sendTyping(false)}});
+$("startTriviaButton").addEventListener("click",()=>sendPacket({type:"trivia",action:"start"}));
+$("stopTriviaButton").addEventListener("click",()=>sendPacket({type:"trivia",action:"stop"}));
 function sendTyping(active){if(typingActive===active)return;typingActive=active;sendPacket({type:active?"typing":"typing-clear"})}
 $("message").addEventListener("input",()=>{const hasText=!!$("message").value.trim();clearTimeout(typingTimer);sendTyping(hasText);if(hasText)typingTimer=setTimeout(()=>sendTyping(false),1200)});
 function filterMessages(){const q=$("messageSearch").value.trim().toLowerCase();$("messages").querySelectorAll(".bubble:not(.system)").forEach(node=>{node.hidden=!!q&&!node.textContent.toLowerCase().includes(q)})}
