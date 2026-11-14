@@ -347,7 +347,7 @@ export class ChatRoom {
   async beginTrivia(category,starterUid,starterName){
     const bank=this.triviaQuestions().filter(q=>q.category===category);let seen=await this.state.get("triviaSeenQuestionIds")||[];
     const keyOf=q=>String(q.id||("base:"+q.category+":"+q.q));let available=bank.filter(q=>!seen.includes(keyOf(q)));
-    if(available.length<Math.min(10,bank.length)){seen=seen.filter(id=>!bank.some(q=>keyOf(q)===id));available=bank.filter(q=>!seen.includes(keyOf(q)))}
+    if(!available.length){seen=seen.filter(id=>!bank.some(q=>keyOf(q)===id));available=bank.slice()}
     const picked=[];while(picked.length<10&&available.length){const n=Math.floor(Math.random()*available.length),q=available.splice(n,1)[0];picked.push(q);seen.push(keyOf(q))}
     await this.state.put("triviaSeenQuestionIds",seen);
     this.trivia={category,index:0,total:picked.length,questions:picked,question:picked[0],players:{[starterUid]:starterName},scores:{[starterUid]:{name:starterName,score:0}},answers:{},phase:"question",revealed:false,deadlineAt:Date.now()+30000};
