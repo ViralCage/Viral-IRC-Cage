@@ -305,7 +305,7 @@ function renderTrivia(state){
   votePanel.hidden=false;
   votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose your answer</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">"+(window.triviaMyAnswer!==null?"Your answer is locked: "+String.fromCharCode(65+window.triviaMyAnswer)+".":"Tap A, B, C or D, or type the letter in chat. Your first answer locks.")+"</div>";
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
-  (state.choices||[]).slice(0,4).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
+  (state.choices||[]).slice(0,3).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
@@ -410,7 +410,7 @@ let uid=guestSession.uid;
 function saveGuestSession(name,room){guestSession={uid,expiresAt:Date.now()+GUEST_SESSION_MS,nickname:String(name||guestSession.nickname||"Guest").trim().slice(0,24)||"Guest",roomCode:room===undefined?String(guestSession.roomCode||""):clean(room)};try{localStorage.setItem(GUEST_SESSION_KEY,JSON.stringify(guestSession))}catch{status("Your browser is blocking saved chat login. Enable site storage for viralcage.com.")}}
 try{localStorage.setItem(GUEST_SESSION_KEY,JSON.stringify(guestSession))}catch{}
 $("nickname").value=guestSession.nickname||"";
-const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
+const clean=v=>String(v||"").replace(/\D/g,"").slice(0,3);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
 const roomOnlineToggle=$("roomOnlineToggle"),roomOnlinePanel=$("roomOnlinePanel");if(roomOnlineToggle&&roomOnlinePanel){roomOnlineToggle.addEventListener("click",()=>{const open=roomOnlineToggle.getAttribute("aria-expanded")!=="true";roomOnlineToggle.setAttribute("aria-expanded",String(open));roomOnlinePanel.hidden=!open});document.addEventListener("click",event=>{if(!event.target.closest("#roomOnline")){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}});document.addEventListener("keydown",event=>{if(event.key==="Escape"){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}})}
@@ -461,7 +461,7 @@ function addMessage(m){
 }
 function sendPacket(packet){if(!socket||socket.readyState!==WebSocket.OPEN){$("peerstatus").textContent="Not connected. Rejoin the room.";playSound("error");return false}try{socket.send(JSON.stringify(packet));if(packet.type==="emote")playEmojiSound(packet.emoji);else if(packet.type==="message"&&isEmojiOnlyMessage(packet.text))playEmojiSound(packet.text);else if(packet.type==="message"||packet.type==="attachment"||packet.type==="voice")playSound("send");return true}catch{$("peerstatus").textContent="Could not send. Try a smaller file.";return false}}
 function connect(code){
- roomCode=clean(code);if(!/^\d{3,4}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
+ roomCode=clean(code);if(!/^\d{3}$/.test(roomCode)){status("Enter a valid 3 or 4 digit room code.");return}
   saveGuestSession($("nickname").value.trim().slice(0,24)||"Guest",roomCode);
   const roomUrl=new URL(location.href);roomUrl.searchParams.set("room",roomCode);history.replaceState({},"",roomUrl.pathname+roomUrl.search+roomUrl.hash);
  const name=$("nickname").value.trim().slice(0,24)||"Guest";saveGuestSession(name);showRoom();$("messages").innerHTML='<div class="empty">Connecting to your room…</div>';$("peerstatus").textContent="Connecting to chat server…";
@@ -496,7 +496,7 @@ function connect(code){
  socket.addEventListener("close",event=>{$("typing").textContent="";$("chat").classList.remove("is-connected");playSound("disconnect");publishP2PStatus("Cloudflare chat connection closed: "+(event.reason||"Disconnected"));$("peerstatus").textContent=event.reason||"Disconnected";if(event.code===1006) $("peerstatus").textContent="Could not connect. Check that the Cloudflare Worker is deployed."});
  socket.addEventListener("error",()=>{publishP2PStatus("Cloudflare chat connection error. Check the Worker deployment.");$("peerstatus").textContent="Connection error. Check chat server deployment.";playSound("error")});
 }
-async function createRoom(){const create=$("create"),join=$("join");create.disabled=true;join.disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({action:"create"})});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}if(!response.ok)throw new Error(data.error||("Chat server returned HTTP "+response.status+(raw?" · "+raw.slice(0,160):"")));const code=clean(data.room??data.roomCode??data.code??data.room_code);if(!/^\d{3,4}$/.test(code))throw new Error("Chat server response was not a room code (HTTP "+response.status+"): "+raw.slice(0,180));$("roomcode").value=code;status("Room "+code+" created. Connecting…");connect(code)}catch(error){status("Could not create room: "+(error.name==="TypeError"?"Cannot reach the chat server. Check your connection or Worker deployment.":error.message||"Unknown error"))}finally{create.disabled=false;join.disabled=false}}
+async function createRoom(){const create=$("create"),join=$("join");create.disabled=true;join.disabled=true;status("Creating your room…");try{const response=await fetch(API_BASE+"/rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({action:"create"})});const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}if(!response.ok)throw new Error(data.error||("Chat server returned HTTP "+response.status+(raw?" · "+raw.slice(0,160):"")));const code=clean(data.room??data.roomCode??data.code??data.room_code);if(!/^\d{3}$/.test(code))throw new Error("Chat server response was not a room code (HTTP "+response.status+"): "+raw.slice(0,180));$("roomcode").value=code;status("Room "+code+" created. Connecting…");connect(code)}catch(error){status("Could not create room: "+(error.name==="TypeError"?"Cannot reach the chat server. Check your connection or Worker deployment.":error.message||"Unknown error"))}finally{create.disabled=false;join.disabled=false}}
 $("create").__vcCreateBound=true;$("create").addEventListener("click",createRoom);$("join").addEventListener("click",()=>connect($("roomcode").value));$("roomcode").addEventListener("input",e=>e.target.value=clean(e.target.value));
 $("sendform").addEventListener("submit",e=>{e.preventDefault();const text=$("message").value.trim();if(!text)return;if(sendPacket({type:"message",text})){$("message").value="";$("message").dispatchEvent(new Event("input",{bubbles:true}));sendTyping(false)}});
 function sendTyping(active){if(typingActive===active)return;typingActive=active;sendPacket({type:active?"typing":"typing-clear"})}
@@ -612,7 +612,7 @@ const params=new URLSearchParams(location.search);
   // Each participant keeps their own guest identity on their device for 7 days.
   // Invite links carry only the room code, never the room creator's nickname.
   const rememberedName=String(guestSession.nickname||"").trim().slice(0,24);
-  if(/^\d{3,4}$/.test(linkedCode)){
+  if(/^\d{3}$/.test(linkedCode)){
    if(!linkedNickname)$("nickname").value=rememberedName||"Guest";
    status("Signing you in and opening your chat room…");
    fetch(API_BASE+"/rooms/"+encodeURIComponent(linkedCode),{method:"POST"})
@@ -639,8 +639,8 @@ window.addEventListener("pagehide",stopCamera);
    const response=await fetch("https://viral-cage-chat.viralcage.workers.dev/rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({action:"create"})});
    const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch{}
    if(!response.ok)throw new Error(data.error||("Chat server returned HTTP "+response.status));
-   const code=String(data.room??data.roomCode??data.code??data.room_code??"").replace(/\D/g,"").slice(0,4);
-   if(!/^\d{3,4}$/.test(code))throw new Error("Chat server response was not a room code (HTTP "+response.status+"): "+raw.slice(0,180));
+   const code=String(data.room??data.roomCode??data.code??data.room_code??"").replace(/\D/g,"").slice(0,3);
+   if(!/^\d{3}$/.test(code))throw new Error("Chat server response was not a room code (HTTP "+response.status+"): "+raw.slice(0,180));
    const next=new URL(location.href);next.searchParams.set("room",code);location.assign(next.href);
   }catch(error){
    if(status)status.textContent="Could not create room: "+(error.message||"Please try again.");
