@@ -359,7 +359,7 @@ export class ChatRoom {
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Trivia stopped by "+name+". Type !trivia to start a new round. नेपाली: ट्रिभिया रोकियो। नयाँ खेल सुरु गर्न !trivia लेख्नुहोस्।",at:Date.now()});return;
     }
     if(action==="start"){
-      if(this.trivia&&this.trivia.phase!=="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
+      if(this.trivia&&!["finished","stopped"].includes(this.trivia.phase)){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
       this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+60000,index:0,total:0};
       await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
       this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 1 minute. Tap a category button or type its name in chat: Science, Sports, Math, General Knowledge, History, Geography, Technology, Bible, Nature or Space. One vote per person; you can change your vote before time runs out.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
