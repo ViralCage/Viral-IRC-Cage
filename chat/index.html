@@ -244,7 +244,9 @@ async function enableTriviaVoice(){
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
- const overlay=$("triviaCountdownOverlay");
+ let overlay=$("triviaCountdownOverlay");
+ // The socket-open handler clears the messages container; recreate the timer if that removed it.
+ if(!overlay){overlay=document.createElement("div");overlay.className="trivia-countdown";overlay.id="triviaCountdownOverlay";overlay.hidden=true;overlay.setAttribute("aria-live","polite");overlay.innerHTML='<div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">LIVE COUNTDOWN</div>';$("messages").append(overlay)}
  if(!state.active){if(overlay)overlay.hidden=true;addMessage({uid:"vc-room-bot",name:"VC God",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
  if(state.phase==="stopped"){
