@@ -189,6 +189,23 @@ body.room-active .composer{position:relative;z-index:5;flex-shrink:0;padding-bot
  .composer input{min-height:48px;font-size:16px}
 }
 
+
+/* Compact room actions so they do not consume the conversation space. */
+@media(max-width:700px){
+ body.room-active .chathead{display:grid;grid-template-columns:1fr;gap:7px;padding:8px 10px}
+ body.room-active .headactions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:100%;margin:0}
+ body.room-active .headactions button{width:100%;min-width:0;min-height:34px;height:34px;padding:4px 3px;font-size:10px;line-height:1;white-space:nowrap;border-radius:8px}
+ body.room-active .headactions .search-toggle{font-size:18px}
+ body.room-active .roomtitle{font-size:12px;line-height:1.2}
+ body.room-active .invite{padding:6px 10px;gap:6px}
+ body.room-active .inviteurl{font-size:10px}
+}
+@media(max-width:390px){
+ body.room-active .chathead{padding:7px 8px;gap:6px}
+ body.room-active .headactions{gap:4px}
+ body.room-active .headactions button{font-size:9px;min-height:32px;height:32px}
+}
+
 /* Restore the spacious chat-room layout on desktop and mobile. */
 body.room-active .wrap{width:100%;max-width:none;height:calc(100dvh - 82px);margin:0;padding:10px 14px}
 body.room-active .chat{width:100%;min-width:0;border-radius:18px}
@@ -216,7 +233,7 @@ body.room-active .composer{padding:14px 16px}
 </div><div class="status" id="status">Create a room or enter an invite code to join.</div></section>
 <section class="card chat" id="chat">
 <div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
-<div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
+<div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="copylink" title="Copy invite link" aria-label="Copy invite link">Copy</button><button class="ghost" id="showqr" title="Share QR code" aria-label="Share QR code">QR</button><button class="ghost" id="leave" title="Leave room" aria-label="Leave room">Leave</button></div>
 <div class="room-online" id="roomOnline"><button class="ghost room-online-toggle" id="roomOnlineToggle" type="button" aria-expanded="false" aria-controls="roomOnlinePanel"><span class="room-online-dot"></span>Online in this room <span class="room-online-count" id="roomOnlineCount">0</span><span aria-hidden="true">⌄</span></button><div class="room-online-panel" id="roomOnlinePanel" hidden><strong>ROOM MEMBERS</strong><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div></div>
 
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
