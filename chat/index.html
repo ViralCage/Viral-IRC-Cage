@@ -255,7 +255,7 @@ function renderTrivia(state){
  }else if(state.phase==="voting"){
   lines.push("TRIVIA CATEGORY VOTE · 30 SECONDS");
   lines.push("Tap a category below or type its name in chat. You can change your vote until the timer ends.");
-  lines.push("नेपाली: तलको बटन थिचेर वा category को नाम लेखेर भोट दिनुहोस्। १ मिनेटभित्र आफ्नो भोट परिवर्तन गर्न सक्नुहुन्छ।");
+  lines.push("नेपाली: तलको बटन थिचेर वा category को नाम लेखेर भोट दिनुहोस्। ३० सेकेन्डभित्र आफ्नो भोट परिवर्तन गर्न सक्नुहुन्छ।");
   const names=["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"];
   names.forEach(name=>lines.push(name+": "+(state.voteCounts?.[name]||0)+" vote(s)"));
   lines.push("One vote per person. You can change your vote before the timer ends. Ties are decided randomly.");
@@ -311,7 +311,7 @@ function renderTrivia(state){
    overlay.hidden=false;
    if(triviaCountdownTarget!==target){triviaCountdownTarget=target;triviaLastBeep=-1;triviaLastFastTick=-1}
    if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
-   if(caption)caption.textContent=state.phase==="voting"?"30-SECOND CATEGORY VOTE · TICK TICK":state.revealed?"NEXT QUESTION IN 10 SECONDS":"30-SECOND ANSWER TIMER · TICK TICK";
+   if(caption)caption.textContent=state.phase==="voting"?"LIVE CATEGORY VOTE · 30 SECONDS LEFT":state.revealed?"NEXT QUESTION IN 10 SECONDS":"LIVE ANSWER COUNTDOWN · 30 SECONDS LEFT";
    const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
