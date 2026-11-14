@@ -229,16 +229,18 @@ function speakTrivia(text){
  };
  speakNext();
 }
-function enableTriviaVoice(){
+async function enableTriviaVoice(){
  if(!("speechSynthesis" in window))return;
  triviaSpeechUnlocked=!triviaSpeechUnlocked;soundEnabled=triviaSpeechUnlocked;
  const button=$("triviaVoiceEnable");
  if(triviaSpeechUnlocked){
   loadTriviaVoices();window.speechSynthesis.resume();
+  // Unlock Web Audio from this user gesture so live countdown ticks are audible on mobile too.
+  try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")await audioContext.resume();playTriviaTone(false)}}catch{}
   const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending);
  }else{triviaPendingSpeech="";window.speechSynthesis.cancel()}
  if(button){button.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";button.setAttribute("aria-pressed",String(triviaSpeechUnlocked))}
- const hint=$("triviaVoiceHint");if(hint)hint.textContent=triviaSpeechUnlocked?"Trivia announcements and countdown sounds are enabled.":"Trivia announcements and countdown sounds are muted.";
+ const hint=$("triviaVoiceHint");if(hint)hint.textContent=triviaSpeechUnlocked?"Voice announcements and live countdown tick sounds are enabled.":"Voice announcements and countdown tick sounds are muted.";
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
