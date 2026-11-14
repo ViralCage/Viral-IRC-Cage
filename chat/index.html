@@ -287,7 +287,7 @@ function renderTrivia(state){
   votePanel.hidden=false;votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose a category</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">Or type the category name in the chat box.</div>";
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
   ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"].forEach(category=>{const b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=category+" · "+(state.voteCounts?.[category]||0);b.addEventListener("click",()=>sendPacket({type:"trivia",action:"vote",category}));buttons.append(b)});
- }else if(state.phase==="question"||state.phase==="revealed"){
+ }else if(state.phase==="question"){
   if(!votePanel){votePanel=document.createElement("div");votePanel.id="triviaVotePanel";votePanel.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(votePanel,form)}
   votePanel.hidden=false;
   votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose your answer</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">"+(window.triviaMyAnswer!==null?"Your answer is locked: "+String.fromCharCode(65+window.triviaMyAnswer)+".":"Tap A, B, C or D, or type the letter in chat. Your first answer locks.")+"</div>";
@@ -304,7 +304,7 @@ function renderTrivia(state){
    overlay.hidden=false;
    if(triviaCountdownTarget!==target){triviaCountdownTarget=target;triviaLastBeep=-1}
    if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
-   if(caption)caption.textContent=state.phase==="voting"?"CATEGORY VOTE ENDS IN":state.revealed?"NEXT QUESTION IN":"TICK · TICK · TIME LEFT";
+   if(caption)caption.textContent=state.phase==="voting"?"CATEGORY VOTE ENDS IN":state.revealed?"NEXT QUESTION IN":"30-SECOND ANSWER TIMER · TICK TICK";
    const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
