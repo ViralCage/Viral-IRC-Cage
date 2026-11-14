@@ -433,7 +433,7 @@ function connect(code){
   else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="emote"){showEmote(data);if(data.uid!==uid)playEmojiSound(data.emoji)}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
-  else if(data.type==="presence"){$("peerstatus").textContent="You are connected";const members=(data.members||[]).filter(peer=>peer&&peer.uid&&peer.uid!==uid);renderRoomMembers(members);if(!pendingP2P.size)publishP2PStatus(members.length?members.length+" other room member"+(members.length===1?" is":"s are")+" online. Select Private chat beside their name.":"Cloudflare room connected. No other members are here yet. Ask someone to join this same room.")}
+  else if(data.type==="presence"){$("peerstatus").textContent="You are connected";const members=(data.members||[]).filter(peer=>peer&&peer.uid&&peer.uid!==uid);renderRoomMembers(members);if(!pendingP2P.size&&!members.length)publishP2PStatus("Cloudflare room connected. No other members are here yet. Ask someone to join this same room.")}
   else if(data.type==="p2p-invite"){
    publishP2PStatus("Private chat invite received from "+(data.name||"a room member")+".");
    const accept=window.confirm((data.name||"A room member")+" wants to start a private end-to-end encrypted P2P chat. Accept?");
