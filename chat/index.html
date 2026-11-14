@@ -243,16 +243,30 @@ function speakTrivia(text){
  };
  speakNext();
 }
-async function enableTriviaVoice(){
- // A tap must enable audio even on desktop, where speech used to start in the "On" state
- // before the browser had granted an audio playback gesture.
- const enabling=!(triviaSpeechUnlocked&&soundEnabled&&audioContext&&audioContext.state==="running");
+function enableTriviaVoice(){
+ // Start speech synchronously inside the tap. iPhone Safari can block speech if it is
+ // first requested after awaiting AudioContext.resume().
+ const enabling=!(triviaSpeechUnlocked&&soundEnabled);
  triviaSpeechUnlocked=enabling;soundEnabled=enabling;
  const button=$("triviaVoiceEnable");
  if(enabling){
-  // Unlock Web Audio directly inside this user gesture. Do not depend on speechSynthesis support.
-  try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")await audioContext.resume();playTriviaTone(false)}}catch{}
-  if("speechSynthesis" in window){loadTriviaVoices();window.speechSynthesis.resume();const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending)}
+  if("speechSynthesis" in window){
+   loadTriviaVoices();
+   const pending=triviaPendingSpeech;triviaPendingSpeech="";
+   window.speechSynthesis.cancel();
+   window.speechSynthesis.resume();
+   // Speak immediately while the browser still recognizes this as a user gesture.
+   if(pending)speakTrivia(pending);
+   else speakTrivia("Trivia voice announcements are now on.");
+  }
+  try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(AudioCtx){
+    if(!audioContext)audioContext=new AudioCtx();
+    const resume=audioContext.state==="suspended"?audioContext.resume():Promise.resolve();
+    resume.then(()=>playTriviaTone(false)).catch(()=>{});
+   }
+  }catch{}
  }else{
   triviaPendingSpeech="";
   if("speechSynthesis" in window)window.speechSynthesis.cancel();
