@@ -205,22 +205,35 @@ function playTriviaTone(finalTone=false){
   });
  }catch{}
 }
-let triviaReadAloud=true,triviaLastSpoken="";
+const mobileSpeechDevice=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+let triviaReadAloud=true,triviaLastSpoken="",triviaSpeechUnlocked=!mobileSpeechDevice,triviaPendingSpeech="";
+let triviaVoices=[];
+function loadTriviaVoices(){if("speechSynthesis" in window)triviaVoices=window.speechSynthesis.getVoices()||[]}
+if("speechSynthesis" in window){loadTriviaVoices();window.speechSynthesis.addEventListener?.("voiceschanged",loadTriviaVoices)}
 function speakTrivia(text){
  if(!triviaReadAloud||!("speechSynthesis" in window)||!text)return;
+ if(!triviaSpeechUnlocked){triviaPendingSpeech=text;return}
  window.speechSynthesis.cancel();
- const lines=String(text).split("\n").filter(Boolean),voices=window.speechSynthesis.getVoices();
+ const lines=String(text).split("\n").filter(Boolean);
  const speakNext=()=>{
   if(!triviaReadAloud||!lines.length)return;
   const line=lines.shift(),nepali=/[\u0900-\u097F]/.test(line),utterance=new SpeechSynthesisUtterance(line);
   utterance.lang=nepali?"ne-NP":"en-CA";
-  const voice=voices.find(v=>nepali?/^ne(-|$)/i.test(v.lang):/^en(-CA|-US|-GB)?$/i.test(v.lang));
+  if(!triviaVoices.length)loadTriviaVoices();
+  const voice=triviaVoices.find(v=>nepali?/^ne(-|$)/i.test(v.lang):/^en(-CA|-US|-GB)?$/i.test(v.lang));
   if(voice)utterance.voice=voice;
   utterance.rate=nepali?0.88:0.96;utterance.pitch=1;
   utterance.onend=speakNext;utterance.onerror=speakNext;
   window.speechSynthesis.speak(utterance);
  };
  speakNext();
+}
+function enableTriviaVoice(){
+ if(!("speechSynthesis" in window))return;
+ triviaSpeechUnlocked=true;loadTriviaVoices();window.speechSynthesis.resume();
+ const pending=triviaPendingSpeech;triviaPendingSpeech="";
+ if(pending)speakTrivia(pending);
+ const button=$("triviaVoiceEnable");if(button){button.textContent="Voice: On";button.setAttribute("aria-pressed","true")}
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
@@ -258,6 +271,14 @@ function renderTrivia(state){
  }
  if(state.phase==="stopped"){if("speechSynthesis" in window)window.speechSynthesis.cancel();triviaLastSpoken="";}
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
+ let reader=$("triviaReaderControls");
+ if(state.phase==="stopped"||state.phase==="finished"){if(reader)reader.remove()}
+ else{
+  if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";reader.style.borderTop="0";reader.style.padding="8px 14px";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
+  reader.innerHTML="";
+  const voiceButton=document.createElement("button");voiceButton.type="button";voiceButton.id="triviaVoiceEnable";voiceButton.className="ghost";voiceButton.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";voiceButton.setAttribute("aria-pressed",String(triviaSpeechUnlocked));voiceButton.addEventListener("click",enableTriviaVoice);reader.append(voiceButton);
+  const hint=document.createElement("span");hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked?"Trivia announcements are enabled.":"Tap once to allow spoken trivia announcements on this phone.";reader.append(hint);
+ }
  let votePanel=$("triviaVotePanel");
  if(state.phase==="voting"){
   if(!votePanel){votePanel=document.createElement("div");votePanel.id="triviaVotePanel";votePanel.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(votePanel,form)}
@@ -265,7 +286,6 @@ function renderTrivia(state){
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
   ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"].forEach(category=>{const b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=category+" · "+(state.voteCounts?.[category]||0);b.addEventListener("click",()=>sendPacket({type:"trivia",action:"vote",category}));buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
- if(state.phase==="stopped"||state.phase==="finished"){const reader=$("triviaReaderControls");if(reader)reader.remove()}
  if(overlay){
   const number=$("triviaCountdownNumber");
   const label=overlay.querySelector(".trivia-countdown-ring span");
