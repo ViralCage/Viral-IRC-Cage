@@ -167,7 +167,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
-<div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div></div>
+<div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div></div>
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
@@ -251,7 +251,7 @@ function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
  let overlay=$("triviaCountdownOverlay");
  // The socket-open handler clears the messages container; recreate the timer if that removed it.
- if(!overlay){overlay=document.createElement("div");overlay.className="trivia-countdown";overlay.id="triviaCountdownOverlay";overlay.hidden=true;overlay.setAttribute("aria-live","polite");overlay.innerHTML='<div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div>';$("chat").append(overlay)}
+ if(!overlay){overlay=document.createElement("div");overlay.className="trivia-countdown";overlay.id="triviaCountdownOverlay";overlay.hidden=true;overlay.setAttribute("aria-live","polite");overlay.innerHTML='<div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div>';$("chat").append(overlay)}
  if(!state.active){if(overlay)overlay.hidden=true;addMessage({uid:"vc-room-bot",name:"VC God",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
  if(state.phase==="stopped"){
