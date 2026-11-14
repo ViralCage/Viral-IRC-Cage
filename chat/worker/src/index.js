@@ -183,7 +183,6 @@ export class ChatRoom {
           return;
         }
         await this.handleTrivia(socket,attachment,{action:"answer",choice});
-        this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:(attachment.name||"A player")+" locked in answer "+triviaAnswer[1].toUpperCase()+".",at:Date.now()});
         await this.touch();return;
       }
       outgoing={type:"message",uid:attachment.uid||"guest",name:attachment.name||"Guest",text,at:Date.now()};
@@ -378,7 +377,10 @@ export class ChatRoom {
       if(!this.trivia.players[uid]){this.trivia.players[uid]=name;this.trivia.scores[uid]={name,score:0}}
       if(this.trivia.answers[uid]!==undefined)return;const choice=Number(message.choice);if(!Number.isInteger(choice)||choice<0||choice>3)return;
       this.trivia.answers[uid]=choice;if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
-      await this.state.put("trivia",this.trivia);this.broadcast(this.triviaSnapshot());return;
+      await this.state.put("trivia",this.trivia);
+      try{socket?.send(JSON.stringify({type:"trivia-answer-locked",round:this.trivia.index,choice}))}catch{}
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:name+" locked in answer "+String.fromCharCode(65+choice)+".",at:Date.now()});
+      this.broadcast(this.triviaSnapshot());return;
     }
     if(action==="next"){
       if(this.trivia.phase!=="revealed"&&!this.trivia.revealed)return;this.trivia.index++;
