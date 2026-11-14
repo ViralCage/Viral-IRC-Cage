@@ -384,7 +384,6 @@ export class ChatRoom {
       this.trivia.answers[uid]=choice;if(choice===this.trivia.question.a)this.trivia.scores[uid].score+=10;
       await this.state.put("trivia",this.trivia);
       try{socket?.send(JSON.stringify({type:"trivia-answer-locked",round:this.trivia.index,choice}))}catch{}
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:name+" locked in answer "+String.fromCharCode(65+choice)+".",at:Date.now()});
       this.broadcast(this.triviaSnapshot());return;
     }
     if(action==="next"){
