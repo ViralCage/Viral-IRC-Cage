@@ -305,7 +305,7 @@ function renderTrivia(state){
   votePanel.hidden=false;
   votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose your answer</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">"+(window.triviaMyAnswer!==null?"Your answer is locked: "+String.fromCharCode(65+window.triviaMyAnswer)+".":"Tap A, B, C or D, or type the letter in chat. Your first answer locks.")+"</div>";
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
-  (state.choices||[]).slice(0,3).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
+  (state.choices||[]).slice(0,4).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
