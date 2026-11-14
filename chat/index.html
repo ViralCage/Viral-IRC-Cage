@@ -195,12 +195,12 @@ function playTriviaTone(finalTone=false){
   if(!audioContext)audioContext=new AudioCtx();
   if(audioContext.state==="suspended")return;
   const now=audioContext.currentTime;
-  const notes=finalTone?[{f:880,t:0,d:.16},{f:1175,t:.13,d:.24}]:[{f:finalTone?1175:((triviaLastBeep%2)?1050:820),t:0,d:.075}];
+  const notes=finalTone?[{f:740,t:0,d:.22},{f:520,t:.2,d:.24},{f:330,t:.42,d:.38}]:[{f:(triviaLastBeep%2)?1050:820,t:0,d:.075}];
   notes.forEach(note=>{
    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-   osc.type="sine";osc.frequency.setValueAtTime(note.f,now+note.t);
+   osc.type=finalTone?"square":"sine";osc.frequency.setValueAtTime(note.f,now+note.t);
    gain.gain.setValueAtTime(.0001,now+note.t);
-   gain.gain.exponentialRampToValueAtTime(finalTone ? 0.085 : 0.065,now+note.t+.012);
+   gain.gain.exponentialRampToValueAtTime(finalTone ? 0.11 : 0.065,now+note.t+.012);
    gain.gain.exponentialRampToValueAtTime(.0001,now+note.t+note.d);
    osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+note.t);osc.stop(now+note.t+note.d+.01);
   });
@@ -318,7 +318,8 @@ function renderTrivia(state){
    if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
     const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
-    if(number)number.textContent=String(seconds);
+    if(number){number.textContent=seconds===0?"TIME'S UP!":String(seconds);number.style.fontSize=seconds===0?"clamp(25px,5vw,38px)":"";number.style.letterSpacing=seconds===0?"0":"-.06em"}
+    const ringLabel=overlay.querySelector(".trivia-countdown-ring span");if(ringLabel)ringLabel.textContent=seconds===0?"":state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
     overlay.classList.toggle("urgent",state.revealed?seconds<=3:seconds<=10);
     if(seconds!==triviaLastBeep){
      triviaLastBeep=seconds;
