@@ -255,7 +255,7 @@ function renderTrivia(state){
    else if(state.phase==="finished")speakTrivia("That is the end of the trivia game! Here are the final scores. "+(state.scoreboard||[]).map((p,i)=>"Number "+(i+1)+", "+p.name+", "+p.score+" points.").join(" ")+" Well played, everyone!");
   }
  }
- if(state.phase==="stopped"||state.phase==="finished"){if("speechSynthesis" in window)window.speechSynthesis.cancel();triviaLastSpoken="";}
+ if(state.phase==="stopped"){if("speechSynthesis" in window)window.speechSynthesis.cancel();triviaLastSpoken="";}
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
  let votePanel=$("triviaVotePanel");
  if(state.phase==="voting"){
