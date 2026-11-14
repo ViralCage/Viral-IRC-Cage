@@ -16,7 +16,7 @@ function corsHeaders(origin) {
 function json(data, status = 200, origin = CORS_ORIGIN) {
   return new Response(JSON.stringify(data), {status,headers:{"Content-Type":"application/json; charset=utf-8",...corsHeaders(origin)}});
 }
-function validRoomCode(value) { return /^\d{3,4}$/.test(String(value || "")); }
+function validRoomCode(value) { return /^\d{3}$/.test(String(value || "")); }
 
 // VC Guardian blocks messages containing known adult domains or adult-content URL signals.
 function containsAdultLink(text) {
