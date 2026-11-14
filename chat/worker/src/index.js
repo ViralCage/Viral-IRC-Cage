@@ -74,15 +74,12 @@ export default {
       if(body.action!=="create")return json({error:"Unsupported room action."},400,origin);
       // Room codes are exactly 3 digits.
       for(let attempt=0;attempt<160;attempt++){
-        const length=3;
-        for(let attempt=0;attempt<attempts;attempt++){
-          const code=makeRoomCode(length),id=env.CHAT_ROOMS.idFromName(code),stub=env.CHAT_ROOMS.get(id);
-          let result;
-          try{result=await stub.fetch("https://room.internal/create",{method:"POST"})}
-          catch{return json({error:"The chat room service is temporarily unavailable. Please try again."},503,origin)}
-          if(result.status===201)return json({room:code},201,origin);
-          if(result.status!==409)return json({error:"The chat room service could not initialize a room (HTTP "+result.status+"). Please try again."},503,origin);
-        }
+        const code=makeRoomCode(3),id=env.CHAT_ROOMS.idFromName(code),stub=env.CHAT_ROOMS.get(id);
+        let result;
+        try{result=await stub.fetch("https://room.internal/create",{method:"POST"})}
+        catch{return json({error:"The chat room service is temporarily unavailable. Please try again."},503,origin)}
+        if(result.status===201)return json({room:code},201,origin);
+        if(result.status!==409)return json({error:"The chat room service could not initialize a room (HTTP "+result.status+"). Please try again."},503,origin);
       }
       return json({error:"Room codes are temporarily busy. Please try again."},503,origin);
     }
