@@ -207,7 +207,7 @@ function playTriviaTone(finalTone=false){
  }catch{}
 }
 const mobileSpeechDevice=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-let triviaReadAloud=true,triviaLastSpoken="",triviaSpeechUnlocked=!mobileSpeechDevice,triviaPendingSpeech="";
+let triviaReadAloud=true,triviaLastSpoken="",triviaSpeechUnlocked=false,triviaPendingSpeech="";
 let triviaVoices=[];
 function loadTriviaVoices(){if("speechSynthesis" in window)triviaVoices=window.speechSynthesis.getVoices()||[]}
 if("speechSynthesis" in window){loadTriviaVoices();window.speechSynthesis.addEventListener?.("voiceschanged",loadTriviaVoices)}
@@ -230,17 +230,21 @@ function speakTrivia(text){
  speakNext();
 }
 async function enableTriviaVoice(){
- if(!("speechSynthesis" in window))return;
- triviaSpeechUnlocked=!triviaSpeechUnlocked;soundEnabled=triviaSpeechUnlocked;
+ // A tap must enable audio even on desktop, where speech used to start in the "On" state
+ // before the browser had granted an audio playback gesture.
+ const enabling=!(triviaSpeechUnlocked&&soundEnabled&&audioContext&&audioContext.state==="running");
+ triviaSpeechUnlocked=enabling;soundEnabled=enabling;
  const button=$("triviaVoiceEnable");
- if(triviaSpeechUnlocked){
-  loadTriviaVoices();window.speechSynthesis.resume();
-  // Unlock Web Audio from this user gesture so live countdown ticks are audible on mobile too.
+ if(enabling){
+  // Unlock Web Audio directly inside this user gesture. Do not depend on speechSynthesis support.
   try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")await audioContext.resume();playTriviaTone(false)}}catch{}
-  const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending);
- }else{triviaPendingSpeech="";window.speechSynthesis.cancel()}
- if(button){button.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";button.setAttribute("aria-pressed",String(triviaSpeechUnlocked))}
- const hint=$("triviaVoiceHint");if(hint)hint.textContent=triviaSpeechUnlocked?"Voice announcements and live countdown tick sounds are enabled.":"Voice announcements and countdown tick sounds are muted.";
+  if("speechSynthesis" in window){loadTriviaVoices();window.speechSynthesis.resume();const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending)}
+ }else{
+  triviaPendingSpeech="";
+  if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ }
+ if(button){button.textContent=enabling?"Voice & sound: On":"Enable voice & sound";button.setAttribute("aria-pressed",String(enabling))}
+ const hint=$("triviaVoiceHint");if(hint)hint.textContent=enabling?"Voice announcements and live countdown tick sounds are enabled.":"Tap to enable voice announcements and countdown tick sounds.";
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
@@ -285,8 +289,8 @@ function renderTrivia(state){
  else{
   if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";reader.style.borderTop="0";reader.style.padding="8px 14px";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
   reader.innerHTML="";
-  const voiceButton=document.createElement("button");voiceButton.type="button";voiceButton.id="triviaVoiceEnable";voiceButton.className="ghost";voiceButton.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";voiceButton.setAttribute("aria-pressed",String(triviaSpeechUnlocked));voiceButton.addEventListener("click",enableTriviaVoice);reader.append(voiceButton);
-  const hint=document.createElement("span");hint.id="triviaVoiceHint";hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked?"Trivia announcements and countdown sounds are enabled.":"Tap once to enable trivia announcements and countdown sounds on this phone.";reader.append(hint);
+  const voiceButton=document.createElement("button");voiceButton.type="button";voiceButton.id="triviaVoiceEnable";voiceButton.className="ghost";voiceButton.textContent=triviaSpeechUnlocked&&soundEnabled?"Voice & sound: On":"Enable voice & sound";voiceButton.setAttribute("aria-pressed",String(triviaSpeechUnlocked));voiceButton.addEventListener("click",enableTriviaVoice);reader.append(voiceButton);
+  const hint=document.createElement("span");hint.id="triviaVoiceHint";hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked&&soundEnabled?"Trivia announcements and countdown sounds are enabled.":"Tap once to enable trivia announcements and countdown sounds.";reader.append(hint);
  }
  let votePanel=$("triviaVotePanel");
  if(typeof window.triviaMyAnswerRound==="undefined"){window.triviaMyAnswerRound=-1;window.triviaMyAnswer=null}
