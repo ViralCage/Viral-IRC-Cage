@@ -364,9 +364,9 @@ export class ChatRoom {
     }
     if(action==="start"){
       if(this.trivia&&!["finished","stopped"].includes(this.trivia.phase)){if(socket)try{socket.send(JSON.stringify({type:"error",message:"A trivia vote or game is already running."}))}catch{};return}
-      this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+60000,index:0,total:0};
+      this.trivia={phase:"voting",category:"Voting",votes:{},players:{[uid]:name},scores:{[uid]:{name,score:0}},answers:{},deadlineAt:Date.now()+30000,index:0,total:0};
       await this.state.put("trivia",this.trivia);await this.state.setAlarm(this.trivia.deadlineAt);
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 1 minute. Tap a category button or type its name in chat: Science, Sports, Math, General Knowledge, History, Geography, Technology, Bible, Nature or Space. One vote per person; you can change your vote before time runs out.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"TRIVIA CATEGORY VOTE! You have 30 seconds. Tap a category button or type its name in chat: Science, Sports, Math, General Knowledge, History, Geography, Technology, Bible, Nature or Space. One vote per person; you can change your vote before time runs out.",at:Date.now()});this.broadcast(this.triviaSnapshot());return;
     }
     if(!this.trivia||this.trivia.phase==="finished"){if(socket)try{socket.send(JSON.stringify({type:"error",message:"No live trivia game. Type !trivia to start one."}))}catch{};return}
     if(action==="vote"){
@@ -501,11 +501,11 @@ export class ChatRoom {
     }
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
       this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
-      this.trivia.autoNextAt=Date.now()+60000;
+      this.trivia.autoNextAt=Date.now()+30000;
       await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 1 minute.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 30 seconds.",at:Date.now()});
       await this.state.setAlarm(this.trivia.autoNextAt);
     }
     if(this.trivia&&this.trivia.phase==="revealed"&&this.trivia.autoNextAt&&Date.now()>=this.trivia.autoNextAt){
