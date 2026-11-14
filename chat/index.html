@@ -170,7 +170,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <div class="emojiTray" id="emojiTray" hidden></div>
 <div class="quick-reactions" id="quickReactions"><span>Quick react</span></div>
 <form class="composer" id="sendform">
-<div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><select id="speechLang" aria-label="Voice typing language" title="Voice typing language" style="width:76px;min-width:76px;padding:5px;font-size:10px"><option value="en-CA">EN</option><option value="ne-NP">नेपाली</option><option value="hi-IN">हिन्दी</option></select><button type="button" class="iconbtn" id="dictate" title="Speak to type a message" aria-label="Speak to type a message">🎤</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
+<div class="tools"><button type="button" class="iconbtn" id="emoji" title="Emoji" aria-label="Open emoji picker">☺</button><button type="button" class="iconbtn" id="attach" title="Attach file" aria-label="Attach file">＋</button><button type="button" class="iconbtn" id="camera" title="Take photo" aria-label="Open camera">▣</button><button type="button" class="iconbtn" id="dictate" title="Speak to type a message" aria-label="Speak to type a message">🎤</button><button type="button" class="iconbtn" id="voice" title="Record voice message" aria-label="Record voice message">🎙</button></div>
 <input id="fileInput" type="file" style="display:none" aria-hidden="true"><input id="message" maxlength="2000" placeholder="Write a message…" autocomplete="off" aria-label="Message">
 <button id="send">Send</button>
 </form></section>
@@ -204,8 +204,23 @@ function playTriviaTone(finalTone=false){
   });
  }catch{}
 }
-let triviaReadAloud=false,triviaLastSpoken="";
-function speakTrivia(text){if(!triviaReadAloud||!("speechSynthesis" in window)||!text)return;window.speechSynthesis.cancel();const parts=String(text).split("\n").filter(Boolean);const speakNext=()=>{if(!triviaReadAloud||!parts.length)return;const utterance=new SpeechSynthesisUtterance(parts.shift());utterance.lang=/नेपाली:/.test(utterance.text)?"ne-NP":"en-CA";utterance.rate=0.92;utterance.onend=speakNext;window.speechSynthesis.speak(utterance)};speakNext()}
+let triviaReadAloud=true,triviaLastSpoken="";
+function speakTrivia(text){
+ if(!triviaReadAloud||!("speechSynthesis" in window)||!text)return;
+ window.speechSynthesis.cancel();
+ const lines=String(text).split("\n").filter(Boolean),voices=window.speechSynthesis.getVoices();
+ const speakNext=()=>{
+  if(!triviaReadAloud||!lines.length)return;
+  const line=lines.shift(),nepali=/[\u0900-\u097F]/.test(line),utterance=new SpeechSynthesisUtterance(line);
+  utterance.lang=nepali?"ne-NP":"en-CA";
+  const voice=voices.find(v=>nepali?/^ne(-|$)/i.test(v.lang):/^en(-CA|-US|-GB)?$/i.test(v.lang));
+  if(voice)utterance.voice=voice;
+  utterance.rate=nepali?0.88:0.96;utterance.pitch=1;
+  utterance.onend=speakNext;utterance.onerror=speakNext;
+  window.speechSynthesis.speak(utterance);
+ };
+ speakNext();
+}
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
  const overlay=$("triviaCountdownOverlay");
@@ -231,9 +246,14 @@ function renderTrivia(state){
   if(!state.revealed)lines.push("नेपाली: ३० सेकेन्डभित्र A, B, C वा D मध्ये सही उत्तर लेख्नुहोस्।");
   if(state.scoreboard?.length)lines.push("SCORE: "+state.scoreboard.map(p=>p.name+" "+p.score).join(" · "));
  }
- if(state.active&&(state.phase==="question"||state.phase==="revealed")){
-  const speechKey=state.round+":"+state.question+":"+(state.revealed?"answer":"question");
-  if(speechKey!==triviaLastSpoken){triviaLastSpoken=speechKey;if(!state.revealed)speakTrivia("Question "+state.round+". "+state.question+"\n"+(state.choices||[]).map((choice,i)=>String.fromCharCode(65+i)+". "+choice).join("\n")+"\nनेपाली: प्रश्न ध्यान दिएर सुन्नुहोस्। सही उत्तर A, B, C वा D मध्ये छान्नुहोस्।");else speakTrivia("Correct answer. "+String.fromCharCode(65+state.correctIndex)+". "+state.choices[state.correctIndex]+".\nनेपाली: सही उत्तर "+String.fromCharCode(65+state.correctIndex)+" हो।");}
+ if(state.active){
+  const speechKey=state.phase==="voting"?"voting:"+String(state.deadlineAt||""):state.phase==="question"||state.phase==="revealed"?state.round+":"+state.question+":"+(state.revealed?"answer":"question"):state.phase;
+  if(speechKey!==triviaLastSpoken){triviaLastSpoken=speechKey;
+   if(state.phase==="voting")speakTrivia("Welcome to Viral Cage trivia! The category vote is now open for one minute. Choose a category using the buttons or type its name in chat.\nनेपाली: भर्चुअल ट्रिभिया सुरु भयो। एक मिनेटभित्र आफ्नो मनपर्ने विषय छान्नुहोस्।");
+   else if(state.phase==="question")speakTrivia("Here comes question "+state.round+" in "+state.category+". "+state.question+"\nOption A. "+(state.choices||[])[0]+".\nOption B. "+(state.choices||[])[1]+".\nOption C. "+(state.choices||[])[2]+".\nOption D. "+(state.choices||[])[3]+". You have thirty seconds. Type A, B, C or D to answer. Good luck!\nनेपाली: प्रश्न ध्यान दिएर सुन्नुहोस्। उत्तर दिन तपाईंसँग तीस सेकेन्ड छ। A, B, C वा D लेखेर उत्तर दिनुहोस्। शुभकामना!");
+   else if(state.phase==="revealed")speakTrivia("Time is up! The correct answer is "+String.fromCharCode(65+state.correctIndex)+". "+(state.choices||[])[state.correctIndex]+". Get ready for the next question.\nनेपाली: समय सकियो। सही उत्तर "+String.fromCharCode(65+state.correctIndex)+" हो। अर्को प्रश्नको लागि तयार हुनुहोस्।");
+   else if(state.phase==="finished")speakTrivia("That is the end of the trivia game! Here are the final scores. "+(state.scoreboard||[]).map((p,i)=>"Number "+(i+1)+", "+p.name+", "+p.score+" points.").join(" ")+" Well played, everyone!");
+  }
  }
  if(state.phase==="stopped"||state.phase==="finished"){if("speechSynthesis" in window)window.speechSynthesis.cancel();triviaLastSpoken="";}
  addMessage({uid:"vc-room-bot",name:"VC God",text:lines.join("\n"),at:Date.now()});
@@ -244,11 +264,7 @@ function renderTrivia(state){
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
   ["Science","Sports","Math","General Knowledge","History","Geography","Technology","Bible","Nature","Space"].forEach(category=>{const b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=category+" · "+(state.voteCounts?.[category]||0);b.addEventListener("click",()=>sendPacket({type:"trivia",action:"vote",category}));buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
- if(state.active&&state.phase!=="finished"&&state.phase!=="stopped"){
-  let reader=$("triviaReaderControls");if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
-  reader.hidden=false;reader.innerHTML="<button type=\"button\" class=\"trivia-vote-button\" id=\"triviaReadToggle\">"+(triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud")+"</button><span class=\"trivia-vote-hint\">Type !stop to stop trivia.</span>";
-  $("triviaReadToggle").addEventListener("click",()=>{triviaReadAloud=!triviaReadAloud;if(!triviaReadAloud&&"speechSynthesis" in window)window.speechSynthesis.cancel();else{triviaLastSpoken=state.round+":"+state.question+":"+(state.revealed?"answer":"question");speakTrivia(state.phase==="question"?(state.question+"\n"+(state.choices||[]).map((x,i)=>String.fromCharCode(65+i)+". "+x).join("\n")+"\nनेपाली: प्रश्नको उत्तर A, B, C वा D मध्ये छान्नुहोस्।"):"Category voting is open for one minute. नेपाली: एक मिनेटभित्र आफ्नो category छान्नुहोस्।")}reader.querySelector("button").textContent=triviaReadAloud?"🔊 Stop reading":"🔈 Read questions aloud"});
- }else{const reader=$("triviaReaderControls");if(reader)reader.hidden=true}
+ if(state.phase==="stopped"||state.phase==="finished"){const reader=$("triviaReaderControls");if(reader)reader.remove()}
  if(overlay){
   const number=$("triviaCountdownNumber");
   const label=overlay.querySelector(".trivia-countdown-ring span");
@@ -462,7 +478,7 @@ $("dictate").addEventListener("click",()=>{
  if(!SpeechRecognition){$("peerstatus").textContent="Voice typing is not supported in this browser. Use the latest Chrome or Edge, or type your message.";return}
  if(speechListening&&speechRecognition){speechRecognition.stop();return}
  try{
-  speechRecognition=new SpeechRecognition();speechRecognition.lang=$("speechLang").value||"en-CA";speechRecognition.continuous=true;speechRecognition.interimResults=true;
+  speechRecognition=new SpeechRecognition();speechRecognition.lang="en-CA";speechRecognition.continuous=true;speechRecognition.interimResults=true;
   let finalText="";
   speechRecognition.onstart=()=>{speechListening=true;button.classList.add("is-listening");button.textContent="⏹";button.title="Stop voice typing";$("peerstatus").textContent="Listening… speak clearly. Your words will appear in the message box."};
   speechRecognition.onresult=event=>{let interim="";for(let i=event.resultIndex;i<event.results.length;i++){const phrase=event.results[i][0].transcript;if(event.results[i].isFinal)finalText+=phrase+" ";else interim+=phrase}
