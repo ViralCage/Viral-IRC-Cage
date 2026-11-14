@@ -319,7 +319,8 @@ function renderTrivia(state){
      if(number){number.classList.remove("tick-pulse");void number.offsetWidth;number.classList.add("tick-pulse")}
      if(seconds>0)playTriviaTone(false);else playTriviaTone(true);
     }
-    if(seconds>0&&seconds<=5){const halfTick=Math.floor(Math.max(0,target-Date.now())/500);if(halfTick!==triviaLastFastTick){triviaLastFastTick=halfTick;if(halfTick%2===1)playTriviaTone(false)}}\n    if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
+    if(seconds>0&&seconds<=5){const halfTick=Math.floor(Math.max(0,target-Date.now())/500);if(halfTick!==triviaLastFastTick){triviaLastFastTick=halfTick;if(halfTick%2===1)playTriviaTone(false)}}
+    if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
    };
    update();triviaCountdownTimer=setInterval(update,200);
   }else{overlay.hidden=true;triviaCountdownTarget=0;triviaLastBeep=-1}
