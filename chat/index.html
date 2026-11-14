@@ -280,6 +280,8 @@ function renderTrivia(state){
   const hint=document.createElement("span");hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked?"Trivia announcements are enabled.":"Tap once to allow spoken trivia announcements on this phone.";reader.append(hint);
  }
  let votePanel=$("triviaVotePanel");
+ if(typeof window.triviaMyAnswerRound==="undefined"){window.triviaMyAnswerRound=-1;window.triviaMyAnswer=null}
+ if(state.phase==="question"&&window.triviaMyAnswerRound!==state.round){window.triviaMyAnswerRound=state.round;window.triviaMyAnswer=null}
  if(state.phase==="voting"){
   if(!votePanel){votePanel=document.createElement("div");votePanel.id="triviaVotePanel";votePanel.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(votePanel,form)}
   votePanel.hidden=false;votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose a category</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">Or type the category name in the chat box.</div>";
@@ -288,9 +290,9 @@ function renderTrivia(state){
  }else if(state.phase==="question"||state.phase==="revealed"){
   if(!votePanel){votePanel=document.createElement("div");votePanel.id="triviaVotePanel";votePanel.className="trivia-vote-panel";const form=$("sendform");form.parentNode.insertBefore(votePanel,form)}
   votePanel.hidden=false;
-  votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose your answer</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">Tap A, B, C or D to answer. You can also type the letter in chat.</div>";
+  votePanel.innerHTML="<div class=\"trivia-vote-heading\">Choose your answer</div><div class=\"trivia-vote-buttons\"></div><div class=\"trivia-vote-hint\">"+(window.triviaMyAnswer!==null?"Your answer is locked: "+String.fromCharCode(65+window.triviaMyAnswer)+".":"Tap A, B, C or D, or type the letter in chat. Your first answer locks.")+"</div>";
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
-  (state.choices||[]).slice(0,4).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
+  (state.choices||[]).slice(0,4).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
  if(overlay){
   const number=$("triviaCountdownNumber");
@@ -456,6 +458,7 @@ function connect(code){
  socket.addEventListener("message",event=>{let data;try{data=JSON.parse(event.data)}catch{return}
   if(["message","attachment","voice","emote","system","presence","typing","typing-clear"].includes(data.type)){$("messages").querySelector(".connection-notice")?.remove()}
   if(data.type==="trivia-state"){renderTrivia(data)}
+  else if(data.type==="trivia-answer-locked"){window.triviaMyAnswerRound=data.round;window.triviaMyAnswer=data.choice;const panel=$("triviaVotePanel");if(panel&&!panel.hidden){const hint=panel.querySelector(".trivia-vote-hint");if(hint)hint.textContent="Your answer is locked: "+String.fromCharCode(65+data.choice)+". Wait for the result.";panel.querySelectorAll(".trivia-vote-button").forEach((button,index)=>{button.disabled=true;if(index===data.choice)button.classList.add("correct")})}}
   else if(data.type==="message"||data.type==="attachment"||data.type==="voice"){addMessage(data);if(data.uid!==uid){if(data.type==="message"&&isEmojiOnlyMessage(data.text))playEmojiSound(data.text);else playSound("receive")}}
   else if(data.type==="emote"){showEmote(data);if(data.uid!==uid)playEmojiSound(data.emoji)}
   else if(data.type==="system"){addSystem(data.text||"Room update");playSound("room")}
