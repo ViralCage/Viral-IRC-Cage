@@ -160,7 +160,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 </div><div class="status" id="status">Create a room or enter an invite code to join.</div></section>
 <section class="card chat" id="chat">
 <div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
-<div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
+<div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
 <div class="room-online" id="roomOnline"><button class="ghost room-online-toggle" id="roomOnlineToggle" type="button" aria-expanded="false" aria-controls="roomOnlinePanel"><span class="room-online-dot"></span>Online in this room <span class="room-online-count" id="roomOnlineCount">0</span><span aria-hidden="true">⌄</span></button><div class="room-online-panel" id="roomOnlinePanel" hidden><strong>ROOM MEMBERS</strong><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div></div>
 
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
@@ -231,10 +231,14 @@ function speakTrivia(text){
 }
 function enableTriviaVoice(){
  if(!("speechSynthesis" in window))return;
- triviaSpeechUnlocked=true;loadTriviaVoices();window.speechSynthesis.resume();
- const pending=triviaPendingSpeech;triviaPendingSpeech="";
- if(pending)speakTrivia(pending);
- const button=$("triviaVoiceEnable");if(button){button.textContent="Voice: On";button.setAttribute("aria-pressed","true")}
+ triviaSpeechUnlocked=!triviaSpeechUnlocked;soundEnabled=triviaSpeechUnlocked;
+ const button=$("triviaVoiceEnable");
+ if(triviaSpeechUnlocked){
+  loadTriviaVoices();window.speechSynthesis.resume();
+  const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending);
+ }else{triviaPendingSpeech="";window.speechSynthesis.cancel()}
+ if(button){button.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";button.setAttribute("aria-pressed",String(triviaSpeechUnlocked))}
+ const hint=$("triviaVoiceHint");if(hint)hint.textContent=triviaSpeechUnlocked?"Trivia announcements and countdown sounds are enabled.":"Trivia announcements and countdown sounds are muted.";
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
@@ -278,7 +282,7 @@ function renderTrivia(state){
   if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";reader.style.borderTop="0";reader.style.padding="8px 14px";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
   reader.innerHTML="";
   const voiceButton=document.createElement("button");voiceButton.type="button";voiceButton.id="triviaVoiceEnable";voiceButton.className="ghost";voiceButton.textContent=triviaSpeechUnlocked?"Voice: On":"Enable voice";voiceButton.setAttribute("aria-pressed",String(triviaSpeechUnlocked));voiceButton.addEventListener("click",enableTriviaVoice);reader.append(voiceButton);
-  const hint=document.createElement("span");hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked?"Trivia announcements are enabled.":"Tap once to allow spoken trivia announcements on this phone.";reader.append(hint);
+  const hint=document.createElement("span");hint.id="triviaVoiceHint";hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked?"Trivia announcements and countdown sounds are enabled.":"Tap once to enable trivia announcements and countdown sounds on this phone.";reader.append(hint);
  }
  let votePanel=$("triviaVotePanel");
  if(typeof window.triviaMyAnswerRound==="undefined"){window.triviaMyAnswerRound=-1;window.triviaMyAnswer=null}
@@ -321,7 +325,7 @@ function renderTrivia(state){
   }else{overlay.hidden=true;triviaCountdownTarget=0;triviaLastBeep=-1}
  }
 }
-let soundEnabled=localStorage.getItem("vcChatSounds")!=="off",audioContext=null;
+let soundEnabled=triviaSpeechUnlocked,audioContext=null;
 document.addEventListener("pointerdown",()=>{if(soundEnabled&&audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{passive:true});
 document.addEventListener("keydown",()=>{if(soundEnabled){try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{})}}catch{}}},{passive:true});
 function playSound(kind){
@@ -388,8 +392,7 @@ function playEmojiSound(value){
  }catch{}
 }
 function isEmojiOnlyMessage(value){return Object.keys({"😂":1,"🤣":1,"😭":1,"😢":1,"😡":1,"😍":1,"👏":1,"👍":1,"😮":1}).includes(String(value||"").trim().replace(/\uFE0F/g,""))}
-document.addEventListener("pointerdown",()=>{if(!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
-$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));$("soundToggle").addEventListener("click",()=>{soundEnabled=!soundEnabled;localStorage.setItem("vcChatSounds",soundEnabled?"on":"off");$("soundToggle").textContent="Sound: "+(soundEnabled?"On":"Off");$("soundToggle").setAttribute("aria-pressed",String(soundEnabled));if(soundEnabled)playSound("room")});
+document.addEventListener("pointerdown",()=>{if(soundEnabled&&!audioContext){const C=window.AudioContext||window.webkitAudioContext;if(C)audioContext=new C()}if(soundEnabled&&audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{once:true});
 const GUEST_SESSION_MS=7*24*60*60*1000;
 const GUEST_SESSION_KEY="vcChatGuestSession";
 let guestSession=null;
