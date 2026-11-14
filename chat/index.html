@@ -146,6 +146,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 .trivia-countdown.urgent .trivia-countdown-ring strong{color:#ffe1b0;text-shadow:0 0 28px #ff8b35}
 @media(max-width:520px){.trivia-countdown-ring{width:190px;height:190px}.trivia-countdown-ring strong{font-size:82px}.trivia-countdown-ring span{font-size:12px}.trivia-countdown-caption{font-size:11px}}
 
+.room-online{position:relative;padding:8px 17px;background:#08142d;border-bottom:1px solid #1a3675}.room-online-toggle{display:inline-flex;align-items:center;gap:9px;min-height:34px;padding:6px 11px!important;font-size:12px!important}.room-online-dot{width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-panel{position:absolute;z-index:20;top:calc(100% + 5px);left:16px;min-width:220px;max-width:min(360px,calc(100vw - 32px));padding:12px;background:#0b1935;border:1px solid #31518c;border-radius:12px;box-shadow:0 12px 32px #0009}.room-online-panel[hidden]{display:none}.room-online-panel strong{display:block;margin-bottom:9px;font-size:10px;letter-spacing:.12em;color:#8faeea}.room-online-count{color:#55e5c2;font-weight:800}.room-online-list{display:flex;gap:7px;flex-wrap:wrap}.room-online-user{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #29477f;border-radius:999px;background:#0d2043;color:#e6efff}.room-online-user:before{content:"";width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-empty{color:#91a6d0;font-size:12px}
 </style>
 </head>
 <body>
@@ -160,7 +161,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <section class="card chat" id="chat">
 <div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
 <div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
-<div class="room-online" id="roomOnline" aria-live="polite"><strong>ONLINE IN THIS ROOM</strong><span class="room-online-count" id="roomOnlineCount">0</span><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div>
+<div class="room-online" id="roomOnline"><button class="ghost room-online-toggle" id="roomOnlineToggle" type="button" aria-expanded="false" aria-controls="roomOnlinePanel"><span class="room-online-dot"></span>Online in this room <span class="room-online-count" id="roomOnlineCount">0</span><span aria-hidden="true">⌄</span></button><div class="room-online-panel" id="roomOnlinePanel" hidden><strong>ROOM MEMBERS</strong><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div></div>
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
@@ -372,6 +373,7 @@ $("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
+const roomOnlineToggle=$("roomOnlineToggle"),roomOnlinePanel=$("roomOnlinePanel");if(roomOnlineToggle&&roomOnlinePanel){roomOnlineToggle.addEventListener("click",()=>{const open=roomOnlineToggle.getAttribute("aria-expanded")!=="true";roomOnlineToggle.setAttribute("aria-expanded",String(open));roomOnlinePanel.hidden=!open});document.addEventListener("click",event=>{if(!event.target.closest("#roomOnline")){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}});document.addEventListener("keydown",event=>{if(event.key==="Escape"){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}})}
 function renderRoomMembers(members){
  const allMembers=Array.from(new Map((members||[]).filter(p=>p&&p.uid).map(p=>[String(p.uid),{uid:String(p.uid),name:String(p.name||"Guest").slice(0,24)}])).values());
  const roomMembers=allMembers.filter(p=>p.uid!==uid);
