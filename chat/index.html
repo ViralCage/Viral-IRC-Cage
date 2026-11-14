@@ -135,7 +135,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 .trivia-actions button{padding:8px 12px;min-height:38px;font-size:12px}
 @media(max-width:520px){.trivia-choices{grid-template-columns:1fr}.trivia-panel{padding:12px}}
 .trivia-countdown[hidden]{display:none!important}
-.trivia-countdown{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;filter:drop-shadow(0 8px 28px #000b)}
+.trivia-countdown{position:fixed!important;z-index:9999!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;filter:drop-shadow(0 8px 28px #000b);padding:22px;border-radius:28px;background:#050b18d9;backdrop-filter:blur(7px);}
 .trivia-countdown-ring{width:clamp(190px,30vw,250px);height:clamp(190px,30vw,250px);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid #43caff;background:radial-gradient(circle at 35% 25%,#263f77f2,#080f27f5 72%);box-shadow:0 0 0 12px #277bff24,0 0 48px #00cfffaa,inset 0 0 38px #176bff66}
 .trivia-countdown-ring strong{font-size:clamp(76px,12vw,112px);line-height:1;font-weight:950;letter-spacing:-.06em;color:#fff;text-shadow:0 0 28px #00cfff}
 .trivia-countdown-ring strong.tick-pulse{animation:vcTickPulse .22s ease-out}
@@ -289,7 +289,6 @@ function renderTrivia(state){
  else{
   if(!reader){reader=document.createElement("div");reader.id="triviaReaderControls";reader.className="trivia-vote-panel";reader.style.borderTop="0";reader.style.padding="8px 14px";const form=$("sendform");form.parentNode.insertBefore(reader,form)}
   reader.innerHTML="";
-  const inlineTimer=document.createElement("div");inlineTimer.id="triviaInlineTimer";inlineTimer.setAttribute("role","timer");inlineTimer.style.cssText="display:block;margin:0 0 10px;padding:12px 14px;border:2px solid #36cfff;border-radius:14px;background:linear-gradient(110deg,#102c59,#07152e);color:#fff;font-size:clamp(22px,5vw,32px);font-weight:950;text-align:center;letter-spacing:.08em;text-shadow:0 0 14px #00cfff";inlineTimer.textContent="30 SECONDS LEFT";reader.append(inlineTimer);
   const voiceButton=document.createElement("button");voiceButton.type="button";voiceButton.id="triviaVoiceEnable";voiceButton.className="ghost";voiceButton.textContent=triviaSpeechUnlocked&&soundEnabled?"Voice & sound: On":"Enable voice & sound";voiceButton.setAttribute("aria-pressed",String(triviaSpeechUnlocked));voiceButton.addEventListener("click",enableTriviaVoice);reader.append(voiceButton);
   const hint=document.createElement("span");hint.id="triviaVoiceHint";hint.className="trivia-vote-hint";hint.style.marginLeft="10px";hint.textContent=triviaSpeechUnlocked&&soundEnabled?"Trivia announcements and countdown sounds are enabled.":"Tap once to enable trivia announcements and countdown sounds.";reader.append(hint);
  }
@@ -322,7 +321,6 @@ function renderTrivia(state){
    const update=()=>{
     const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
     if(number)number.textContent=String(seconds);
-    const inlineTimer=$("triviaInlineTimer");if(inlineTimer){inlineTimer.textContent=(state.phase==="voting"?"CATEGORY VOTE · ":state.revealed?"NEXT QUESTION · ":"TIME LEFT · ")+seconds+" SECONDS";inlineTimer.style.borderColor=seconds<=5?"#ffb34d":"#36cfff";inlineTimer.style.textShadow=seconds<=5?"0 0 14px #ff9b25":"0 0 14px #00cfff"}
     overlay.classList.toggle("urgent",state.revealed?seconds<=3:seconds<=10);
     if(seconds!==triviaLastBeep){
      triviaLastBeep=seconds;
