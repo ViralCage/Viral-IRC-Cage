@@ -72,13 +72,18 @@ export default {
     if (url.pathname === "/rooms" && request.method === "POST") {
       let body={};try{body=await request.json()}catch{return json({error:"Invalid request body."},400,origin)}
       if(body.action!=="create")return json({error:"Unsupported room action."},400,origin);
-      for(const length of [3,4])for(let attempt=0;attempt<40;attempt++){
-        const code=makeRoomCode(length),id=env.CHAT_ROOMS.idFromName(code),stub=env.CHAT_ROOMS.get(id);
-        const result=await stub.fetch("https://room.internal/create",{method:"POST"});
-        if(result.status===201)return json({room:code},201,origin);
-        if(result.status!==409)return json({error:"Room service could not create a room."},503,origin);
+      // Prefer 4-digit codes to reduce collisions as the room directory grows.
+      for(const [length,attempts] of [[4,120],[3,40]]){
+        for(let attempt=0;attempt<attempts;attempt++){
+          const code=makeRoomCode(length),id=env.CHAT_ROOMS.idFromName(code),stub=env.CHAT_ROOMS.get(id);
+          let result;
+          try{result=await stub.fetch("https://room.internal/create",{method:"POST"})}
+          catch{return json({error:"The chat room service is temporarily unavailable. Please try again."},503,origin)}
+          if(result.status===201)return json({room:code},201,origin);
+          if(result.status!==409)return json({error:"The chat room service could not initialize a room (HTTP "+result.status+"). Please try again."},503,origin);
+        }
       }
-      return json({error:"Room capacity is busy. Please try again."},503,origin);
+      return json({error:"Room codes are temporarily busy. Please try again."},503,origin);
     }
     const match=url.pathname.match(/^\/rooms\/(\d{3,4})$/);
     if(match&&request.method==="POST"){
