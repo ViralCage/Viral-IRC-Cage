@@ -407,10 +407,10 @@ export class ChatRoom {
     if(!mentioned&&!isGreeting&&!isQuestion&&!lower.startsWith("/")){autoCount++;if(autoCount>=6){autoCount=0;periodic=true}await this.state.put("vcAiMessageCount",autoCount)}
     const command=lower.split(/\s+/)[0];
     const commands={
-      "/help":"Commands: /help, /rules, /quiz, !trivia, /riddle, /dice, /coin. During the 1-minute category vote, tap a category or type its name (for example Science or Sports). Then answer A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 1 minute; no joining needed.",
+      "/help":"Commands: /help, /rules, /quiz, !trivia, /riddle, /dice, /coin. During the 1-minute category vote, tap a category or type its name (for example Science or Sports). Then answer A, B, C or D within 30 seconds. VC God reveals each answer automatically, then starts the next question after 10 seconds; no joining needed.",
       "/rules":"ROOM RULES: Respect everyone; no bullying, harassment, hate speech or threats. No spam, flooding, scams, phishing, suspicious links or malicious files. Keep messages appropriate and never share sensitive personal information. VC GUARDIAN: automated monitoring checks flooding, repeated messages, excessive links and blocked adult links; risky file types are blocked. It can warn or temporarily mute. This is not a live human moderator. PRIVACY: this is a public room, not private or end-to-end encrypted. Messages and shared files are sent to connected room participants through the chat server. Do not share sensitive information.",
-      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 1 minute.",
-      "!trivia":"Starting a 1-minute category vote. Tap a category button or type its name, such as Science or Sports.",
+      "/quiz":"Type !trivia to start a solo-friendly quiz. No joining needed. Type A, B, C or D within 30 seconds; VC God reveals the answer and automatically starts the next question after 10 seconds.",
+      "!trivia":"Starting a 30-second category vote. Tap a category button or type its name, such as Science or Sports.",
       "!stop":"Stopping the live trivia game.",
       "!join":"Joining the live trivia game.",
       "!next":"Moving to the next trivia question.",
@@ -501,11 +501,11 @@ export class ChatRoom {
     }
     if(this.trivia&&this.trivia.phase==="question"&&!this.trivia.revealed&&this.trivia.deadlineAt&&Date.now()>=this.trivia.deadlineAt){
       this.trivia.revealed=true;this.trivia.phase="revealed";delete this.trivia.deadlineAt;
-      this.trivia.autoNextAt=Date.now()+30000;
+      this.trivia.autoNextAt=Date.now()+10000;
       await this.state.put("trivia",this.trivia);
       this.broadcast(this.triviaSnapshot());
       const answer=this.trivia.question.choices[this.trivia.question.a];
-      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 30 seconds.",at:Date.now()});
+      this.broadcast({type:"message",uid:"vc-room-bot",name:"VC God",text:"Time is up! Correct answer: "+String.fromCharCode(65+this.trivia.question.a)+") "+answer+". Next question starts in 10 seconds.",at:Date.now()});
       await this.state.setAlarm(this.trivia.autoNextAt);
     }
     if(this.trivia&&this.trivia.phase==="revealed"&&this.trivia.autoNextAt&&Date.now()>=this.trivia.autoNextAt){
