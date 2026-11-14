@@ -161,6 +161,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <section class="card chat" id="chat">
 <div class="chathead"><div><div class="roomtitle">VC CHAT ROOM · <span id="activecode"></span></div></div>
 <div class="headactions"><div class="substatus" id="peerstatus" role="status" aria-live="polite">Connecting…</div><button class="iconbtn search-toggle" id="toggleSearch" type="button" aria-label="Open message search" aria-expanded="false" title="Search messages">⌕</button><button class="ghost" id="soundToggle" type="button" aria-pressed="true">Sound: On</button><button class="ghost" id="copylink">Copy invite link</button><button class="ghost" id="showqr">QR Share</button><button class="ghost" id="leave">Leave room</button></div>
+<div class="room-online" id="roomOnline"><button class="ghost room-online-toggle" id="roomOnlineToggle" type="button" aria-expanded="false" aria-controls="roomOnlinePanel"><span class="room-online-dot"></span>Online in this room <span class="room-online-count" id="roomOnlineCount">0</span><span aria-hidden="true">⌄</span></button><div class="room-online-panel" id="roomOnlinePanel" hidden><strong>ROOM MEMBERS</strong><div class="room-online-list" id="roomOnlineList"><span class="room-online-empty">Waiting for room members…</span></div></div></div>
 
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
@@ -401,9 +402,14 @@ $("nickname").value=guestSession.nickname||"";
 const clean=v=>String(v||"").replace(/\D/g,"").slice(0,4);
 const safeName=v=>String(v||"file").replace(/[\\/<>:"|?*\x00-\x1f]/g,"_").slice(0,100)||"file";
 function status(v){$("status").textContent=v}
+const roomOnlineToggle=$("roomOnlineToggle"),roomOnlinePanel=$("roomOnlinePanel");if(roomOnlineToggle&&roomOnlinePanel){roomOnlineToggle.addEventListener("click",()=>{const open=roomOnlineToggle.getAttribute("aria-expanded")!=="true";roomOnlineToggle.setAttribute("aria-expanded",String(open));roomOnlinePanel.hidden=!open});document.addEventListener("click",event=>{if(!event.target.closest("#roomOnline")){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}});document.addEventListener("keydown",event=>{if(event.key==="Escape"){roomOnlinePanel.hidden=true;roomOnlineToggle.setAttribute("aria-expanded","false")}})}
 function renderRoomMembers(members){
- const roomMembers=Array.from(new Map((members||[]).filter(p=>p&&p.uid).map(p=>[String(p.uid),{uid:String(p.uid),name:String(p.name||"Guest").slice(0,24)}])).values()).filter(p=>p.uid!==uid);
+ const allMembers=Array.from(new Map((members||[]).filter(p=>p&&p.uid).map(p=>[String(p.uid),{uid:String(p.uid),name:String(p.name||"Guest").slice(0,24)}])).values());
+ const roomMembers=allMembers.filter(p=>p.uid!==uid);
  window.vcRoomMembers=roomMembers;
+ const list=$("roomOnlineList"),count=$("roomOnlineCount");
+ if(count)count.textContent=String(allMembers.length);
+ if(list){list.replaceChildren();if(!allMembers.length){const empty=document.createElement("span");empty.className="room-online-empty";empty.textContent="No users are currently in this room.";list.append(empty)}else allMembers.forEach(peer=>{const item=document.createElement("span");item.className="room-online-user";item.textContent=peer.name+(peer.uid===uid?" (You)":"");list.append(item)})}
  window.dispatchEvent(new CustomEvent("vc-room-members-update",{detail:{members:roomMembers}}));
 }
 function makePrivateCode(){const bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase()}
