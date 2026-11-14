@@ -188,6 +188,21 @@ body.room-active .composer{position:relative;z-index:5;flex-shrink:0;padding-bot
  .composer{padding:9px;gap:6px}
  .composer input{min-height:48px;font-size:16px}
 }
+
+/* Restore the spacious chat-room layout on desktop and mobile. */
+body.room-active .wrap{width:100%;max-width:none;height:calc(100dvh - 82px);margin:0;padding:10px 14px}
+body.room-active .chat{width:100%;min-width:0;border-radius:18px}
+body.room-active .messages{padding:22px;gap:14px}
+body.room-active .bubble{max-width:min(86%,900px);font-size:16px;line-height:1.65;padding:14px 18px}
+body.room-active .composer{padding:14px 16px}
+@media(max-width:700px){
+ body.room-active .wrap{width:100%;height:calc(100dvh - 70px);margin:0;padding:6px}
+ body.room-active .chat{width:100%;border-radius:14px}
+ body.room-active .messages{padding:14px;gap:12px}
+ body.room-active .bubble{max-width:94%;font-size:15px;line-height:1.6;padding:12px 14px}
+ body.room-active .composer{padding:10px 9px max(10px,env(safe-area-inset-bottom))}
+}
+
 </style>
 </head>
 <body>
