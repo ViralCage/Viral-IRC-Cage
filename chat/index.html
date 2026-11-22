@@ -134,17 +134,6 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 .trivia-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .trivia-actions button{padding:8px 12px;min-height:38px;font-size:12px}
 @media(max-width:520px){.trivia-choices{grid-template-columns:1fr}.trivia-panel{padding:12px}}
-.trivia-countdown[hidden]{display:none!important}
-.trivia-countdown{position:absolute!important;z-index:50!important;left:50%!important;right:auto!important;top:auto!important;bottom:14px!important;transform:translateX(-50%)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;filter:drop-shadow(0 0 20px #00cfff66);padding:0;border-radius:0;background:transparent!important;backdrop-filter:none!important;}
-.trivia-countdown-ring{width:clamp(190px,30vw,250px);height:clamp(190px,30vw,250px);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid #43caff;background:transparent!important;box-shadow:0 0 0 12px #277bff24,0 0 48px #00cfffaa,inset 0 0 38px #176bff66}
-.trivia-countdown-ring strong{font-size:clamp(76px,12vw,112px);line-height:1;font-weight:950;letter-spacing:-.06em;color:#fff;text-shadow:0 0 28px #00cfff}
-.trivia-countdown-ring strong.tick-pulse{animation:vcTickPulse .22s ease-out}
-@keyframes vcTickPulse{0%{transform:scale(.78);filter:brightness(1.8)}100%{transform:scale(1);filter:brightness(1)}}
-.trivia-countdown-ring span{font-size:14px;letter-spacing:.3em;font-weight:950;color:#a9eaff;margin-top:10px}
-.trivia-countdown-caption{font-size:13px;font-weight:950;letter-spacing:.2em;color:#d5e9ff;text-shadow:0 2px 8px #000}
-.trivia-countdown.urgent .trivia-countdown-ring{border-color:#ffb34d;box-shadow:0 0 0 12px #ff9b2525,0 0 50px #ff9b25cc,inset 0 0 38px #ff9b2555}
-.trivia-countdown.urgent .trivia-countdown-ring strong{color:#ffe1b0;text-shadow:0 0 28px #ff8b35}
-@media(max-width:520px){.trivia-countdown-ring{width:190px;height:190px}.trivia-countdown-ring strong{font-size:82px}.trivia-countdown-ring span{font-size:12px}.trivia-countdown-caption{font-size:11px}}
 
 .room-online{position:relative;padding:8px 17px;background:#08142d;border-bottom:1px solid #1a3675}.room-online-toggle{display:inline-flex;align-items:center;gap:9px;min-height:34px;padding:6px 11px!important;font-size:12px!important}.room-online-dot{width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-panel{position:absolute;z-index:20;top:calc(100% + 5px);left:16px;min-width:220px;max-width:min(360px,calc(100vw - 32px));padding:12px;background:#0b1935;border:1px solid #31518c;border-radius:12px;box-shadow:0 12px 32px #0009}.room-online-panel[hidden]{display:none}.room-online-panel strong{display:block;margin-bottom:9px;font-size:10px;letter-spacing:.12em;color:#8faeea}.room-online-count{color:#55e5c2;font-weight:800}.room-online-list{display:flex;gap:7px;flex-wrap:wrap}.room-online-user{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #29477f;border-radius:999px;background:#0d2043;color:#e6efff}.room-online-user:before{content:"";width:7px;height:7px;border-radius:50%;background:#4ce4b5;box-shadow:0 0 8px #4ce4b5}.room-online-empty{color:#91a6d0;font-size:12px}
 .god-trivia-start{display:inline-flex;align-items:center;justify-content:center;margin-top:10px;padding:9px 15px;border:1px solid #38c8ff;border-radius:10px;background:linear-gradient(110deg,#1769d2,#08a9c7);color:#fff;font-weight:850;cursor:pointer}.god-trivia-start:hover{filter:brightness(1.12)}
@@ -167,7 +156,7 @@ audio{width:min(280px,65vw);height:40px;margin-top:5px}
 <label class="searchbox" id="searchPanel" hidden><span aria-hidden="true">⌕</span><input id="messageSearch" type="search" placeholder="Search messages in this room…" aria-label="Search messages"><button class="search-close" id="closeSearch" type="button" aria-label="Close search" title="Close search">×</button></label></div>
 <div class="invite"><span>INVITE LINK</span><span class="inviteurl" id="inviteurl"></span></div>
 <div class="qrpanel" id="qrpanel" hidden><img id="qrimage" alt="QR code for chat invite"><div class="qrnote"><strong>Scan to join this room</strong>Open your phone camera and scan the code.</div></div>
-<div class="messages" id="messages"><div class="trivia-countdown" id="triviaCountdownOverlay" hidden aria-live="polite"><div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div><div class="trivia-countdown-caption">TICK · TICK · TIME LEFT</div></div><div class="empty">Your room is ready. Send a message to get started.</div></div>
+<div class="messages" id="messages"><div class="empty">Your room is ready. Send a message to get started.</div></div>
 <div class="typing" id="typing"></div>
 <div class="cameraBox" id="cameraBox" hidden><video id="cameraVideo" autoplay playsinline muted></video><div class="cameraActions"><button id="capture">Take photo</button><button class="ghost" id="closeCamera">Close camera</button></div></div>
 <div class="emojiTray" id="emojiTray" hidden></div>
@@ -250,10 +239,7 @@ async function enableTriviaVoice(){
 }
 function renderTrivia(state){
  if(triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
- let overlay=$("triviaCountdownOverlay");
- // The socket-open handler clears the messages container; recreate the timer if that removed it.
- if(!overlay){overlay=document.createElement("div");overlay.className="trivia-countdown";overlay.id="triviaCountdownOverlay";overlay.hidden=true;overlay.setAttribute("aria-live","polite");overlay.innerHTML='<div class="trivia-countdown-ring"><strong id="triviaCountdownNumber">30</strong><span>SECONDS</span></div>';$("messages").append(overlay)}
- if(!state.active){if(overlay)overlay.hidden=true;addMessage({uid:"vc-room-bot",name:"VC God",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
+ if(!state.active){addMessage({uid:"vc-room-bot",name:"VC God",text:"No live trivia game. Type !trivia to start one.",at:Date.now()});return}
  const lines=[];
  if(state.phase==="stopped"){
   lines.push("TRIVIA STOPPED · Type !trivia to start again.");
@@ -309,38 +295,28 @@ function renderTrivia(state){
   const buttons=votePanel.querySelector(".trivia-vote-buttons");
   (state.choices||[]).slice(0,4).forEach((choice,index)=>{const letter=String.fromCharCode(65+index),b=document.createElement("button");b.type="button";b.className="trivia-vote-button";b.textContent=letter+" · "+choice;b.disabled=!!state.revealed||window.triviaMyAnswer!==null;if(state.revealed&&index===state.correctIndex)b.classList.add("correct");if(window.triviaMyAnswer===index)b.classList.add("correct");b.addEventListener("click",()=>{if(!state.revealed&&window.triviaMyAnswer===null)sendPacket({type:"trivia",action:"answer",choice:index})});buttons.append(b)});
  }else if(votePanel){votePanel.hidden=true}
- if(overlay){
-  const number=$("triviaCountdownNumber");
-  const label=overlay.querySelector(".trivia-countdown-ring span");
-  const target=state.revealed?state.autoNextAt:state.deadlineAt;
-  const running=(state.phase==="voting"&&state.deadlineAt)||(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
-  if(running&&target){
-   overlay.hidden=false;
-   if(triviaCountdownTarget!==target){triviaCountdownTarget=target;triviaLastBeep=-1;triviaLastFastTick=-1}
-   if(label)label.textContent=state.phase==="voting"?"VOTE":state.revealed?"NEXT":"SECONDS";
-    const update=()=>{
-    const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
-    if(number)number.textContent=String(seconds);
-    overlay.classList.toggle("urgent",state.revealed?seconds<=3:seconds<=10);
-    if(seconds!==triviaLastBeep){
-     triviaLastBeep=seconds;
-     if(number){number.classList.remove("tick-pulse");void number.offsetWidth;number.classList.add("tick-pulse")}
-     if(state.phase==="question"&&!state.revealed&&triviaQuestionSpeechReady&&triviaSpeechUnlocked&&triviaReadAloud&&seconds>=0&&seconds!==triviaLastSpokenSecond&&!window.speechSynthesis.speaking){
-      triviaLastSpokenSecond=seconds;
-      const countUtterance=new SpeechSynthesisUtterance(String(seconds));
-      countUtterance.lang="en-CA";countUtterance.rate=1.65;countUtterance.pitch=1;
-      if(!triviaVoices.length)loadTriviaVoices();
-      const countVoice=triviaVoices.find(v=>/^en(-CA|-US|-GB)?$/i.test(v.lang));
-      if(countVoice)countUtterance.voice=countVoice;
-      window.speechSynthesis.speak(countUtterance);
-     }
+ const target=state.revealed?state.autoNextAt:state.deadlineAt;
+ const running=(state.phase==="voting"&&state.deadlineAt)||(state.phase==="question"&&!state.revealed&&state.deadlineAt)||(state.revealed&&state.autoNextAt);
+ if(running&&target){
+  if(triviaCountdownTarget!==target){triviaCountdownTarget=target;triviaLastBeep=-1;triviaLastFastTick=-1}
+  const update=()=>{
+   const seconds=Math.max(0,Math.ceil((target-Date.now())/1000));
+   if(seconds!==triviaLastBeep){
+    triviaLastBeep=seconds;
+    if(state.phase==="question"&&!state.revealed&&triviaQuestionSpeechReady&&triviaSpeechUnlocked&&triviaReadAloud&&seconds>=0&&seconds!==triviaLastSpokenSecond&&!window.speechSynthesis.speaking){
+     triviaLastSpokenSecond=seconds;
+     const countUtterance=new SpeechSynthesisUtterance(String(seconds));
+     countUtterance.lang="en-CA";countUtterance.rate=1.65;countUtterance.pitch=1;
+     if(!triviaVoices.length)loadTriviaVoices();
+     const countVoice=triviaVoices.find(v=>/^en(-CA|-US|-GB)?$/i.test(v.lang));
+     if(countVoice)countUtterance.voice=countVoice;
+     window.speechSynthesis.speak(countUtterance);
     }
-    
-    if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
-   };
-   update();triviaCountdownTimer=setInterval(update,200);
-  }else{overlay.hidden=true;triviaCountdownTarget=0;triviaLastBeep=-1}
- }
+   }
+   if(seconds<=0&&triviaCountdownTimer){clearInterval(triviaCountdownTimer);triviaCountdownTimer=null}
+  };
+  update();triviaCountdownTimer=setInterval(update,200);
+ }else{triviaCountdownTarget=0;triviaLastBeep=-1}
 }
 let soundEnabled=triviaSpeechUnlocked,audioContext=null;
 document.addEventListener("pointerdown",()=>{if(soundEnabled&&audioContext&&audioContext.state==="suspended")audioContext.resume().catch(()=>{})},{passive:true});
