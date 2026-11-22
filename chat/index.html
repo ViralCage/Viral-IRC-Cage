@@ -220,16 +220,23 @@ function speakTrivia(text,onComplete){
  };
  speakNext();
 }
-async function enableTriviaVoice(){
- // A tap must enable audio even on desktop, where speech used to start in the "On" state
- // before the browser had granted an audio playback gesture.
- const enabling=!(triviaSpeechUnlocked&&soundEnabled&&audioContext&&audioContext.state==="running");
+function enableTriviaVoice(){
+ // Unlock speech synchronously in the tap handler; mobile browsers can lose the
+ // playback gesture if an awaited AudioContext promise runs first.
+ const enabling=!(triviaSpeechUnlocked&&soundEnabled);
  triviaSpeechUnlocked=enabling;soundEnabled=enabling;
  const button=$("triviaVoiceEnable");
  if(enabling){
-  // Unlock Web Audio directly inside this user gesture. Do not depend on speechSynthesis support.
-  try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")await audioContext.resume()}}catch{}
-  if("speechSynthesis" in window){loadTriviaVoices();window.speechSynthesis.resume();const pending=triviaPendingSpeech;triviaPendingSpeech="";if(pending)speakTrivia(pending)}
+  if("speechSynthesis" in window){
+   loadTriviaVoices();
+   window.speechSynthesis.cancel();
+   window.speechSynthesis.resume();
+   // A silent utterance primes speech playback on mobile Safari/Chrome.
+   try{const unlockUtterance=new SpeechSynthesisUtterance(" ");unlockUtterance.volume=0;unlockUtterance.rate=1;window.speechSynthesis.speak(unlockUtterance)}catch{}
+   const pending=triviaPendingSpeech;triviaPendingSpeech="";
+   if(pending)setTimeout(()=>speakTrivia(pending),80);
+  }
+  try{const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx){if(!audioContext)audioContext=new AudioCtx();if(audioContext.state==="suspended")audioContext.resume().catch(()=>{})}}catch{}
  }else{
   triviaPendingSpeech="";
   if("speechSynthesis" in window)window.speechSynthesis.cancel();
@@ -310,6 +317,7 @@ function renderTrivia(state){
      if(!triviaVoices.length)loadTriviaVoices();
      const countVoice=triviaVoices.find(v=>/^en(-CA|-US|-GB)?$/i.test(v.lang));
      if(countVoice)countUtterance.voice=countVoice;
+     window.speechSynthesis.resume();
      window.speechSynthesis.speak(countUtterance);
     }
    }
